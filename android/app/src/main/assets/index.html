@@ -329,16 +329,23 @@
     display: flex;
     align-items: stretch;
     justify-content: space-around;
-    height: 54px;
+    height: calc(54px + env(safe-area-inset-bottom, 0px));
+    min-height: 54px;
     background: var(--bg2);
     border-top: 1px solid var(--border);
-    flex: 0 0 54px;
-    z-index: 20;
-    padding-bottom: env(safe-area-inset-bottom, 0);
+    flex: 0 0 auto;
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    width: 100%;
+    overflow: hidden;
+    contain: paint layout;
+    box-sizing: border-box;
   }
 
   .bar-btn {
-    flex: 1;
+    flex: 1 1 0;
+    min-width: 0;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -347,11 +354,12 @@
     border: none;
     color: var(--fg);
     cursor: pointer;
-    padding: 3px 2px;
-    gap: 3px;
+    padding: 2px 2px;
+    gap: 2px;
     position: relative;
     border-radius: 8px;
-    margin: 3px 2px;
+    margin: 2px 1px;
+    overflow: hidden;
     transition: all 0.12s ease;
     -webkit-tap-highlight-color: transparent;
   }
@@ -363,22 +371,34 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
     color: #a9b1d6;
     transition: color 0.15s ease;
+  }
+  .bar-btn .btn-icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 20px;
+    max-height: 20px;
   }
   .bar-btn:active .btn-icon {
     color: var(--accent);
   }
   .bar-btn .btn-label {
-    font-size: 9px;
+    font-size: 8.5px;
     font-weight: 600;
     text-align: center;
-    line-height: 1.15;
+    line-height: 1.1;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
     color: var(--muted);
     letter-spacing: -0.01em;
+    flex-shrink: 0;
   }
 
   /* Hover Mode Button Special State */
@@ -827,11 +847,11 @@
     #panel {
       left: auto;
       right: max(12px, env(safe-area-inset-right, 12px));
-      top: max(10px, env(safe-area-inset-top, 10px));
-      bottom: max(10px, env(safe-area-inset-bottom, 10px));
-      width: min(50vw, 480px);
-      max-width: 480px;
-      max-height: calc(100vh - 20px);
+      top: max(8px, env(safe-area-inset-top, 8px));
+      bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+      width: min(48vw, 460px);
+      max-width: 460px;
+      max-height: calc(100vh - 68px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
       border-radius: 12px;
       box-shadow: -6px 0 32px rgba(0, 0, 0, 0.65), 0 8px 24px rgba(0, 0, 0, 0.5);
       animation: popInRight 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
@@ -1599,6 +1619,56 @@
     flex-shrink: 0;
     max-width: 175px;
   }
+  .settings-key-config-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    max-width: 210px;
+    flex-shrink: 0;
+  }
+  .cfg-key-input {
+    flex: 1;
+    min-width: 0;
+    background: #191b29;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 11px;
+    padding: 5px 7px;
+    outline: none;
+  }
+  .cfg-key-input:focus {
+    border-color: var(--accent);
+  }
+  .cfg-record-btn {
+    background: rgba(122, 162, 247, 0.14);
+    border: 1px solid rgba(122, 162, 247, 0.35);
+    border-radius: 6px;
+    color: var(--accent);
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 5px 7px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.12s ease;
+  }
+  .cfg-record-btn:active {
+    background: rgba(122, 162, 247, 0.3);
+  }
+  .cfg-record-btn.recording {
+    background: #f7768e !important;
+    border-color: #f7768e !important;
+    color: #1a1b26 !important;
+    font-weight: 700;
+    animation: pulseRec 0.8s infinite alternate;
+  }
+  @keyframes pulseRec {
+    from { opacity: 0.7; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1.02); }
+  }
 
   /* --- Text Selection & Floating Quick Copy Toolbar --- */
   ::selection {
@@ -2068,88 +2138,284 @@
         </div>
 
         <!-- Keyboard Shortcuts -->
-        <div class="settings-card-subtitle">Keyboard Shortcuts</div>
+        <div class="settings-card-subtitle">Keyboard Shortcuts (Type or Record)</div>
 
         <div class="settings-row-config">
           <div class="settings-config-label">
-            <span class="settings-config-name">Flip Card Key</span>
-            <span class="settings-config-desc">Keys that flip the card front/back</span>
+            <span class="settings-config-name">Flip Card</span>
+            <span class="settings-config-desc">Keys to flip card front / back</span>
           </div>
-          <select id="cfgKeyFlip" class="cfg-select">
-            <option value="space_enter_k_j" selected>Space / Enter / K / J</option>
-            <option value="space_enter">Space / Enter only</option>
-            <option value="space_only">Space only</option>
-          </select>
+          <div class="settings-key-config-row">
+            <input type="text" id="cfgKeyFlip" class="cfg-key-input" placeholder="e.g. Space, Enter">
+            <button class="cfg-record-btn" data-target="cfgKeyFlip" title="Press to record key">⌨️ Record</button>
+          </div>
         </div>
 
         <div class="settings-row-config">
           <div class="settings-config-label">
-            <span class="settings-config-name">Next Card Key</span>
-            <span class="settings-config-desc">Keys to advance to next flashcard</span>
+            <span class="settings-config-name">Next Card</span>
+            <span class="settings-config-desc">Keys to advance to next card</span>
           </div>
-          <select id="cfgKeyNext" class="cfg-select">
-            <option value="right_n_l_d" selected>ArrowRight / N / L / D</option>
-            <option value="right_n">ArrowRight / N</option>
-            <option value="right_only">ArrowRight only</option>
-          </select>
+          <div class="settings-key-config-row">
+            <input type="text" id="cfgKeyNext" class="cfg-key-input" placeholder="e.g. ArrowRight, n">
+            <button class="cfg-record-btn" data-target="cfgKeyNext" title="Press to record key">⌨️ Record</button>
+          </div>
         </div>
 
         <div class="settings-row-config">
           <div class="settings-config-label">
-            <span class="settings-config-name">Prev Card Key</span>
-            <span class="settings-config-desc">Keys to go to previous flashcard</span>
+            <span class="settings-config-name">Prev Card</span>
+            <span class="settings-config-desc">Keys to go to previous card</span>
           </div>
-          <select id="cfgKeyPrev" class="cfg-select">
-            <option value="left_p_h_a" selected>ArrowLeft / P / H / A</option>
-            <option value="left_p">ArrowLeft / P</option>
-            <option value="left_only">ArrowLeft only</option>
-          </select>
+          <div class="settings-key-config-row">
+            <input type="text" id="cfgKeyPrev" class="cfg-key-input" placeholder="e.g. ArrowLeft, p">
+            <button class="cfg-record-btn" data-target="cfgKeyPrev" title="Press to record key">⌨️ Record</button>
+          </div>
         </div>
 
         <div class="settings-row-config">
           <div class="settings-config-label">
-            <span class="settings-config-name">Fullscreen Key</span>
-            <span class="settings-config-desc">Key to toggle fullscreen mode</span>
+            <span class="settings-config-name">Next Page (2-Col)</span>
+            <span class="settings-config-desc">Keys to advance page in 2-column mode</span>
           </div>
-          <select id="cfgKeyFullscreen" class="cfg-select">
-            <option value="f" selected>F key</option>
-            <option value="f_f11">F / F11</option>
-            <option value="none">Disabled</option>
-          </select>
+          <div class="settings-key-config-row">
+            <input type="text" id="cfgKeyNextPage" class="cfg-key-input" placeholder="e.g. ], PageDown">
+            <button class="cfg-record-btn" data-target="cfgKeyNextPage" title="Press to record key">⌨️ Record</button>
+          </div>
         </div>
-
-        <!-- Gamepad Mapping -->
-        <div class="settings-card-subtitle">Gamepad &amp; Controller Mapping</div>
 
         <div class="settings-row-config">
           <div class="settings-config-label">
-            <span class="settings-config-name">Flip Card Button</span>
-            <span class="settings-config-desc">Controller button to flip card</span>
+            <span class="settings-config-name">Prev Page (2-Col)</span>
+            <span class="settings-config-desc">Keys to go to previous page</span>
+          </div>
+          <div class="settings-key-config-row">
+            <input type="text" id="cfgKeyPrevPage" class="cfg-key-input" placeholder="e.g. [, PageUp">
+            <button class="cfg-record-btn" data-target="cfgKeyPrevPage" title="Press to record key">⌨️ Record</button>
+          </div>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Toggle 2-Column</span>
+            <span class="settings-config-desc">Keys to switch between 1-col &amp; 2-col</span>
+          </div>
+          <div class="settings-key-config-row">
+            <input type="text" id="cfgKeyToggleCol" class="cfg-key-input" placeholder="e.g. c, t">
+            <button class="cfg-record-btn" data-target="cfgKeyToggleCol" title="Press to record key">⌨️ Record</button>
+          </div>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Toggle Fullscreen</span>
+            <span class="settings-config-desc">Keys to toggle immersive fullscreen</span>
+          </div>
+          <div class="settings-key-config-row">
+            <input type="text" id="cfgKeyFullscreen" class="cfg-key-input" placeholder="e.g. f, F11">
+            <button class="cfg-record-btn" data-target="cfgKeyFullscreen" title="Press to record key">⌨️ Record</button>
+          </div>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Shuffle Cards</span>
+            <span class="settings-config-desc">Keys to randomize cards order</span>
+          </div>
+          <div class="settings-key-config-row">
+            <input type="text" id="cfgKeyShuffle" class="cfg-key-input" placeholder="e.g. s, r">
+            <button class="cfg-record-btn" data-target="cfgKeyShuffle" title="Press to record key">⌨️ Record</button>
+          </div>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Exit Mode</span>
+            <span class="settings-config-desc">Keys to exit flashcards to reader</span>
+          </div>
+          <div class="settings-key-config-row">
+            <input type="text" id="cfgKeyExit" class="cfg-key-input" placeholder="e.g. Escape, q">
+            <button class="cfg-record-btn" data-target="cfgKeyExit" title="Press to record key">⌨️ Record</button>
+          </div>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Font Zoom In / Out</span>
+            <span class="settings-config-desc">Keys to increase or decrease font size</span>
+          </div>
+          <div class="settings-key-config-row">
+            <input type="text" id="cfgKeyZoomIn" class="cfg-key-input" style="width:45px;" placeholder="+">
+            <input type="text" id="cfgKeyZoomOut" class="cfg-key-input" style="width:45px;" placeholder="-">
+          </div>
+        </div>
+
+        <!-- Gamepad Mapping (Xbox One Controller Standards) -->
+        <div class="settings-card-subtitle">Xbox One Gamepad Controller Mapping</div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Flip Card</span>
+            <span class="settings-config-desc">Controller button to flip front/back</span>
           </div>
           <select id="cfgGpFlip" class="cfg-select">
-            <option value="a_dpad" selected>Button A / Cross / D-Pad</option>
-            <option value="a_only">Button A / Cross only</option>
-            <option value="r2">Trigger R2 / RT</option>
+            <option value="A">A Button</option>
+            <option value="B">B Button</option>
+            <option value="X">X Button</option>
+            <option value="Y">Y Button</option>
+            <option value="LB">LB (Left Bumper)</option>
+            <option value="RB">RB (Right Bumper)</option>
+            <option value="LT">LT (Left Trigger)</option>
+            <option value="RT">RT (Right Trigger)</option>
+            <option value="DpadUp">D-Pad Up</option>
+            <option value="DpadDown">D-Pad Down</option>
+            <option value="DpadLeft">D-Pad Left</option>
+            <option value="DpadRight">D-Pad Right</option>
+            <option value="Start">Start / Menu (☰)</option>
+            <option value="Back">Back / View (⧉)</option>
+            <option value="LS">LS Click (Left Stick)</option>
+            <option value="RS">RS Click (Right Stick)</option>
+            <option value="none">None (Disabled)</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Next Card</span>
+            <span class="settings-config-desc">Advance to next flashcard</span>
+          </div>
+          <select id="cfgGpNext" class="cfg-select">
+            <option value="RB">RB (Right Bumper)</option>
+            <option value="RT">RT (Right Trigger)</option>
+            <option value="DpadRight">D-Pad Right</option>
+            <option value="A">A Button</option>
+            <option value="B">B Button</option>
+            <option value="X">X Button</option>
+            <option value="Y">Y Button</option>
+            <option value="LB">LB (Left Bumper)</option>
+            <option value="LT">LT (Left Trigger)</option>
+            <option value="none">None (Disabled)</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Prev Card</span>
+            <span class="settings-config-desc">Return to previous flashcard</span>
+          </div>
+          <select id="cfgGpPrev" class="cfg-select">
+            <option value="LB">LB (Left Bumper)</option>
+            <option value="LT">LT (Left Trigger)</option>
+            <option value="DpadLeft">D-Pad Left</option>
+            <option value="A">A Button</option>
+            <option value="B">B Button</option>
+            <option value="X">X Button</option>
+            <option value="Y">Y Button</option>
+            <option value="RB">RB (Right Bumper)</option>
+            <option value="RT">RT (Right Trigger)</option>
+            <option value="none">None (Disabled)</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Next Page (2-Col)</span>
+            <span class="settings-config-desc">Page forward in 2-column mode</span>
+          </div>
+          <select id="cfgGpNextPage" class="cfg-select">
+            <option value="RT">RT (Right Trigger)</option>
+            <option value="RB">RB (Right Bumper)</option>
+            <option value="DpadRight">D-Pad Right</option>
+            <option value="RS">RS Click</option>
+            <option value="none">None (Disabled)</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Prev Page (2-Col)</span>
+            <span class="settings-config-desc">Page backward in 2-column mode</span>
+          </div>
+          <select id="cfgGpPrevPage" class="cfg-select">
+            <option value="LT">LT (Left Trigger)</option>
+            <option value="LB">LB (Left Bumper)</option>
+            <option value="DpadLeft">D-Pad Left</option>
+            <option value="LS">LS Click</option>
+            <option value="none">None (Disabled)</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Toggle 2-Column</span>
+            <span class="settings-config-desc">Switch between 1-col &amp; 2-col mode</span>
+          </div>
+          <select id="cfgGpToggleCol" class="cfg-select">
+            <option value="X">X Button</option>
+            <option value="Y">Y Button</option>
+            <option value="Start">Start / Menu</option>
+            <option value="Back">Back / View</option>
+            <option value="none">None (Disabled)</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Shuffle Cards</span>
+            <span class="settings-config-desc">Randomize flashcards order</span>
+          </div>
+          <select id="cfgGpShuffle" class="cfg-select">
+            <option value="Y">Y Button</option>
+            <option value="X">X Button</option>
+            <option value="Back">Back / View</option>
+            <option value="none">None (Disabled)</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Toggle Fullscreen</span>
+            <span class="settings-config-desc">Switch fullscreen on/off</span>
+          </div>
+          <select id="cfgGpFullscreen" class="cfg-select">
+            <option value="RS">RS Click (Right Stick)</option>
+            <option value="LS">LS Click (Left Stick)</option>
+            <option value="Start">Start / Menu</option>
+            <option value="Back">Back / View</option>
+            <option value="none">None (Disabled)</option>
           </select>
         </div>
 
         <div class="settings-row-config">
           <div class="settings-config-label">
             <span class="settings-config-name">Back / Exit Button</span>
-            <span class="settings-config-desc">Button to flip back or exit mode</span>
+            <span class="settings-config-desc">Flip back to front or exit mode</span>
           </div>
           <select id="cfgGpBack" class="cfg-select">
-            <option value="b" selected>Button B / Circle</option>
-            <option value="select">Select / Share</option>
+            <option value="B">B Button</option>
+            <option value="Back">Back / View</option>
+            <option value="Start">Start / Menu</option>
+            <option value="none">None (Disabled)</option>
           </select>
         </div>
 
         <div class="settings-row-config">
           <div class="settings-config-label">
-            <span class="settings-config-name">Next / Prev Bumpers</span>
-            <span class="settings-config-desc">R1/L1 bumpers navigate cards/pages</span>
+            <span class="settings-config-name">Card Font Zoom</span>
+            <span class="settings-config-desc">Buttons to scale flashcard text size</span>
           </div>
-          <input type="checkbox" id="cfgGpBumpers" class="cfg-toggle" checked>
+          <div style="display:flex; gap:6px;">
+            <select id="cfgGpZoomIn" class="cfg-select" style="max-width:85px;">
+              <option value="DpadUp">D-Up (+)</option>
+              <option value="RT">RT (+)</option>
+              <option value="none">None</option>
+            </select>
+            <select id="cfgGpZoomOut" class="cfg-select" style="max-width:85px;">
+              <option value="DpadDown">D-Down (-)</option>
+              <option value="LT">LT (-)</option>
+              <option value="none">None</option>
+            </select>
+          </div>
         </div>
 
         <div class="settings-row-config">
@@ -2160,11 +2426,19 @@
           <input type="checkbox" id="cfgGpAnalog" class="cfg-toggle" checked>
         </div>
 
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Reader Mode Gamepad</span>
+            <span class="settings-config-desc">Navigate document in reader mode with controller</span>
+          </div>
+          <input type="checkbox" id="cfgGpReader" class="cfg-toggle" checked>
+        </div>
+
         <button class="settings-row-btn" id="btnResetControls" style="margin-top:6px;">
           <span class="settings-row-icon">⚙️</span>
           <div class="settings-row-content">
             <span class="settings-row-name" style="color:var(--accent);">Reset All Controls to Default</span>
-            <span class="settings-row-desc">Restore default keyboard, gamepad &amp; gesture settings</span>
+            <span class="settings-row-desc">Restore standard Xbox One gamepad &amp; keyboard settings</span>
           </div>
         </button>
       </div>
@@ -2229,8 +2503,15 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v1.0.3</span>
+          <span class="settings-row-badge" id="appVersionSub">v1.0.8</span>
         </button>
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Auto-download Updates</span>
+            <span class="settings-config-desc">Automatically download and trigger install when new version is available</span>
+          </div>
+          <input type="checkbox" id="cfgAutoDownloadUpdate" class="cfg-toggle" checked>
+        </div>
         <button class="settings-row-btn" id="btnOpenGitHubRepo">
           <span class="settings-row-icon">🌐</span>
           <div class="settings-row-content">
@@ -2310,7 +2591,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '1.0.7';
+      window.AndroidBridge.getAppVersion() : '1.0.8';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   let currentDocName = 'Guide.md';
@@ -2482,14 +2763,34 @@
     gestureEdgeTap: true,
     gesturePinch: true,
     swipeSensitivity: 45,
-    keyFlip: 'space_enter_k_j',
-    keyNext: 'right_n_l_d',
-    keyPrev: 'left_p_h_a',
-    keyFullscreen: 'f',
-    gpFlip: 'a_dpad',
-    gpBack: 'b',
-    gpBumpers: true,
-    gpAnalog: true
+    // Keyboard mapping
+    keyFlip: 'Space, Enter, ArrowUp, ArrowDown, k, j',
+    keyNext: 'ArrowRight, n, l, d',
+    keyPrev: 'ArrowLeft, p, h, a',
+    keyNextPage: '], PageDown, ., >',
+    keyPrevPage: '[, PageUp, ,, <',
+    keyToggleCol: 'c, t',
+    keyFullscreen: 'f, F11',
+    keyShuffle: 's, r',
+    keyExit: 'Escape, Backspace, q',
+    keyZoomIn: '+, =',
+    keyZoomOut: '-, _',
+    // Gamepad mapping (Standard Xbox One Controller buttons)
+    gpFlip: 'A',
+    gpNext: 'RB',
+    gpPrev: 'LB',
+    gpNextPage: 'RT',
+    gpPrevPage: 'LT',
+    gpToggleCol: 'X',
+    gpShuffle: 'Y',
+    gpFullscreen: 'RS',
+    gpBack: 'B',
+    gpZoomIn: 'DpadUp',
+    gpZoomOut: 'DpadDown',
+    gpAnalog: true,
+    gpReader: true,
+    // Auto Updates
+    autoDownloadUpdate: true
   };
 
   let controlsConfig = Object.assign({}, DEFAULT_CONTROLS_CONFIG);
@@ -2507,14 +2808,33 @@
   const cfgGestureEdgeTap = document.getElementById('cfgGestureEdgeTap');
   const cfgGesturePinch = document.getElementById('cfgGesturePinch');
   const cfgSwipeSensitivity = document.getElementById('cfgSwipeSensitivity');
+
   const cfgKeyFlip = document.getElementById('cfgKeyFlip');
   const cfgKeyNext = document.getElementById('cfgKeyNext');
   const cfgKeyPrev = document.getElementById('cfgKeyPrev');
+  const cfgKeyNextPage = document.getElementById('cfgKeyNextPage');
+  const cfgKeyPrevPage = document.getElementById('cfgKeyPrevPage');
+  const cfgKeyToggleCol = document.getElementById('cfgKeyToggleCol');
   const cfgKeyFullscreen = document.getElementById('cfgKeyFullscreen');
+  const cfgKeyShuffle = document.getElementById('cfgKeyShuffle');
+  const cfgKeyExit = document.getElementById('cfgKeyExit');
+  const cfgKeyZoomIn = document.getElementById('cfgKeyZoomIn');
+  const cfgKeyZoomOut = document.getElementById('cfgKeyZoomOut');
+
   const cfgGpFlip = document.getElementById('cfgGpFlip');
+  const cfgGpNext = document.getElementById('cfgGpNext');
+  const cfgGpPrev = document.getElementById('cfgGpPrev');
+  const cfgGpNextPage = document.getElementById('cfgGpNextPage');
+  const cfgGpPrevPage = document.getElementById('cfgGpPrevPage');
+  const cfgGpToggleCol = document.getElementById('cfgGpToggleCol');
+  const cfgGpShuffle = document.getElementById('cfgGpShuffle');
+  const cfgGpFullscreen = document.getElementById('cfgGpFullscreen');
   const cfgGpBack = document.getElementById('cfgGpBack');
-  const cfgGpBumpers = document.getElementById('cfgGpBumpers');
+  const cfgGpZoomIn = document.getElementById('cfgGpZoomIn');
+  const cfgGpZoomOut = document.getElementById('cfgGpZoomOut');
   const cfgGpAnalog = document.getElementById('cfgGpAnalog');
+  const cfgGpReader = document.getElementById('cfgGpReader');
+  const cfgAutoDownloadUpdate = document.getElementById('cfgAutoDownloadUpdate');
   const btnResetControls = document.getElementById('btnResetControls');
 
   function saveControlsConfig() {
@@ -2532,17 +2852,36 @@
     if (cfgGesturePinch) cfgGesturePinch.checked = (controlsConfig.gesturePinch !== false);
     if (cfgSwipeSensitivity) cfgSwipeSensitivity.value = String(controlsConfig.swipeSensitivity || 45);
 
-    if (cfgKeyFlip) cfgKeyFlip.value = controlsConfig.keyFlip || 'space_enter_k_j';
-    if (cfgKeyNext) cfgKeyNext.value = controlsConfig.keyNext || 'right_n_l_d';
-    if (cfgKeyPrev) cfgKeyPrev.value = controlsConfig.keyPrev || 'left_p_h_a';
-    if (cfgKeyFullscreen) cfgKeyFullscreen.value = controlsConfig.keyFullscreen || 'f';
+    if (cfgKeyFlip) cfgKeyFlip.value = controlsConfig.keyFlip || DEFAULT_CONTROLS_CONFIG.keyFlip;
+    if (cfgKeyNext) cfgKeyNext.value = controlsConfig.keyNext || DEFAULT_CONTROLS_CONFIG.keyNext;
+    if (cfgKeyPrev) cfgKeyPrev.value = controlsConfig.keyPrev || DEFAULT_CONTROLS_CONFIG.keyPrev;
+    if (cfgKeyNextPage) cfgKeyNextPage.value = controlsConfig.keyNextPage || DEFAULT_CONTROLS_CONFIG.keyNextPage;
+    if (cfgKeyPrevPage) cfgKeyPrevPage.value = controlsConfig.keyPrevPage || DEFAULT_CONTROLS_CONFIG.keyPrevPage;
+    if (cfgKeyToggleCol) cfgKeyToggleCol.value = controlsConfig.keyToggleCol || DEFAULT_CONTROLS_CONFIG.keyToggleCol;
+    if (cfgKeyFullscreen) cfgKeyFullscreen.value = controlsConfig.keyFullscreen || DEFAULT_CONTROLS_CONFIG.keyFullscreen;
+    if (cfgKeyShuffle) cfgKeyShuffle.value = controlsConfig.keyShuffle || DEFAULT_CONTROLS_CONFIG.keyShuffle;
+    if (cfgKeyExit) cfgKeyExit.value = controlsConfig.keyExit || DEFAULT_CONTROLS_CONFIG.keyExit;
+    if (cfgKeyZoomIn) cfgKeyZoomIn.value = controlsConfig.keyZoomIn || DEFAULT_CONTROLS_CONFIG.keyZoomIn;
+    if (cfgKeyZoomOut) cfgKeyZoomOut.value = controlsConfig.keyZoomOut || DEFAULT_CONTROLS_CONFIG.keyZoomOut;
 
-    if (cfgGpFlip) cfgGpFlip.value = controlsConfig.gpFlip || 'a_dpad';
-    if (cfgGpBack) cfgGpBack.value = controlsConfig.gpBack || 'b';
-    if (cfgGpBumpers) cfgGpBumpers.checked = (controlsConfig.gpBumpers !== false);
+    if (cfgGpFlip) cfgGpFlip.value = controlsConfig.gpFlip || 'A';
+    if (cfgGpNext) cfgGpNext.value = controlsConfig.gpNext || 'RB';
+    if (cfgGpPrev) cfgGpPrev.value = controlsConfig.gpPrev || 'LB';
+    if (cfgGpNextPage) cfgGpNextPage.value = controlsConfig.gpNextPage || 'RT';
+    if (cfgGpPrevPage) cfgGpPrevPage.value = controlsConfig.gpPrevPage || 'LT';
+    if (cfgGpToggleCol) cfgGpToggleCol.value = controlsConfig.gpToggleCol || 'X';
+    if (cfgGpShuffle) cfgGpShuffle.value = controlsConfig.gpShuffle || 'Y';
+    if (cfgGpFullscreen) cfgGpFullscreen.value = controlsConfig.gpFullscreen || 'RS';
+    if (cfgGpBack) cfgGpBack.value = controlsConfig.gpBack || 'B';
+    if (cfgGpZoomIn) cfgGpZoomIn.value = controlsConfig.gpZoomIn || 'DpadUp';
+    if (cfgGpZoomOut) cfgGpZoomOut.value = controlsConfig.gpZoomOut || 'DpadDown';
     if (cfgGpAnalog) cfgGpAnalog.checked = (controlsConfig.gpAnalog !== false);
+    if (cfgGpReader) cfgGpReader.checked = (controlsConfig.gpReader !== false);
+
+    if (cfgAutoDownloadUpdate) cfgAutoDownloadUpdate.checked = (controlsConfig.autoDownloadUpdate !== false);
   }
 
+  // Gestures Listeners
   if (cfgGestureSwipe) cfgGestureSwipe.addEventListener('change', () => { controlsConfig.gestureSwipe = cfgGestureSwipe.checked; saveControlsConfig(); });
   if (cfgGestureFlick) cfgGestureFlick.addEventListener('change', () => { controlsConfig.gestureFlick = cfgGestureFlick.checked; saveControlsConfig(); });
   if (cfgGestureDoubleTap) cfgGestureDoubleTap.addEventListener('change', () => { controlsConfig.gestureDoubleTap = cfgGestureDoubleTap.checked; saveControlsConfig(); });
@@ -2551,22 +2890,138 @@
   if (cfgGesturePinch) cfgGesturePinch.addEventListener('change', () => { controlsConfig.gesturePinch = cfgGesturePinch.checked; saveControlsConfig(); });
   if (cfgSwipeSensitivity) cfgSwipeSensitivity.addEventListener('change', () => { controlsConfig.swipeSensitivity = parseInt(cfgSwipeSensitivity.value, 10) || 45; saveControlsConfig(); });
 
-  if (cfgKeyFlip) cfgKeyFlip.addEventListener('change', () => { controlsConfig.keyFlip = cfgKeyFlip.value; saveControlsConfig(); });
-  if (cfgKeyNext) cfgKeyNext.addEventListener('change', () => { controlsConfig.keyNext = cfgKeyNext.value; saveControlsConfig(); });
-  if (cfgKeyPrev) cfgKeyPrev.addEventListener('change', () => { controlsConfig.keyPrev = cfgKeyPrev.value; saveControlsConfig(); });
-  if (cfgKeyFullscreen) cfgKeyFullscreen.addEventListener('change', () => { controlsConfig.keyFullscreen = cfgKeyFullscreen.value; saveControlsConfig(); });
+  // Keyboard Config Inputs
+  const keyInputs = [
+    [cfgKeyFlip, 'keyFlip'],
+    [cfgKeyNext, 'keyNext'],
+    [cfgKeyPrev, 'keyPrev'],
+    [cfgKeyNextPage, 'keyNextPage'],
+    [cfgKeyPrevPage, 'keyPrevPage'],
+    [cfgKeyToggleCol, 'keyToggleCol'],
+    [cfgKeyFullscreen, 'keyFullscreen'],
+    [cfgKeyShuffle, 'keyShuffle'],
+    [cfgKeyExit, 'keyExit'],
+    [cfgKeyZoomIn, 'keyZoomIn'],
+    [cfgKeyZoomOut, 'keyZoomOut']
+  ];
+  keyInputs.forEach(([inputEl, configKey]) => {
+    if (inputEl) {
+      inputEl.addEventListener('input', () => {
+        controlsConfig[configKey] = inputEl.value;
+        saveControlsConfig();
+      });
+      inputEl.addEventListener('change', () => {
+        controlsConfig[configKey] = inputEl.value;
+        saveControlsConfig();
+      });
+    }
+  });
 
-  if (cfgGpFlip) cfgGpFlip.addEventListener('change', () => { controlsConfig.gpFlip = cfgGpFlip.value; saveControlsConfig(); });
-  if (cfgGpBack) cfgGpBack.addEventListener('change', () => { controlsConfig.gpBack = cfgGpBack.value; saveControlsConfig(); });
-  if (cfgGpBumpers) cfgGpBumpers.addEventListener('change', () => { controlsConfig.gpBumpers = cfgGpBumpers.checked; saveControlsConfig(); });
+  // Gamepad Config Selects
+  const gpSelects = [
+    [cfgGpFlip, 'gpFlip'],
+    [cfgGpNext, 'gpNext'],
+    [cfgGpPrev, 'gpPrev'],
+    [cfgGpNextPage, 'gpNextPage'],
+    [cfgGpPrevPage, 'gpPrevPage'],
+    [cfgGpToggleCol, 'gpToggleCol'],
+    [cfgGpShuffle, 'gpShuffle'],
+    [cfgGpFullscreen, 'gpFullscreen'],
+    [cfgGpBack, 'gpBack'],
+    [cfgGpZoomIn, 'gpZoomIn'],
+    [cfgGpZoomOut, 'gpZoomOut']
+  ];
+  gpSelects.forEach(([selectEl, configKey]) => {
+    if (selectEl) {
+      selectEl.addEventListener('change', () => {
+        controlsConfig[configKey] = selectEl.value;
+        saveControlsConfig();
+      });
+    }
+  });
   if (cfgGpAnalog) cfgGpAnalog.addEventListener('change', () => { controlsConfig.gpAnalog = cfgGpAnalog.checked; saveControlsConfig(); });
+  if (cfgGpReader) {
+    cfgGpReader.addEventListener('change', () => {
+      controlsConfig.gpReader = cfgGpReader.checked;
+      saveControlsConfig();
+      if (controlsConfig.gpReader && !gamepadRafId) {
+        gamepadRafId = requestAnimationFrame(pollGamepad);
+      }
+    });
+  }
+
+  // Auto-download Update Listener
+  if (cfgAutoDownloadUpdate) {
+    cfgAutoDownloadUpdate.addEventListener('change', () => {
+      controlsConfig.autoDownloadUpdate = cfgAutoDownloadUpdate.checked;
+      saveControlsConfig();
+    });
+  }
+
+  // Keyboard Record Button Handler
+  let activeRecordingTarget = null;
+  let recordingBtnEl = null;
+
+  function stopRecordingKey() {
+    if (recordingBtnEl) {
+      recordingBtnEl.classList.remove('recording');
+      recordingBtnEl.textContent = '⌨️ Record';
+    }
+    activeRecordingTarget = null;
+    recordingBtnEl = null;
+    window.removeEventListener('keydown', handleRecordKeyDown, true);
+  }
+
+  function handleRecordKeyDown(e) {
+    if (!activeRecordingTarget) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    let keyName = e.key;
+    if (keyName === ' ') keyName = 'Space';
+    else if (e.code && e.code.startsWith('Arrow')) keyName = e.code;
+    else if (e.code && (e.code === 'Enter' || e.code === 'Escape' || e.code === 'Backspace' || e.code === 'PageUp' || e.code === 'PageDown')) keyName = e.code;
+    else if (keyName.length === 1) keyName = keyName.toLowerCase();
+
+    const input = document.getElementById(activeRecordingTarget);
+    if (input) {
+      const parts = input.value.split(',').map(s => s.trim()).filter(Boolean);
+      if (!parts.includes(keyName)) {
+        parts.push(keyName);
+      }
+      input.value = parts.join(', ');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    showToast(`Recorded: ${keyName}`);
+    stopRecordingKey();
+  }
+
+  document.querySelectorAll('.cfg-record-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const targetId = btn.dataset.target;
+      if (activeRecordingTarget === targetId) {
+        stopRecordingKey();
+        return;
+      }
+      stopRecordingKey();
+      activeRecordingTarget = targetId;
+      recordingBtnEl = btn;
+      btn.classList.add('recording');
+      btn.textContent = 'Recording...';
+      showToast('Press any keyboard key...');
+      window.addEventListener('keydown', handleRecordKeyDown, true);
+    });
+  });
 
   if (btnResetControls) {
     btnResetControls.addEventListener('click', () => {
       controlsConfig = Object.assign({}, DEFAULT_CONTROLS_CONFIG);
       saveControlsConfig();
       syncControlsSettingsUI();
-      showToast('Controls reset to default');
+      showToast('Controls reset to standard Xbox One & default keys');
     });
   }
   syncControlsSettingsUI();
@@ -3007,12 +3462,28 @@
 
   window.addEventListener('resize', render);
 
+  function handleAppResume() {
+    rafPending = false;
+    requestAnimationFrame(() => {
+      computeSegments();
+      render();
+      const bottomBar = document.getElementById('bottomBar');
+      if (bottomBar) {
+        bottomBar.style.transform = 'translateZ(0)';
+      }
+      if ((isFlashcardMode || (controlsConfig && controlsConfig.gpReader)) && !gamepadRafId) {
+        gamepadRafId = requestAnimationFrame(pollGamepad);
+      }
+    });
+  }
+
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
-      rafPending = false;
-      requestAnimationFrame(render);
+      handleAppResume();
     }
   });
+  window.addEventListener('pageshow', handleAppResume);
+  window.addEventListener('focus', handleAppResume);
 
   // --- Heading Click & Hover Mode Actions ---
   function toggleHeading(hIdx) {
@@ -3655,15 +4126,123 @@
     showToast('Cards shuffled');
   }
 
-  // --- Gamepad Support for Flashcard Mode ---
+  // --- Standard Xbox One Controller Definitions & Gamepad Loop ---
+  const XBOX_BUTTON_INDEX = {
+    'A': 0,
+    'B': 1,
+    'X': 2,
+    'Y': 3,
+    'LB': 4,
+    'RB': 5,
+    'LT': 6,
+    'RT': 7,
+    'Back': 8,
+    'Start': 9,
+    'LS': 10,
+    'RS': 11,
+    'DpadUp': 12,
+    'DpadDown': 13,
+    'DpadLeft': 14,
+    'DpadRight': 15
+  };
+
+  const XBOX_ANDROID_KEYCODES = {
+    'A': [96, 23],
+    'B': [97],
+    'X': [99],
+    'Y': [100],
+    'LB': [102],
+    'RB': [103],
+    'LT': [104],
+    'RT': [105],
+    'LS': [106],
+    'RS': [107],
+    'Start': [108],
+    'Back': [109],
+    'DpadUp': [19],
+    'DpadDown': [20],
+    'DpadLeft': [21],
+    'DpadRight': [22]
+  };
+
   let gamepadRafId = null;
   const gpPrevState = {
     buttons: {},
     axes: [0, 0]
   };
 
+  function isXboxButtonPressed(gp, btnName, gpIdx) {
+    if (!btnName || btnName === 'none') return false;
+    const btnIdx = XBOX_BUTTON_INDEX[btnName];
+    if (btnIdx === undefined) return false;
+    const btn = gp.buttons && gp.buttons[btnIdx];
+    if (!btn) return false;
+    const val = (typeof btn === 'object') ? (btn.pressed || btn.value > 0.45) : (btn > 0.45);
+    const stateKey = `${gpIdx}_${btnIdx}`;
+    const wasPressed = !!gpPrevState.buttons[stateKey];
+    gpPrevState.buttons[stateKey] = val;
+    return val && !wasPressed;
+  }
+
+  function isXboxButtonOrKey(btnName, keyCode) {
+    if (!btnName || btnName === 'none') return false;
+    const codes = XBOX_ANDROID_KEYCODES[btnName];
+    return codes ? codes.includes(keyCode) : false;
+  }
+
+  function isKeyMatched(configStr, e) {
+    if (!configStr) return false;
+    const tokens = configStr.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+    if (tokens.length === 0) return false;
+
+    const eventKey = (e.key || '').toLowerCase();
+    const eventCode = (e.code || '').toLowerCase();
+    const keyCode = e.keyCode || e.which;
+
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
+      if (token === 'space' && (eventKey === ' ' || eventCode === 'space' || keyCode === 32)) return true;
+      if (token === 'enter' && (eventKey === 'enter' || eventCode === 'enter' || keyCode === 13)) return true;
+      if ((token === 'escape' || token === 'esc') && (eventKey === 'escape' || eventCode === 'escape' || keyCode === 27)) return true;
+      if (token === 'backspace' && (eventKey === 'backspace' || eventCode === 'backspace' || keyCode === 8)) return true;
+      if ((token === 'arrowleft' || token === 'left') && (eventKey === 'arrowleft' || eventCode === 'arrowleft' || keyCode === 37)) return true;
+      if ((token === 'arrowup' || token === 'up') && (eventKey === 'arrowup' || eventCode === 'arrowup' || keyCode === 38)) return true;
+      if ((token === 'arrowright' || token === 'right') && (eventKey === 'arrowright' || eventCode === 'arrowright' || keyCode === 39)) return true;
+      if ((token === 'arrowdown' || token === 'down') && (eventKey === 'arrowdown' || eventCode === 'arrowdown' || keyCode === 40)) return true;
+      if (token === 'pageup' && (eventKey === 'pageup' || eventCode === 'pageup' || keyCode === 33)) return true;
+      if (token === 'pagedown' && (eventKey === 'pagedown' || eventCode === 'pagedown' || keyCode === 34)) return true;
+
+      if (token === eventKey) return true;
+      if (token === eventCode) return true;
+      if (eventCode === ('key' + token) || eventCode === ('digit' + token)) return true;
+
+      for (const [gpBtn, codes] of Object.entries(XBOX_ANDROID_KEYCODES)) {
+        if (gpBtn.toLowerCase() === token && codes.includes(keyCode)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function jumpHeadingDelta(delta) {
+    if (!headings || headings.length === 0) return;
+    const currH = getActiveOrVisibleHeading();
+    let currentIdx = currH ? headings.findIndex(h => h.line === currH.line) : 0;
+    if (currentIdx === -1) currentIdx = 0;
+    let newIdx = currentIdx + delta;
+    if (newIdx < 0) newIdx = 0;
+    if (newIdx >= headings.length) newIdx = headings.length - 1;
+    const targetH = headings[newIdx];
+    if (targetH) {
+      activeHeadingIdx = newIdx;
+      scrollToLine(targetH.line);
+      showToast(`Jumped: ${targetH.title.slice(0, 24)}`);
+    }
+  }
+
   function pollGamepad() {
-    if (!isFlashcardMode) {
+    if (!isFlashcardMode && !controlsConfig.gpReader) {
       if (gamepadRafId) {
         cancelAnimationFrame(gamepadRafId);
         gamepadRafId = null;
@@ -3672,131 +4251,183 @@
     }
 
     const gamepads = (navigator.getGamepads) ? navigator.getGamepads() : [];
+    let anyConnected = false;
+
     for (let i = 0; i < gamepads.length; i++) {
       const gp = gamepads[i];
       if (!gp || !gp.connected) continue;
+      anyConnected = true;
 
-      const isPressed = (btnIdx) => {
-        const btn = gp.buttons[btnIdx];
-        if (!btn) return false;
-        const val = (typeof btn === 'object') ? (btn.pressed || btn.value > 0.5) : (btn > 0.5);
-        const key = `${i}_${btnIdx}`;
-        const wasPressed = !!gpPrevState.buttons[key];
-        gpPrevState.buttons[key] = val;
-        return val && !wasPressed;
-      };
-
-      // Configurable Gamepad Flip Button
-      let flipRequested = false;
-      if (controlsConfig.gpFlip === 'a_only') {
-        flipRequested = isPressed(0);
-      } else if (controlsConfig.gpFlip === 'r2') {
-        flipRequested = isPressed(7);
-      } else {
-        // default: 'a_dpad'
-        flipRequested = isPressed(0) || isPressed(12) || isPressed(13);
-      }
-      if (flipRequested) {
-        flipFlashcard();
-      }
-
-      // Configurable Gamepad Back / Exit Button
-      let backRequested = false;
-      if (controlsConfig.gpBack === 'select') {
-        backRequested = isPressed(8);
-      } else {
-        // default: 'b'
-        backRequested = isPressed(1);
-      }
-      if (backRequested) {
-        if (fcCard && fcCard.classList.contains('flipped')) {
+      if (isFlashcardMode) {
+        // Flip
+        if (isXboxButtonPressed(gp, controlsConfig.gpFlip, i)) {
           flipFlashcard();
-        } else {
-          exitFlashcardMode();
         }
-      }
 
-      // Prev Card / Page Navigation
-      let prevRequested = isPressed(14); // D-pad Left
-      if (controlsConfig.gpBumpers !== false) {
-        if (isPressed(4) || isPressed(6)) prevRequested = true; // L1, L2
-      }
-      if (prevRequested) {
-        if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex > 0) {
-          prevPage();
-        } else {
-          prevFlashcard();
+        // Back / Exit
+        if (isXboxButtonPressed(gp, controlsConfig.gpBack, i)) {
+          if (isFcFullscreen) {
+            exitFcFullscreen();
+          } else if (fcCard && fcCard.classList.contains('flipped')) {
+            flipFlashcard();
+          } else {
+            exitFlashcardMode();
+          }
         }
-      }
 
-      // Next Card / Page Navigation
-      let nextRequested = isPressed(15); // D-pad Right
-      if (controlsConfig.gpBumpers !== false) {
-        if (isPressed(5) || (controlsConfig.gpFlip !== 'r2' && isPressed(7))) nextRequested = true; // R1, R2
-      }
-      if (nextRequested) {
-        if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex < getTotalPages() - 1) {
-          nextPage();
-        } else {
+        // Next Card
+        if (isXboxButtonPressed(gp, controlsConfig.gpNext, i)) {
           nextFlashcard();
         }
-      }
 
-      // Button 2 (X / Square): Toggle 2-Column
-      if (isPressed(2)) {
-        toggleTwoColumn();
-      }
+        // Prev Card
+        if (isXboxButtonPressed(gp, controlsConfig.gpPrev, i)) {
+          prevFlashcard();
+        }
 
-      // Button 3 (Y / Triangle): Shuffle
-      if (isPressed(3)) {
-        shuffleFlashcards();
-      }
-
-      // Button 8 (Select) if not used for back: Exit
-      if (controlsConfig.gpBack !== 'select' && isPressed(8)) {
-        exitFlashcardMode();
-      }
-
-      // Button 9 (Start / Options / Menu): Toggle 2-Column
-      if (isPressed(9)) {
-        toggleTwoColumn();
-      }
-
-      // Left Stick (Analog Stick Navigation)
-      if (controlsConfig.gpAnalog !== false) {
-        const stickX = (gp.axes && gp.axes[0] !== undefined) ? gp.axes[0] : 0;
-        const prevX = gpPrevState.axes[0] || 0;
-        if (stickX > 0.55 && prevX <= 0.55) {
+        // Next Page (2-Col)
+        if (isXboxButtonPressed(gp, controlsConfig.gpNextPage, i)) {
           if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex < getTotalPages() - 1) {
             nextPage();
           } else {
             nextFlashcard();
           }
-        } else if (stickX < -0.55 && prevX >= -0.55) {
+        }
+
+        // Prev Page (2-Col)
+        if (isXboxButtonPressed(gp, controlsConfig.gpPrevPage, i)) {
           if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex > 0) {
             prevPage();
           } else {
             prevFlashcard();
           }
         }
-        gpPrevState.axes[0] = stickX;
 
-        // Left Stick Y Axis (Flick to Flip)
-        const stickY = (gp.axes && gp.axes[1] !== undefined) ? gp.axes[1] : 0;
-        const prevY = gpPrevState.axes[1] || 0;
-        if (Math.abs(stickY) > 0.6 && Math.abs(prevY) <= 0.6) {
-          flipFlashcard();
+        // Toggle 2-Col
+        if (isXboxButtonPressed(gp, controlsConfig.gpToggleCol, i)) {
+          toggleTwoColumn();
         }
-        gpPrevState.axes[1] = stickY;
+
+        // Shuffle
+        if (isXboxButtonPressed(gp, controlsConfig.gpShuffle, i)) {
+          shuffleFlashcards();
+        }
+
+        // Fullscreen
+        if (isXboxButtonPressed(gp, controlsConfig.gpFullscreen, i)) {
+          toggleFcFullscreen();
+        }
+
+        // Zoom In / Out
+        if (isXboxButtonPressed(gp, controlsConfig.gpZoomIn, i)) {
+          fcZoomIn();
+        }
+        if (isXboxButtonPressed(gp, controlsConfig.gpZoomOut, i)) {
+          fcZoomOut();
+        }
+
+        // Analog Sticks in Flashcard Mode
+        if (controlsConfig.gpAnalog !== false) {
+          const stickX = (gp.axes && gp.axes[0] !== undefined) ? gp.axes[0] : 0;
+          const prevX = gpPrevState.axes[0] || 0;
+          if (stickX > 0.55 && prevX <= 0.55) {
+            if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex < getTotalPages() - 1) {
+              nextPage();
+            } else {
+              nextFlashcard();
+            }
+          } else if (stickX < -0.55 && prevX >= -0.55) {
+            if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex > 0) {
+              prevPage();
+            } else {
+              prevFlashcard();
+            }
+          }
+          gpPrevState.axes[0] = stickX;
+
+          // Flick Left Stick Y to Flip
+          const stickY = (gp.axes && gp.axes[1] !== undefined) ? gp.axes[1] : 0;
+          const prevY = gpPrevState.axes[1] || 0;
+          if (Math.abs(stickY) > 0.65 && Math.abs(prevY) <= 0.65) {
+            flipFlashcard();
+          }
+          gpPrevState.axes[1] = stickY;
+
+          // Right Stick Y Axis (Scroll card back content if scrollable)
+          const rightStickY = (gp.axes && gp.axes[3] !== undefined) ? gp.axes[3] : 0;
+          if (Math.abs(rightStickY) > 0.2 && fcBackBody && !fcTwoColumn) {
+            fcBackBody.scrollTop += rightStickY * 16;
+          }
+        }
+      } else if (controlsConfig.gpReader) {
+        // --- Reader Mode Gamepad Navigation ---
+        const stickY = (gp.axes && gp.axes[1] !== undefined) ? gp.axes[1] : 0;
+        const rightStickY = (gp.axes && gp.axes[3] !== undefined) ? gp.axes[3] : 0;
+        const scrollDelta = (Math.abs(stickY) > 0.2 ? stickY * 18 : 0) || (Math.abs(rightStickY) > 0.2 ? rightStickY * 24 : 0);
+        if (scrollDelta !== 0 && scroller) {
+          scroller.scrollTop += scrollDelta;
+        }
+
+        if (isXboxButtonPressed(gp, 'DpadDown', i)) {
+          if (scroller) scroller.scrollTop += LINE_H * 3;
+        }
+        if (isXboxButtonPressed(gp, 'DpadUp', i)) {
+          if (scroller) scroller.scrollTop -= LINE_H * 3;
+        }
+
+        if (isXboxButtonPressed(gp, 'RB', i) || isXboxButtonPressed(gp, 'RT', i)) {
+          jumpHeadingDelta(1);
+        }
+        if (isXboxButtonPressed(gp, 'LB', i) || isXboxButtonPressed(gp, 'LT', i)) {
+          jumpHeadingDelta(-1);
+        }
+
+        if (isXboxButtonPressed(gp, 'A', i)) {
+          const panel = document.getElementById('panel');
+          const panelJumpBtn = document.getElementById('panelJumpBtn');
+          if (panel && panel.classList.contains('visible') && panelJumpBtn) {
+            panelJumpBtn.click();
+          } else if (activeHeadingIdx >= 0) {
+            toggleHeading(activeHeadingIdx);
+          }
+        }
+
+        if (isXboxButtonPressed(gp, 'B', i) || isXboxButtonPressed(gp, 'Back', i)) {
+          const panelCloseBtn = document.getElementById('panelCloseBtn');
+          const panel = document.getElementById('panel');
+          if (panel && panel.classList.contains('visible') && panelCloseBtn) {
+            panelCloseBtn.click();
+          } else {
+            closeDrawer();
+            hideSelectionToolbar();
+          }
+        }
+
+        if (isXboxButtonPressed(gp, 'X', i)) {
+          if (btnHoverToggle) btnHoverToggle.click();
+        }
+
+        if (isXboxButtonPressed(gp, 'Y', i)) {
+          enterFlashcardMode();
+        }
+
+        if (isXboxButtonPressed(gp, 'Start', i)) {
+          const btnMenu = document.getElementById('btnMenu');
+          if (btnMenu) btnMenu.click();
+        }
       }
     }
 
-    gamepadRafId = requestAnimationFrame(pollGamepad);
+    if (anyConnected || isFlashcardMode || controlsConfig.gpReader) {
+      gamepadRafId = requestAnimationFrame(pollGamepad);
+    } else {
+      gamepadRafId = null;
+    }
   }
 
   window.addEventListener('gamepadconnected', (e) => {
     showToast(`🎮 Gamepad connected: ${e.gamepad.id.slice(0, 22)}...`);
-    if (isFlashcardMode && !gamepadRafId) {
+    if ((isFlashcardMode || controlsConfig.gpReader) && !gamepadRafId) {
       gamepadRafId = requestAnimationFrame(pollGamepad);
     }
   });
@@ -4178,189 +4809,150 @@
 
   // --- Keyboard & Native Android Gamepad KeyCode Support ---
   document.addEventListener('keydown', (e) => {
-    if (!isFlashcardMode) return;
+    if (activeRecordingTarget) return; // Do not trigger actions while recording key in settings
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
     const keyCode = e.keyCode || e.which;
 
-    // Android Gamepad KeyCodes
-    // 96 = KEYCODE_BUTTON_A, 23 = KEYCODE_DPAD_CENTER
-    if (keyCode === 96 || keyCode === 23) {
-      e.preventDefault();
-      flipFlashcard();
-      return;
-    }
-    // 97 = KEYCODE_BUTTON_B
-    if (keyCode === 97) {
-      e.preventDefault();
-      if (fcCard && fcCard.classList.contains('flipped')) {
+    if (isFlashcardMode) {
+      // 1. Flip Card
+      if (isKeyMatched(controlsConfig.keyFlip, e) || isXboxButtonOrKey(controlsConfig.gpFlip, keyCode)) {
+        e.preventDefault();
         flipFlashcard();
-      } else {
-        exitFlashcardMode();
+        return;
       }
-      return;
-    }
-    // 99 = KEYCODE_BUTTON_X
-    if (keyCode === 99) {
-      e.preventDefault();
-      toggleTwoColumn();
-      return;
-    }
-    // 100 = KEYCODE_BUTTON_Y
-    if (keyCode === 100) {
-      e.preventDefault();
-      shuffleFlashcards();
-      return;
-    }
-    // 102 = KEYCODE_BUTTON_L1, 104 = KEYCODE_BUTTON_L2
-    if (keyCode === 102 || keyCode === 104) {
-      e.preventDefault();
-      if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex > 0) {
-        prevPage();
-      } else {
-        prevFlashcard();
-      }
-      return;
-    }
-    // 103 = KEYCODE_BUTTON_R1, 105 = KEYCODE_BUTTON_R2
-    if (keyCode === 103 || keyCode === 105) {
-      e.preventDefault();
-      if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex < getTotalPages() - 1) {
-        nextPage();
-      } else {
+
+      // 2. Next Card
+      if (isKeyMatched(controlsConfig.keyNext, e) || isXboxButtonOrKey(controlsConfig.gpNext, keyCode)) {
+        e.preventDefault();
         nextFlashcard();
+        return;
       }
-      return;
-    }
-    // 108 = KEYCODE_BUTTON_START, 109 = KEYCODE_BUTTON_SELECT
-    if (keyCode === 109) {
-      e.preventDefault();
-      exitFlashcardMode();
-      return;
-    }
-    if (keyCode === 108) {
-      e.preventDefault();
-      toggleTwoColumn();
-      return;
-    }
 
-    // Configurable Keyboard Navigation
-    // Next Card
-    let isNextKey = false;
-    if (controlsConfig.keyNext === 'right_only') {
-      isNextKey = (e.key === 'ArrowRight');
-    } else if (controlsConfig.keyNext === 'right_n') {
-      isNextKey = (e.key === 'ArrowRight' || e.code === 'KeyN');
-    } else {
-      // default: 'right_n_l_d'
-      isNextKey = (e.key === 'ArrowRight' || e.code === 'KeyN' || e.code === 'KeyL' || e.code === 'KeyD');
-    }
-
-    // Prev Card
-    let isPrevKey = false;
-    if (controlsConfig.keyPrev === 'left_only') {
-      isPrevKey = (e.key === 'ArrowLeft');
-    } else if (controlsConfig.keyPrev === 'left_p') {
-      isPrevKey = (e.key === 'ArrowLeft' || e.code === 'KeyP');
-    } else {
-      // default: 'left_p_h_a'
-      isPrevKey = (e.key === 'ArrowLeft' || e.code === 'KeyP' || e.code === 'KeyH' || e.code === 'KeyA');
-    }
-
-    // Fullscreen Toggle
-    let isFsKey = false;
-    if (controlsConfig.keyFullscreen === 'f') {
-      isFsKey = (e.key === 'f' || e.key === 'F' || e.code === 'KeyF');
-    } else if (controlsConfig.keyFullscreen === 'f_f11') {
-      isFsKey = (e.key === 'f' || e.key === 'F' || e.code === 'KeyF' || e.key === 'F11');
-    }
-
-    // Flip Card
-    let isFlipKey = false;
-    if (controlsConfig.keyFlip === 'space_only') {
-      isFlipKey = (e.key === ' ');
-    } else if (controlsConfig.keyFlip === 'space_enter') {
-      isFlipKey = (e.key === ' ' || e.key === 'Enter');
-    } else {
-      // default: 'space_enter_k_j'
-      isFlipKey = (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter' || e.code === 'KeyK' || e.code === 'KeyJ');
-    }
-
-    if (isNextKey) {
-      e.preventDefault();
-      nextFlashcard();
-    } else if (isPrevKey) {
-      e.preventDefault();
-      prevFlashcard();
-    } else if (isFsKey) {
-      e.preventDefault();
-      toggleFcFullscreen();
-    } else if (isFlipKey) {
-      e.preventDefault();
-      flipFlashcard();
-    }
-    // Exit Mode or Fullscreen: Escape
-    else if (e.key === 'Escape') {
-      e.preventDefault();
-      if (isFcFullscreen) {
-        exitFcFullscreen();
-      } else {
-        exitFlashcardMode();
-      }
-    }
-    // Exit Mode: Backspace, Q
-    else if (e.key === 'Backspace' || e.code === 'KeyQ') {
-      e.preventDefault();
-      exitFlashcardMode();
-    }
-    // Toggle 2-Column: C, T
-    else if (e.code === 'KeyC' || e.code === 'KeyT') {
-      e.preventDefault();
-      toggleTwoColumn();
-    }
-    // Shuffle: S, R
-    else if (e.code === 'KeyS' || e.code === 'KeyR') {
-      e.preventDefault();
-      shuffleFlashcards();
-    }
-    // Page Navigation in 2-Col mode: [, PageUp, <, Comma
-    else if (e.key === '[' || e.key === 'PageUp' || e.key === ',' || e.key === '<') {
-      if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped')) {
+      // 3. Prev Card
+      if (isKeyMatched(controlsConfig.keyPrev, e) || isXboxButtonOrKey(controlsConfig.gpPrev, keyCode)) {
         e.preventDefault();
-        prevPage();
+        prevFlashcard();
+        return;
       }
-    }
-    // Page Navigation in 2-Col mode: ], PageDown, >, Period
-    else if (e.key === ']' || e.key === 'PageDown' || e.key === '.' || e.key === '>') {
-      if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped')) {
+
+      // 4. Next Page (2-Col)
+      if (isKeyMatched(controlsConfig.keyNextPage, e) || isXboxButtonOrKey(controlsConfig.gpNextPage, keyCode)) {
         e.preventDefault();
-        nextPage();
+        if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex < getTotalPages() - 1) {
+          nextPage();
+        } else {
+          nextFlashcard();
+        }
+        return;
       }
-    }
-    // Filter shortcuts: 1 (Outline), 2 (H1), 3 (H2), 4 (All)
-    else if (e.key === '1') {
-      e.preventDefault();
-      document.getElementById('fcFilterOutline')?.click();
-    } else if (e.key === '2') {
-      e.preventDefault();
-      document.getElementById('fcFilterH1')?.click();
-    } else if (e.key === '3') {
-      e.preventDefault();
-      document.getElementById('fcFilterH2')?.click();
-    } else if (e.key === '4') {
-      e.preventDefault();
-      document.getElementById('fcFilterAll')?.click();
-    }
-    // Font Zoom shortcuts: + / = (Zoom In), - / _ (Zoom Out), 0 (Reset)
-    else if (e.key === '+' || e.key === '=') {
-      e.preventDefault();
-      fcZoomIn();
-    } else if (e.key === '-' || e.key === '_') {
-      e.preventDefault();
-      fcZoomOut();
-    } else if (e.key === '0') {
-      e.preventDefault();
-      fcZoomReset();
+
+      // 5. Prev Page (2-Col)
+      if (isKeyMatched(controlsConfig.keyPrevPage, e) || isXboxButtonOrKey(controlsConfig.gpPrevPage, keyCode)) {
+        e.preventDefault();
+        if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex > 0) {
+          prevPage();
+        } else {
+          prevFlashcard();
+        }
+        return;
+      }
+
+      // 6. Toggle 2-Column Mode
+      if (isKeyMatched(controlsConfig.keyToggleCol, e) || isXboxButtonOrKey(controlsConfig.gpToggleCol, keyCode)) {
+        e.preventDefault();
+        toggleTwoColumn();
+        return;
+      }
+
+      // 7. Fullscreen Mode
+      if (isKeyMatched(controlsConfig.keyFullscreen, e) || isXboxButtonOrKey(controlsConfig.gpFullscreen, keyCode)) {
+        e.preventDefault();
+        toggleFcFullscreen();
+        return;
+      }
+
+      // 8. Shuffle Flashcards
+      if (isKeyMatched(controlsConfig.keyShuffle, e) || isXboxButtonOrKey(controlsConfig.gpShuffle, keyCode)) {
+        e.preventDefault();
+        shuffleFlashcards();
+        return;
+      }
+
+      // 9. Exit Mode / Back
+      if (isKeyMatched(controlsConfig.keyExit, e) || isXboxButtonOrKey(controlsConfig.gpBack, keyCode)) {
+        e.preventDefault();
+        if (isFcFullscreen) {
+          exitFcFullscreen();
+        } else if (fcCard && fcCard.classList.contains('flipped')) {
+          flipFlashcard();
+        } else {
+          exitFlashcardMode();
+        }
+        return;
+      }
+
+      // 10. Zoom In
+      if (isKeyMatched(controlsConfig.keyZoomIn, e) || isXboxButtonOrKey(controlsConfig.gpZoomIn, keyCode)) {
+        e.preventDefault();
+        fcZoomIn();
+        return;
+      }
+
+      // 11. Zoom Out
+      if (isKeyMatched(controlsConfig.keyZoomOut, e) || isXboxButtonOrKey(controlsConfig.gpZoomOut, keyCode)) {
+        e.preventDefault();
+        fcZoomOut();
+        return;
+      }
+
+      // Filter shortcuts: 1 (Outline), 2 (H1), 3 (H2), 4 (All)
+      if (e.key === '1') {
+        e.preventDefault();
+        document.getElementById('fcFilterOutline')?.click();
+      } else if (e.key === '2') {
+        e.preventDefault();
+        document.getElementById('fcFilterH1')?.click();
+      } else if (e.key === '3') {
+        e.preventDefault();
+        document.getElementById('fcFilterH2')?.click();
+      } else if (e.key === '4') {
+        e.preventDefault();
+        document.getElementById('fcFilterAll')?.click();
+      } else if (e.key === '0') {
+        e.preventDefault();
+        fcZoomReset();
+      }
+    } else {
+      // Reader Mode Gamepad & Keyboard Keys
+      if (isXboxButtonOrKey('X', keyCode)) {
+        e.preventDefault();
+        if (btnHoverToggle) btnHoverToggle.click();
+      } else if (isXboxButtonOrKey('Y', keyCode)) {
+        e.preventDefault();
+        enterFlashcardMode();
+      } else if (isXboxButtonOrKey('B', keyCode) || isXboxButtonOrKey('Back', keyCode)) {
+        const panelCloseBtn = document.getElementById('panelCloseBtn');
+        const panel = document.getElementById('panel');
+        if (panel && panel.classList.contains('visible') && panelCloseBtn) {
+          e.preventDefault();
+          panelCloseBtn.click();
+        } else {
+          closeDrawer();
+          hideSelectionToolbar();
+        }
+      } else if (isXboxButtonOrKey('A', keyCode)) {
+        const panel = document.getElementById('panel');
+        const panelJumpBtn = document.getElementById('panelJumpBtn');
+        if (panel && panel.classList.contains('visible') && panelJumpBtn) {
+          e.preventDefault();
+          panelJumpBtn.click();
+        }
+      } else if (isXboxButtonOrKey('Start', keyCode)) {
+        e.preventDefault();
+        const btnMenu = document.getElementById('btnMenu');
+        if (btnMenu) btnMenu.click();
+      }
     }
   });
 
@@ -5037,7 +5629,12 @@
       const latestTag = releaseData.tag_name;
       if (compareVersions(latestTag, CURRENT_APP_VERSION) > 0) {
         pendingReleaseData = releaseData;
-        showUpdateDialog(releaseData);
+        if (controlsConfig.autoDownloadUpdate !== false && !manual) {
+          showToast(`Update ${latestTag} available! Auto-downloading & installing...`);
+          triggerUpdateInstall();
+        } else {
+          showUpdateDialog(releaseData);
+        }
       } else {
         if (manual) showToast(`You are on the latest version (v${CURRENT_APP_VERSION})`);
       }
@@ -5060,11 +5657,7 @@
     updateBackdrop.style.display = 'none';
   }
 
-  btnCloseUpdate.addEventListener('click', hideUpdateDialog);
-  btnLaterUpdate.addEventListener('click', hideUpdateDialog);
-  updateBackdrop.addEventListener('click', hideUpdateDialog);
-
-  btnInstallUpdate.addEventListener('click', () => {
+  function triggerUpdateInstall() {
     if (!pendingReleaseData) return;
     let apkAsset = null;
     if (pendingReleaseData.assets && pendingReleaseData.assets.length) {
@@ -5075,6 +5668,7 @@
     const vName = pendingReleaseData.tag_name.replace(/^v/, '');
 
     if (apkAsset && window.AndroidBridge && window.AndroidBridge.downloadAndInstall) {
+      showToast(`Downloading update v${vName} & installing...`);
       window.AndroidBridge.downloadAndInstall(apkUrl, vName);
     } else if (window.AndroidBridge && window.AndroidBridge.openExternalUrl) {
       window.AndroidBridge.openExternalUrl(pendingReleaseData.html_url);
@@ -5082,7 +5676,13 @@
       window.open(pendingReleaseData.html_url, '_blank');
     }
     hideUpdateDialog();
-  });
+  }
+
+  btnCloseUpdate.addEventListener('click', hideUpdateDialog);
+  btnLaterUpdate.addEventListener('click', hideUpdateDialog);
+  updateBackdrop.addEventListener('click', hideUpdateDialog);
+
+  btnInstallUpdate.addEventListener('click', triggerUpdateInstall);
 
   btnCheckUpdateDrawer.addEventListener('click', () => {
     checkForUpdates(true);
