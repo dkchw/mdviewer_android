@@ -2,12 +2,17 @@ package com.mdviewer.app
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.DownloadManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.database.Cursor
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.OpenableColumns
 import android.util.Log
@@ -627,11 +632,81 @@ class MainActivity : Activity() {
         }
     }
 
-    // Compliant with Google Play Store: opens download in browser without requesting dangerous package install permissions
     fun downloadAndInstallApk(apkUrl: String, versionName: String) {
         runOnUiThread {
-            Toast.makeText(this, "Opening update download in browser (v$versionName)...", Toast.LENGTH_SHORT).show()
-            openWebUrl(apkUrl)
+            try {
+                Toast.makeText(this, "Downloading MD Viewer update v$versionName...", Toast.LENGTH_SHORT).show()
+
+                val dm = getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager
+                if (dm == null) {
+                    Toast.makeText(this, "DownloadManager unavailable, opening browser...", Toast.LENGTH_SHORT).show()
+                    openWebUrl(apkUrl)
+                    return@runOnUiThread
+                }
+
+                val downloadUri = Uri.parse(apkUrl)
+                val fileName = "mdviewer-v$versionName.apk"
+
+                val request = DownloadManager.Request(downloadUri).apply {
+                    setTitle("MD Viewer v$versionName")
+                    setDescription("Downloading update package...")
+                    setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                    setMimeType("application/vnd.android.package-archive")
+                    try {
+                        setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Cannot set public downloads dir for update", e)
+                    }
+                }
+
+                val downloadId = dm.enqueue(request)
+                Toast.makeText(this, "Download started in background. Check status bar notifications.", Toast.LENGTH_LONG).show()
+
+                val receiver = object : BroadcastReceiver() {
+                    override fun onReceive(context: Context?, intent: Intent?) {
+                        val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1L) ?: -1L
+                        if (id == downloadId) {
+                            try {
+                                unregisterReceiver(this)
+                            } catch (ignored: Exception) {}
+
+                            val manager = getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager
+                            val fileUri = manager?.getUriForDownloadedFile(downloadId)
+                            if (fileUri != null) {
+                                installApk(fileUri)
+                            } else {
+                                Toast.makeText(this@MainActivity, "Update download finished! Tap notification to install.", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+                }
+
+                val filter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+                if (Build.VERSION.SDK_INT >= 33) {
+                    registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
+                } else {
+                    registerReceiver(receiver, filter)
+                }
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Native download error", e)
+                Toast.makeText(this, "Download error, opening in browser: ${e.message}", Toast.LENGTH_SHORT).show()
+                openWebUrl(apkUrl)
+            }
+        }
+    }
+
+    private fun installApk(uri: Uri) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, "application/vnd.android.package-archive")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(intent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Install launch error", e)
+            Toast.makeText(this, "Update downloaded! Tap notification or open Downloads to install.", Toast.LENGTH_LONG).show()
         }
     }
 
