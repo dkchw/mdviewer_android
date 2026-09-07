@@ -51,17 +51,18 @@ echo "2. Linking resources and manifest..."
     -A "$SRC_DIR/assets" \
     -o "$BUILD_DIR/unaligned.apk"
 
-echo "3. Compiling Java sources with javac..."
-javac -d "$BUILD_DIR/classes" \
-    -cp "$PLATFORM_JAR" \
-    -source 8 -target 8 \
+echo "3. Compiling Kotlin sources with kotlinc..."
+kotlinc -cp "$PLATFORM_JAR:$APP_DIR/libs/kotlin-stdlib.jar" \
+    -jvm-target 1.8 \
+    -d "$BUILD_DIR/classes" \
     "$BUILD_DIR/gen/com/mdviewer/app/R.java" \
-    "$SRC_DIR/java/com/mdviewer/app/"*.java
+    "$SRC_DIR/java/com/mdviewer/app/"*.kt
 
 echo "4. Dexing classes with d8..."
 "$BT/d8" --lib "$PLATFORM_JAR" \
     --output "$BUILD_DIR/" \
-    "$BUILD_DIR/classes/com/mdviewer/app/"*.class
+    "$APP_DIR/libs/kotlin-stdlib.jar" \
+    $(find "$BUILD_DIR/classes" -name "*.class")
 
 echo "5. Adding classes.dex to APK..."
 cd "$BUILD_DIR"
