@@ -75,6 +75,26 @@ public class AndroidBridge {
     }
 
     @JavascriptInterface
+    public void downloadAndInstall(final String apkUrl, final String versionName) {
+        mActivity.downloadAndInstallApk(apkUrl, versionName);
+    }
+
+    @JavascriptInterface
+    public void openExternalUrl(final String url) {
+        mActivity.openWebUrl(url);
+    }
+
+    @JavascriptInterface
+    public String checkLatestRelease() {
+        return mActivity.checkGitHubRelease();
+    }
+
+    @JavascriptInterface
+    public String getAppVersion() {
+        return "1.0.0";
+    }
+
+    @JavascriptInterface
     public void showToast(final String message) {
         mHandler.post(new Runnable() {
             @Override

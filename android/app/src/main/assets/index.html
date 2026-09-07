@@ -678,6 +678,89 @@
   .prow-line.h5 { color: var(--h5); }
   .prow-line.h6 { color: var(--h6); }
 
+  /* --- Update Modal --- */
+  #updateBackdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 250;
+    display: none;
+  }
+  #updateModal {
+    position: fixed;
+    z-index: 251;
+    left: 20px;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: 400px;
+    margin: 0 auto;
+    background: var(--bg2);
+    border: 1px solid var(--accent);
+    border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: popUp 0.2s ease-out;
+  }
+  .update-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: #191b29;
+    border-bottom: 1px solid var(--border);
+  }
+  .update-title { font-size: 14.5px; font-weight: 700; color: var(--accent); }
+  .update-close { background: transparent; border: none; color: var(--muted); font-size: 18px; cursor: pointer; }
+  .update-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .update-version-row { display: flex; align-items: center; gap: 8px; }
+  .badge { padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+  .new-badge { background: var(--accent); color: #16161e; }
+  .current-badge { background: #282c3f; color: var(--muted); }
+  .update-changelog-title { font-size: 11.5px; font-weight: 700; color: var(--fg); margin-top: 4px; }
+  .update-changelog {
+    background: #181926;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 11.5px;
+    line-height: 1.45;
+    max-height: 150px;
+    overflow-y: auto;
+    color: #a9b1d6;
+    white-space: pre-wrap;
+  }
+  .update-footer {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #191b29;
+    border-top: 1px solid var(--border);
+  }
+  .upd-btn-primary {
+    flex: 1;
+    background: var(--accent);
+    color: #16161e;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .upd-btn-primary:active { background: var(--accent-hover); }
+  .upd-btn-secondary {
+    background: #24283b;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12.5px;
+    cursor: pointer;
+  }
+
   /* --- Options Modal --- */
   #optionsModal {
     position: fixed;
@@ -910,6 +993,24 @@
     </div>
 
     <div>
+      <div class="drawer-section-title">App Info & Updates</div>
+      <div class="file-item" id="btnCheckUpdateDrawer">
+        <span class="f-icon">🔄</span>
+        <div class="f-meta">
+          <div class="f-name">Check for Updates</div>
+          <div class="f-sub" id="appVersionSub">MD Viewer v1.0.0</div>
+        </div>
+      </div>
+      <div class="file-item" id="btnOpenGitHubRepo">
+        <span class="f-icon">🌐</span>
+        <div class="f-meta">
+          <div class="f-name">GitHub Repository</div>
+          <div class="f-sub">dkchw/mdviewer_android</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
       <div class="drawer-section-title">Share & Copy</div>
       <div class="file-item" id="btnShareDoc">
         <span class="f-icon">📤</span>
@@ -944,6 +1045,27 @@
   <div id="panelBody"></div>
 </div>
 
+<!-- Auto Update Modal Dialog -->
+<div id="updateBackdrop"></div>
+<div id="updateModal">
+  <div class="update-header">
+    <div class="update-title">🚀 Update Available!</div>
+    <button id="btnCloseUpdate" class="update-close">✕</button>
+  </div>
+  <div class="update-body">
+    <div class="update-version-row">
+      <span class="badge new-badge" id="updateNewVersion">v1.0.0</span>
+      <span class="badge current-badge" id="updateCurrentVersion">Current: v1.0.0</span>
+    </div>
+    <div class="update-changelog-title">Changelog:</div>
+    <div class="update-changelog" id="updateChangelog"></div>
+  </div>
+  <div class="update-footer">
+    <button id="btnLaterUpdate" class="upd-btn-secondary">Later</button>
+    <button id="btnInstallUpdate" class="upd-btn-primary">Download & Install</button>
+  </div>
+</div>
+
 <!-- Toast element -->
 <div id="toast"></div>
 
@@ -957,6 +1079,10 @@
   const BASE_FONT = 13.5;
   let LINE_H = BASE_LINE_H;
   const BUFFER = 12;
+
+  const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
+      window.AndroidBridge.getAppVersion() : '1.0.0';
+  const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   let currentDocName = 'Guide.md';
   let rawDocText = '';
@@ -984,6 +1110,9 @@
   let openedFolderRootDocId = null;
   let openedFolderName = null;
   let activeTreeDocId = null;
+
+  // Update state
+  let pendingReleaseData = null;
 
   // Elements
   const scroller = document.getElementById('scroller');
@@ -1026,6 +1155,9 @@
   const btnRefreshFolder = document.getElementById('btnRefreshFolder');
   const hiddenFileInput = document.getElementById('hiddenFileInput');
   const recentFileList = document.getElementById('recentFileList');
+  const btnCheckUpdateDrawer = document.getElementById('btnCheckUpdateDrawer');
+  const btnOpenGitHubRepo = document.getElementById('btnOpenGitHubRepo');
+  const appVersionSub = document.getElementById('appVersionSub');
 
   // Preview Panel elements
   const panel = document.getElementById('panel');
@@ -1038,6 +1170,16 @@
   const panelZoomOut = document.getElementById('panelZoomOut');
   let currentPreviewHIdx = -1;
 
+  // Update Modal elements
+  const updateModal = document.getElementById('updateModal');
+  const updateBackdrop = document.getElementById('updateBackdrop');
+  const btnCloseUpdate = document.getElementById('btnCloseUpdate');
+  const btnLaterUpdate = document.getElementById('btnLaterUpdate');
+  const btnInstallUpdate = document.getElementById('btnInstallUpdate');
+  const updateNewVersion = document.getElementById('updateNewVersion');
+  const updateCurrentVersion = document.getElementById('updateCurrentVersion');
+  const updateChangelog = document.getElementById('updateChangelog');
+
   // Options Modal (Levels & Zoom)
   const optionsModal = document.getElementById('optionsModal');
   const btnToggleOptions = document.getElementById('btnToggleOptions');
@@ -1046,6 +1188,8 @@
   const btnZoomOut = document.getElementById('btnZoomOut');
   const btnZoomReset = document.getElementById('btnZoomReset');
   const zoomDisplay = document.getElementById('zoomDisplay');
+
+  appVersionSub.textContent = `MD Viewer v${CURRENT_APP_VERSION}`;
 
   // Toast
   const toast = document.getElementById('toast');
@@ -1058,7 +1202,7 @@
     toast.textContent = msg;
     toast.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
   }
 
   // --- Zoom Management ---
@@ -2021,6 +2165,110 @@
     return wrapper;
   }
 
+  // --- Auto-Update System ---
+  function compareVersions(v1, v2) {
+    const clean1 = v1.replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0);
+    const clean2 = v2.replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0);
+    const len = Math.max(clean1.length, clean2.length);
+    for (let i = 0; i < len; i++) {
+      const p1 = clean1[i] || 0;
+      const p2 = clean2[i] || 0;
+      if (p1 > p2) return 1;
+      if (p1 < p2) return -1;
+    }
+    return 0;
+  }
+
+  async function checkForUpdates(manual = false) {
+    if (manual) showToast('Checking for updates...');
+    try {
+      let releaseData = null;
+      if (window.AndroidBridge && window.AndroidBridge.checkLatestRelease) {
+        const raw = window.AndroidBridge.checkLatestRelease();
+        try {
+          const parsed = JSON.parse(raw);
+          if (!parsed.error && parsed.tag_name) {
+            releaseData = parsed;
+          }
+        } catch(e) {}
+      }
+
+      if (!releaseData) {
+        const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`, {
+          headers: { 'Accept': 'application/vnd.github.v3+json' }
+        });
+        if (res.ok) {
+          releaseData = await res.json();
+        }
+      }
+
+      if (!releaseData || !releaseData.tag_name) {
+        if (manual) showToast(`You are on the latest version (v${CURRENT_APP_VERSION})`);
+        return;
+      }
+
+      const latestTag = releaseData.tag_name;
+      if (compareVersions(latestTag, CURRENT_APP_VERSION) > 0) {
+        pendingReleaseData = releaseData;
+        showUpdateDialog(releaseData);
+      } else {
+        if (manual) showToast(`You are on the latest version (v${CURRENT_APP_VERSION})`);
+      }
+    } catch(e) {
+      if (manual) showToast('Could not check updates: ' + e.message);
+    }
+  }
+
+  function showUpdateDialog(releaseData) {
+    updateNewVersion.textContent = releaseData.tag_name;
+    updateCurrentVersion.textContent = `Current: v${CURRENT_APP_VERSION}`;
+    updateChangelog.textContent = releaseData.body || 'No release notes provided.';
+    updateModal.style.display = 'flex';
+    updateBackdrop.style.display = 'block';
+  }
+
+  function hideUpdateDialog() {
+    updateModal.style.display = 'none';
+    updateBackdrop.style.display = 'none';
+  }
+
+  btnCloseUpdate.addEventListener('click', hideUpdateDialog);
+  btnLaterUpdate.addEventListener('click', hideUpdateDialog);
+  updateBackdrop.addEventListener('click', hideUpdateDialog);
+
+  btnInstallUpdate.addEventListener('click', () => {
+    if (!pendingReleaseData) return;
+    let apkAsset = null;
+    if (pendingReleaseData.assets && pendingReleaseData.assets.length) {
+      apkAsset = pendingReleaseData.assets.find(a => a.name && a.name.endsWith('.apk'));
+    }
+
+    const apkUrl = apkAsset ? apkAsset.browser_download_url : pendingReleaseData.html_url;
+    const vName = pendingReleaseData.tag_name.replace(/^v/, '');
+
+    if (apkAsset && window.AndroidBridge && window.AndroidBridge.downloadAndInstall) {
+      window.AndroidBridge.downloadAndInstall(apkUrl, vName);
+    } else if (window.AndroidBridge && window.AndroidBridge.openExternalUrl) {
+      window.AndroidBridge.openExternalUrl(pendingReleaseData.html_url);
+    } else {
+      window.open(pendingReleaseData.html_url, '_blank');
+    }
+    hideUpdateDialog();
+  });
+
+  btnCheckUpdateDrawer.addEventListener('click', () => {
+    checkForUpdates(true);
+  });
+
+  btnOpenGitHubRepo.addEventListener('click', () => {
+    const url = `https://github.com/${GITHUB_REPO}`;
+    if (window.AndroidBridge && window.AndroidBridge.openExternalUrl) {
+      window.AndroidBridge.openExternalUrl(url);
+    } else {
+      window.open(url, '_blank');
+    }
+  });
+
   // --- Recent Files Storage ---
   const MAX_RECENTS = 6;
   let recentFiles = [];
@@ -2136,6 +2384,10 @@
 
   // --- Android Hardware Back Button Handling ---
   window.handleBackPressed = function() {
+    if (updateModal.style.display === 'flex') {
+      hideUpdateDialog();
+      return true;
+    }
     if (panel.style.display === 'flex') {
       hidePanel();
       return true;
@@ -2173,6 +2425,11 @@
     });
 
   applyZoom();
+
+  // Check for updates automatically in background after a short delay
+  setTimeout(() => {
+    checkForUpdates(false);
+  }, 3500);
 })();
 </script>
 </body>

@@ -2,12 +2,17 @@ package com.mdviewer.app;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.util.Log;
@@ -21,6 +26,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -29,6 +35,8 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -275,8 +283,6 @@ public class MainActivity extends Activity {
                             }
                         }
                     }
-                } else {
-                    Log.w(TAG, "Cursor is null for children of: " + targetId);
                 }
             }
 
@@ -376,7 +382,7 @@ public class MainActivity extends Activity {
                         while (c.moveToNext() && results.length() < 100) {
                             String id = idCol >= 0 ? c.getString(idCol) : null;
                             String name = nameCol >= 0 ? c.getString(nameCol) : null;
-                            String mime = mimeCol >= 0 ? c.getString(mimeCol) : null;
+                            String mime = mimeCol >= 0 ? cursorToStringSafe(c, mimeCol) : null;
 
                             if (name == null || name.startsWith(".")) continue;
                             boolean isDir = DocumentsContract.Document.MIME_TYPE_DIR.equals(mime);
@@ -404,6 +410,14 @@ public class MainActivity extends Activity {
         return results.toString();
     }
 
+    private String cursorToStringSafe(Cursor c, int col) {
+        try {
+            return c.getString(col);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private void searchInFile(String docId, String fileName, String qLower, JSONArray results) {
         try {
             Uri docUri = DocumentsContract.buildDocumentUriUsingTree(mCurrentTreeUri, docId);
@@ -424,6 +438,130 @@ public class MainActivity extends Activity {
                 }
             }
         } catch (Exception ignored) {}
+    }
+
+    // Auto-update support
+    public String checkGitHubRelease() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // background check
+            }
+        }).start();
+
+        try {
+            URL url = new URL("https://api.github.com/repos/dkchw/mdviewer_android/releases/latest");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("User-Agent", "MDViewer-Android-App");
+            conn.setRequestProperty("Accept", "application/vnd.github.v3+json");
+            conn.setConnectTimeout(8000);
+            conn.setReadTimeout(8000);
+
+            int code = conn.getResponseCode();
+            if (code == 200) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        sb.append(line);
+                    }
+                    return sb.toString();
+                }
+            } else {
+                JSONObject obj = new JSONObject();
+                obj.put("status", "error");
+                obj.put("code", code);
+                return obj.toString();
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Cannot fetch GitHub release", e);
+            JSONObject obj = new JSONObject();
+            try {
+                obj.put("status", "error");
+                obj.put("message", e.getMessage());
+            } catch (Exception ignored) {}
+            return obj.toString();
+        }
+    }
+
+    public void downloadAndInstallApk(final String apkUrl, final String versionName) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Toast.makeText(MainActivity.this, "Downloading MD Viewer update v" + versionName + "...", Toast.LENGTH_LONG).show();
+
+                    DownloadManager dm = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                    if (dm == null) {
+                        openWebUrl(apkUrl);
+                        return;
+                    }
+
+                    Uri downloadUri = Uri.parse(apkUrl);
+                    DownloadManager.Request request = new DownloadManager.Request(downloadUri);
+                    request.setTitle("MD Viewer v" + versionName);
+                    request.setDescription("Downloading latest APK...");
+                    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                    request.setMimeType("application/vnd.android.package-archive");
+                    request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "mdviewer-v" + versionName + ".apk");
+
+                    final long downloadId = dm.enqueue(request);
+
+                    BroadcastReceiver receiver = new BroadcastReceiver() {
+                        @Override
+                        public void onReceive(Context context, Intent intent) {
+                            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+                            if (id == downloadId) {
+                                try {
+                                    unregisterReceiver(this);
+                                } catch (Exception ignored) {}
+
+                                DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                                Uri fileUri = manager != null ? manager.getUriForDownloadedFile(downloadId) : null;
+                                if (fileUri != null) {
+                                    installApk(fileUri);
+                                } else {
+                                    openWebUrl(apkUrl);
+                                }
+                            }
+                        }
+                    };
+
+                    if (Build.VERSION.SDK_INT >= 33) {
+                        registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_EXPORTED);
+                    } else {
+                        registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+                    }
+
+                } catch (Exception e) {
+                    Log.e(TAG, "Download error", e);
+                    openWebUrl(apkUrl);
+                }
+            }
+        });
+    }
+
+    private void installApk(Uri uri) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(uri, "application/vnd.android.package-archive");
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(intent);
+        } catch (Exception e) {
+            Log.e(TAG, "Install error", e);
+            Toast.makeText(this, "Cannot open installer: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void openWebUrl(String url) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } catch (Exception e) {
+            Toast.makeText(this, "Cannot open browser: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private String getFolderName(Uri treeUri) {
