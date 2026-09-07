@@ -407,8 +407,8 @@
     top: 0;
     bottom: 0;
     left: 0;
-    width: 86vw;
-    max-width: 330px;
+    width: min(92vw, 440px);
+    max-width: 440px;
     background: var(--bg2);
     z-index: 101;
     display: flex;
@@ -429,14 +429,39 @@
     padding: 12px 14px;
     border-bottom: 1px solid var(--border);
     background: #191b29;
+    flex-shrink: 0;
   }
   .drawer-title {
-    font-size: 15px;
+    font-size: 15.5px;
     font-weight: 700;
     color: var(--accent);
     display: flex;
     align-items: center;
     gap: 8px;
+  }
+  .drawer-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .drawer-icon-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    transition: all 0.15s ease;
+  }
+  .drawer-icon-btn:active {
+    color: var(--accent);
+    background: rgba(122, 162, 247, 0.15);
   }
   .drawer-close-btn {
     background: transparent;
@@ -444,18 +469,24 @@
     color: var(--muted);
     font-size: 18px;
     cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
   }
   .drawer-close-btn:active { color: var(--fg); background: #2c3040; }
 
   .drawer-content {
     flex: 1;
     overflow-y: auto;
-    padding: 10px 12px;
+    padding: 12px 14px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
+    min-height: 0;
   }
 
   .drawer-actions-row {
@@ -503,8 +534,10 @@
     flex-direction: column;
     background: #181926;
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 10px;
     overflow: hidden;
+    flex: 1;
+    min-height: 220px;
   }
   #folderSection.visible {
     display: flex;
@@ -577,7 +610,8 @@
     display: none;
   }
   #folderTree {
-    max-height: min(65vh, 520px);
+    flex: 1;
+    min-height: 160px;
     overflow-y: auto;
     overflow-x: hidden;
     padding: 8px 4px 16px;
@@ -680,13 +714,39 @@
     display: block;
   }
 
+  .drawer-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    padding: 0 2px;
+  }
   .drawer-section-title {
     font-size: 11px;
     font-weight: 700;
     color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 6px;
+  }
+  .drawer-recent-section {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  #folderSection.visible ~ #recentSection {
+    flex-shrink: 0;
+    max-height: 190px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 8px;
+  }
+  #folderSection:not(.visible) ~ #recentSection {
+    flex: 1;
+    min-height: 0;
+  }
+  #recentFileList {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
   }
 
   .file-item {
@@ -872,6 +932,150 @@
     cursor: pointer;
   }
 
+  /* --- Settings Modal --- */
+  #settingsBackdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    z-index: 220;
+    display: none;
+  }
+  #settingsModal {
+    position: fixed;
+    z-index: 221;
+    left: 16px;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: 440px;
+    max-height: 84vh;
+    margin: 0 auto;
+    background: var(--bg2);
+    border: 1px solid var(--accent);
+    border-radius: 14px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: popUp 0.2s ease-out;
+  }
+  .settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: #191b29;
+    border-bottom: 1px solid var(--border);
+  }
+  .settings-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .settings-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  .settings-close-btn:active {
+    color: var(--fg);
+    background: #2c3040;
+  }
+  .settings-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .settings-group-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 2px;
+  }
+  .settings-card {
+    background: #191b29;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .settings-row-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 12px;
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: var(--fg);
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.12s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .settings-row-btn:last-child {
+    border-bottom: none;
+  }
+  .settings-row-btn:active {
+    background: rgba(122, 162, 247, 0.14);
+  }
+  .settings-row-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    width: 24px;
+    text-align: center;
+  }
+  .settings-row-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .settings-row-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--fg);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .settings-row-desc {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .settings-row-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: rgba(122, 162, 247, 0.16);
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
   /* --- Options Modal --- */
   #optionsModal {
     position: fixed;
@@ -1042,7 +1246,15 @@
     <div class="drawer-title">
       <span>📁</span> File Manager
     </div>
-    <button id="btnCloseDrawer" class="drawer-close-btn">✕</button>
+    <div class="drawer-header-actions">
+      <button id="btnOpenSettings" class="drawer-icon-btn" title="Settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </button>
+      <button id="btnCloseDrawer" class="drawer-close-btn" title="Close" aria-label="Close">✕</button>
+    </div>
   </div>
   <div class="drawer-content">
     <div class="drawer-actions-row">
@@ -1080,80 +1292,130 @@
       <div id="folderTree" class="obsidian-tree-container"></div>
     </div>
 
-    <div>
-      <div class="drawer-section-title">Recent Files</div>
+    <!-- Recent Files Section -->
+    <div id="recentSection" class="drawer-recent-section">
+      <div class="drawer-section-header">
+        <div class="drawer-section-title">Recent Files</div>
+      </div>
       <div id="recentFileList"></div>
     </div>
+  </div>
+</aside>
 
-    <div>
-      <div class="drawer-section-title">Performance Stress Tests</div>
-      <div class="file-item" id="sampleGuide">
-        <span class="f-icon">📖</span>
-        <div class="f-meta">
-          <div class="f-name">Guide & Features</div>
-          <div class="f-sub">Overview of functions and buttons</div>
-        </div>
-      </div>
-      <div class="file-item" id="sample10k">
-        <span class="f-icon">🚀</span>
-        <div class="f-meta">
-          <div class="f-name">10,000 Lines Stress Test</div>
-          <div class="f-sub">Quick 10k lines outline test</div>
-        </div>
-      </div>
-      <div class="file-item" id="sample100k">
-        <span class="f-icon">🔥</span>
-        <div class="f-meta">
-          <div class="f-name">100,000 Lines Mega Test</div>
-          <div class="f-sub">High volume folding benchmark</div>
-        </div>
-      </div>
-      <div class="file-item" id="sample1M">
-        <span class="f-icon">⚡</span>
-        <div class="f-meta">
-          <div class="f-name">1,000,000 Lines Ultra Test</div>
-          <div class="f-sub">Extreme 1 million line benchmark</div>
-        </div>
+<!-- Settings Modal & Backdrop -->
+<div id="settingsBackdrop"></div>
+<div id="settingsModal">
+  <div class="settings-header">
+    <div class="settings-title">
+      <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+      Settings
+    </div>
+    <button id="btnCloseSettings" class="settings-close-btn" title="Close">✕</button>
+  </div>
+  <div class="settings-body">
+    <!-- Document Actions -->
+    <div class="settings-group">
+      <div class="settings-group-title">Document Actions</div>
+      <div class="settings-card">
+        <button class="settings-row-btn" id="btnShareDoc">
+          <span class="settings-row-icon">📤</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">Share Document</span>
+            <span class="settings-row-desc">Send markdown text to other apps</span>
+          </div>
+        </button>
+        <button class="settings-row-btn" id="btnCopyDoc">
+          <span class="settings-row-icon">📋</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">Copy All Text</span>
+            <span class="settings-row-desc">Copy document content to clipboard</span>
+          </div>
+        </button>
       </div>
     </div>
 
-    <div>
-      <div class="drawer-section-title">App Info & Updates</div>
-      <div class="file-item" id="btnCheckUpdateDrawer">
-        <span class="f-icon">🔄</span>
-        <div class="f-meta">
-          <div class="f-name">Check for Updates</div>
-          <div class="f-sub" id="appVersionSub">MD Viewer v1.0.0</div>
-        </div>
-      </div>
-      <div class="file-item" id="btnOpenGitHubRepo">
-        <span class="f-icon">🌐</span>
-        <div class="f-meta">
-          <div class="f-name">GitHub Repository</div>
-          <div class="f-sub">dkchw/mdviewer_android</div>
-        </div>
+    <!-- Storage / History -->
+    <div class="settings-group">
+      <div class="settings-group-title">File History</div>
+      <div class="settings-card">
+        <button class="settings-row-btn" id="btnClearRecentFiles">
+          <span class="settings-row-icon">🗑️</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">Clear Recent Files</span>
+            <span class="settings-row-desc">Remove recent document history</span>
+          </div>
+        </button>
       </div>
     </div>
 
-    <div>
-      <div class="drawer-section-title">Share & Copy</div>
-      <div class="file-item" id="btnShareDoc">
-        <span class="f-icon">📤</span>
-        <div class="f-meta">
-          <div class="f-name">Share Document</div>
-          <div class="f-sub">Send text to other apps</div>
-        </div>
+    <!-- Performance Stress Tests -->
+    <div class="settings-group">
+      <div class="settings-group-title">Performance Stress Tests</div>
+      <div class="settings-card">
+        <button class="settings-row-btn" id="sampleGuide">
+          <span class="settings-row-icon">📖</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">Guide & Features</span>
+            <span class="settings-row-desc">Overview of functions and gestures</span>
+          </div>
+        </button>
+        <button class="settings-row-btn" id="sample10k">
+          <span class="settings-row-icon">🚀</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">10,000 Lines Test</span>
+            <span class="settings-row-desc">Quick 10k lines outline test</span>
+          </div>
+        </button>
+        <button class="settings-row-btn" id="sample100k">
+          <span class="settings-row-icon">🔥</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">100,000 Lines Test</span>
+            <span class="settings-row-desc">High volume folding benchmark</span>
+          </div>
+        </button>
+        <button class="settings-row-btn" id="sample1M">
+          <span class="settings-row-icon">⚡</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">1,000,000 Lines Ultra Test</span>
+            <span class="settings-row-desc">Extreme 1 million line benchmark</span>
+          </div>
+        </button>
       </div>
-      <div class="file-item" id="btnCopyDoc">
-        <span class="f-icon">📋</span>
-        <div class="f-meta">
-          <div class="f-name">Copy All Text</div>
-          <div class="f-sub">Copy content to clipboard</div>
+    </div>
+
+    <!-- App Info & Updates -->
+    <div class="settings-group">
+      <div class="settings-group-title">App Info & Updates</div>
+      <div class="settings-card">
+        <button class="settings-row-btn" id="btnCheckUpdateDrawer">
+          <span class="settings-row-icon">🔄</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">Check for Updates</span>
+            <span class="settings-row-desc">Check GitHub releases for new version</span>
+          </div>
+          <span class="settings-row-badge" id="appVersionSub">v1.0.3</span>
+        </button>
+        <button class="settings-row-btn" id="btnOpenGitHubRepo">
+          <span class="settings-row-icon">🌐</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">GitHub Repository</span>
+            <span class="settings-row-desc">dkchw/mdviewer_android</span>
+          </div>
+        </button>
+        <div class="settings-row-btn" style="cursor: default;">
+          <span class="settings-row-icon">⚖️</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">Apache License 2.0</span>
+            <span class="settings-row-desc">Free & open source software</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</aside>
+</div>
 
 <!-- Hover Outline Preview Panel -->
 <div id="panelBackdrop"></div>
@@ -1206,7 +1468,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '1.0.2';
+      window.AndroidBridge.getAppVersion() : '1.0.3';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   let currentDocName = 'Guide.md';
@@ -1286,6 +1548,13 @@
   const btnCheckUpdateDrawer = document.getElementById('btnCheckUpdateDrawer');
   const btnOpenGitHubRepo = document.getElementById('btnOpenGitHubRepo');
   const appVersionSub = document.getElementById('appVersionSub');
+
+  // Settings elements
+  const settingsBackdrop = document.getElementById('settingsBackdrop');
+  const settingsModal = document.getElementById('settingsModal');
+  const btnOpenSettings = document.getElementById('btnOpenSettings');
+  const btnCloseSettings = document.getElementById('btnCloseSettings');
+  const btnClearRecentFiles = document.getElementById('btnClearRecentFiles');
 
   // Preview Panel elements
   const panel = document.getElementById('panel');
@@ -2069,6 +2338,28 @@
   btnCloseDrawer.addEventListener('click', closeDrawer);
   drawerBackdrop.addEventListener('click', closeDrawer);
 
+  // --- Settings Modal Logic ---
+  function openSettings() {
+    settingsBackdrop.style.display = 'block';
+    settingsModal.style.display = 'flex';
+  }
+  function closeSettings() {
+    settingsBackdrop.style.display = 'none';
+    settingsModal.style.display = 'none';
+  }
+  btnOpenSettings.addEventListener('click', openSettings);
+  btnCloseSettings.addEventListener('click', closeSettings);
+  settingsBackdrop.addEventListener('click', closeSettings);
+
+  btnClearRecentFiles.addEventListener('click', () => {
+    recentFiles = [];
+    try {
+      localStorage.removeItem('mdviewer_recents');
+    } catch(e) {}
+    updateRecentFilesUI();
+    showToast('Recent files cleared');
+  });
+
   // --- File Loading Logic ---
   function loadText(text, fileName) {
     currentDocName = fileName || 'Document.md';
@@ -2459,6 +2750,7 @@
   }
 
   function showUpdateDialog(releaseData) {
+    closeSettings();
     updateNewVersion.textContent = releaseData.tag_name;
     updateCurrentVersion.textContent = `Current: v${CURRENT_APP_VERSION}`;
     updateChangelog.textContent = releaseData.body || 'No release notes provided.';
@@ -2557,6 +2849,8 @@
 
   // --- Benchmark / Sample Files Generator ---
   document.getElementById('sampleGuide').addEventListener('click', () => {
+    closeSettings();
+    closeDrawer();
     fetch('guide.md')
       .then(r => r.text())
       .then(txt => loadText(txt, 'Guide.md'))
@@ -2564,6 +2858,8 @@
   });
 
   function generateMarkdownBenchmark(totalTargetLines) {
+    closeSettings();
+    closeDrawer();
     showToast(`Generating ${totalTargetLines.toLocaleString()} lines...`);
     setTimeout(() => {
       const startT = performance.now();
@@ -2623,6 +2919,10 @@
 
   // --- Android Hardware Back Button Handling ---
   window.handleBackPressed = function() {
+    if (settingsModal.style.display === 'flex') {
+      closeSettings();
+      return true;
+    }
     if (updateModal.style.display === 'flex') {
       hideUpdateDialog();
       return true;
