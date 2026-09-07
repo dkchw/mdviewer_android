@@ -500,6 +500,40 @@ class MainActivity : Activity() {
         }
     }
 
+    fun setSystemUiFullscreen(fullscreen: Boolean) {
+        runOnUiThread {
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    val controller = window.insetsController
+                    if (controller != null) {
+                        if (fullscreen) {
+                            controller.systemBarsBehavior = android.view.WindowInsetsController.BEHAVIOR_DEFAULT
+                            controller.hide(android.view.WindowInsets.Type.systemBars())
+                        } else {
+                            controller.show(android.view.WindowInsets.Type.systemBars())
+                        }
+                    }
+                } else {
+                    @Suppress("DEPRECATION")
+                    if (fullscreen) {
+                        window.decorView.systemUiVisibility = (
+                            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                            or View.SYSTEM_UI_FLAG_FULLSCREEN
+                            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        )
+                    } else {
+                        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Error setting system UI fullscreen: ${e.message}")
+            }
+        }
+    }
+
     fun searchFolderJson(query: String): String {
         val results = JSONArray()
         val treeUri = mCurrentTreeUri ?: return results.toString()
@@ -831,6 +865,14 @@ class MainActivity : Activity() {
             mFilePathCallback = null
 
             singleUri?.let { uri ->
+                val takeFlags = (data?.flags ?: 0) and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                val flagsToTake = if (takeFlags == 0) Intent.FLAG_GRANT_READ_URI_PERMISSION else takeFlags
+                try {
+                    contentResolver.takePersistableUriPermission(uri, flagsToTake)
+                } catch (e: Exception) {
+                    Log.w(TAG, "Cannot take persistable permission for single file: ${e.message}")
+                }
+
                 val fileName = getFileName(uri)
                 mWebView?.post {
                     val js = "if(window.loadFromNativeUri){ window.loadFromNativeUri(" +
@@ -877,6 +919,26 @@ class MainActivity : Activity() {
             return true
         }
         return super.onKeyDown(keyCode, event)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        try {
+            mWebView?.onPause()
+            mWebView?.pauseTimers()
+        } catch (e: Exception) {
+            Log.w(TAG, "Error pausing WebView: ${e.message}")
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        try {
+            mWebView?.onResume()
+            mWebView?.resumeTimers()
+        } catch (e: Exception) {
+            Log.w(TAG, "Error resuming WebView: ${e.message}")
+        }
     }
 
     override fun onDestroy() {

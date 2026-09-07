@@ -230,9 +230,11 @@
     background: var(--bg);
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
+    will-change: scroll-position;
+    contain: strict;
   }
   #spacer { position: relative; width: 100%; }
-  #rows { position: absolute; left: 0; right: 0; top: 0; will-change: transform; }
+  #rows { position: absolute; left: 0; right: 0; top: 0; will-change: transform; contain: layout style; }
 
   .row {
     height: var(--line-h);
@@ -243,6 +245,8 @@
     display: flex;
     align-items: center;
     font-size: var(--font-size);
+    box-sizing: border-box;
+    contain: content;
   }
   .row .lnum {
     color: #3b4261;
@@ -817,7 +821,8 @@
   /* Landscape Orientation: Dock hover preview panel on the right side */
   @media (orientation: landscape) {
     #panelBackdrop {
-      background: rgba(0, 0, 0, 0.35);
+      display: none !important;
+      pointer-events: none !important;
     }
     #panel {
       left: auto;
@@ -830,6 +835,7 @@
       border-radius: 12px;
       box-shadow: -6px 0 32px rgba(0, 0, 0, 0.65), 0 8px 24px rgba(0, 0, 0, 0.5);
       animation: popInRight 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+      pointer-events: auto;
     }
   }
   @keyframes popInRight {
@@ -877,11 +883,14 @@
     padding: 8px 12px;
     font-size: var(--panel-font-size);
     line-height: 1.45;
+    contain: content;
   }
   .prow-line {
     white-space: pre-wrap;
     word-break: break-word;
     padding: 3px 0;
+    user-select: text !important;
+    -webkit-user-select: text !important;
   }
   .prow-line.heading { font-weight: 700; }
   .prow-line.h1 { color: var(--h1); font-size: 1.15em; }
@@ -907,6 +916,27 @@
     z-index: 150;
     background: var(--bg);
     overflow: hidden;
+  }
+  #flashcardView.fc-fullscreen {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9999 !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+  }
+  #flashcardView.fc-fullscreen #flashcardToolbar {
+    padding: 6px 12px;
+  }
+  #flashcardView.fc-fullscreen #flashcardStage {
+    padding: 6px 12px 10px !important;
+    gap: 8px;
+  }
+  #flashcardView.fc-fullscreen .flashcard {
+    max-width: 1000px !important;
+    height: 100% !important;
+    max-height: calc(100% - 54px) !important;
   }
   #flashcardToolbar {
     display: flex;
@@ -1124,6 +1154,14 @@
     min-height: 0;
     padding: 10px 14px;
     box-sizing: border-box;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+  }
+  .fc-back-content,
+  .fc-front-title,
+  .fc-breadcrumb {
+    user-select: text !important;
+    -webkit-user-select: text !important;
   }
   .fc-back-body::-webkit-scrollbar { width: 4px; height: 4px; }
   .fc-back-body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
@@ -1147,6 +1185,25 @@
     overflow-x: auto;
     overflow-y: hidden;
     padding: 10px 16px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .fc-snap-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    pointer-events: none;
+    display: flex;
+    flex-direction: row;
+    z-index: 0;
+  }
+  .fc-snap-point {
+    height: 100%;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    pointer-events: none;
   }
   .fc-back-body.page-mode .fc-back-content {
     height: 100%;
@@ -1488,6 +1545,106 @@
     color: var(--accent);
     flex-shrink: 0;
   }
+  .settings-card-subtitle {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--accent);
+    padding: 8px 12px 3px;
+  }
+  .settings-row-config {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    gap: 12px;
+  }
+  .settings-row-config:last-child {
+    border-bottom: none;
+  }
+  .settings-config-label {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+  }
+  .settings-config-name {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--fg);
+  }
+  .settings-config-desc {
+    font-size: 10.5px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  .cfg-toggle {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .cfg-select {
+    background: #282c3f;
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 11.5px;
+    outline: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    max-width: 175px;
+  }
+
+  /* --- Text Selection & Floating Quick Copy Toolbar --- */
+  ::selection {
+    background: rgba(122, 162, 247, 0.45);
+    color: #ffffff;
+  }
+  ::-moz-selection {
+    background: rgba(122, 162, 247, 0.45);
+    color: #ffffff;
+  }
+  #selectionToolbar {
+    position: fixed;
+    z-index: 600;
+    display: none;
+    align-items: center;
+    background: #1f2335;
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 3px 6px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.7);
+    gap: 6px;
+    transform: translateX(-50%);
+    animation: popUp 0.12s ease-out;
+  }
+  .sel-btn {
+    background: rgba(122, 162, 247, 0.22);
+    color: #ffffff;
+    border: 1px solid rgba(122, 162, 247, 0.4);
+    border-radius: 5px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+  }
+  .sel-btn:active { background: rgba(122, 162, 247, 0.45); }
+  .sel-btn-close {
+    padding: 4px 6px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 11px;
+    cursor: pointer;
+  }
 
   /* --- Options Modal --- */
   #optionsModal {
@@ -1692,6 +1849,7 @@
     </div>
     <button id="fcShuffleBtn" title="Shuffle flashcards">🔀</button>
     <button id="fcColToggleBtn" title="Toggle 2-Column Page Mode vs 1-Column Scroll">❚❚ 2-Col</button>
+    <button id="fcFullscreenBtn" title="Toggle Fullscreen Mode (F)">⛶ Fullscreen</button>
     <div class="fc-zoom-group" id="fcZoomGroup">
       <button id="fcZoomOutBtn" title="Decrease font size ( - )">A−</button>
       <span id="fcZoomDisplay" class="fc-zoom-val">100%</span>
@@ -1719,9 +1877,11 @@
           </div>
           <div class="fc-back-controls">
             <button id="fcCardColBtn" title="Toggle 2-Column Page Mode vs 1-Column Scroll">❚❚ 2-Col</button>
+            <button id="fcCardFsBtn" title="Toggle Fullscreen Mode (F)">⛶</button>
           </div>
         </div>
         <div class="fc-back-body" id="fcBackBody">
+          <div class="fc-snap-layer" id="fcSnapLayer"></div>
           <div class="fc-back-content" id="fcBackContent"></div>
         </div>
         <div class="fc-hint" style="padding:6px 12px;background:#191b29;border-top:1px solid var(--border);margin-top:0;">Tap to flip back • Double-tap for 2-Col / 1-Col • Gamepad &amp; Keys supported</div>
@@ -1835,6 +1995,176 @@
           <div class="settings-row-content">
             <span class="settings-row-name">Copy All Text</span>
             <span class="settings-row-desc">Copy document content to clipboard</span>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Controls & Gestures Configuration -->
+    <div class="settings-group">
+      <div class="settings-group-title">Controls &amp; Gestures (Flashcard &amp; App)</div>
+      <div class="settings-card">
+        <!-- Touch Gestures -->
+        <div class="settings-card-subtitle">Touch Gestures</div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Horizontal Swipe</span>
+            <span class="settings-config-desc">Swipe left / right to change cards or pages</span>
+          </div>
+          <input type="checkbox" id="cfgGestureSwipe" class="cfg-toggle" checked>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Vertical Flick</span>
+            <span class="settings-config-desc">Flick up / down to flip flashcard</span>
+          </div>
+          <input type="checkbox" id="cfgGestureFlick" class="cfg-toggle" checked>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Double-Tap</span>
+            <span class="settings-config-desc">Double-tap card to toggle 2-column mode</span>
+          </div>
+          <input type="checkbox" id="cfgGestureDoubleTap" class="cfg-toggle" checked>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Long-Press (Hold)</span>
+            <span class="settings-config-desc">Hold card for 600ms to shuffle cards</span>
+          </div>
+          <input type="checkbox" id="cfgGestureLongPress" class="cfg-toggle" checked>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Edge Tap (Left/Right 16%)</span>
+            <span class="settings-config-desc">Tap left edge for prev, right edge for next</span>
+          </div>
+          <input type="checkbox" id="cfgGestureEdgeTap" class="cfg-toggle" checked>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Pinch-to-Zoom</span>
+            <span class="settings-config-desc">Pinch on card to resize font size</span>
+          </div>
+          <input type="checkbox" id="cfgGesturePinch" class="cfg-toggle" checked>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Swipe Sensitivity</span>
+            <span class="settings-config-desc">Distance threshold for swipe trigger</span>
+          </div>
+          <select id="cfgSwipeSensitivity" class="cfg-select">
+            <option value="30">High (30px)</option>
+            <option value="45" selected>Normal (45px)</option>
+            <option value="65">Low (65px)</option>
+          </select>
+        </div>
+
+        <!-- Keyboard Shortcuts -->
+        <div class="settings-card-subtitle">Keyboard Shortcuts</div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Flip Card Key</span>
+            <span class="settings-config-desc">Keys that flip the card front/back</span>
+          </div>
+          <select id="cfgKeyFlip" class="cfg-select">
+            <option value="space_enter_k_j" selected>Space / Enter / K / J</option>
+            <option value="space_enter">Space / Enter only</option>
+            <option value="space_only">Space only</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Next Card Key</span>
+            <span class="settings-config-desc">Keys to advance to next flashcard</span>
+          </div>
+          <select id="cfgKeyNext" class="cfg-select">
+            <option value="right_n_l_d" selected>ArrowRight / N / L / D</option>
+            <option value="right_n">ArrowRight / N</option>
+            <option value="right_only">ArrowRight only</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Prev Card Key</span>
+            <span class="settings-config-desc">Keys to go to previous flashcard</span>
+          </div>
+          <select id="cfgKeyPrev" class="cfg-select">
+            <option value="left_p_h_a" selected>ArrowLeft / P / H / A</option>
+            <option value="left_p">ArrowLeft / P</option>
+            <option value="left_only">ArrowLeft only</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Fullscreen Key</span>
+            <span class="settings-config-desc">Key to toggle fullscreen mode</span>
+          </div>
+          <select id="cfgKeyFullscreen" class="cfg-select">
+            <option value="f" selected>F key</option>
+            <option value="f_f11">F / F11</option>
+            <option value="none">Disabled</option>
+          </select>
+        </div>
+
+        <!-- Gamepad Mapping -->
+        <div class="settings-card-subtitle">Gamepad &amp; Controller Mapping</div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Flip Card Button</span>
+            <span class="settings-config-desc">Controller button to flip card</span>
+          </div>
+          <select id="cfgGpFlip" class="cfg-select">
+            <option value="a_dpad" selected>Button A / Cross / D-Pad</option>
+            <option value="a_only">Button A / Cross only</option>
+            <option value="r2">Trigger R2 / RT</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Back / Exit Button</span>
+            <span class="settings-config-desc">Button to flip back or exit mode</span>
+          </div>
+          <select id="cfgGpBack" class="cfg-select">
+            <option value="b" selected>Button B / Circle</option>
+            <option value="select">Select / Share</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Next / Prev Bumpers</span>
+            <span class="settings-config-desc">R1/L1 bumpers navigate cards/pages</span>
+          </div>
+          <input type="checkbox" id="cfgGpBumpers" class="cfg-toggle" checked>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Left Analog Stick</span>
+            <span class="settings-config-desc">Stick left/right for cards, flick Y to flip</span>
+          </div>
+          <input type="checkbox" id="cfgGpAnalog" class="cfg-toggle" checked>
+        </div>
+
+        <button class="settings-row-btn" id="btnResetControls" style="margin-top:6px;">
+          <span class="settings-row-icon">⚙️</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name" style="color:var(--accent);">Reset All Controls to Default</span>
+            <span class="settings-row-desc">Restore default keyboard, gamepad &amp; gesture settings</span>
           </div>
         </button>
       </div>
@@ -1956,6 +2286,15 @@
   </div>
 </div>
 
+<!-- Floating Quick Selection & Copy Toolbar -->
+<div id="selectionToolbar">
+  <button id="btnCopySelection" class="sel-btn" title="Copy selection">
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+    Copy
+  </button>
+  <button id="btnDeselectSelection" class="sel-btn sel-btn-close" title="Deselect">✕</button>
+</div>
+
 <!-- Toast element -->
 <div id="toast"></div>
 
@@ -1971,10 +2310,12 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '1.0.6';
+      window.AndroidBridge.getAppVersion() : '1.0.7';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   let currentDocName = 'Guide.md';
+  let currentDocUri = null;
+  let currentDocTreeId = null;
   let rawDocText = '';
   let lines = [];
   let headings = [];
@@ -2103,6 +2444,7 @@
   const fcFilterGroup = document.getElementById('fcFilterGroup');
   const fcShuffleBtn = document.getElementById('fcShuffleBtn');
   const fcColToggleBtn = document.getElementById('fcColToggleBtn');
+  const fcFullscreenBtn = document.getElementById('fcFullscreenBtn');
   const fcStats = document.getElementById('fcStats');
   const fcCard = document.getElementById('flashcard');
   const fcLevelBadge = document.getElementById('fcLevelBadge');
@@ -2110,18 +2452,267 @@
   const fcFrontTitle = document.getElementById('fcFrontTitle');
   const fcBackTitle = document.getElementById('fcBackTitle');
   const fcBackBody = document.getElementById('fcBackBody');
+  const fcSnapLayer = document.getElementById('fcSnapLayer');
   const fcBackContent = document.getElementById('fcBackContent');
   const fcPageNav = document.getElementById('fcPageNav');
   const fcPrevPageBtn = document.getElementById('fcPrevPageBtn');
   const fcNextPageBtn = document.getElementById('fcNextPageBtn');
   const fcPageIndicator = document.getElementById('fcPageIndicator');
   const fcCardColBtn = document.getElementById('fcCardColBtn');
+  const fcCardFsBtn = document.getElementById('fcCardFsBtn');
   const fcPrevBtn = document.getElementById('fcPrevBtn');
   const fcFlipBtn = document.getElementById('fcFlipBtn');
   const fcNextBtn = document.getElementById('fcNextBtn');
   const fcZoomOutBtn = document.getElementById('fcZoomOutBtn');
   const fcZoomInBtn = document.getElementById('fcZoomInBtn');
   const fcZoomDisplay = document.getElementById('fcZoomDisplay');
+  let isFcFullscreen = false;
+
+  // Selection & Floating Quick Copy Elements
+  const selectionToolbar = document.getElementById('selectionToolbar');
+  const btnCopySelection = document.getElementById('btnCopySelection');
+  const btnDeselectSelection = document.getElementById('btnDeselectSelection');
+
+  // Controls & Gestures Configuration State
+  const DEFAULT_CONTROLS_CONFIG = {
+    gestureSwipe: true,
+    gestureFlick: true,
+    gestureDoubleTap: true,
+    gestureLongPress: true,
+    gestureEdgeTap: true,
+    gesturePinch: true,
+    swipeSensitivity: 45,
+    keyFlip: 'space_enter_k_j',
+    keyNext: 'right_n_l_d',
+    keyPrev: 'left_p_h_a',
+    keyFullscreen: 'f',
+    gpFlip: 'a_dpad',
+    gpBack: 'b',
+    gpBumpers: true,
+    gpAnalog: true
+  };
+
+  let controlsConfig = Object.assign({}, DEFAULT_CONTROLS_CONFIG);
+  try {
+    const savedCfg = localStorage.getItem('mdviewer_controls_config');
+    if (savedCfg) {
+      controlsConfig = Object.assign({}, DEFAULT_CONTROLS_CONFIG, JSON.parse(savedCfg));
+    }
+  } catch(e) {}
+
+  const cfgGestureSwipe = document.getElementById('cfgGestureSwipe');
+  const cfgGestureFlick = document.getElementById('cfgGestureFlick');
+  const cfgGestureDoubleTap = document.getElementById('cfgGestureDoubleTap');
+  const cfgGestureLongPress = document.getElementById('cfgGestureLongPress');
+  const cfgGestureEdgeTap = document.getElementById('cfgGestureEdgeTap');
+  const cfgGesturePinch = document.getElementById('cfgGesturePinch');
+  const cfgSwipeSensitivity = document.getElementById('cfgSwipeSensitivity');
+  const cfgKeyFlip = document.getElementById('cfgKeyFlip');
+  const cfgKeyNext = document.getElementById('cfgKeyNext');
+  const cfgKeyPrev = document.getElementById('cfgKeyPrev');
+  const cfgKeyFullscreen = document.getElementById('cfgKeyFullscreen');
+  const cfgGpFlip = document.getElementById('cfgGpFlip');
+  const cfgGpBack = document.getElementById('cfgGpBack');
+  const cfgGpBumpers = document.getElementById('cfgGpBumpers');
+  const cfgGpAnalog = document.getElementById('cfgGpAnalog');
+  const btnResetControls = document.getElementById('btnResetControls');
+
+  function saveControlsConfig() {
+    try {
+      localStorage.setItem('mdviewer_controls_config', JSON.stringify(controlsConfig));
+    } catch(e) {}
+  }
+
+  function syncControlsSettingsUI() {
+    if (cfgGestureSwipe) cfgGestureSwipe.checked = (controlsConfig.gestureSwipe !== false);
+    if (cfgGestureFlick) cfgGestureFlick.checked = (controlsConfig.gestureFlick !== false);
+    if (cfgGestureDoubleTap) cfgGestureDoubleTap.checked = (controlsConfig.gestureDoubleTap !== false);
+    if (cfgGestureLongPress) cfgGestureLongPress.checked = (controlsConfig.gestureLongPress !== false);
+    if (cfgGestureEdgeTap) cfgGestureEdgeTap.checked = (controlsConfig.gestureEdgeTap !== false);
+    if (cfgGesturePinch) cfgGesturePinch.checked = (controlsConfig.gesturePinch !== false);
+    if (cfgSwipeSensitivity) cfgSwipeSensitivity.value = String(controlsConfig.swipeSensitivity || 45);
+
+    if (cfgKeyFlip) cfgKeyFlip.value = controlsConfig.keyFlip || 'space_enter_k_j';
+    if (cfgKeyNext) cfgKeyNext.value = controlsConfig.keyNext || 'right_n_l_d';
+    if (cfgKeyPrev) cfgKeyPrev.value = controlsConfig.keyPrev || 'left_p_h_a';
+    if (cfgKeyFullscreen) cfgKeyFullscreen.value = controlsConfig.keyFullscreen || 'f';
+
+    if (cfgGpFlip) cfgGpFlip.value = controlsConfig.gpFlip || 'a_dpad';
+    if (cfgGpBack) cfgGpBack.value = controlsConfig.gpBack || 'b';
+    if (cfgGpBumpers) cfgGpBumpers.checked = (controlsConfig.gpBumpers !== false);
+    if (cfgGpAnalog) cfgGpAnalog.checked = (controlsConfig.gpAnalog !== false);
+  }
+
+  if (cfgGestureSwipe) cfgGestureSwipe.addEventListener('change', () => { controlsConfig.gestureSwipe = cfgGestureSwipe.checked; saveControlsConfig(); });
+  if (cfgGestureFlick) cfgGestureFlick.addEventListener('change', () => { controlsConfig.gestureFlick = cfgGestureFlick.checked; saveControlsConfig(); });
+  if (cfgGestureDoubleTap) cfgGestureDoubleTap.addEventListener('change', () => { controlsConfig.gestureDoubleTap = cfgGestureDoubleTap.checked; saveControlsConfig(); });
+  if (cfgGestureLongPress) cfgGestureLongPress.addEventListener('change', () => { controlsConfig.gestureLongPress = cfgGestureLongPress.checked; saveControlsConfig(); });
+  if (cfgGestureEdgeTap) cfgGestureEdgeTap.addEventListener('change', () => { controlsConfig.gestureEdgeTap = cfgGestureEdgeTap.checked; saveControlsConfig(); });
+  if (cfgGesturePinch) cfgGesturePinch.addEventListener('change', () => { controlsConfig.gesturePinch = cfgGesturePinch.checked; saveControlsConfig(); });
+  if (cfgSwipeSensitivity) cfgSwipeSensitivity.addEventListener('change', () => { controlsConfig.swipeSensitivity = parseInt(cfgSwipeSensitivity.value, 10) || 45; saveControlsConfig(); });
+
+  if (cfgKeyFlip) cfgKeyFlip.addEventListener('change', () => { controlsConfig.keyFlip = cfgKeyFlip.value; saveControlsConfig(); });
+  if (cfgKeyNext) cfgKeyNext.addEventListener('change', () => { controlsConfig.keyNext = cfgKeyNext.value; saveControlsConfig(); });
+  if (cfgKeyPrev) cfgKeyPrev.addEventListener('change', () => { controlsConfig.keyPrev = cfgKeyPrev.value; saveControlsConfig(); });
+  if (cfgKeyFullscreen) cfgKeyFullscreen.addEventListener('change', () => { controlsConfig.keyFullscreen = cfgKeyFullscreen.value; saveControlsConfig(); });
+
+  if (cfgGpFlip) cfgGpFlip.addEventListener('change', () => { controlsConfig.gpFlip = cfgGpFlip.value; saveControlsConfig(); });
+  if (cfgGpBack) cfgGpBack.addEventListener('change', () => { controlsConfig.gpBack = cfgGpBack.value; saveControlsConfig(); });
+  if (cfgGpBumpers) cfgGpBumpers.addEventListener('change', () => { controlsConfig.gpBumpers = cfgGpBumpers.checked; saveControlsConfig(); });
+  if (cfgGpAnalog) cfgGpAnalog.addEventListener('change', () => { controlsConfig.gpAnalog = cfgGpAnalog.checked; saveControlsConfig(); });
+
+  if (btnResetControls) {
+    btnResetControls.addEventListener('click', () => {
+      controlsConfig = Object.assign({}, DEFAULT_CONTROLS_CONFIG);
+      saveControlsConfig();
+      syncControlsSettingsUI();
+      showToast('Controls reset to default');
+    });
+  }
+  syncControlsSettingsUI();
+
+  // --- Text Selection, Quick Copy & Auto-Deselection ---
+  let justDeselected = false;
+  let selChangeTimer = null;
+
+  function copySelectedText(text) {
+    if (!text) return;
+    if (window.AndroidBridge && window.AndroidBridge.copyToClipboard) {
+      window.AndroidBridge.copyToClipboard(text);
+      showToast(`Copied ${text.length} chars`);
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text)
+        .then(() => showToast(`Copied ${text.length} chars`))
+        .catch(() => fallbackCopyText(text));
+    } else {
+      fallbackCopyText(text);
+    }
+  }
+
+  function fallbackCopyText(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try {
+      document.execCommand('copy');
+      showToast(`Copied ${text.length} chars`);
+    } catch (e) {
+      showToast('Failed to copy');
+    }
+    document.body.removeChild(ta);
+  }
+
+  function showSelectionToolbar(rect) {
+    if (!selectionToolbar) return;
+    selectionToolbar.style.display = 'inline-flex';
+    const halfW = 70;
+    let left = rect.left + (rect.width / 2);
+    left = Math.max(halfW + 8, Math.min(window.innerWidth - halfW - 8, left));
+
+    let top = rect.top - 44;
+    if (top < 10) {
+      top = rect.bottom + 10;
+    }
+    top = Math.max(10, Math.min(window.innerHeight - 50, top));
+
+    selectionToolbar.style.left = left + 'px';
+    selectionToolbar.style.top = top + 'px';
+    selectionToolbar.classList.add('visible');
+  }
+
+  function hideSelectionToolbar() {
+    if (!selectionToolbar) return;
+    selectionToolbar.classList.remove('visible');
+    selectionToolbar.style.display = 'none';
+  }
+
+  function updateSelectionState() {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed) {
+      hideSelectionToolbar();
+      return;
+    }
+    const text = sel.toString().trim();
+    if (text.length === 0) {
+      hideSelectionToolbar();
+      return;
+    }
+    if (sel.rangeCount > 0) {
+      const range = sel.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        showSelectionToolbar(rect);
+      } else {
+        hideSelectionToolbar();
+      }
+    } else {
+      hideSelectionToolbar();
+    }
+  }
+
+  document.addEventListener('selectionchange', () => {
+    clearTimeout(selChangeTimer);
+    selChangeTimer = setTimeout(updateSelectionState, 60);
+  });
+
+  if (btnCopySelection) {
+    btnCopySelection.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const sel = window.getSelection();
+      const text = sel ? sel.toString().trim() : '';
+      if (text) {
+        copySelectedText(text);
+      }
+      if (sel) sel.removeAllRanges();
+      hideSelectionToolbar();
+    });
+  }
+
+  if (btnDeselectSelection) {
+    btnDeselectSelection.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const sel = window.getSelection();
+      if (sel) sel.removeAllRanges();
+      hideSelectionToolbar();
+    });
+  }
+
+  // Auto-deselect when clicking elsewhere
+  document.addEventListener('pointerdown', (e) => {
+    if (selectionToolbar && selectionToolbar.contains(e.target)) {
+      return;
+    }
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !sel.toString().trim()) {
+      return;
+    }
+
+    if (sel.rangeCount > 0) {
+      const range = sel.getRangeAt(0);
+      const rects = range.getClientRects();
+      let clickedInsideSelection = false;
+      for (let i = 0; i < rects.length; i++) {
+        const r = rects[i];
+        if (e.clientX >= r.left - 6 && e.clientX <= r.right + 6 &&
+            e.clientY >= r.top - 6 && e.clientY <= r.bottom + 6) {
+          clickedInsideSelection = true;
+          break;
+        }
+      }
+      if (!clickedInsideSelection) {
+        sel.removeAllRanges();
+        hideSelectionToolbar();
+        justDeselected = true;
+        setTimeout(() => { justDeselected = false; }, 200);
+      }
+    }
+  }, true);
 
   const FC_ZOOM_LEVELS = [0.75, 0.85, 1.0, 1.15, 1.3, 1.5, 1.75, 2.0];
   let fcZoomIdx = 2; // Default 100%
@@ -2405,8 +2996,23 @@
     });
   }
 
-  scroller.addEventListener('scroll', render, { passive: true });
+  let isScrolling = false;
+  let scrollTimeout = null;
+  scroller.addEventListener('scroll', () => {
+    isScrolling = true;
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => { isScrolling = false; }, 90);
+    render();
+  }, { passive: true });
+
   window.addEventListener('resize', render);
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      rafPending = false;
+      requestAnimationFrame(render);
+    }
+  });
 
   // --- Heading Click & Hover Mode Actions ---
   function toggleHeading(hIdx) {
@@ -2418,6 +3024,14 @@
   }
 
   rowsEl.addEventListener('click', (e) => {
+    if (isScrolling || justDeselected) return;
+
+    // Do not intercept or clear text selection when user selects words/sentences
+    const sel = window.getSelection();
+    if (sel && sel.toString().trim().length > 0) {
+      return;
+    }
+
     const arrow = e.target.closest('[data-toggle]');
     if (arrow) {
       e.stopPropagation();
@@ -2479,20 +3093,49 @@
     return ans >= 0 ? headings[ans] : null;
   }
 
-  // 1. Collapse Above
+  // 1. Collapse Above (Progressive Level by Level)
   btnCollapseAbove.addEventListener('click', () => {
     const currH = getActiveOrVisibleHeading();
     if (!currH) { showToast('No headings found'); return; }
-    let count = 0;
-    for (const h of headings) {
-      if (h.line < currH.line && h.end >= h.line + 1) {
-        h.collapsed = true;
-        count++;
+
+    const headingsAbove = headings.filter(h => h.line < currH.line && h.end >= h.line + 1);
+    if (headingsAbove.length === 0) {
+      showToast('No headings above current view');
+      return;
+    }
+
+    // Find the deepest uncollapsed heading level above
+    let maxUncollapsed = 0;
+    for (const h of headingsAbove) {
+      if (!h.collapsed && h.level > maxUncollapsed) {
+        maxUncollapsed = h.level;
       }
     }
+
+    if (maxUncollapsed === 0) {
+      showToast('Already collapsed to H1 above');
+      return;
+    }
+
+    // Target level to collapse down to (e.g. if at H3, first collapse to H2, then to H1)
+    let targetLevel = maxUncollapsed;
+    if (targetLevel >= currH.level) {
+      targetLevel = Math.max(1, currH.level - 1);
+    }
+
+    let count = 0;
+    for (const h of headingsAbove) {
+      if (h.level >= targetLevel) {
+        if (!h.collapsed) count++;
+        h.collapsed = true;
+      } else {
+        h.collapsed = false;
+      }
+    }
+
     computeSegments();
     scrollToLine(currH.line, false);
-    showToast(`Collapsed ${count} sections above`);
+    showToast(`Collapsed to H${targetLevel} above (${count} section${count === 1 ? '' : 's'})`);
   });
 
   // 2. Collapse All
@@ -2533,20 +3176,46 @@
   }
   btnExpandAll.addEventListener('click', expandAll);
 
-  // 5. Expand Below
+  // 5. Expand Below (Progressive Level by Level)
   btnExpandBelow.addEventListener('click', () => {
     const currH = getActiveOrVisibleHeading();
     if (!currH) { showToast('No headings found'); return; }
-    let count = 0;
-    for (const h of headings) {
-      if (h.line > currH.line) {
-        if (h.collapsed) count++;
-        h.collapsed = false;
+
+    const headingsBelow = headings.filter(h => h.line >= currH.line && h.end >= h.line + 1);
+    if (headingsBelow.length === 0) {
+      showToast('No headings below current view');
+      return;
+    }
+
+    // Find the shallowest collapsed heading level at or below currH
+    let minCollapsed = 7;
+    for (const h of headingsBelow) {
+      if (h.collapsed && h.level < minCollapsed) {
+        minCollapsed = h.level;
       }
     }
+
+    if (minCollapsed > 6) {
+      showToast('All headings below already expanded');
+      return;
+    }
+
+    let count = 0;
+    for (const h of headingsBelow) {
+      if (h.collapsed && h.level <= minCollapsed) {
+        h.collapsed = false;
+        count++;
+      }
+    }
+
     computeSegments();
     scrollToLine(currH.line, false);
-    showToast(`Expanded ${count} sections below`);
+    const hasRemainingCollapsed = headingsBelow.some(h => h.collapsed);
+    if (hasRemainingCollapsed) {
+      showToast(`Expanded level H${minCollapsed} below (revealed H${minCollapsed + 1})`);
+    } else {
+      showToast('Fully expanded all sections below');
+    }
   });
 
   // --- Scroll to Line with Parent Unfolding ---
@@ -2609,11 +3278,25 @@
   let currentPreviewTargetLine = -1;
 
   function showPanel(hIdx, targetLineNo) {
+    const isSameHeading = (currentPreviewHIdx === hIdx && panel.style.display === 'flex');
     currentPreviewHIdx = hIdx;
     currentPreviewTargetLine = (targetLineNo !== undefined) ? targetLineNo : -1;
     const h = headings[hIdx];
     panelTitle.textContent = '#'.repeat(h.level) + ' ' + h.text;
     panelTitle.style.color = `var(--h${h.level})`;
+
+    if (isSameHeading) {
+      // In-place highlight update without destroying & rebuilding 500 DOM nodes
+      panelBody.querySelectorAll('.prow-target-highlight').forEach(el => el.classList.remove('prow-target-highlight'));
+      if (currentPreviewTargetLine >= 0 && currentPreviewTargetLine > h.line) {
+        const targetEl = panelBody.querySelector(`[data-pline="${currentPreviewTargetLine}"]`);
+        if (targetEl) {
+          targetEl.classList.add('prow-target-highlight');
+          targetEl.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+        }
+      }
+      return;
+    }
 
     const MAX_PREVIEW = 500;
     const startLine = h.line + 1;
@@ -2637,9 +3320,7 @@
     if (currentPreviewTargetLine >= 0 && currentPreviewTargetLine > h.line) {
       const targetEl = panelBody.querySelector(`[data-pline="${currentPreviewTargetLine}"]`);
       if (targetEl) {
-        setTimeout(() => {
-          targetEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
-        }, 40);
+        targetEl.scrollIntoView({ block: 'nearest', behavior: 'auto' });
       } else {
         panelBody.scrollTop = 0;
       }
@@ -2658,6 +3339,10 @@
   panelBackdrop.addEventListener('click', hidePanel);
 
   panelBody.addEventListener('click', (e) => {
+    if (justDeselected) return;
+    const sel = window.getSelection();
+    if (sel && sel.toString().trim().length > 0) return;
+
     const pRow = e.target.closest('[data-pline]');
     if (pRow) {
       const pLine = parseInt(pRow.dataset.pline, 10);
@@ -2739,21 +3424,47 @@
     const style = window.getComputedStyle(fcBackBody);
     const padLeft = parseFloat(style.paddingLeft) || 0;
     const padRight = parseFloat(style.paddingRight) || 0;
-    const W = cw - padLeft - padRight;
+    const W = Math.max(0, cw - padLeft - padRight);
     const step = Math.max(1, W + GAP);
     return { cw, W, GAP, step };
   }
 
   function getTotalPages() {
-    if (!fcBackBody) return 1;
-    const { step } = getPageMetrics();
-    if (step <= 1) return 1;
-    const sw = fcBackBody.scrollWidth;
-    return Math.max(1, Math.round((sw + 28) / step));
+    if (!fcBackBody || !fcTwoColumn) return 1;
+    const { W, GAP, step } = getPageMetrics();
+    if (step <= 1 || W <= 0) return 1;
+    const contentW = fcBackContent ? fcBackContent.scrollWidth : 0;
+    const colWidth = Math.max(1, (W - GAP) / 2);
+    const colStep = colWidth + GAP;
+
+    if (contentW <= W) return 1;
+    const totalCols = Math.max(1, Math.round((contentW + GAP) / colStep));
+    return Math.max(1, Math.ceil(totalCols / 2));
+  }
+
+  function updateSnapAnchors() {
+    if (!fcBackBody || !fcSnapLayer) return;
+    fcSnapLayer.innerHTML = '';
+    if (!fcTwoColumn) return;
+
+    const { W, GAP, step } = getPageMetrics();
+    if (step <= 1 || W <= 0) return;
+
+    const total = getTotalPages();
+    for (let p = 0; p < total; p++) {
+      const pt = document.createElement('div');
+      pt.className = 'fc-snap-point';
+      pt.style.width = `${W}px`;
+      if (p < total - 1) {
+        pt.style.marginRight = `${GAP}px`;
+      }
+      fcSnapLayer.appendChild(pt);
+    }
   }
 
   function goToPage(pageIdx, smooth = true) {
     if (!fcBackBody) return;
+    updateSnapAnchors();
     const total = getTotalPages();
     currentBackPageIndex = Math.max(0, Math.min(total - 1, pageIdx));
     const { step } = getPageMetrics();
@@ -2785,6 +3496,26 @@
     if (fcPageIndicator) fcPageIndicator.textContent = `${pageNum} / ${total}`;
     if (fcPrevPageBtn) fcPrevPageBtn.disabled = (currentBackPageIndex <= 0);
     if (fcNextPageBtn) fcNextPageBtn.disabled = (currentBackPageIndex >= total - 1);
+  }
+
+  let fcScrollDebounce = null;
+  if (fcBackBody) {
+    fcBackBody.addEventListener('scroll', () => {
+      if (!fcTwoColumn) return;
+      clearTimeout(fcScrollDebounce);
+      fcScrollDebounce = setTimeout(() => {
+        const { step } = getPageMetrics();
+        if (step > 0) {
+          const p = Math.round(fcBackBody.scrollLeft / step);
+          const total = getTotalPages();
+          const clamped = Math.max(0, Math.min(total - 1, p));
+          if (clamped !== currentBackPageIndex) {
+            currentBackPageIndex = clamped;
+            updatePageIndicator();
+          }
+        }
+      }, 40);
+    }, { passive: true });
   }
 
   function updateColumnState() {
@@ -2955,13 +3686,29 @@
         return val && !wasPressed;
       };
 
-      // Button 0 (A / Cross) or D-Pad Up / Down (12, 13): Flip
-      if (isPressed(0) || isPressed(12) || isPressed(13)) {
+      // Configurable Gamepad Flip Button
+      let flipRequested = false;
+      if (controlsConfig.gpFlip === 'a_only') {
+        flipRequested = isPressed(0);
+      } else if (controlsConfig.gpFlip === 'r2') {
+        flipRequested = isPressed(7);
+      } else {
+        // default: 'a_dpad'
+        flipRequested = isPressed(0) || isPressed(12) || isPressed(13);
+      }
+      if (flipRequested) {
         flipFlashcard();
       }
 
-      // Button 1 (B / Circle): Flip back or Exit
-      if (isPressed(1)) {
+      // Configurable Gamepad Back / Exit Button
+      let backRequested = false;
+      if (controlsConfig.gpBack === 'select') {
+        backRequested = isPressed(8);
+      } else {
+        // default: 'b'
+        backRequested = isPressed(1);
+      }
+      if (backRequested) {
         if (fcCard && fcCard.classList.contains('flipped')) {
           flipFlashcard();
         } else {
@@ -2969,8 +3716,12 @@
         }
       }
 
-      // Button 14 (D-Pad Left) or L1/LB (4) or L2/LT (6): Prev
-      if (isPressed(14) || isPressed(4) || isPressed(6)) {
+      // Prev Card / Page Navigation
+      let prevRequested = isPressed(14); // D-pad Left
+      if (controlsConfig.gpBumpers !== false) {
+        if (isPressed(4) || isPressed(6)) prevRequested = true; // L1, L2
+      }
+      if (prevRequested) {
         if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex > 0) {
           prevPage();
         } else {
@@ -2978,8 +3729,12 @@
         }
       }
 
-      // Button 15 (D-Pad Right) or R1/RB (5) or R2/RT (7): Next
-      if (isPressed(15) || isPressed(5) || isPressed(7)) {
+      // Next Card / Page Navigation
+      let nextRequested = isPressed(15); // D-pad Right
+      if (controlsConfig.gpBumpers !== false) {
+        if (isPressed(5) || (controlsConfig.gpFlip !== 'r2' && isPressed(7))) nextRequested = true; // R1, R2
+      }
+      if (nextRequested) {
         if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex < getTotalPages() - 1) {
           nextPage();
         } else {
@@ -2997,8 +3752,8 @@
         shuffleFlashcards();
       }
 
-      // Button 8 (Select / Share / Back): Exit
-      if (isPressed(8)) {
+      // Button 8 (Select) if not used for back: Exit
+      if (controlsConfig.gpBack !== 'select' && isPressed(8)) {
         exitFlashcardMode();
       }
 
@@ -3007,31 +3762,33 @@
         toggleTwoColumn();
       }
 
-      // Left Stick X Axis (Navigate Cards / Pages)
-      const stickX = (gp.axes && gp.axes[0] !== undefined) ? gp.axes[0] : 0;
-      const prevX = gpPrevState.axes[0] || 0;
-      if (stickX > 0.55 && prevX <= 0.55) {
-        if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex < getTotalPages() - 1) {
-          nextPage();
-        } else {
-          nextFlashcard();
+      // Left Stick (Analog Stick Navigation)
+      if (controlsConfig.gpAnalog !== false) {
+        const stickX = (gp.axes && gp.axes[0] !== undefined) ? gp.axes[0] : 0;
+        const prevX = gpPrevState.axes[0] || 0;
+        if (stickX > 0.55 && prevX <= 0.55) {
+          if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex < getTotalPages() - 1) {
+            nextPage();
+          } else {
+            nextFlashcard();
+          }
+        } else if (stickX < -0.55 && prevX >= -0.55) {
+          if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex > 0) {
+            prevPage();
+          } else {
+            prevFlashcard();
+          }
         }
-      } else if (stickX < -0.55 && prevX >= -0.55) {
-        if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex > 0) {
-          prevPage();
-        } else {
-          prevFlashcard();
-        }
-      }
-      gpPrevState.axes[0] = stickX;
+        gpPrevState.axes[0] = stickX;
 
-      // Left Stick Y Axis (Flick to Flip)
-      const stickY = (gp.axes && gp.axes[1] !== undefined) ? gp.axes[1] : 0;
-      const prevY = gpPrevState.axes[1] || 0;
-      if (Math.abs(stickY) > 0.6 && Math.abs(prevY) <= 0.6) {
-        flipFlashcard();
+        // Left Stick Y Axis (Flick to Flip)
+        const stickY = (gp.axes && gp.axes[1] !== undefined) ? gp.axes[1] : 0;
+        const prevY = gpPrevState.axes[1] || 0;
+        if (Math.abs(stickY) > 0.6 && Math.abs(prevY) <= 0.6) {
+          flipFlashcard();
+        }
+        gpPrevState.axes[1] = stickY;
       }
-      gpPrevState.axes[1] = stickY;
     }
 
     gamepadRafId = requestAnimationFrame(pollGamepad);
@@ -3117,7 +3874,84 @@
     }
   }
 
+  // Fullscreen Mode for Flashcard
+  function toggleFcFullscreen() {
+    isFcFullscreen = !isFcFullscreen;
+    applyFcFullscreenState();
+  }
+
+  function applyFcFullscreenState() {
+    if (isFcFullscreen) {
+      flashcardView.classList.add('fc-fullscreen');
+      if (fcFullscreenBtn) {
+        fcFullscreenBtn.classList.add('active');
+        fcFullscreenBtn.innerHTML = '🗗 Exit Fullscreen';
+      }
+      if (fcCardFsBtn) {
+        fcCardFsBtn.classList.add('active');
+        fcCardFsBtn.innerHTML = '🗗';
+      }
+      if (window.AndroidBridge && window.AndroidBridge.setFullscreen) {
+        try { window.AndroidBridge.setFullscreen(true); } catch(e) {}
+      }
+      if (document.fullscreenEnabled && !document.fullscreenElement) {
+        try {
+          (flashcardView.requestFullscreen || flashcardView.webkitRequestFullscreen).call(flashcardView);
+        } catch(e) {}
+      }
+      showToast('Fullscreen enabled');
+    } else {
+      flashcardView.classList.remove('fc-fullscreen');
+      if (fcFullscreenBtn) {
+        fcFullscreenBtn.classList.remove('active');
+        fcFullscreenBtn.innerHTML = '⛶ Fullscreen';
+      }
+      if (fcCardFsBtn) {
+        fcCardFsBtn.classList.remove('active');
+        fcCardFsBtn.innerHTML = '⛶';
+      }
+      if (window.AndroidBridge && window.AndroidBridge.setFullscreen) {
+        try { window.AndroidBridge.setFullscreen(false); } catch(e) {}
+      }
+      if (document.fullscreenElement) {
+        try {
+          (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        } catch(e) {}
+      }
+      showToast('Fullscreen disabled');
+    }
+
+    if (fcTwoColumn) {
+      setTimeout(() => {
+        updateSnapAnchors();
+        goToPage(currentBackPageIndex, false);
+      }, 60);
+    }
+  }
+
+  function exitFcFullscreen() {
+    if (isFcFullscreen) {
+      isFcFullscreen = false;
+      applyFcFullscreenState();
+    }
+  }
+
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && isFcFullscreen) {
+      isFcFullscreen = false;
+      applyFcFullscreenState();
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    if (isFlashcardMode && fcTwoColumn) {
+      updateSnapAnchors();
+      goToPage(currentBackPageIndex, false);
+    }
+  });
+
   function exitFlashcardMode() {
+    exitFcFullscreen();
     isFlashcardMode = false;
     flashcardView.style.display = 'none';
     if (gamepadRafId) {
@@ -3133,6 +3967,7 @@
     enterFlashcardMode();
   });
   if (fcExitBtn) fcExitBtn.addEventListener('click', exitFlashcardMode);
+  if (fcFullscreenBtn) fcFullscreenBtn.addEventListener('click', toggleFcFullscreen);
   if (fcFlipBtn) fcFlipBtn.addEventListener('click', flipFlashcard);
   if (fcNextBtn) fcNextBtn.addEventListener('click', nextFlashcard);
   if (fcPrevBtn) fcPrevBtn.addEventListener('click', prevFlashcard);
@@ -3141,6 +3976,10 @@
   if (fcCardColBtn) fcCardColBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     toggleTwoColumn();
+  });
+  if (fcCardFsBtn) fcCardFsBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleFcFullscreen();
   });
   if (fcPrevPageBtn) fcPrevPageBtn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -3186,10 +4025,12 @@
     fcCard.addEventListener('touchstart', (e) => {
       if (e.touches.length === 2) {
         clearTimeout(fcLongPressTimer);
-        fcPinchStartDist = Math.hypot(
-          e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY
-        );
+        if (controlsConfig.gesturePinch !== false) {
+          fcPinchStartDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+        }
         return;
       }
       if (e.touches.length === 1) {
@@ -3200,16 +4041,18 @@
 
         // Long press (600ms) gesture -> Shuffle
         clearTimeout(fcLongPressTimer);
-        fcLongPressTimer = setTimeout(() => {
-          fcLongPressTriggered = true;
-          shuffleFlashcards();
-          if (navigator.vibrate) navigator.vibrate(40);
-        }, 600);
+        if (controlsConfig.gestureLongPress !== false) {
+          fcLongPressTimer = setTimeout(() => {
+            fcLongPressTriggered = true;
+            shuffleFlashcards();
+            if (navigator.vibrate) navigator.vibrate(40);
+          }, 600);
+        }
       }
     }, { passive: true });
 
     fcCard.addEventListener('touchmove', (e) => {
-      if (e.touches.length === 2 && fcPinchStartDist > 0) {
+      if (controlsConfig.gesturePinch !== false && e.touches.length === 2 && fcPinchStartDist > 0) {
         const currDist = Math.hypot(
           e.touches[0].clientX - e.touches[1].clientX,
           e.touches[0].clientY - e.touches[1].clientY
@@ -3238,7 +4081,7 @@
         fcPinchStartDist = 0;
       }
       clearTimeout(fcLongPressTimer);
-      if (fcLongPressTriggered) return;
+      if (fcLongPressTriggered || justDeselected) return;
 
       if (e.changedTouches.length === 1) {
         const touch = e.changedTouches[0];
@@ -3247,11 +4090,12 @@
         const dt = Date.now() - fcTouchStartTime;
         const absX = Math.abs(dx);
         const absY = Math.abs(dy);
+        const swipeThreshold = controlsConfig.swipeSensitivity || 45;
 
         const inBackBody = e.target.closest('#fcBackBody');
 
         // 1. Horizontal Swipe (Left/Right)
-        if (absX > 45 && absX > absY * 1.3 && dt < 450) {
+        if (controlsConfig.gestureSwipe !== false && absX > swipeThreshold && absX > absY * 1.3 && dt < 450) {
           if (inBackBody && fcTwoColumn) {
             if (dx < 0) {
               if (currentBackPageIndex < getTotalPages() - 1) {
@@ -3274,7 +4118,7 @@
         }
 
         // 2. Vertical Flick / Swipe (Up/Down) -> Flip Card!
-        if (absY > 45 && absY > absX * 1.3 && dt < 450) {
+        if (controlsConfig.gestureFlick !== false && absY > swipeThreshold && absY > absX * 1.3 && dt < 450) {
           if (inBackBody && !fcTwoColumn) {
             // In 1-col scroll mode, flip only if at scroll boundary
             if ((dy < 0 && fcBackBody.scrollTop + fcBackBody.clientHeight >= fcBackBody.scrollHeight - 6) ||
@@ -3294,7 +4138,7 @@
           if (inBackBody && window.getSelection().toString().length > 0) return;
 
           const now = Date.now();
-          if (now - fcLastTapTime < 320) {
+          if (controlsConfig.gestureDoubleTap !== false && now - fcLastTapTime < 320) {
             // Double Tap: Toggle 2-Column Mode!
             toggleTwoColumn();
             fcLastTapTime = 0;
@@ -3303,12 +4147,12 @@
           fcLastTapTime = now;
 
           // Edge tap check:
-          const rect = fcCard.getBoundingClientRect();
-          const relX = touch.clientX - rect.left;
-          const width = rect.width;
+          if (controlsConfig.gestureEdgeTap !== false && !inBackBody) {
+            const rect = fcCard.getBoundingClientRect();
+            const relX = touch.clientX - rect.left;
+            const width = rect.width;
 
-          // Left 16% -> Prev, Right 16% -> Next, Center -> Flip
-          if (!inBackBody) {
+            // Left 16% -> Prev, Right 16% -> Next
             if (relX < width * 0.16) {
               prevFlashcard();
               return;
@@ -3325,6 +4169,7 @@
 
     fcCard.addEventListener('click', (e) => {
       if (Date.now() - fcTouchStartTime < 450) return;
+      if (justDeselected) return;
       if (e.target.closest('#fcBackBody') && window.getSelection().toString().length > 0) return;
       if (e.target.closest('button') || e.target.closest('a')) return;
       flipFlashcard();
@@ -3399,24 +4244,72 @@
       return;
     }
 
-    // Standard Keyboard Navigation
-    // Next Card: ArrowRight, N, L, D
-    if (e.key === 'ArrowRight' || e.code === 'KeyN' || e.code === 'KeyL' || e.code === 'KeyD') {
+    // Configurable Keyboard Navigation
+    // Next Card
+    let isNextKey = false;
+    if (controlsConfig.keyNext === 'right_only') {
+      isNextKey = (e.key === 'ArrowRight');
+    } else if (controlsConfig.keyNext === 'right_n') {
+      isNextKey = (e.key === 'ArrowRight' || e.code === 'KeyN');
+    } else {
+      // default: 'right_n_l_d'
+      isNextKey = (e.key === 'ArrowRight' || e.code === 'KeyN' || e.code === 'KeyL' || e.code === 'KeyD');
+    }
+
+    // Prev Card
+    let isPrevKey = false;
+    if (controlsConfig.keyPrev === 'left_only') {
+      isPrevKey = (e.key === 'ArrowLeft');
+    } else if (controlsConfig.keyPrev === 'left_p') {
+      isPrevKey = (e.key === 'ArrowLeft' || e.code === 'KeyP');
+    } else {
+      // default: 'left_p_h_a'
+      isPrevKey = (e.key === 'ArrowLeft' || e.code === 'KeyP' || e.code === 'KeyH' || e.code === 'KeyA');
+    }
+
+    // Fullscreen Toggle
+    let isFsKey = false;
+    if (controlsConfig.keyFullscreen === 'f') {
+      isFsKey = (e.key === 'f' || e.key === 'F' || e.code === 'KeyF');
+    } else if (controlsConfig.keyFullscreen === 'f_f11') {
+      isFsKey = (e.key === 'f' || e.key === 'F' || e.code === 'KeyF' || e.key === 'F11');
+    }
+
+    // Flip Card
+    let isFlipKey = false;
+    if (controlsConfig.keyFlip === 'space_only') {
+      isFlipKey = (e.key === ' ');
+    } else if (controlsConfig.keyFlip === 'space_enter') {
+      isFlipKey = (e.key === ' ' || e.key === 'Enter');
+    } else {
+      // default: 'space_enter_k_j'
+      isFlipKey = (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter' || e.code === 'KeyK' || e.code === 'KeyJ');
+    }
+
+    if (isNextKey) {
       e.preventDefault();
       nextFlashcard();
-    }
-    // Prev Card: ArrowLeft, P, H, A
-    else if (e.key === 'ArrowLeft' || e.code === 'KeyP' || e.code === 'KeyH' || e.code === 'KeyA') {
+    } else if (isPrevKey) {
       e.preventDefault();
       prevFlashcard();
-    }
-    // Flip Card: Space, Enter, ArrowUp, ArrowDown, F, K, J
-    else if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter' || e.code === 'KeyF' || e.code === 'KeyK' || e.code === 'KeyJ') {
+    } else if (isFsKey) {
+      e.preventDefault();
+      toggleFcFullscreen();
+    } else if (isFlipKey) {
       e.preventDefault();
       flipFlashcard();
     }
-    // Exit Mode: Escape, Backspace, Q
-    else if (e.key === 'Escape' || e.key === 'Backspace' || e.code === 'KeyQ') {
+    // Exit Mode or Fullscreen: Escape
+    else if (e.key === 'Escape') {
+      e.preventDefault();
+      if (isFcFullscreen) {
+        exitFcFullscreen();
+      } else {
+        exitFlashcardMode();
+      }
+    }
+    // Exit Mode: Backspace, Q
+    else if (e.key === 'Backspace' || e.code === 'KeyQ') {
       e.preventDefault();
       exitFlashcardMode();
     }
@@ -3730,6 +4623,7 @@
 
   // --- Settings Modal Logic ---
   function openSettings() {
+    syncControlsSettingsUI();
     settingsBackdrop.style.display = 'block';
     settingsModal.style.display = 'flex';
   }
@@ -3751,11 +4645,14 @@
   });
 
   // --- File Loading Logic ---
-  function loadText(text, fileName) {
+  function loadText(text, fileName, uri, docId) {
     currentDocName = fileName || 'Document.md';
+    if (uri !== undefined) currentDocUri = uri;
+    if (docId !== undefined) currentDocTreeId = docId;
     parse(text);
     scroller.scrollTop = 0;
     saveRecentFile(currentDocName, text);
+    saveLastOpenedFile(currentDocName, currentDocUri, currentDocTreeId, text);
     if (isFlashcardMode) {
       flashcardList = collectFlashcards(flashcardFilter);
       currentCardIndex = 0;
@@ -3772,11 +4669,13 @@
   };
 
   window.loadFromNativeUri = function(uri, fileName) {
+    currentDocUri = uri;
+    currentDocTreeId = null;
     try {
       if (window.AndroidBridge && window.AndroidBridge.readNativeFile) {
         const text = window.AndroidBridge.readNativeFile(uri);
         if (text && !text.startsWith('ERROR:')) {
-          loadText(text, fileName);
+          loadText(text, fileName, uri, null);
           return;
         }
       }
@@ -3789,7 +4688,7 @@
         return r.text();
       })
       .then(text => {
-        loadText(text, fileName);
+        loadText(text, fileName, uri, null);
       })
       .catch(err => {
         console.error('Failed to load file from native URI', err);
@@ -3869,7 +4768,9 @@
         if (!res.ok) throw new Error('HTTP ' + res.status);
         text = await res.text();
       }
-      loadText(text, name);
+      currentDocTreeId = docId;
+      currentDocUri = null;
+      loadText(text, name, null, docId);
     } catch(e) {
       showToast('Could not read: ' + name + ' (' + e.message + ')');
     }
@@ -4204,6 +5105,74 @@
     if (raw) recentFiles = JSON.parse(raw);
   } catch(e) {}
 
+  function saveLastOpenedFile(name, uri, docId, text) {
+    if (!name || name === 'Guide.md' || name.includes('Benchmark_')) return;
+    try {
+      const data = {
+        name: name,
+        uri: uri || null,
+        docId: docId || null,
+        text: (text && text.length < 3000000) ? text : '',
+        time: Date.now()
+      };
+      localStorage.setItem('mdviewer_last_opened', JSON.stringify(data));
+    } catch(e) {
+      try {
+        localStorage.setItem('mdviewer_last_opened', JSON.stringify({ name, uri: uri || null, docId: docId || null, text: '', time: Date.now() }));
+      } catch(e2) {}
+    }
+  }
+
+  function restoreLastOpenedFile() {
+    try {
+      const saved = localStorage.getItem('mdviewer_last_opened');
+      if (!saved) return false;
+      const item = JSON.parse(saved);
+      if (!item || !item.name) return false;
+
+      // 1. If we have a tree docId and bridge supports reading tree file
+      if (item.docId && window.AndroidBridge && window.AndroidBridge.readTreeFile) {
+        try {
+          const content = window.AndroidBridge.readTreeFile(item.docId);
+          if (content && !content.startsWith('ERROR:')) {
+            currentDocUri = null;
+            currentDocTreeId = item.docId;
+            loadText(content, item.name, null, item.docId);
+            return true;
+          }
+        } catch(e) {
+          console.warn('Could not read tree file for last opened:', e);
+        }
+      }
+
+      // 2. If we have a native URI and bridge supports reading native file
+      if (item.uri && window.AndroidBridge && window.AndroidBridge.readNativeFile) {
+        try {
+          const content = window.AndroidBridge.readNativeFile(item.uri);
+          if (content && !content.startsWith('ERROR:')) {
+            currentDocUri = item.uri;
+            currentDocTreeId = null;
+            loadText(content, item.name, item.uri, null);
+            return true;
+          }
+        } catch(e) {
+          console.warn('Could not read native URI for last opened:', e);
+        }
+      }
+
+      // 3. Fallback to cached text if stored
+      if (item.text && item.text.trim().length > 0) {
+        currentDocUri = item.uri || null;
+        currentDocTreeId = item.docId || null;
+        loadText(item.text, item.name, item.uri, item.docId);
+        return true;
+      }
+    } catch(e) {
+      console.warn('Failed to restore last opened file:', e);
+    }
+    return false;
+  }
+
   function saveRecentFile(name, text) {
     if (name.includes('Lines') || name.includes('Guide')) return;
     recentFiles = recentFiles.filter(f => f.name !== name);
@@ -4315,7 +5284,17 @@
 
   // --- Android Hardware Back Button Handling ---
   window.handleBackPressed = function() {
+    const sel = window.getSelection();
+    if (sel && !sel.isCollapsed && sel.toString().trim().length > 0) {
+      sel.removeAllRanges();
+      hideSelectionToolbar();
+      return true;
+    }
     if (isFlashcardMode) {
+      if (isFcFullscreen) {
+        exitFcFullscreen();
+        return true;
+      }
       exitFlashcardMode();
       return true;
     }
@@ -4353,17 +5332,19 @@
   // --- Initial Load ---
   updateHoverButtonUI();
 
-  fetch('guide.md')
-    .then(r => {
-      if (r.ok) return r.text();
-      throw new Error();
-    })
-    .then(text => {
-      loadText(text, 'Guide.md');
-    })
-    .catch(() => {
-      loadText('# MD Viewer\n\nWelcome! Swipe from left to right to open file manager.', 'Guide.md');
-    });
+  if (!restoreLastOpenedFile()) {
+    fetch('guide.md')
+      .then(r => {
+        if (r.ok) return r.text();
+        throw new Error();
+      })
+      .then(text => {
+        loadText(text, 'Guide.md');
+      })
+      .catch(() => {
+        loadText('# MD Viewer\n\nWelcome! Swipe from left to right to open file manager.', 'Guide.md');
+      });
+  }
 
   applyZoom();
 

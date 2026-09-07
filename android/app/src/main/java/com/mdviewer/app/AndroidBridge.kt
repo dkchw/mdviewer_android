@@ -75,8 +75,13 @@ class AndroidBridge(
     }
 
     @JavascriptInterface
+    fun setFullscreen(fullscreen: Boolean) {
+        activity.setSystemUiFullscreen(fullscreen)
+    }
+
+    @JavascriptInterface
     fun getAppVersion(): String {
-        return "1.0.6"
+        return "1.0.7"
     }
 
     @JavascriptInterface
