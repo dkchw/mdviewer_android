@@ -316,7 +316,8 @@
     font-weight: 700;
   }
   .row.highlight-target {
-    background: rgba(122, 162, 247, 0.3) !important;
+    background: rgba(122, 162, 247, 0.32) !important;
+    border-left: 3.5px solid var(--accent) !important;
   }
 
   /* --- Bottom Action Toolbar (5 Buttons) --- */
@@ -342,49 +343,67 @@
     border: none;
     color: var(--fg);
     cursor: pointer;
-    padding: 4px 2px;
-    gap: 2px;
+    padding: 3px 2px;
+    gap: 3px;
     position: relative;
-    transition: background 0.1s ease;
+    border-radius: 8px;
+    margin: 3px 2px;
+    transition: all 0.12s ease;
+    -webkit-tap-highlight-color: transparent;
   }
   .bar-btn:active {
     background: rgba(122, 162, 247, 0.18);
+    transform: scale(0.96);
   }
   .bar-btn .btn-icon {
-    font-size: 16px;
-    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    color: #a9b1d6;
+    transition: color 0.15s ease;
+  }
+  .bar-btn:active .btn-icon {
+    color: var(--accent);
   }
   .bar-btn .btn-label {
-    font-size: 9.5px;
-    font-weight: 500;
+    font-size: 9px;
+    font-weight: 600;
     text-align: center;
-    line-height: 1.1;
+    line-height: 1.15;
     white-space: nowrap;
+    color: var(--muted);
+    letter-spacing: -0.01em;
   }
 
   /* Hover Mode Button Special State */
   #btnHoverToggle.hover-active {
-    background: rgba(122, 162, 247, 0.22);
+    background: rgba(122, 162, 247, 0.18);
     color: var(--accent);
   }
   #btnHoverToggle.hover-active .btn-icon {
-    color: #7aa2f7;
-    filter: drop-shadow(0 0 3px rgba(122, 162, 247, 0.6));
+    color: var(--accent);
+    filter: drop-shadow(0 0 4px rgba(122, 162, 247, 0.5));
+  }
+  #btnHoverToggle.hover-active .btn-label {
+    color: var(--accent);
   }
   #btnHoverToggle .status-badge {
     position: absolute;
-    top: 3px;
-    right: 6px;
-    font-size: 8px;
-    padding: 1px 3px;
-    border-radius: 4px;
+    top: 2px;
+    right: 4px;
+    font-size: 7.5px;
+    padding: 1px 3.5px;
+    border-radius: 3px;
     background: #363b54;
     color: #a9b1d6;
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: 0.04em;
   }
   #btnHoverToggle.hover-active .status-badge {
     background: var(--accent);
-    color: #1a1b26;
+    color: #16161e;
   }
 
   /* --- File Manager Slide-Out Drawer --- */
@@ -848,6 +867,346 @@
   .prow-line.h4 { color: var(--h4); }
   .prow-line.h5 { color: var(--h5); }
   .prow-line.h6 { color: var(--h6); }
+  .prow-line.prow-target-highlight {
+    background: rgba(122, 162, 247, 0.28) !important;
+    border-left: 3px solid var(--accent);
+    padding-left: 6px;
+    border-radius: 4px;
+    margin: 2px 0;
+  }
+
+  /* --- Flashcard Mode --- */
+  #flashcardView {
+    display: none;
+    flex-direction: column;
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    background: var(--bg);
+    overflow: hidden;
+  }
+  #flashcardToolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+  #flashcardToolbar button {
+    background: #242737;
+    color: var(--fg);
+    border: 1px solid var(--border);
+    padding: 5px 9px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11.5px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.12s ease;
+  }
+  #flashcardToolbar button:active {
+    background: #2c3040;
+    transform: scale(0.96);
+  }
+  #flashcardToolbar button.active {
+    background: var(--accent);
+    color: #16161e;
+    font-weight: 700;
+    border-color: var(--accent);
+  }
+  .fc-label {
+    color: #a9b1d6;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin-right: 2px;
+  }
+  .fc-filter-group {
+    display: inline-flex;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .fc-filter-group button {
+    background: #191b29;
+    color: var(--muted);
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+    cursor: pointer;
+  }
+  .fc-filter-group button.active {
+    background: #2c3040 !important;
+    color: var(--accent) !important;
+    font-weight: 700 !important;
+  }
+  .fc-filter-group button:not(:last-child) {
+    border-right: 1px solid var(--border) !important;
+  }
+  .fc-stats {
+    margin-left: auto;
+    color: #a9b1d6;
+    font-size: 11.5px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  #flashcardStage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    perspective: 1200px;
+    overflow: hidden;
+    gap: 12px;
+    min-height: 0;
+  }
+  .flashcard {
+    width: 100%;
+    max-width: 720px;
+    height: 100%;
+    max-height: calc(100% - 64px);
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    user-select: none;
+  }
+  .flashcard.flipped {
+    transform: rotateY(180deg);
+  }
+  .fc-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .45);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .fc-front {
+    align-items: center;
+    justify-content: center;
+    padding: 24px 18px;
+    text-align: center;
+    background: radial-gradient(ellipse at center, #24283b 0%, #1a1b26 100%);
+    border-color: rgba(122, 162, 247, 0.4);
+    gap: 12px;
+  }
+  .fc-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: rgba(122, 162, 247, 0.18);
+    color: var(--accent);
+    letter-spacing: .05em;
+  }
+  .fc-breadcrumb {
+    font-size: 11.5px;
+    color: var(--muted);
+    max-width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .fc-front-title {
+    font-size: 1.45rem;
+    font-weight: 700;
+    line-height: 1.3;
+    max-width: 92%;
+    word-break: break-word;
+  }
+  .fc-hint {
+    margin-top: auto;
+    font-size: 10.5px;
+    color: var(--muted);
+    opacity: 0.85;
+  }
+  .fc-hint b { color: #a9b1d6; }
+
+  .fc-back {
+    transform: rotateY(180deg);
+    background: #1f2335;
+    border-color: var(--accent);
+    cursor: default;
+  }
+  .fc-back-header {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    background: #191b29;
+    user-select: none;
+    gap: 8px;
+  }
+  .fc-back-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 60%;
+  }
+  .fc-back-body {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 10px 14px;
+    box-sizing: border-box;
+  }
+  .fc-back-body::-webkit-scrollbar { width: 4px; height: 4px; }
+  .fc-back-body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+
+  /* Single column: standard vertical scroll */
+  .fc-back-body.single-col-mode {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .fc-back-content {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .fc-back-body.single-col-mode .fc-back-content {
+    height: auto;
+    column-count: 1;
+  }
+
+  /* Two Column Page Mode */
+  .fc-back-body.page-mode {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px 16px;
+  }
+  .fc-back-body.page-mode .fc-back-content {
+    height: 100%;
+    min-height: 100%;
+    max-height: 100%;
+    column-fill: auto;
+    column-count: 2;
+    column-gap: 28px;
+    column-rule: 1px solid rgba(122, 162, 247, 0.25);
+  }
+  .fc-back-body.page-mode .fc-back-content .prow-line {
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .fc-page-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: #242737;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 2px 4px;
+    margin-left: auto;
+  }
+  .fc-page-nav button {
+    background: transparent;
+    color: var(--fg);
+    border: none;
+    padding: 2px 7px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1.2;
+    border-radius: 3px;
+  }
+  .fc-page-nav button:active:not(:disabled) {
+    background: #2c3040;
+    color: var(--accent);
+  }
+  .fc-page-nav button:disabled {
+    color: var(--muted);
+    opacity: 0.35;
+  }
+  .fc-page-indicator {
+    color: #a9b1d6;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 0 4px;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  .fc-back-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .fc-back-controls button {
+    background: #242737;
+    color: var(--fg);
+    border: 1px solid var(--border);
+    padding: 3px 7px;
+    border-radius: 4px;
+    font-size: 10.5px;
+    cursor: pointer;
+  }
+  .fc-back-controls button.active {
+    background: rgba(122, 162, 247, 0.22);
+    color: var(--accent);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  #fcNavControls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 480px;
+    flex-shrink: 0;
+  }
+  #fcNavControls button {
+    background: #242737;
+    color: var(--fg);
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12.5px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.12s ease;
+  }
+  #fcNavControls button:active {
+    transform: scale(0.96);
+  }
+  #fcFlipBtn {
+    flex: 1;
+    background: #2a314d !important;
+    color: var(--accent) !important;
+    border-color: rgba(122, 162, 247, 0.4) !important;
+    font-weight: 700 !important;
+  }
+  #fcPrevBtn, #fcNextBtn {
+    flex: 0 0 auto;
+    min-width: 78px;
+  }
 
   /* --- Update Modal --- */
   #updateBackdrop {
@@ -1165,6 +1524,7 @@
       <div id="docStats">Loading...</div>
     </div>
     <button id="btnToggleOptions" class="header-btn" title="Level folding and zoom">Aa</button>
+    <button id="btnToggleFlashcard" class="header-btn" title="Study as Flashcards">🗂</button>
     <button id="btnToggleSearch" class="header-btn" title="Toggle Search">🔍</button>
   </header>
 
@@ -1216,27 +1576,104 @@
   <!-- Bottom Toolbar (5 Buttons) -->
   <footer id="bottomBar">
     <button id="btnCollapseAbove" class="bar-btn" title="Collapse all headings above current view">
-      <span class="btn-icon">⤒</span>
+      <span class="btn-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" y1="4" x2="20" y2="4"></line>
+          <polyline points="16 12 12 8 8 12"></polyline>
+          <line x1="12" y1="8" x2="12" y2="20"></line>
+        </svg>
+      </span>
       <span class="btn-label">Collapse<br>above</span>
     </button>
     <button id="btnCollapseAll" class="bar-btn" title="Collapse all headings">
-      <span class="btn-icon">⇪</span>
+      <span class="btn-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="17 11 12 6 7 11"></polyline>
+          <polyline points="17 18 12 13 7 18"></polyline>
+        </svg>
+      </span>
       <span class="btn-label">Collapse<br>all</span>
     </button>
-    <button id="btnHoverToggle" class="bar-btn" title="Toggle Hover/Tap Outline Preview Mode">
-      <span class="btn-icon">👁</span>
+    <button id="btnHoverToggle" class="bar-btn hover-active" title="Toggle Hover/Tap Outline Preview Mode">
+      <span class="btn-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+      </span>
       <span class="btn-label">Hover<br>mode</span>
-      <span class="status-badge" id="hoverBadge">OFF</span>
+      <span class="status-badge" id="hoverBadge">ON</span>
     </button>
     <button id="btnExpandAll" class="bar-btn" title="Expand all headings">
-      <span class="btn-icon">⇩</span>
+      <span class="btn-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="7 6 12 11 17 6"></polyline>
+          <polyline points="7 13 12 18 17 13"></polyline>
+        </svg>
+      </span>
       <span class="btn-label">Expand<br>all</span>
     </button>
     <button id="btnExpandBelow" class="bar-btn" title="Expand all headings below current view">
-      <span class="btn-icon">⤓</span>
+      <span class="btn-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" y1="20" x2="20" y2="20"></line>
+          <polyline points="8 12 12 16 16 12"></polyline>
+          <line x1="12" y1="4" x2="12" y2="16"></line>
+        </svg>
+      </span>
       <span class="btn-label">Expand<br>below</span>
     </button>
   </footer>
+</div>
+
+<!-- Flashcard Study Mode Overlay -->
+<div id="flashcardView">
+  <div id="flashcardToolbar">
+    <button id="fcExitBtn" title="Back to Document">← Back</button>
+    <div class="fc-filter-group" id="fcFilterGroup">
+      <button id="fcFilterOutline" class="active" data-filter="outline" title="Headings from current outline collapse state">Outline</button>
+      <button id="fcFilterH1" data-filter="h1" title="Level 1 headings">H1</button>
+      <button id="fcFilterH2" data-filter="h2" title="Level 2 headings">H2</button>
+      <button id="fcFilterAll" data-filter="all" title="All headings">All</button>
+    </div>
+    <button id="fcShuffleBtn" title="Shuffle flashcards">🔀</button>
+    <button id="fcColToggleBtn" title="Toggle 2-Column Page Mode vs 1-Column Scroll">❚❚ 2-Col</button>
+    <div class="fc-stats" id="fcStats">0 / 0</div>
+  </div>
+  <div id="flashcardStage">
+    <div id="flashcard" class="flashcard">
+      <!-- Front Face -->
+      <div class="fc-face fc-front" id="fcFrontFace">
+        <div class="fc-badge" id="fcLevelBadge">H1</div>
+        <div class="fc-breadcrumb" id="fcBreadcrumb"></div>
+        <div class="fc-front-title" id="fcFrontTitle">Title</div>
+        <div class="fc-hint">Tap to flip • Swipe ◄ / ► cards • Flick ▲ / ▼ flip • Hold to shuffle</div>
+      </div>
+      <!-- Back Face -->
+      <div class="fc-face fc-back" id="fcBackFace">
+        <div class="fc-back-header">
+          <span class="fc-back-title" id="fcBackTitle"># Title</span>
+          <div class="fc-page-nav" id="fcPageNav">
+            <button id="fcPrevPageBtn" title="Previous page">‹</button>
+            <span class="fc-page-indicator" id="fcPageIndicator">1 / 1</span>
+            <button id="fcNextPageBtn" title="Next page">›</button>
+          </div>
+          <div class="fc-back-controls">
+            <button id="fcCardColBtn" title="Toggle 2-Column Page Mode vs 1-Column Scroll">❚❚ 2-Col</button>
+          </div>
+        </div>
+        <div class="fc-back-body" id="fcBackBody">
+          <div class="fc-back-content" id="fcBackContent"></div>
+        </div>
+        <div class="fc-hint" style="padding:6px 12px;background:#191b29;border-top:1px solid var(--border);margin-top:0;">Tap to flip back • Double-tap for 2-Col / 1-Col • Gamepad &amp; Keys supported</div>
+      </div>
+    </div>
+    <div id="fcNavControls">
+      <button id="fcPrevBtn" title="Previous card">◀ Prev</button>
+      <button id="fcFlipBtn" title="Flip card">Flip Card</button>
+      <button id="fcNextBtn" title="Next card">Next ▶</button>
+    </div>
+  </div>
 </div>
 
 <!-- Drawer Backdrop & Drawer Panel -->
@@ -1320,6 +1757,13 @@
     <div class="settings-group">
       <div class="settings-group-title">Document Actions</div>
       <div class="settings-card">
+        <button class="settings-row-btn" id="btnOpenFlashcards">
+          <span class="settings-row-icon">🗂️</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">Flashcard Study Mode</span>
+            <span class="settings-row-desc">Study heading sections with interactive cards</span>
+          </div>
+        </button>
         <button class="settings-row-btn" id="btnShareDoc">
           <span class="settings-row-icon">📤</span>
           <div class="settings-row-content">
@@ -1468,7 +1912,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '1.0.4';
+      window.AndroidBridge.getAppVersion() : '1.0.5';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   let currentDocName = 'Guide.md';
@@ -1483,8 +1927,8 @@
   // Active / Selected heading for Collapse Above / Expand Below
   let activeHeadingIdx = -1;
 
-  // Hover mode state (toggleable via bottom bar button)
-  let hoverModeEnabled = false;
+  // Hover mode state (toggleable via bottom bar button, default ON)
+  let hoverModeEnabled = true;
 
   // Search state
   let searchScope = 'file'; // 'file' | 'folder'
@@ -1585,6 +2029,37 @@
   const btnZoomOut = document.getElementById('btnZoomOut');
   const btnZoomReset = document.getElementById('btnZoomReset');
   const zoomDisplay = document.getElementById('zoomDisplay');
+  // Flashcard State & Elements
+  let isFlashcardMode = false;
+  let flashcardList = [];
+  let currentCardIndex = 0;
+  let flashcardFilter = 'outline';
+  let fcTwoColumn = false;
+  let currentBackPageIndex = 0;
+
+  const btnToggleFlashcard = document.getElementById('btnToggleFlashcard');
+  const btnOpenFlashcards = document.getElementById('btnOpenFlashcards');
+  const flashcardView = document.getElementById('flashcardView');
+  const fcExitBtn = document.getElementById('fcExitBtn');
+  const fcFilterGroup = document.getElementById('fcFilterGroup');
+  const fcShuffleBtn = document.getElementById('fcShuffleBtn');
+  const fcColToggleBtn = document.getElementById('fcColToggleBtn');
+  const fcStats = document.getElementById('fcStats');
+  const fcCard = document.getElementById('flashcard');
+  const fcLevelBadge = document.getElementById('fcLevelBadge');
+  const fcBreadcrumb = document.getElementById('fcBreadcrumb');
+  const fcFrontTitle = document.getElementById('fcFrontTitle');
+  const fcBackTitle = document.getElementById('fcBackTitle');
+  const fcBackBody = document.getElementById('fcBackBody');
+  const fcBackContent = document.getElementById('fcBackContent');
+  const fcPageNav = document.getElementById('fcPageNav');
+  const fcPrevPageBtn = document.getElementById('fcPrevPageBtn');
+  const fcNextPageBtn = document.getElementById('fcNextPageBtn');
+  const fcPageIndicator = document.getElementById('fcPageIndicator');
+  const fcCardColBtn = document.getElementById('fcCardColBtn');
+  const fcPrevBtn = document.getElementById('fcPrevBtn');
+  const fcFlipBtn = document.getElementById('fcFlipBtn');
+  const fcNextBtn = document.getElementById('fcNextBtn');
 
   appVersionSub.textContent = `MD Viewer v${CURRENT_APP_VERSION}`;
 
@@ -1875,15 +2350,37 @@
       toggleHeading(parseInt(arrow.dataset.toggle, 10));
       return;
     }
-    const headingRow = e.target.closest('.row.heading');
-    if (headingRow) {
-      const hIdx = parseInt(headingRow.dataset.heading, 10);
-      activeHeadingIdx = hIdx;
+    const row = e.target.closest('.row');
+    if (!row) return;
 
-      if (hoverModeEnabled) {
-        showPanel(hIdx);
-      } else {
-        toggleHeading(hIdx);
+    const lineNo = parseInt(row.dataset.line, 10);
+    if (isNaN(lineNo)) return;
+
+    activeTargetLine = lineNo;
+
+    const headingRow = row.classList.contains('heading') ? row : null;
+    let targetHIdx = -1;
+
+    if (headingRow) {
+      targetHIdx = parseInt(headingRow.dataset.heading, 10);
+      activeHeadingIdx = targetHIdx;
+    } else {
+      const parentH = findHeadingAtOrBefore(lineNo);
+      if (parentH) {
+        targetHIdx = headings.indexOf(parentH);
+        activeHeadingIdx = targetHIdx;
+      }
+    }
+
+    render();
+
+    if (hoverModeEnabled) {
+      if (targetHIdx >= 0) {
+        showPanel(targetHIdx, lineNo);
+      }
+    } else {
+      if (headingRow && targetHIdx >= 0) {
+        toggleHeading(targetHIdx);
       }
     }
   });
@@ -1948,7 +2445,7 @@
   btnHoverToggle.addEventListener('click', () => {
     hoverModeEnabled = !hoverModeEnabled;
     updateHoverButtonUI();
-    showToast(hoverModeEnabled ? 'Hover Mode: ON (tap heading to preview)' : 'Hover Mode: OFF');
+    showToast(hoverModeEnabled ? 'Hover Mode: ON (tap any line to preview)' : 'Hover Mode: OFF');
   });
 
   // 4. Expand All
@@ -2021,9 +2518,25 @@
   }
 
   // --- Hover Outline Preview Panel Implementation ---
+  function panelRowHtml(lineNo, targetLineNo) {
+    const text = lines[lineNo] ?? '';
+    const hSubIdx = lineToHeadingIdx.get(lineNo);
+    const isTarget = (lineNo === targetLineNo);
+    const targetCls = isTarget ? ' prow-target-highlight' : '';
+
+    if (hSubIdx !== undefined) {
+      const subH = headings[hSubIdx];
+      return `<div class="prow-line heading h${subH.level}${targetCls}" data-pline="${lineNo}">${escapeHtml('#'.repeat(subH.level) + ' ' + subH.text)}</div>`;
+    }
+    return `<div class="prow-line plain${targetCls}" data-pline="${lineNo}">${renderPlainLine(text)}</div>`;
+  }
+
   let panelZoomPx = 13;
-  function showPanel(hIdx) {
+  let currentPreviewTargetLine = -1;
+
+  function showPanel(hIdx, targetLineNo) {
     currentPreviewHIdx = hIdx;
+    currentPreviewTargetLine = (targetLineNo !== undefined) ? targetLineNo : -1;
     const h = headings[hIdx];
     panelTitle.textContent = '#'.repeat(h.level) + ' ' + h.text;
     panelTitle.style.color = `var(--h${h.level})`;
@@ -2034,38 +2547,62 @@
 
     let html = '';
     if (startLine > h.end) {
-      html = '<div class="prow-line plain" style="font-style:italic;opacity:0.6;">(Empty section)</div>';
+      html = '<div class="prow-line plain" style="font-style:italic;opacity:0.6;"><span class="txt">(Empty section)</span></div>';
     } else {
       for (let i = startLine; i <= endLine; i++) {
-        const text = lines[i] ?? '';
-        const hSubIdx = lineToHeadingIdx.get(i);
-        if (hSubIdx !== undefined) {
-          const subH = headings[hSubIdx];
-          html += `<div class="prow-line heading h${subH.level}">${escapeHtml('#'.repeat(subH.level) + ' ' + subH.text)}</div>`;
-        } else {
-          html += `<div class="prow-line plain">${renderPlainLine(text)}</div>`;
-        }
+        html += panelRowHtml(i, currentPreviewTargetLine);
       }
       if (h.end > endLine) {
-        html += '<div class="prow-line plain" style="font-style:italic;opacity:0.7;">... (continues)</div>';
+        html += '<div class="prow-line plain" style="font-style:italic;opacity:0.7;"><span class="txt">... (continues)</span></div>';
       }
     }
     panelBody.innerHTML = html;
-    panelBody.scrollTop = 0;
     panel.style.display = 'flex';
     panelBackdrop.style.display = 'block';
+
+    if (currentPreviewTargetLine >= 0 && currentPreviewTargetLine > h.line) {
+      const targetEl = panelBody.querySelector(`[data-pline="${currentPreviewTargetLine}"]`);
+      if (targetEl) {
+        setTimeout(() => {
+          targetEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }, 40);
+      } else {
+        panelBody.scrollTop = 0;
+      }
+    } else {
+      panelBody.scrollTop = 0;
+    }
   }
 
   function hidePanel() {
     panel.style.display = 'none';
     panelBackdrop.style.display = 'none';
     currentPreviewHIdx = -1;
+    currentPreviewTargetLine = -1;
   }
   panelCloseBtn.addEventListener('click', hidePanel);
   panelBackdrop.addEventListener('click', hidePanel);
 
+  panelBody.addEventListener('click', (e) => {
+    const pRow = e.target.closest('[data-pline]');
+    if (pRow) {
+      const pLine = parseInt(pRow.dataset.pline, 10);
+      if (!isNaN(pLine)) {
+        panelBody.querySelectorAll('.prow-target-highlight').forEach(el => el.classList.remove('prow-target-highlight'));
+        pRow.classList.add('prow-target-highlight');
+        currentPreviewTargetLine = pLine;
+        activeTargetLine = pLine;
+        render();
+      }
+    }
+  });
+
   panelJumpBtn.addEventListener('click', () => {
-    if (currentPreviewHIdx >= 0) {
+    if (currentPreviewTargetLine >= 0) {
+      const jumpLine = currentPreviewTargetLine;
+      hidePanel();
+      scrollToLine(jumpLine, true);
+    } else if (currentPreviewHIdx >= 0) {
       const h = headings[currentPreviewHIdx];
       hidePanel();
       scrollToLine(h.line, true);
@@ -2079,6 +2616,687 @@
   panelZoomOut.addEventListener('click', () => {
     panelZoomPx = Math.max(10, panelZoomPx - 1);
     panelBody.style.fontSize = panelZoomPx + 'px';
+  });
+
+  // --- Flashcard Mode Implementation ---
+  function getBreadcrumb(h) {
+    const parts = [];
+    let curr = h;
+    while (curr && curr.parent !== -1) {
+      const p = headings[curr.parent];
+      if (p) {
+        parts.unshift(p.text);
+        curr = p;
+      } else break;
+    }
+    return parts.join(' > ');
+  }
+
+  function collectFlashcards(mode = 'outline') {
+    if (!headings || headings.length === 0) return [];
+    if (mode === 'h1') return headings.filter(h => h.level === 1);
+    if (mode === 'h2') return headings.filter(h => h.level === 2);
+    if (mode === 'all') return headings.slice();
+
+    // 'outline': All headings visible according to current outline collapsed state!
+    const list = [];
+    for (const h of headings) {
+      let hidden = false;
+      let curr = h;
+      while (curr && curr.parent !== -1) {
+        const p = headings[curr.parent];
+        if (p && p.collapsed) {
+          hidden = true;
+          break;
+        }
+        curr = p;
+      }
+      if (!hidden) {
+        list.push(h);
+      }
+    }
+    return list;
+  }
+
+  function getPageMetrics() {
+    if (!fcBackBody) return { cw: 0, W: 0, GAP: 28, step: 0 };
+    const cw = fcBackBody.clientWidth;
+    const GAP = 28;
+    const style = window.getComputedStyle(fcBackBody);
+    const padLeft = parseFloat(style.paddingLeft) || 0;
+    const padRight = parseFloat(style.paddingRight) || 0;
+    const W = cw - padLeft - padRight;
+    const step = Math.max(1, W + GAP);
+    return { cw, W, GAP, step };
+  }
+
+  function getTotalPages() {
+    if (!fcBackBody) return 1;
+    const { step } = getPageMetrics();
+    if (step <= 1) return 1;
+    const sw = fcBackBody.scrollWidth;
+    return Math.max(1, Math.round((sw + 28) / step));
+  }
+
+  function goToPage(pageIdx, smooth = true) {
+    if (!fcBackBody) return;
+    const total = getTotalPages();
+    currentBackPageIndex = Math.max(0, Math.min(total - 1, pageIdx));
+    const { step } = getPageMetrics();
+    const targetLeft = currentBackPageIndex * step;
+
+    fcBackBody.scrollTo({
+      left: targetLeft,
+      behavior: smooth ? 'smooth' : 'auto'
+    });
+    updatePageIndicator();
+  }
+
+  function nextPage() {
+    goToPage(currentBackPageIndex + 1, true);
+  }
+
+  function prevPage() {
+    goToPage(currentBackPageIndex - 1, true);
+  }
+
+  function updatePageIndicator() {
+    if (!fcTwoColumn) {
+      if (fcPageNav) fcPageNav.style.display = 'none';
+      return;
+    }
+    if (fcPageNav) fcPageNav.style.display = 'inline-flex';
+    const total = getTotalPages();
+    const pageNum = Math.min(total, currentBackPageIndex + 1);
+    if (fcPageIndicator) fcPageIndicator.textContent = `${pageNum} / ${total}`;
+    if (fcPrevPageBtn) fcPrevPageBtn.disabled = (currentBackPageIndex <= 0);
+    if (fcNextPageBtn) fcNextPageBtn.disabled = (currentBackPageIndex >= total - 1);
+  }
+
+  function updateColumnState() {
+    if (!fcBackBody) return;
+    if (fcTwoColumn) {
+      fcBackBody.classList.remove('single-col-mode');
+      fcBackBody.classList.add('page-mode');
+      if (fcColToggleBtn) {
+        fcColToggleBtn.classList.add('active');
+        fcColToggleBtn.textContent = '❚ 1-Col';
+      }
+      if (fcCardColBtn) {
+        fcCardColBtn.classList.add('active');
+        fcCardColBtn.textContent = '❚ 1-Col';
+      }
+    } else {
+      fcBackBody.classList.remove('page-mode');
+      fcBackBody.classList.add('single-col-mode');
+      if (fcColToggleBtn) {
+        fcColToggleBtn.classList.remove('active');
+        fcColToggleBtn.textContent = '❚❚ 2-Col';
+      }
+      if (fcCardColBtn) {
+        fcCardColBtn.classList.remove('active');
+        fcCardColBtn.textContent = '❚❚ 2-Col';
+      }
+    }
+    currentBackPageIndex = 0;
+    fcBackBody.scrollLeft = 0;
+    fcBackBody.scrollTop = 0;
+    setTimeout(() => {
+      goToPage(0, false);
+    }, 40);
+  }
+
+  function toggleTwoColumn() {
+    fcTwoColumn = !fcTwoColumn;
+    updateColumnState();
+  }
+
+  function renderCurrentCard() {
+    if (!flashcardList || flashcardList.length === 0) {
+      fcCard.classList.remove('flipped');
+      fcLevelBadge.textContent = 'None';
+      fcBreadcrumb.textContent = '';
+      fcFrontTitle.textContent = 'No headings found';
+      fcFrontTitle.style.color = 'var(--muted)';
+      fcBackTitle.textContent = 'No Content';
+      if (fcBackContent) fcBackContent.innerHTML = '<div class="prow-line plain" style="padding:16px; opacity:0.6;"><span class="txt">Open a markdown file with headings to generate flashcards.</span></div>';
+      fcStats.textContent = '0 / 0';
+      fcPrevBtn.disabled = true;
+      fcNextBtn.disabled = true;
+      fcFlipBtn.disabled = true;
+      updatePageIndicator();
+      return;
+    }
+
+    fcPrevBtn.disabled = false;
+    fcNextBtn.disabled = false;
+    fcFlipBtn.disabled = false;
+
+    if (currentCardIndex < 0) currentCardIndex = 0;
+    if (currentCardIndex >= flashcardList.length) currentCardIndex = flashcardList.length - 1;
+
+    const h = flashcardList[currentCardIndex];
+    fcCard.classList.remove('flipped');
+
+    // Front
+    fcLevelBadge.textContent = `H${h.level}`;
+    fcLevelBadge.style.color = `var(--h${h.level})`;
+    fcBreadcrumb.textContent = getBreadcrumb(h);
+    fcFrontTitle.textContent = h.text;
+    fcFrontTitle.style.color = `var(--h${h.level})`;
+
+    // Back
+    fcBackTitle.textContent = '#'.repeat(h.level) + ' ' + h.text;
+    fcBackTitle.style.color = `var(--h${h.level})`;
+
+    const startLine = h.line + 1;
+    const endLine = h.end;
+    if (startLine > endLine) {
+      if (fcBackContent) fcBackContent.innerHTML = '<div class="prow-line plain" style="padding:20px; font-style:italic; opacity:0.6;"><span class="txt">(Empty section)</span></div>';
+    } else {
+      let html = '';
+      const maxPreview = 800;
+      const end = Math.min(endLine, startLine + maxPreview);
+      for (let i = startLine; i <= end; i++) {
+        html += panelRowHtml(i, -1);
+      }
+      if (endLine > end) {
+        html += '<div class="prow-line plain" style="padding:10px 12px; font-style:italic; opacity:0.7;"><span class="txt">(Section continues...)</span></div>';
+      }
+      if (fcBackContent) fcBackContent.innerHTML = html;
+    }
+    updateColumnState();
+    currentBackPageIndex = 0;
+    fcBackBody.scrollTop = 0;
+    fcBackBody.scrollLeft = 0;
+    setTimeout(() => {
+      goToPage(0, false);
+    }, 40);
+
+    fcStats.textContent = `Card ${currentCardIndex + 1} of ${flashcardList.length}`;
+  }
+
+  function flipFlashcard() {
+    if (!flashcardList || flashcardList.length === 0) return;
+    fcCard.classList.toggle('flipped');
+    if (fcCard.classList.contains('flipped')) {
+      setTimeout(() => {
+        goToPage(currentBackPageIndex, false);
+      }, 50);
+    }
+  }
+
+  function nextFlashcard() {
+    if (!flashcardList || flashcardList.length === 0) return;
+    currentCardIndex = (currentCardIndex + 1) % flashcardList.length;
+    renderCurrentCard();
+  }
+
+  function prevFlashcard() {
+    if (!flashcardList || flashcardList.length === 0) return;
+    currentCardIndex = (currentCardIndex - 1 + flashcardList.length) % flashcardList.length;
+    renderCurrentCard();
+  }
+
+  function shuffleFlashcards() {
+    if (!flashcardList || flashcardList.length <= 1) return;
+    for (let i = flashcardList.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [flashcardList[i], flashcardList[j]] = [flashcardList[j], flashcardList[i]];
+    }
+    currentCardIndex = 0;
+    renderCurrentCard();
+    showToast('Cards shuffled');
+  }
+
+  // --- Gamepad Support for Flashcard Mode ---
+  let gamepadRafId = null;
+  const gpPrevState = {
+    buttons: {},
+    axes: [0, 0]
+  };
+
+  function pollGamepad() {
+    if (!isFlashcardMode) {
+      if (gamepadRafId) {
+        cancelAnimationFrame(gamepadRafId);
+        gamepadRafId = null;
+      }
+      return;
+    }
+
+    const gamepads = (navigator.getGamepads) ? navigator.getGamepads() : [];
+    for (let i = 0; i < gamepads.length; i++) {
+      const gp = gamepads[i];
+      if (!gp || !gp.connected) continue;
+
+      const isPressed = (btnIdx) => {
+        const btn = gp.buttons[btnIdx];
+        if (!btn) return false;
+        const val = (typeof btn === 'object') ? (btn.pressed || btn.value > 0.5) : (btn > 0.5);
+        const key = `${i}_${btnIdx}`;
+        const wasPressed = !!gpPrevState.buttons[key];
+        gpPrevState.buttons[key] = val;
+        return val && !wasPressed;
+      };
+
+      // Button 0 (A / Cross) or D-Pad Up / Down (12, 13): Flip
+      if (isPressed(0) || isPressed(12) || isPressed(13)) {
+        flipFlashcard();
+      }
+
+      // Button 1 (B / Circle): Flip back or Exit
+      if (isPressed(1)) {
+        if (fcCard && fcCard.classList.contains('flipped')) {
+          flipFlashcard();
+        } else {
+          exitFlashcardMode();
+        }
+      }
+
+      // Button 14 (D-Pad Left) or L1/LB (4) or L2/LT (6): Prev
+      if (isPressed(14) || isPressed(4) || isPressed(6)) {
+        if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex > 0) {
+          prevPage();
+        } else {
+          prevFlashcard();
+        }
+      }
+
+      // Button 15 (D-Pad Right) or R1/RB (5) or R2/RT (7): Next
+      if (isPressed(15) || isPressed(5) || isPressed(7)) {
+        if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex < getTotalPages() - 1) {
+          nextPage();
+        } else {
+          nextFlashcard();
+        }
+      }
+
+      // Button 2 (X / Square): Toggle 2-Column
+      if (isPressed(2)) {
+        toggleTwoColumn();
+      }
+
+      // Button 3 (Y / Triangle): Shuffle
+      if (isPressed(3)) {
+        shuffleFlashcards();
+      }
+
+      // Button 8 (Select / Share / Back): Exit
+      if (isPressed(8)) {
+        exitFlashcardMode();
+      }
+
+      // Button 9 (Start / Options / Menu): Toggle 2-Column
+      if (isPressed(9)) {
+        toggleTwoColumn();
+      }
+
+      // Left Stick X Axis (Navigate Cards / Pages)
+      const stickX = (gp.axes && gp.axes[0] !== undefined) ? gp.axes[0] : 0;
+      const prevX = gpPrevState.axes[0] || 0;
+      if (stickX > 0.55 && prevX <= 0.55) {
+        if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex < getTotalPages() - 1) {
+          nextPage();
+        } else {
+          nextFlashcard();
+        }
+      } else if (stickX < -0.55 && prevX >= -0.55) {
+        if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex > 0) {
+          prevPage();
+        } else {
+          prevFlashcard();
+        }
+      }
+      gpPrevState.axes[0] = stickX;
+
+      // Left Stick Y Axis (Flick to Flip)
+      const stickY = (gp.axes && gp.axes[1] !== undefined) ? gp.axes[1] : 0;
+      const prevY = gpPrevState.axes[1] || 0;
+      if (Math.abs(stickY) > 0.6 && Math.abs(prevY) <= 0.6) {
+        flipFlashcard();
+      }
+      gpPrevState.axes[1] = stickY;
+    }
+
+    gamepadRafId = requestAnimationFrame(pollGamepad);
+  }
+
+  window.addEventListener('gamepadconnected', (e) => {
+    showToast(`🎮 Gamepad connected: ${e.gamepad.id.slice(0, 22)}...`);
+    if (isFlashcardMode && !gamepadRafId) {
+      gamepadRafId = requestAnimationFrame(pollGamepad);
+    }
+  });
+
+  window.addEventListener('gamepaddisconnected', () => {
+    showToast('🎮 Gamepad disconnected');
+  });
+
+  function enterFlashcardMode() {
+    if (lines.length === 0) {
+      showToast('Please open a markdown file first');
+      return;
+    }
+    isFlashcardMode = true;
+    flashcardView.style.display = 'flex';
+    updateColumnState();
+    flashcardList = collectFlashcards(flashcardFilter);
+    currentCardIndex = 0;
+    renderCurrentCard();
+
+    // Start gamepad polling
+    if (!gamepadRafId) {
+      gamepadRafId = requestAnimationFrame(pollGamepad);
+    }
+  }
+
+  function exitFlashcardMode() {
+    isFlashcardMode = false;
+    flashcardView.style.display = 'none';
+    if (gamepadRafId) {
+      cancelAnimationFrame(gamepadRafId);
+      gamepadRafId = null;
+    }
+    render();
+  }
+
+  if (btnToggleFlashcard) btnToggleFlashcard.addEventListener('click', enterFlashcardMode);
+  if (btnOpenFlashcards) btnOpenFlashcards.addEventListener('click', () => {
+    closeSettings();
+    enterFlashcardMode();
+  });
+  if (fcExitBtn) fcExitBtn.addEventListener('click', exitFlashcardMode);
+  if (fcFlipBtn) fcFlipBtn.addEventListener('click', flipFlashcard);
+  if (fcNextBtn) fcNextBtn.addEventListener('click', nextFlashcard);
+  if (fcPrevBtn) fcPrevBtn.addEventListener('click', prevFlashcard);
+  if (fcShuffleBtn) fcShuffleBtn.addEventListener('click', shuffleFlashcards);
+  if (fcColToggleBtn) fcColToggleBtn.addEventListener('click', toggleTwoColumn);
+  if (fcCardColBtn) fcCardColBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleTwoColumn();
+  });
+  if (fcPrevPageBtn) fcPrevPageBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    prevPage();
+  });
+  if (fcNextPageBtn) fcNextPageBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    nextPage();
+  });
+
+  // Filter Buttons
+  if (fcFilterGroup) {
+    fcFilterGroup.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-filter]');
+      if (!btn) return;
+      fcFilterGroup.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      flashcardFilter = btn.dataset.filter;
+      flashcardList = collectFlashcards(flashcardFilter);
+      currentCardIndex = 0;
+      renderCurrentCard();
+    });
+  }
+
+  // --- Sensible Touch Gestures (Works Completely Standalone without Buttons) ---
+  let fcTouchStartX = 0;
+  let fcTouchStartY = 0;
+  let fcTouchStartTime = 0;
+  let fcLongPressTimer = null;
+  let fcLongPressTriggered = false;
+  let fcLastTapTime = 0;
+
+  if (fcCard) {
+    fcCard.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        fcTouchStartX = e.touches[0].clientX;
+        fcTouchStartY = e.touches[0].clientY;
+        fcTouchStartTime = Date.now();
+        fcLongPressTriggered = false;
+
+        // Long press (600ms) gesture -> Shuffle
+        clearTimeout(fcLongPressTimer);
+        fcLongPressTimer = setTimeout(() => {
+          fcLongPressTriggered = true;
+          shuffleFlashcards();
+          if (navigator.vibrate) navigator.vibrate(40);
+        }, 600);
+      }
+    }, { passive: true });
+
+    fcCard.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 1) {
+        const dx = e.touches[0].clientX - fcTouchStartX;
+        const dy = e.touches[0].clientY - fcTouchStartY;
+        if (Math.hypot(dx, dy) > 16) {
+          clearTimeout(fcLongPressTimer);
+        }
+      }
+    }, { passive: true });
+
+    fcCard.addEventListener('touchend', (e) => {
+      clearTimeout(fcLongPressTimer);
+      if (fcLongPressTriggered) return;
+
+      if (e.changedTouches.length === 1) {
+        const touch = e.changedTouches[0];
+        const dx = touch.clientX - fcTouchStartX;
+        const dy = touch.clientY - fcTouchStartY;
+        const dt = Date.now() - fcTouchStartTime;
+        const absX = Math.abs(dx);
+        const absY = Math.abs(dy);
+
+        const inBackBody = e.target.closest('#fcBackBody');
+
+        // 1. Horizontal Swipe (Left/Right)
+        if (absX > 45 && absX > absY * 1.3 && dt < 450) {
+          if (inBackBody && fcTwoColumn) {
+            if (dx < 0) {
+              if (currentBackPageIndex < getTotalPages() - 1) {
+                nextPage();
+                return;
+              }
+            } else {
+              if (currentBackPageIndex > 0) {
+                prevPage();
+                return;
+              }
+            }
+          }
+          if (dx < 0) {
+            nextFlashcard();
+          } else {
+            prevFlashcard();
+          }
+          return;
+        }
+
+        // 2. Vertical Flick / Swipe (Up/Down) -> Flip Card!
+        if (absY > 45 && absY > absX * 1.3 && dt < 450) {
+          if (inBackBody && !fcTwoColumn) {
+            // In 1-col scroll mode, flip only if at scroll boundary
+            if ((dy < 0 && fcBackBody.scrollTop + fcBackBody.clientHeight >= fcBackBody.scrollHeight - 6) ||
+                (dy > 0 && fcBackBody.scrollTop <= 6)) {
+              flipFlashcard();
+              return;
+            }
+            return;
+          }
+          flipFlashcard();
+          return;
+        }
+
+        // 3. Tap & Double-Tap detection
+        if (absX < 16 && absY < 16 && dt < 350) {
+          if (e.target.closest('button') || e.target.closest('a')) return;
+          if (inBackBody && window.getSelection().toString().length > 0) return;
+
+          const now = Date.now();
+          if (now - fcLastTapTime < 320) {
+            // Double Tap: Toggle 2-Column Mode!
+            toggleTwoColumn();
+            fcLastTapTime = 0;
+            return;
+          }
+          fcLastTapTime = now;
+
+          // Edge tap check:
+          const rect = fcCard.getBoundingClientRect();
+          const relX = touch.clientX - rect.left;
+          const width = rect.width;
+
+          // Left 16% -> Prev, Right 16% -> Next, Center -> Flip
+          if (!inBackBody) {
+            if (relX < width * 0.16) {
+              prevFlashcard();
+              return;
+            } else if (relX > width * 0.84) {
+              nextFlashcard();
+              return;
+            }
+          }
+
+          flipFlashcard();
+        }
+      }
+    }, { passive: true });
+
+    fcCard.addEventListener('click', (e) => {
+      if (Date.now() - fcTouchStartTime < 450) return;
+      if (e.target.closest('#fcBackBody') && window.getSelection().toString().length > 0) return;
+      if (e.target.closest('button') || e.target.closest('a')) return;
+      flipFlashcard();
+    });
+  }
+
+  // --- Keyboard & Native Android Gamepad KeyCode Support ---
+  document.addEventListener('keydown', (e) => {
+    if (!isFlashcardMode) return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+    const keyCode = e.keyCode || e.which;
+
+    // Android Gamepad KeyCodes
+    // 96 = KEYCODE_BUTTON_A, 23 = KEYCODE_DPAD_CENTER
+    if (keyCode === 96 || keyCode === 23) {
+      e.preventDefault();
+      flipFlashcard();
+      return;
+    }
+    // 97 = KEYCODE_BUTTON_B
+    if (keyCode === 97) {
+      e.preventDefault();
+      if (fcCard && fcCard.classList.contains('flipped')) {
+        flipFlashcard();
+      } else {
+        exitFlashcardMode();
+      }
+      return;
+    }
+    // 99 = KEYCODE_BUTTON_X
+    if (keyCode === 99) {
+      e.preventDefault();
+      toggleTwoColumn();
+      return;
+    }
+    // 100 = KEYCODE_BUTTON_Y
+    if (keyCode === 100) {
+      e.preventDefault();
+      shuffleFlashcards();
+      return;
+    }
+    // 102 = KEYCODE_BUTTON_L1, 104 = KEYCODE_BUTTON_L2
+    if (keyCode === 102 || keyCode === 104) {
+      e.preventDefault();
+      if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex > 0) {
+        prevPage();
+      } else {
+        prevFlashcard();
+      }
+      return;
+    }
+    // 103 = KEYCODE_BUTTON_R1, 105 = KEYCODE_BUTTON_R2
+    if (keyCode === 103 || keyCode === 105) {
+      e.preventDefault();
+      if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped') && currentBackPageIndex < getTotalPages() - 1) {
+        nextPage();
+      } else {
+        nextFlashcard();
+      }
+      return;
+    }
+    // 108 = KEYCODE_BUTTON_START, 109 = KEYCODE_BUTTON_SELECT
+    if (keyCode === 109) {
+      e.preventDefault();
+      exitFlashcardMode();
+      return;
+    }
+    if (keyCode === 108) {
+      e.preventDefault();
+      toggleTwoColumn();
+      return;
+    }
+
+    // Standard Keyboard Navigation
+    // Next Card: ArrowRight, N, L, D
+    if (e.key === 'ArrowRight' || e.code === 'KeyN' || e.code === 'KeyL' || e.code === 'KeyD') {
+      e.preventDefault();
+      nextFlashcard();
+    }
+    // Prev Card: ArrowLeft, P, H, A
+    else if (e.key === 'ArrowLeft' || e.code === 'KeyP' || e.code === 'KeyH' || e.code === 'KeyA') {
+      e.preventDefault();
+      prevFlashcard();
+    }
+    // Flip Card: Space, Enter, ArrowUp, ArrowDown, F, K, J
+    else if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter' || e.code === 'KeyF' || e.code === 'KeyK' || e.code === 'KeyJ') {
+      e.preventDefault();
+      flipFlashcard();
+    }
+    // Exit Mode: Escape, Backspace, Q
+    else if (e.key === 'Escape' || e.key === 'Backspace' || e.code === 'KeyQ') {
+      e.preventDefault();
+      exitFlashcardMode();
+    }
+    // Toggle 2-Column: C, T
+    else if (e.code === 'KeyC' || e.code === 'KeyT') {
+      e.preventDefault();
+      toggleTwoColumn();
+    }
+    // Shuffle: S, R
+    else if (e.code === 'KeyS' || e.code === 'KeyR') {
+      e.preventDefault();
+      shuffleFlashcards();
+    }
+    // Page Navigation in 2-Col mode: [, PageUp, <, Comma
+    else if (e.key === '[' || e.key === 'PageUp' || e.key === ',' || e.key === '<') {
+      if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped')) {
+        e.preventDefault();
+        prevPage();
+      }
+    }
+    // Page Navigation in 2-Col mode: ], PageDown, >, Period
+    else if (e.key === ']' || e.key === 'PageDown' || e.key === '.' || e.key === '>') {
+      if (fcTwoColumn && fcCard && fcCard.classList.contains('flipped')) {
+        e.preventDefault();
+        nextPage();
+      }
+    }
+    // Filter shortcuts: 1 (Outline), 2 (H1), 3 (H2), 4 (All)
+    else if (e.key === '1') {
+      e.preventDefault();
+      document.getElementById('fcFilterOutline')?.click();
+    } else if (e.key === '2') {
+      e.preventDefault();
+      document.getElementById('fcFilterH1')?.click();
+    } else if (e.key === '3') {
+      e.preventDefault();
+      document.getElementById('fcFilterH2')?.click();
+    } else if (e.key === '4') {
+      e.preventDefault();
+      document.getElementById('fcFilterAll')?.click();
+    }
   });
 
   // --- Top Search Bar (Collapsible with File/Folder Scope) ---
@@ -2366,7 +3584,13 @@
     parse(text);
     scroller.scrollTop = 0;
     saveRecentFile(currentDocName, text);
-    render();
+    if (isFlashcardMode) {
+      flashcardList = collectFlashcards(flashcardFilter);
+      currentCardIndex = 0;
+      renderCurrentCard();
+    } else {
+      render();
+    }
     closeDrawer();
     showToast(`Loaded ${currentDocName}`);
   }
@@ -2919,6 +4143,10 @@
 
   // --- Android Hardware Back Button Handling ---
   window.handleBackPressed = function() {
+    if (isFlashcardMode) {
+      exitFlashcardMode();
+      return true;
+    }
     if (settingsModal.style.display === 'flex') {
       closeSettings();
       return true;
@@ -2951,6 +4179,8 @@
   };
 
   // --- Initial Load ---
+  updateHoverButtonUI();
+
   fetch('guide.md')
     .then(r => {
       if (r.ok) return r.text();
