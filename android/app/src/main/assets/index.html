@@ -538,9 +538,12 @@
   .folder-tool-btn:active { background: #24283b; color: var(--fg); }
 
   #folderTree {
-    max-height: 280px;
+    max-height: 380px;
     overflow-y: auto;
     padding: 4px 0;
+  }
+  .tree-item-wrapper {
+    display: block;
   }
   .tree-node {
     display: flex;
@@ -552,6 +555,7 @@
     color: var(--fg);
     border-radius: 4px;
     margin: 1px 4px;
+    user-select: none;
   }
   .tree-node:active { background: rgba(122, 162, 247, 0.15); }
   .tree-node.active-file {
@@ -564,10 +568,21 @@
     width: 12px;
     text-align: center;
     color: var(--muted);
+    flex-shrink: 0;
   }
   .tree-arrow.hidden { visibility: hidden; }
-  .tree-icon { font-size: 13px; }
+  .tree-icon { font-size: 13px; flex-shrink: 0; }
   .tree-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+  .tree-count-badge {
+    margin-left: auto;
+    font-size: 9.5px;
+    padding: 1px 5px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--muted);
+    line-height: 1.2;
+    flex-shrink: 0;
+  }
 
   .drawer-section-title {
     font-size: 11px;
@@ -947,11 +962,14 @@
     <div id="folderSection">
       <div class="folder-header-bar">
         <span class="folder-name-badge" id="folderTitle">📁 Folder</span>
-        <div>
+        <div style="display:flex;gap:4px;align-items:center;">
+          <button class="folder-tool-btn" id="btnExpandAllFolders" title="Expand all folders" style="font-size:12px;padding:2px 5px;">⊞</button>
+          <button class="folder-tool-btn" id="btnCollapseAllFolders" title="Collapse all folders" style="font-size:12px;padding:2px 5px;">⊟</button>
           <button class="folder-tool-btn" id="btnRefreshFolder" title="Refresh">↻</button>
           <button class="folder-tool-btn" id="btnCloseFolder" title="Close Folder">✕</button>
         </div>
       </div>
+      <div id="folderStats" style="padding: 2px 10px 6px; font-size: 10.5px; color: var(--muted); display: none;"></div>
       <div id="folderTree"></div>
     </div>
 
@@ -1081,7 +1099,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '1.0.0';
+      window.AndroidBridge.getAppVersion() : '1.0.1';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   let currentDocName = 'Guide.md';
@@ -1151,6 +1169,9 @@
   const folderSection = document.getElementById('folderSection');
   const folderTitle = document.getElementById('folderTitle');
   const folderTree = document.getElementById('folderTree');
+  const folderStats = document.getElementById('folderStats');
+  const btnExpandAllFolders = document.getElementById('btnExpandAllFolders');
+  const btnCollapseAllFolders = document.getElementById('btnCollapseAllFolders');
   const btnCloseFolder = document.getElementById('btnCloseFolder');
   const btnRefreshFolder = document.getElementById('btnRefreshFolder');
   const hiddenFileInput = document.getElementById('hiddenFileInput');
@@ -2010,6 +2031,21 @@
   });
 
   // --- Native Tree Fetch Helpers (Bypasses Chromium file:// CORS restrictions) ---
+  async function fetchRecursiveTree() {
+    if (window.AndroidBridge && window.AndroidBridge.getRecursiveTree) {
+      const raw = window.AndroidBridge.getRecursiveTree();
+      const parsed = JSON.parse(raw);
+      if (parsed.status === 'ok') {
+        return parsed;
+      } else {
+        throw new Error(parsed.message || 'Unknown error');
+      }
+    }
+    const res = await fetch('/api/tree?recursive=true');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
+  }
+
   async function fetchTreeChildren(docId) {
     if (window.AndroidBridge && window.AndroidBridge.getTreeChildren) {
       const raw = window.AndroidBridge.getTreeChildren(docId || '');
@@ -2062,6 +2098,7 @@
     activeTreeDocId = null;
     folderSection.classList.remove('visible');
     folderTree.innerHTML = '';
+    if (folderStats) folderStats.style.display = 'none';
     if (searchScope === 'folder') setSearchScope('file');
   };
 
@@ -2077,28 +2114,75 @@
     loadFolderTree(openedFolderRootDocId || '');
   });
 
+  if (btnExpandAllFolders) {
+    btnExpandAllFolders.addEventListener('click', () => {
+      const expandAll = () => {
+        folderTree.querySelectorAll('.tree-item-wrapper').forEach(w => {
+          if (w._expand) w._expand();
+        });
+      };
+      expandAll();
+      expandAll();
+    });
+  }
+
+  if (btnCollapseAllFolders) {
+    btnCollapseAllFolders.addEventListener('click', () => {
+      folderTree.querySelectorAll('.tree-item-wrapper').forEach(w => {
+        if (w._collapse) w._collapse();
+      });
+    });
+  }
+
   async function loadFolderTree(rootId) {
-    folderTree.innerHTML = '<div style="padding:8px;font-size:11px;color:var(--muted);text-align:center;">Loading directory tree...</div>';
+    folderTree.innerHTML = '<div style="padding:12px 8px;font-size:11px;color:var(--muted);text-align:center;">📂 Scanning folder recursively...</div>';
+    if (folderStats) folderStats.style.display = 'none';
+    await new Promise(r => setTimeout(r, 40));
+
     try {
-      const entries = await fetchTreeChildren(rootId);
+      let entries = [];
+      let totalFiles = 0;
+      let totalDirs = 0;
+
+      if (window.AndroidBridge && window.AndroidBridge.getRecursiveTree) {
+        const treeRes = await fetchRecursiveTree();
+        const rootNode = treeRes.root || {};
+        entries = rootNode.children || [];
+        totalFiles = typeof treeRes.totalFiles === 'number' ? treeRes.totalFiles : 0;
+        totalDirs = typeof treeRes.totalDirs === 'number' ? treeRes.totalDirs : 0;
+      } else {
+        const rawEntries = await fetchTreeChildren(rootId);
+        entries = rawEntries || [];
+        totalFiles = entries.filter(e => e.kind === 'file').length;
+        totalDirs = entries.filter(e => e.kind === 'directory').length;
+      }
+
       folderTree.innerHTML = '';
       if (!entries || entries.length === 0) {
-        folderTree.innerHTML = '<div style="padding:8px;font-size:11px;color:var(--muted);text-align:center;">No markdown (.md, .txt) files found in this folder</div>';
+        folderTree.innerHTML = '<div style="padding:12px 8px;font-size:11px;color:var(--muted);text-align:center;">No markdown (.md, .txt) files found in this folder</div>';
         return;
       }
+
+      if (folderStats) {
+        folderStats.textContent = `${totalFiles} markdown file${totalFiles !== 1 ? 's' : ''} found in ${totalDirs} subfolder${totalDirs !== 1 ? 's' : ''}`;
+        folderStats.style.display = 'block';
+      }
+
       for (const item of entries) {
         folderTree.appendChild(buildTreeNode(item, 0));
       }
     } catch(e) {
       console.error('Failed loading folder tree:', e);
-      folderTree.innerHTML = '<div style="padding:8px;font-size:11px;color:#f7768e;text-align:center;">Failed loading tree: ' + escapeHtml(e.message) + '</div>';
+      folderTree.innerHTML = '<div style="padding:12px 8px;font-size:11px;color:#f7768e;text-align:center;">Failed loading tree: ' + escapeHtml(e.message) + '</div>';
     }
   }
 
   function buildTreeNode(item, depth) {
     const wrapper = document.createElement('div');
+    wrapper.className = 'tree-item-wrapper';
+
     const node = document.createElement('div');
-    node.className = 'tree-node' + (item.kind === 'file' ? ' file' : ' dir');
+    node.className = 'tree-node ' + (item.kind === 'file' ? 'file' : 'dir');
     node.style.paddingLeft = (depth * 14 + 6) + 'px';
     node.dataset.docId = item.id;
     if (item.id === activeTreeDocId) node.classList.add('active-file');
@@ -2116,45 +2200,78 @@
     name.textContent = item.name;
 
     node.append(arrow, icon, name);
+
+    if (item.kind === 'directory' && typeof item.fileCount === 'number' && item.fileCount > 0) {
+      const countBadge = document.createElement('span');
+      countBadge.className = 'tree-count-badge';
+      countBadge.textContent = item.fileCount;
+      countBadge.title = `${item.fileCount} markdown files`;
+      node.appendChild(countBadge);
+    }
+
     wrapper.appendChild(node);
 
     if (item.kind === 'directory') {
       const childContainer = document.createElement('div');
+      childContainer.className = 'tree-child-container';
       childContainer.style.display = 'none';
       wrapper.appendChild(childContainer);
-      let expanded = false;
-      let childrenLoaded = false;
 
-      node.addEventListener('click', async () => {
+      let childrenRendered = false;
+      let expanded = false;
+
+      const ensureChildrenRendered = () => {
+        if (childrenRendered) return;
+        childrenRendered = true;
+        const children = item.children || [];
+        if (children.length === 0) {
+          const empty = document.createElement('div');
+          empty.style.paddingLeft = ((depth + 1) * 14 + 6) + 'px';
+          empty.style.fontSize = '10px';
+          empty.style.color = 'var(--muted)';
+          empty.style.paddingTop = '3px';
+          empty.style.paddingBottom = '3px';
+          empty.textContent = '(Empty folder)';
+          childContainer.appendChild(empty);
+        } else {
+          for (const child of children) {
+            childContainer.appendChild(buildTreeNode(child, depth + 1));
+          }
+        }
+      };
+
+      wrapper._expand = function() {
+        expanded = true;
+        arrow.textContent = '▾';
+        ensureChildrenRendered();
+        childContainer.style.display = 'block';
+      };
+
+      wrapper._collapse = function() {
+        expanded = false;
+        arrow.textContent = '▸';
+        childContainer.style.display = 'none';
+      };
+
+      wrapper._toggle = function() {
         expanded = !expanded;
         arrow.textContent = expanded ? '▾' : '▸';
         if (expanded) {
-          if (!childrenLoaded) {
-            childContainer.innerHTML = '<div style="padding:4px 0 4px ' + ((depth + 1) * 14 + 6) + 'px;font-size:10px;color:var(--muted);">Loading...</div>';
-            childContainer.style.display = 'block';
-            try {
-              const childData = await fetchTreeChildren(item.id);
-              childContainer.innerHTML = '';
-              if (childData.length === 0) {
-                childContainer.innerHTML = '<div style="padding:4px 0 4px ' + ((depth + 1) * 14 + 6) + 'px;font-size:10px;color:var(--muted);">(Empty folder)</div>';
-              } else {
-                for (const c of childData) {
-                  childContainer.appendChild(buildTreeNode(c, depth + 1));
-                }
-              }
-              childrenLoaded = true;
-            } catch(e) {
-              childContainer.innerHTML = '<div style="padding:4px 0;font-size:10px;color:#f7768e;">' + escapeHtml(e.message) + '</div>';
-            }
-          } else {
-            childContainer.style.display = 'block';
-          }
+          ensureChildrenRendered();
+          childContainer.style.display = 'block';
         } else {
           childContainer.style.display = 'none';
         }
+      };
+
+      node.addEventListener('click', (e) => {
+        e.stopPropagation();
+        wrapper._toggle();
       });
+
     } else {
-      node.addEventListener('click', async () => {
+      node.addEventListener('click', async (e) => {
+        e.stopPropagation();
         document.querySelectorAll('.tree-node.active-file').forEach(el => el.classList.remove('active-file'));
         node.classList.add('active-file');
         activeTreeDocId = item.id;

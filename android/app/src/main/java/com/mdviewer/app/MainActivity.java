@@ -42,10 +42,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 
 public class MainActivity extends Activity {
     private static final String TAG = "MDViewer";
@@ -199,6 +201,170 @@ public class MainActivity extends Activity {
                 JSONObject.quote(folderName) + ", " +
                 JSONObject.quote(rootDocId) + "); }";
         mWebView.evaluateJavascript(js, null);
+    }
+
+    public String getRecursiveTreeJson() {
+        JSONObject response = new JSONObject();
+        if (mCurrentTreeUri == null) {
+            try {
+                response.put("status", "error");
+                response.put("message", "No folder is currently opened");
+            } catch (Exception ignored) {}
+            return response.toString();
+        }
+
+        try {
+            String rootDocId = null;
+            try {
+                rootDocId = DocumentsContract.getTreeDocumentId(mCurrentTreeUri);
+            } catch (Exception e) {
+                try {
+                    rootDocId = DocumentsContract.getDocumentId(mCurrentTreeUri);
+                } catch (Exception ignored) {}
+            }
+
+            if (rootDocId == null) {
+                response.put("status", "error");
+                response.put("message", "Cannot determine root folder ID");
+                return response.toString();
+            }
+
+            String folderName = getFolderName(mCurrentTreeUri);
+            int[] counters = new int[]{0, 0}; // [0]: totalFiles, [1]: totalDirs
+            Set<String> visited = new HashSet<>();
+
+            JSONObject rootNode = buildRecursiveDirNode(rootDocId, folderName, 0, counters, visited, 25, 15000);
+
+            response.put("status", "ok");
+            response.put("root", rootNode);
+            response.put("totalFiles", counters[0]);
+            response.put("totalDirs", counters[1]);
+            return response.toString();
+        } catch (Exception e) {
+            Log.e(TAG, "Error building recursive tree", e);
+            try {
+                response.put("status", "error");
+                response.put("message", e.getClass().getSimpleName() + ": " + e.getMessage());
+            } catch (Exception ignored) {}
+            return response.toString();
+        }
+    }
+
+    private JSONObject buildRecursiveDirNode(String dirDocId, String dirName, int depth, int[] counters,
+                                             Set<String> visited, int maxDepth, int maxItems) {
+        JSONObject dirObj = new JSONObject();
+        try {
+            dirObj.put("id", dirDocId);
+            dirObj.put("name", dirName);
+            dirObj.put("kind", "directory");
+
+            JSONArray childrenArr = new JSONArray();
+            dirObj.put("children", childrenArr);
+
+            if (dirDocId == null || visited.contains(dirDocId) || depth > maxDepth || (counters[0] + counters[1]) >= maxItems) {
+                dirObj.put("fileCount", 0);
+                return dirObj;
+            }
+            visited.add(dirDocId);
+
+            Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(mCurrentTreeUri, dirDocId);
+            String[] projection = new String[]{
+                    DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                    DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                    DocumentsContract.Document.COLUMN_MIME_TYPE,
+                    DocumentsContract.Document.COLUMN_SIZE
+            };
+
+            List<String[]> subDirs = new ArrayList<>();
+            List<JSONObject> files = new ArrayList<>();
+            int directFileCount = 0;
+
+            try (Cursor cursor = getContentResolver().query(childrenUri, projection, null, null, null)) {
+                if (cursor != null) {
+                    int idCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID);
+                    int nameCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME);
+                    int mimeCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE);
+                    int sizeCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE);
+
+                    while (cursor.moveToNext() && (counters[0] + counters[1]) < maxItems) {
+                        String id = idCol >= 0 ? cursor.getString(idCol) : null;
+                        String name = nameCol >= 0 ? cursor.getString(nameCol) : null;
+                        String mime = mimeCol >= 0 ? cursor.getString(mimeCol) : null;
+                        long size = sizeCol >= 0 ? cursor.getLong(sizeCol) : 0;
+
+                        if (name == null || name.startsWith(".")) continue;
+                        String nameLower = name.toLowerCase();
+                        if (nameLower.equals("node_modules") || nameLower.equals(".git") ||
+                                nameLower.equals(".obsidian") || nameLower.equals(".idea") ||
+                                nameLower.equals(".vscode") || nameLower.equals(".trash") ||
+                                nameLower.equals("__pycache__") || nameLower.equals(".gradle") ||
+                                nameLower.equals("target") || nameLower.equals("dist")) {
+                            continue;
+                        }
+
+                        boolean isDir = DocumentsContract.Document.MIME_TYPE_DIR.equals(mime);
+                        if (isDir) {
+                            subDirs.add(new String[]{id, name});
+                        } else {
+                            if (nameLower.endsWith(".md") || nameLower.endsWith(".markdown") ||
+                                    nameLower.endsWith(".txt") || nameLower.endsWith(".mdown") ||
+                                    nameLower.endsWith(".mkd") || nameLower.endsWith(".text") ||
+                                    "text/markdown".equals(mime) || "text/x-markdown".equals(mime) ||
+                                    "text/plain".equals(mime)) {
+                                JSONObject f = new JSONObject();
+                                f.put("id", id);
+                                f.put("name", name);
+                                f.put("kind", "file");
+                                f.put("size", size);
+                                files.add(f);
+                                counters[0]++;
+                                directFileCount++;
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                Log.w(TAG, "Cannot read children for dir: " + dirDocId, e);
+            }
+
+            // Sort subdirectories alphabetically
+            Collections.sort(subDirs, new Comparator<String[]>() {
+                @Override
+                public int compare(String[] a, String[] b) {
+                    return a[1].compareToIgnoreCase(b[1]);
+                }
+            });
+
+            // Sort files alphabetically
+            Collections.sort(files, new Comparator<JSONObject>() {
+                @Override
+                public int compare(JSONObject a, JSONObject b) {
+                    return a.optString("name").compareToIgnoreCase(b.optString("name"));
+                }
+            });
+
+            int totalFilesUnder = directFileCount;
+
+            // Recursively process subdirectories
+            for (String[] subDir : subDirs) {
+                counters[1]++;
+                JSONObject childDirObj = buildRecursiveDirNode(subDir[0], subDir[1], depth + 1, counters, visited, maxDepth, maxItems);
+                totalFilesUnder += childDirObj.optInt("fileCount", 0);
+                childrenArr.put(childDirObj);
+            }
+
+            // Add files
+            for (JSONObject file : files) {
+                childrenArr.put(file);
+            }
+
+            dirObj.put("fileCount", totalFilesUnder);
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error in buildRecursiveDirNode", e);
+        }
+
+        return dirObj;
     }
 
     public String getTreeChildrenJson(String parentDocId) {
@@ -359,12 +525,23 @@ public class MainActivity extends Activity {
 
         String qLower = query.toLowerCase();
         try {
-            String rootId = DocumentsContract.getTreeDocumentId(mCurrentTreeUri);
+            String rootId = null;
+            try {
+                rootId = DocumentsContract.getTreeDocumentId(mCurrentTreeUri);
+            } catch (Exception e) {
+                try {
+                    rootId = DocumentsContract.getDocumentId(mCurrentTreeUri);
+                } catch (Exception ignored) {}
+            }
+            if (rootId == null) return results.toString();
+
             Queue<String> dirQueue = new LinkedList<>();
+            Set<String> visitedDirs = new HashSet<>();
             dirQueue.add(rootId);
+            visitedDirs.add(rootId);
 
             int scannedFiles = 0;
-            while (!dirQueue.isEmpty() && results.length() < 100 && scannedFiles < 80) {
+            while (!dirQueue.isEmpty() && results.length() < 100 && scannedFiles < 300) {
                 String currentDirId = dirQueue.poll();
                 Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(mCurrentTreeUri, currentDirId);
                 String[] projection = new String[]{
@@ -389,12 +566,21 @@ public class MainActivity extends Activity {
                             if (isDir) {
                                 String nameLower = name.toLowerCase();
                                 if (!nameLower.equals("node_modules") && !nameLower.equals(".git") &&
-                                        !nameLower.equals(".obsidian") && !nameLower.equals(".idea")) {
-                                    dirQueue.add(id);
+                                        !nameLower.equals(".obsidian") && !nameLower.equals(".idea") &&
+                                        !nameLower.equals(".vscode") && !nameLower.equals(".trash") &&
+                                        !nameLower.equals("__pycache__") && !nameLower.equals(".gradle")) {
+                                    if (id != null && !visitedDirs.contains(id)) {
+                                        visitedDirs.add(id);
+                                        dirQueue.add(id);
+                                    }
                                 }
                             } else {
                                 String nameLower = name.toLowerCase();
-                                if (nameLower.endsWith(".md") || nameLower.endsWith(".markdown") || nameLower.endsWith(".txt")) {
+                                if (nameLower.endsWith(".md") || nameLower.endsWith(".markdown") ||
+                                        nameLower.endsWith(".txt") || nameLower.endsWith(".mdown") ||
+                                        nameLower.endsWith(".mkd") || nameLower.endsWith(".text") ||
+                                        "text/markdown".equals(mime) || "text/x-markdown".equals(mime) ||
+                                        "text/plain".equals(mime)) {
                                     scannedFiles++;
                                     searchInFile(id, name, qLower, results);
                                 }

@@ -55,6 +55,11 @@ public class AndroidBridge {
     }
 
     @JavascriptInterface
+    public String getRecursiveTree() {
+        return mActivity.getRecursiveTreeJson();
+    }
+
+    @JavascriptInterface
     public String getTreeChildren(String docId) {
         return mActivity.getTreeChildrenJson(docId);
     }
@@ -91,7 +96,7 @@ public class AndroidBridge {
 
     @JavascriptInterface
     public String getAppVersion() {
-        return "1.0.0";
+        return "1.0.1";
     }
 
     @JavascriptInterface
