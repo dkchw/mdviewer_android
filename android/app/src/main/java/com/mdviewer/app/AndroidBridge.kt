@@ -76,7 +76,7 @@ class AndroidBridge(
 
     @JavascriptInterface
     fun getAppVersion(): String {
-        return "1.0.5"
+        return "1.0.6"
     }
 
     @JavascriptInterface
