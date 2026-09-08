@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mdviewer.app"
-    android:versionCode="9"
-    android:versionName="1.0.8">
+    android:versionCode="10"
+    android:versionName="1.0.9">
 
     <uses-sdk
         android:minSdkVersion="24"
         android:targetSdkVersion="34" />
 
-    <!-- Internet permission for updates, and install permission for auto-updating -->
+    <!-- Only standard INTERNET permission needed; SAF handles documents with zero dangerous permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <application
         android:allowBackup="false"
@@ -67,11 +66,5 @@
                 <data android:mimeType="text/markdown" />
             </intent-filter>
         </activity>
-
-        <provider
-            android:name=".AppFileProvider"
-            android:authorities="com.mdviewer.app.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true" />
     </application>
 </manifest>

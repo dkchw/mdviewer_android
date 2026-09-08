@@ -46,7 +46,6 @@ class MainActivity : Activity() {
         private const val TAG = "MDViewer"
         private const val REQUEST_CODE_FILE_CHOOSER = 1001
         private const val REQUEST_CODE_FOLDER_CHOOSER = 1002
-        private const val REQUEST_CODE_INSTALL_PERMISSION = 1003
     }
 
     private var mWebView: WebView? = null
@@ -54,7 +53,6 @@ class MainActivity : Activity() {
     private var mPendingIntentUri: Uri? = null
     private var mPendingSharedText: String? = null
     private var mCurrentTreeUri: Uri? = null
-    private var mPendingInstallUri: Uri? = null
     private lateinit var mPrefs: SharedPreferences
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -697,7 +695,7 @@ class MainActivity : Activity() {
                 }
 
                 val downloadId = dm.enqueue(request)
-                Toast.makeText(this, "Downloading update in background... It will install automatically when done.", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Downloading update in background... Check status bar when finished.", Toast.LENGTH_LONG).show()
 
                 val receiver = object : BroadcastReceiver() {
                     override fun onReceive(context: Context?, intent: Intent?) {
@@ -707,26 +705,14 @@ class MainActivity : Activity() {
                                 unregisterReceiver(this)
                             } catch (ignored: Exception) {}
 
-                            val manager = getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager
-                            val fileUri = manager?.getUriForDownloadedFile(downloadId)
-                            if (fileUri != null) {
-                                Thread {
-                                    try {
-                                        val updateFile = File(cacheDir, fileName)
-                                        contentResolver.openInputStream(fileUri)?.use { input ->
-                                            updateFile.outputStream().use { output ->
-                                                input.copyTo(output)
-                                            }
-                                        }
-                                        val contentUri = AppFileProvider.getUriForFile(updateFile)
-                                        installApk(contentUri)
-                                    } catch (e: Exception) {
-                                        Log.w(TAG, "Error staging downloaded APK to cache, trying fileUri directly", e)
-                                        installApk(fileUri)
-                                    }
-                                }.start()
-                            } else {
-                                Toast.makeText(this@MainActivity, "Update download finished! Tap notification to install.", Toast.LENGTH_LONG).show()
+                            runOnUiThread {
+                                val manager = getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager
+                                val fileUri = manager?.getUriForDownloadedFile(downloadId)
+                                if (fileUri != null) {
+                                    installApk(fileUri)
+                                } else {
+                                    Toast.makeText(this@MainActivity, "Update download finished! Tap notification in status bar to install.", Toast.LENGTH_LONG).show()
+                                }
                             }
                         }
                     }
@@ -750,18 +736,6 @@ class MainActivity : Activity() {
     private fun installApk(uri: Uri) {
         runOnUiThread {
             try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    if (!packageManager.canRequestPackageInstalls()) {
-                        mPendingInstallUri = uri
-                        Toast.makeText(this, "Please allow 'Install unknown apps' to complete update", Toast.LENGTH_LONG).show()
-                        val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-                            data = Uri.parse("package:$packageName")
-                        }
-                        startActivityForResult(intent, REQUEST_CODE_INSTALL_PERMISSION)
-                        return@runOnUiThread
-                    }
-                }
-
                 val intent = Intent(Intent.ACTION_VIEW).apply {
                     setDataAndType(uri, "application/vnd.android.package-archive")
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -769,8 +743,16 @@ class MainActivity : Activity() {
                 }
                 startActivity(intent)
             } catch (e: Exception) {
-                Log.e(TAG, "Install launch error", e)
-                Toast.makeText(this, "Update downloaded! Tap notification or open Downloads to install.", Toast.LENGTH_LONG).show()
+                Log.w(TAG, "Direct package install intent not supported without high-risk permission: ${e.message}")
+                try {
+                    val dmIntent = Intent(DownloadManager.ACTION_VIEW_DOWNLOADS).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    startActivity(dmIntent)
+                    Toast.makeText(this, "Update downloaded! Tap the file in Downloads or notification to install.", Toast.LENGTH_LONG).show()
+                } catch (e2: Exception) {
+                    Toast.makeText(this, "Update downloaded! Tap the notification in your status bar to install.", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
@@ -936,12 +918,6 @@ class MainActivity : Activity() {
                 }
             }
             return
-        } else if (requestCode == REQUEST_CODE_INSTALL_PERMISSION) {
-            mPendingInstallUri?.let { uri ->
-                mPendingInstallUri = null
-                installApk(uri)
-            }
-            return
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
@@ -975,12 +951,6 @@ class MainActivity : Activity() {
             mWebView?.resumeTimers()
         } catch (e: Exception) {
             Log.w(TAG, "Error resuming WebView: ${e.message}")
-        }
-        mPendingInstallUri?.let { uri ->
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || packageManager.canRequestPackageInstalls()) {
-                mPendingInstallUri = null
-                installApk(uri)
-            }
         }
     }
 

@@ -82,8 +82,12 @@ if [ ! -f "$KEYSTORE" ]; then
 fi
 
 FINAL_APK="$OUT_DIR/mdviewer.apk"
-echo "7. Signing APK with apksigner..."
-"$BT/apksigner" sign --ks "$KEYSTORE" \
+echo "7. Signing APK with apksigner (v1, v2, v3)..."
+"$BT/apksigner" sign \
+    --v1-signing-enabled true \
+    --v2-signing-enabled true \
+    --v3-signing-enabled true \
+    --ks "$KEYSTORE" \
     --ks-pass pass:android \
     --ks-key-alias androiddebugkey \
     --key-pass pass:android \
