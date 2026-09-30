@@ -4638,7 +4638,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v1.4.1</span>
+          <span class="settings-row-badge" id="appVersionSub">v1.4.2</span>
         </button>
         <div class="settings-row-config">
           <div class="settings-config-label">
@@ -4699,7 +4699,7 @@
   </div>
   <div class="update-footer">
     <button id="btnLaterUpdate" class="upd-btn-secondary">Later</button>
-    <button id="btnInstallUpdate" class="upd-btn-primary">⬇️ Download Update</button>
+    <button id="btnInstallUpdate" class="upd-btn-primary">⬇️ Update Now</button>
   </div>
 </div>
 
@@ -4742,7 +4742,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '1.4.1';
+      window.AndroidBridge.getAppVersion() : '1.4.2';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -10472,31 +10472,14 @@
     updateCurrentVersion.textContent = `Current: v${activeVer}`;
     updateChangelog.textContent = releaseData.body || 'No release notes provided.';
 
-    // Check if APK is already downloaded and ready to install
-    const isReady = (window.AndroidBridge && window.AndroidBridge.isUpdateReadyToInstall) ?
-        window.AndroidBridge.isUpdateReadyToInstall() : false;
-
-    if (isReady) {
-      updateState = 'downloaded';
-      if (btnInstallUpdate) {
-        btnInstallUpdate.textContent = '🚀 Install Update';
-        btnInstallUpdate.className = 'upd-btn-primary upd-btn-install';
-        btnInstallUpdate.disabled = false;
-      }
-      if (updateStatusMsg) {
-        updateStatusMsg.style.display = 'block';
-        updateStatusMsg.innerHTML = '✅ Update package is downloaded and ready to install.';
-      }
-    } else {
-      updateState = 'initial';
-      if (btnInstallUpdate) {
-        btnInstallUpdate.textContent = '⬇️ Download Update';
-        btnInstallUpdate.className = 'upd-btn-primary';
-        btnInstallUpdate.disabled = false;
-      }
-      if (updateStatusMsg) {
-        updateStatusMsg.style.display = 'none';
-      }
+    updateState = 'initial';
+    if (btnInstallUpdate) {
+      btnInstallUpdate.textContent = '⬇️ Update Now';
+      btnInstallUpdate.className = 'upd-btn-primary';
+      btnInstallUpdate.disabled = false;
+    }
+    if (updateStatusMsg) {
+      updateStatusMsg.style.display = 'none';
     }
 
     updateModal.style.display = 'flex';
@@ -10511,58 +10494,49 @@
   function handleUpdateAction() {
     if (!pendingReleaseData) return;
 
-    if (updateState === 'initial') {
-      let apkAsset = null;
-      if (pendingReleaseData.assets && pendingReleaseData.assets.length) {
-        apkAsset = pendingReleaseData.assets.find(a => a.name && a.name.endsWith('.apk'));
-      }
-
-      const apkUrl = apkAsset ? apkAsset.browser_download_url : pendingReleaseData.html_url;
-      const vName = pendingReleaseData.tag_name.replace(/^v/, '');
-
-      updateState = 'downloading';
-      if (btnInstallUpdate) {
-        btnInstallUpdate.textContent = '⏳ Downloading...';
-        btnInstallUpdate.disabled = true;
-      }
-      if (updateStatusMsg) {
-        updateStatusMsg.style.display = 'block';
-        updateStatusMsg.innerHTML = '<span class="update-spinner"></span> Downloading update in background... Check status bar for progress.';
-      }
-
-      if (apkAsset && window.AndroidBridge && window.AndroidBridge.downloadUpdateOnly) {
-        window.AndroidBridge.downloadUpdateOnly(apkUrl, vName);
-      } else if (window.AndroidBridge && window.AndroidBridge.openExternalUrl) {
-        window.AndroidBridge.openExternalUrl(pendingReleaseData.html_url);
-        hideUpdateDialog();
-      } else {
-        window.open(pendingReleaseData.html_url, '_blank');
-        hideUpdateDialog();
-      }
-    } else if (updateState === 'downloaded') {
-      if (window.AndroidBridge && window.AndroidBridge.installDownloadedUpdate) {
-        window.AndroidBridge.installDownloadedUpdate();
-      } else {
-        showToast('Please tap the downloaded APK in the status bar to install.');
-      }
-      hideUpdateDialog();
+    let apkAsset = null;
+    if (pendingReleaseData.assets && pendingReleaseData.assets.length) {
+      apkAsset = pendingReleaseData.assets.find(a => a.name && a.name.endsWith('.apk'));
     }
+
+    const apkUrl = apkAsset ? apkAsset.browser_download_url : pendingReleaseData.html_url;
+    const vName = pendingReleaseData.tag_name ? pendingReleaseData.tag_name.replace(/^v/, '') : '';
+
+    if (btnInstallUpdate) {
+      btnInstallUpdate.textContent = '🚀 Opening Browser...';
+      btnInstallUpdate.disabled = true;
+    }
+    if (updateStatusMsg) {
+      updateStatusMsg.style.display = 'block';
+      updateStatusMsg.innerHTML = '<span class="update-spinner"></span> Opening update download in browser... Tap <b>Open</b> when prompted to install!';
+    }
+
+    if (window.AndroidBridge && window.AndroidBridge.downloadAndInstall) {
+      window.AndroidBridge.downloadAndInstall(apkUrl, vName);
+    } else if (window.AndroidBridge && window.AndroidBridge.openExternalUrl) {
+      window.AndroidBridge.openExternalUrl(apkUrl);
+    } else {
+      window.open(apkUrl, '_blank');
+    }
+
+    setTimeout(() => {
+      hideUpdateDialog();
+      if (btnInstallUpdate) {
+        btnInstallUpdate.textContent = '⬇️ Update Now';
+        btnInstallUpdate.disabled = false;
+      }
+    }, 1500);
   }
 
-  // Global callback from Android Bridge when download finishes
+  // Global callback from Android Bridge if triggered
   window.onUpdateDownloadComplete = function(versionName) {
-    updateState = 'downloaded';
     if (btnInstallUpdate) {
-      btnInstallUpdate.textContent = '🚀 Install Update';
-      btnInstallUpdate.className = 'upd-btn-primary upd-btn-install';
+      btnInstallUpdate.textContent = '🚀 Update Ready';
       btnInstallUpdate.disabled = false;
     }
     if (updateStatusMsg) {
       updateStatusMsg.style.display = 'block';
-      updateStatusMsg.innerHTML = '✅ Download complete! Tap below to install.';
-    }
-    if (updateModal.style.display !== 'flex') {
-      showToast(`MD Viewer v${versionName} downloaded! Open update dialog to install.`);
+      updateStatusMsg.innerHTML = '✅ Download complete! Tap below to open.';
     }
   };
 
