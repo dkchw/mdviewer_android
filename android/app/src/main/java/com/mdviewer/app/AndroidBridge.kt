@@ -36,6 +36,19 @@ class AndroidBridge(
     }
 
     @JavascriptInterface
+    fun renameFolder(treeUriString: String?, newFolderName: String?): String {
+        if (newFolderName.isNullOrEmpty()) {
+            return "{\"status\":\"error\",\"message\":\"Folder name cannot be empty\"}"
+        }
+        return activity.renameFolder(treeUriString, newFolderName)
+    }
+
+    @JavascriptInterface
+    fun deleteFolderFromDisk(treeUriString: String?): String {
+        return activity.deleteFolderFromDisk(treeUriString)
+    }
+
+    @JavascriptInterface
     fun pickDefaultBasicSaveFolder() {
         handler.post { activity.openDefaultSaveFolderChooser() }
     }
@@ -167,9 +180,9 @@ class AndroidBridge(
     fun getAppVersion(): String {
         return try {
             val pInfo = activity.packageManager.getPackageInfo(activity.packageName, 0)
-            pInfo.versionName ?: "1.4.2"
+            pInfo.versionName ?: "1.4.3"
         } catch (e: Exception) {
-            "1.4.2"
+            "1.4.3"
         }
     }
 

@@ -723,16 +723,26 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 12px;
+    padding: 8px 10px;
     background: #141520;
     border-bottom: 1px solid var(--border);
+    position: relative;
   }
   .folder-header-title-group {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     min-width: 0;
     flex: 1;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: background 0.15s ease;
+    user-select: none;
+  }
+  .folder-header-title-group:hover,
+  .folder-header-title-group:active {
+    background: rgba(122, 162, 247, 0.14);
   }
   .vault-chip {
     font-size: 9px;
@@ -745,13 +755,310 @@
     flex-shrink: 0;
   }
   .folder-name-badge {
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 700;
     color: var(--fg);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 140px;
   }
+  .vault-dropdown-chevron {
+    color: var(--muted);
+    font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    transition: transform 0.2s ease, color 0.15s ease;
+    margin-left: 2px;
+  }
+  .folder-header-title-group:hover .vault-dropdown-chevron {
+    color: var(--accent);
+  }
+  .folder-header-title-group.open .vault-dropdown-chevron {
+    transform: rotate(180deg);
+    color: var(--accent);
+  }
+
+  /* --- Vault Switcher & Management Dropdown --- */
+  .vault-dropdown-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 95;
+  }
+  .vault-dropdown-menu {
+    position: absolute;
+    top: 48px;
+    left: 8px;
+    right: 8px;
+    background: #161726;
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75);
+    z-index: 100;
+    max-height: 440px;
+    display: flex;
+    flex-direction: column;
+    animation: fadeInDown 0.18s ease-out;
+    overflow: hidden;
+  }
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .vault-drop-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: #1b1c2e;
+    border-bottom: 1px solid var(--border);
+  }
+  .vault-drop-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--fg);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .vault-drop-subtitle {
+    font-size: 10.5px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .vault-drop-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 14px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .vault-drop-close-btn:active {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  .vault-drop-actions {
+    display: flex;
+    gap: 6px;
+    padding: 8px 10px;
+    background: #13141f;
+    border-bottom: 1px solid var(--border);
+  }
+  .vault-drop-action-btn {
+    flex: 1;
+    background: #24283b;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: all 0.15s ease;
+  }
+  .vault-drop-action-btn:active {
+    background: rgba(122, 162, 247, 0.2);
+    border-color: var(--accent);
+  }
+  .vault-drop-list {
+    overflow-y: auto;
+    max-height: 280px;
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .vault-drop-empty {
+    padding: 18px 12px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .vault-drop-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 10px;
+    background: #1b1c2b;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .vault-drop-item:hover,
+  .vault-drop-item:active {
+    background: #222538;
+  }
+  .vault-drop-item.active {
+    border-color: rgba(122, 162, 247, 0.45);
+    background: rgba(122, 162, 247, 0.1);
+  }
+  .vault-drop-item-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    flex: 1;
+  }
+  .vault-drop-item-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .vault-drop-item-info {
+    min-width: 0;
+    flex: 1;
+  }
+  .vault-drop-item-name {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--fg);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .vault-drop-active-tag {
+    font-size: 8.5px;
+    font-weight: 800;
+    background: rgba(122, 162, 247, 0.25);
+    color: #7aa2f7;
+    padding: 1px 4px;
+    border-radius: 3px;
+    letter-spacing: 0.5px;
+  }
+  .vault-drop-item-path {
+    font-size: 10px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 1px;
+  }
+  .vault-drop-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: 6px;
+    flex-shrink: 0;
+  }
+  .vault-item-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--muted);
+    font-size: 11px;
+    width: 26px;
+    height: 26px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .vault-item-btn:hover,
+  .vault-item-btn:active {
+    background: #2a2e45;
+    color: var(--fg);
+    border-color: var(--border);
+  }
+  .vault-item-btn.btn-delete:hover,
+  .vault-item-btn.btn-delete:active {
+    background: rgba(247, 118, 142, 0.2);
+    color: #f7768e;
+    border-color: rgba(247, 118, 142, 0.4);
+  }
+  .vault-item-btn:disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+  }
+
+  /* Rename Input in modal */
+  .rename-vault-input {
+    width: 100%;
+    box-sizing: border-box;
+    background: #141520;
+    border: 1px solid var(--accent);
+    color: var(--fg);
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-size: 13px;
+    outline: none;
+  }
+  .vault-rename-error {
+    color: #f7768e;
+    font-size: 11px;
+    margin-top: 6px;
+    text-align: left;
+  }
+
+  /* Delete Choice Buttons */
+  .vault-delete-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+    width: 100%;
+  }
+  .vault-choice-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    text-align: left;
+    background: #1a1b2a;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .vault-choice-btn:active {
+    background: #24283b;
+    border-color: var(--accent);
+  }
+  .vault-choice-btn.danger {
+    border-color: rgba(247, 118, 142, 0.3);
+  }
+  .vault-choice-btn.danger:active {
+    background: rgba(247, 118, 142, 0.15);
+    border-color: #f7768e;
+  }
+  .vault-choice-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .vault-choice-info {
+    min-width: 0;
+    flex: 1;
+  }
+  .vault-choice-title {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--fg);
+  }
+  .vault-choice-btn.danger .vault-choice-title {
+    color: #f7768e;
+  }
+  .vault-choice-desc {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+
   .folder-actions-toolbar {
     display: flex;
     align-items: center;
@@ -4081,7 +4388,7 @@
     <!-- Quick Reopen Last Vault & Recent Vaults -->
     <div id="drawerVaultsHistory" class="drawer-vault-history-container" style="display:none;">
       <div class="vault-history-header">
-        <span class="vault-history-label">⚡ Recent Vaults</span>
+        <span class="vault-history-label" id="btnVaultHistoryLabel" style="cursor: pointer;" title="Manage vaults">⚡ Recent Vaults ▾</span>
         <button id="btnQuickReopenLastVault" class="vault-history-quick-btn" title="Quickly reopen the last active vault">
           Reopen Last
         </button>
@@ -4102,11 +4409,12 @@
     </div>
 
     <!-- Active Folder Tree Explorer (Obsidian Style) -->
-    <div id="folderSection">
+    <div id="folderSection" style="position: relative;">
       <div class="folder-header-bar">
-        <div class="folder-header-title-group">
+        <div class="folder-header-title-group" id="btnVaultDropdownToggle" title="Click to switch, rename, or manage vaults">
           <span class="vault-chip">VAULT</span>
           <span class="folder-name-badge" id="folderTitle">Folder</span>
+          <span class="vault-dropdown-chevron" id="vaultChevron">▾</span>
         </div>
         <div class="folder-actions-toolbar">
           <button class="folder-tool-btn" id="btnExpandAllFolders" title="Expand all">
@@ -4123,6 +4431,28 @@
           </button>
         </div>
       </div>
+
+      <!-- Vault Switcher & Management Dropdown -->
+      <div id="vaultDropdownBackdrop" class="vault-dropdown-backdrop" style="display:none;"></div>
+      <div id="vaultDropdownMenu" class="vault-dropdown-menu" style="display:none;">
+        <div class="vault-drop-header">
+          <div class="vault-drop-title-col">
+            <div class="vault-drop-title">📂 Vaults & Workspaces</div>
+            <div class="vault-drop-subtitle" id="vaultDropSubtitle">Switch, reorder, rename or delete</div>
+          </div>
+          <button id="btnCloseVaultDropdown" class="vault-drop-close-btn" title="Close">✕</button>
+        </div>
+        <div class="vault-drop-actions">
+          <button id="btnVaultDropOpenNew" class="vault-drop-action-btn" title="Open another folder from device">
+            <span>📁</span> Open Folder
+          </button>
+          <button id="btnVaultDropRenameActive" class="vault-drop-action-btn" title="Rename current active vault">
+            <span>✏️</span> Rename Vault
+          </button>
+        </div>
+        <div id="vaultDropList" class="vault-drop-list"></div>
+      </div>
+
       <div id="folderStats" class="obsidian-stats-chip"></div>
       <div id="folderTree" class="obsidian-tree-container"></div>
     </div>
@@ -4638,7 +4968,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v1.4.2</span>
+          <span class="settings-row-badge" id="appVersionSub">v1.4.3</span>
         </button>
         <div class="settings-row-config">
           <div class="settings-config-label">
@@ -4718,6 +5048,53 @@
   </div>
 </div>
 
+<!-- Custom Vault Rename Modal -->
+<div id="vaultRenameModal" class="pocket-delete-modal" style="display:none; z-index: 1050;">
+  <div class="pocket-delete-card" style="max-width: 340px;">
+    <div class="pocket-delete-icon" style="background: rgba(122,162,247,0.15); color: #7aa2f7;">✏️</div>
+    <div class="pocket-delete-title">Rename Vault Folder</div>
+    <div class="pocket-delete-desc" style="margin-bottom: 12px;">
+      Renaming will update the real folder on your device storage.
+    </div>
+    <input type="text" id="inputRenameVaultName" class="rename-vault-input" placeholder="New folder name" maxlength="80">
+    <div id="vaultRenameError" class="vault-rename-error" style="display:none;"></div>
+    <div class="pocket-delete-actions" style="margin-top: 14px;">
+      <button id="btnCancelRenameVault" class="pocket-delete-cancel-btn">Cancel</button>
+      <button id="btnConfirmRenameVault" class="pocket-delete-confirm-btn" style="background: var(--accent); color: #16161e;">Rename</button>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Vault Delete / Remove Modal -->
+<div id="vaultDeleteModal" class="pocket-delete-modal" style="display:none; z-index: 1050;">
+  <div class="pocket-delete-card" style="max-width: 360px;">
+    <div class="pocket-delete-icon" style="background: rgba(247,118,142,0.15); color: #f7768e;">🗑️</div>
+    <div class="pocket-delete-title">Remove or Delete Vault</div>
+    <div class="pocket-delete-desc">
+      How would you like to handle <b id="vaultDeleteTargetName">"Vault"</b>?
+    </div>
+    <div class="vault-delete-choices">
+      <button id="btnVaultRemoveFromList" class="vault-choice-btn">
+        <span class="vault-choice-icon">📋</span>
+        <div class="vault-choice-info">
+          <span class="vault-choice-title">Remove from Recent List</span>
+          <span class="vault-choice-desc">Unlinks from MD Viewer history. Files on disk remain untouched.</span>
+        </div>
+      </button>
+      <button id="btnVaultDeleteFromDisk" class="vault-choice-btn danger">
+        <span class="vault-choice-icon">🔥</span>
+        <div class="vault-choice-info">
+          <span class="vault-choice-title">Permanently Delete from Disk</span>
+          <span class="vault-choice-desc">Deletes the folder and all its files from device storage.</span>
+        </div>
+      </button>
+    </div>
+    <div class="pocket-delete-actions" style="margin-top: 12px;">
+      <button id="btnCancelVaultDelete" class="pocket-delete-cancel-btn" style="width: 100%;">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- Floating Quick Selection & Copy Toolbar -->
 <div id="selectionToolbar">
   <button id="btnCopySelection" class="sel-btn" title="Copy selection">
@@ -4742,7 +5119,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '1.4.2';
+      window.AndroidBridge.getAppVersion() : '1.4.3';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -4985,6 +5362,30 @@
   const drawerVaultsHistory = document.getElementById('drawerVaultsHistory');
   const btnQuickReopenLastVault = document.getElementById('btnQuickReopenLastVault');
   const vaultHistoryChips = document.getElementById('vaultHistoryChips');
+  const btnVaultHistoryLabel = document.getElementById('btnVaultHistoryLabel');
+  const btnVaultDropdownToggle = document.getElementById('btnVaultDropdownToggle');
+  const vaultDropdownMenu = document.getElementById('vaultDropdownMenu');
+  const vaultDropdownBackdrop = document.getElementById('vaultDropdownBackdrop');
+  const btnCloseVaultDropdown = document.getElementById('btnCloseVaultDropdown');
+  const btnVaultDropOpenNew = document.getElementById('btnVaultDropOpenNew');
+  const btnVaultDropRenameActive = document.getElementById('btnVaultDropRenameActive');
+  const vaultDropList = document.getElementById('vaultDropList');
+  const vaultDropSubtitle = document.getElementById('vaultDropSubtitle');
+  const vaultChevron = document.getElementById('vaultChevron');
+
+  // Vault Rename Modal elements
+  const vaultRenameModal = document.getElementById('vaultRenameModal');
+  const inputRenameVaultName = document.getElementById('inputRenameVaultName');
+  const vaultRenameError = document.getElementById('vaultRenameError');
+  const btnCancelRenameVault = document.getElementById('btnCancelRenameVault');
+  const btnConfirmRenameVault = document.getElementById('btnConfirmRenameVault');
+
+  // Vault Delete Modal elements
+  const vaultDeleteModal = document.getElementById('vaultDeleteModal');
+  const vaultDeleteTargetName = document.getElementById('vaultDeleteTargetName');
+  const btnVaultRemoveFromList = document.getElementById('btnVaultRemoveFromList');
+  const btnVaultDeleteFromDisk = document.getElementById('btnVaultDeleteFromDisk');
+  const btnCancelVaultDelete = document.getElementById('btnCancelVaultDelete');
   const drawerBasicSaveIndicator = document.getElementById('drawerBasicSaveIndicator');
   const drawerBasicSaveName = document.getElementById('drawerBasicSaveName');
   const btnDrawerConfigureSave = document.getElementById('btnDrawerConfigureSave');
@@ -10086,6 +10487,424 @@
     }
   }
 
+  // --- Vault Dropdown, Reordering, Renaming and Deleting ---
+  let activeVaultActionTarget = null; // target vault object for rename/delete modal
+
+  function toggleVaultDropdown(force) {
+    if (!vaultDropdownMenu || !vaultDropdownBackdrop) return;
+    const isCurrentlyOpen = (vaultDropdownMenu.style.display === 'flex');
+    const shouldShow = (typeof force === 'boolean') ? force : !isCurrentlyOpen;
+    if (shouldShow) {
+      renderVaultDropdownList();
+      vaultDropdownMenu.style.display = 'flex';
+      vaultDropdownBackdrop.style.display = 'block';
+      if (btnVaultDropdownToggle) btnVaultDropdownToggle.classList.add('open');
+    } else {
+      vaultDropdownMenu.style.display = 'none';
+      vaultDropdownBackdrop.style.display = 'none';
+      if (btnVaultDropdownToggle) btnVaultDropdownToggle.classList.remove('open');
+    }
+  }
+
+  function renderVaultDropdownList() {
+    if (!vaultDropList) return;
+    vaultDropList.innerHTML = '';
+
+    if (vaultDropSubtitle) {
+      vaultDropSubtitle.textContent = recentVaults.length === 1 ?
+        '1 saved vault' : `${recentVaults.length} saved vaults`;
+    }
+
+    if (btnVaultDropRenameActive) {
+      btnVaultDropRenameActive.style.display = openedFolderName ? 'inline-flex' : 'none';
+    }
+
+    if (recentVaults.length === 0) {
+      const emptyDiv = document.createElement('div');
+      emptyDiv.className = 'vault-drop-empty';
+      emptyDiv.innerHTML = '<span>No recent vaults saved.</span><br><small style="color:var(--muted)">Open a folder from device to begin.</small>';
+      vaultDropList.appendChild(emptyDiv);
+      return;
+    }
+
+    recentVaults.forEach((vault, idx) => {
+      const isCurrentActive = (openedFolderTreeUri && vault.uri === openedFolderTreeUri) ||
+                              (!openedFolderTreeUri && openedFolderName && vault.name === openedFolderName);
+
+      const item = document.createElement('div');
+      item.className = 'vault-drop-item' + (isCurrentActive ? ' active' : '');
+
+      // Left column: icon, name, path/time
+      const left = document.createElement('div');
+      left.className = 'vault-drop-item-left';
+
+      const icon = document.createElement('div');
+      icon.className = 'vault-drop-item-icon';
+      icon.textContent = isCurrentActive ? '📂' : '📁';
+
+      const info = document.createElement('div');
+      info.className = 'vault-drop-item-info';
+
+      const nameRow = document.createElement('div');
+      nameRow.className = 'vault-drop-item-name';
+      nameRow.textContent = vault.name;
+
+      if (isCurrentActive) {
+        const badge = document.createElement('span');
+        badge.className = 'vault-drop-active-tag';
+        badge.textContent = 'ACTIVE';
+        nameRow.appendChild(badge);
+      }
+
+      const pathRow = document.createElement('div');
+      pathRow.className = 'vault-drop-item-path';
+      if (vault.uri) {
+        try {
+          const decoded = decodeURIComponent(vault.uri);
+          const parts = decoded.split(':');
+          pathRow.textContent = parts[parts.length - 1] || vault.name;
+        } catch(e) {
+          pathRow.textContent = vault.name;
+        }
+      } else {
+        pathRow.textContent = 'Device folder';
+      }
+
+      info.appendChild(nameRow);
+      info.appendChild(pathRow);
+      left.appendChild(icon);
+      left.appendChild(info);
+
+      // Clicking left opens/switches vault
+      left.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (isCurrentActive) {
+          showToast(`Vault "${vault.name}" is already open`);
+        } else {
+          toggleVaultDropdown(false);
+          openVaultByItem(vault);
+        }
+      });
+
+      // Right column: action buttons (up, down, rename, delete)
+      const actions = document.createElement('div');
+      actions.className = 'vault-drop-item-actions';
+
+      // Move Up (Rerank)
+      const btnUp = document.createElement('button');
+      btnUp.className = 'vault-item-btn';
+      btnUp.title = 'Move up in rank';
+      btnUp.innerHTML = '▲';
+      btnUp.disabled = (idx === 0);
+      btnUp.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (idx > 0) {
+          const temp = recentVaults[idx];
+          recentVaults[idx] = recentVaults[idx - 1];
+          recentVaults[idx - 1] = temp;
+          saveRecentVaults();
+          renderVaultDropdownList();
+          renderRecentVaultsUI();
+          showToast(`Moved "${vault.name}" up`);
+        }
+      });
+
+      // Move Down (Rerank)
+      const btnDown = document.createElement('button');
+      btnDown.className = 'vault-item-btn';
+      btnDown.title = 'Move down in rank';
+      btnDown.innerHTML = '▼';
+      btnDown.disabled = (idx === recentVaults.length - 1);
+      btnDown.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (idx < recentVaults.length - 1) {
+          const temp = recentVaults[idx];
+          recentVaults[idx] = recentVaults[idx + 1];
+          recentVaults[idx + 1] = temp;
+          saveRecentVaults();
+          renderVaultDropdownList();
+          renderRecentVaultsUI();
+          showToast(`Moved "${vault.name}" down`);
+        }
+      });
+
+      // Rename (✏️)
+      const btnRename = document.createElement('button');
+      btnRename.className = 'vault-item-btn';
+      btnRename.title = 'Rename folder on disk';
+      btnRename.innerHTML = '✏️';
+      btnRename.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openRenameVaultModal(vault);
+      });
+
+      // Delete (🗑️)
+      const btnDelete = document.createElement('button');
+      btnDelete.className = 'vault-item-btn btn-delete';
+      btnDelete.title = 'Remove or delete folder';
+      btnDelete.innerHTML = '🗑️';
+      btnDelete.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openDeleteVaultModal(vault);
+      });
+
+      actions.appendChild(btnUp);
+      actions.appendChild(btnDown);
+      actions.appendChild(btnRename);
+      actions.appendChild(btnDelete);
+
+      item.appendChild(left);
+      item.appendChild(actions);
+
+      vaultDropList.appendChild(item);
+    });
+  }
+
+  function openRenameVaultModal(vault) {
+    if (!vault) return;
+    activeVaultActionTarget = vault;
+    if (inputRenameVaultName) {
+      inputRenameVaultName.value = vault.name;
+    }
+    if (vaultRenameError) {
+      vaultRenameError.style.display = 'none';
+      vaultRenameError.textContent = '';
+    }
+    if (vaultRenameModal) {
+      vaultRenameModal.style.display = 'flex';
+      setTimeout(() => {
+        if (inputRenameVaultName) {
+          inputRenameVaultName.focus();
+          inputRenameVaultName.select();
+        }
+      }, 50);
+    }
+  }
+
+  function closeRenameVaultModal() {
+    activeVaultActionTarget = null;
+    if (vaultRenameModal) vaultRenameModal.style.display = 'none';
+  }
+
+  function handleConfirmRenameVault() {
+    if (!activeVaultActionTarget || !inputRenameVaultName) return;
+    const newName = inputRenameVaultName.value.trim();
+    if (!newName) {
+      if (vaultRenameError) {
+        vaultRenameError.textContent = 'Folder name cannot be empty';
+        vaultRenameError.style.display = 'block';
+      }
+      return;
+    }
+    if (/[/\\:*?"<>|]/.test(newName)) {
+      if (vaultRenameError) {
+        vaultRenameError.textContent = 'Folder name contains invalid characters (/\\:*?"<>|)';
+        vaultRenameError.style.display = 'block';
+      }
+      return;
+    }
+    if (newName === activeVaultActionTarget.name) {
+      closeRenameVaultModal();
+      showToast('Vault name unchanged');
+      return;
+    }
+
+    const targetVault = activeVaultActionTarget;
+    const isCurrentActive = (openedFolderTreeUri && targetVault.uri === openedFolderTreeUri) ||
+                            (!openedFolderTreeUri && openedFolderName && targetVault.name === openedFolderName);
+
+    if (window.AndroidBridge && window.AndroidBridge.renameFolder && targetVault.uri) {
+      try {
+        const resStr = window.AndroidBridge.renameFolder(targetVault.uri, newName);
+        const res = JSON.parse(resStr);
+        if (res.status === 'ok') {
+          targetVault.name = res.newName || newName;
+          if (res.newUri) targetVault.uri = res.newUri;
+          if (res.newRootDocId) targetVault.rootDocId = res.newRootDocId;
+
+          if (isCurrentActive) {
+            openedFolderName = targetVault.name;
+            if (res.newUri) openedFolderTreeUri = res.newUri;
+            if (folderTitle) folderTitle.textContent = targetVault.name;
+            if (res.newRootDocId) loadFolderTree(res.newRootDocId);
+          }
+
+          saveRecentVaults();
+          closeRenameVaultModal();
+          renderVaultDropdownList();
+          renderRecentVaultsUI();
+          showToast(`✅ Renamed folder on disk to "${targetVault.name}"`);
+        } else {
+          if (vaultRenameError) {
+            vaultRenameError.textContent = res.message || 'Could not rename folder';
+            vaultRenameError.style.display = 'block';
+          }
+        }
+      } catch(e) {
+        if (vaultRenameError) {
+          vaultRenameError.textContent = e.message;
+          vaultRenameError.style.display = 'block';
+        }
+      }
+    } else {
+      // Browser simulation
+      targetVault.name = newName;
+      if (isCurrentActive) {
+        openedFolderName = newName;
+        if (folderTitle) folderTitle.textContent = newName;
+      }
+      saveRecentVaults();
+      closeRenameVaultModal();
+      renderVaultDropdownList();
+      renderRecentVaultsUI();
+      showToast(`Renamed vault to "${newName}" (simulated)`);
+    }
+  }
+
+  function openDeleteVaultModal(vault) {
+    if (!vault) return;
+    activeVaultActionTarget = vault;
+    if (vaultDeleteTargetName) {
+      vaultDeleteTargetName.textContent = `"${vault.name}"`;
+    }
+    if (vaultDeleteModal) {
+      vaultDeleteModal.style.display = 'flex';
+    }
+  }
+
+  function closeDeleteVaultModal() {
+    activeVaultActionTarget = null;
+    if (vaultDeleteModal) vaultDeleteModal.style.display = 'none';
+  }
+
+  function handleVaultRemoveFromList() {
+    if (!activeVaultActionTarget) return;
+    const target = activeVaultActionTarget;
+    const isCurrentActive = (openedFolderTreeUri && target.uri === openedFolderTreeUri) ||
+                            (!openedFolderTreeUri && openedFolderName && target.name === openedFolderName);
+
+    recentVaults = recentVaults.filter(v => v !== target && v.uri !== target.uri && v.name !== target.name);
+    saveRecentVaults();
+    closeDeleteVaultModal();
+
+    if (isCurrentActive) {
+      if (window.AndroidBridge && window.AndroidBridge.closeFolder) {
+        window.AndroidBridge.closeFolder();
+      } else {
+        window.onFolderClosed();
+      }
+    }
+
+    renderVaultDropdownList();
+    renderRecentVaultsUI();
+    showToast(`Removed "${target.name}" from recent vaults`);
+  }
+
+  function handleVaultDeleteFromDisk() {
+    if (!activeVaultActionTarget) return;
+    const target = activeVaultActionTarget;
+    const isCurrentActive = (openedFolderTreeUri && target.uri === openedFolderTreeUri) ||
+                            (!openedFolderTreeUri && openedFolderName && target.name === openedFolderName);
+
+    if (window.AndroidBridge && window.AndroidBridge.deleteFolderFromDisk && target.uri) {
+      try {
+        const resStr = window.AndroidBridge.deleteFolderFromDisk(target.uri);
+        const res = JSON.parse(resStr);
+        if (res.status === 'ok') {
+          recentVaults = recentVaults.filter(v => v !== target && v.uri !== target.uri);
+          saveRecentVaults();
+          closeDeleteVaultModal();
+
+          if (isCurrentActive) {
+            window.onFolderClosed();
+          }
+
+          renderVaultDropdownList();
+          renderRecentVaultsUI();
+          showToast(`🔥 Deleted "${target.name}" from disk`);
+        } else {
+          showToast(`Cannot delete from disk: ${res.message}`);
+        }
+      } catch(e) {
+        showToast(`Cannot delete folder: ${e.message}`);
+      }
+    } else {
+      // Browser simulation
+      recentVaults = recentVaults.filter(v => v !== target);
+      saveRecentVaults();
+      closeDeleteVaultModal();
+      if (isCurrentActive) window.onFolderClosed();
+      renderVaultDropdownList();
+      renderRecentVaultsUI();
+      showToast(`Deleted "${target.name}" (simulated)`);
+    }
+  }
+
+  function initVaultDropdown() {
+    if (btnVaultDropdownToggle) {
+      btnVaultDropdownToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleVaultDropdown();
+      });
+    }
+    if (vaultDropdownBackdrop) {
+      vaultDropdownBackdrop.addEventListener('click', () => {
+        toggleVaultDropdown(false);
+      });
+    }
+    if (btnCloseVaultDropdown) {
+      btnCloseVaultDropdown.addEventListener('click', () => {
+        toggleVaultDropdown(false);
+      });
+    }
+    if (btnVaultHistoryLabel) {
+      btnVaultHistoryLabel.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleVaultDropdown();
+      });
+    }
+    if (btnVaultDropOpenNew) {
+      btnVaultDropOpenNew.addEventListener('click', () => {
+        toggleVaultDropdown(false);
+        if (window.AndroidBridge && window.AndroidBridge.openNativeFolderPicker) {
+          window.AndroidBridge.openNativeFolderPicker();
+        } else {
+          showToast('Open Folder (browser mode)');
+        }
+      });
+    }
+    if (btnVaultDropRenameActive) {
+      btnVaultDropRenameActive.addEventListener('click', () => {
+        const activeVault = recentVaults.find(v => {
+          if (openedFolderTreeUri && v.uri) return v.uri === openedFolderTreeUri;
+          return v.name === openedFolderName;
+        }) || { name: openedFolderName, uri: openedFolderTreeUri || '' };
+        openRenameVaultModal(activeVault);
+      });
+    }
+    if (btnCancelRenameVault) {
+      btnCancelRenameVault.addEventListener('click', closeRenameVaultModal);
+    }
+    if (btnConfirmRenameVault) {
+      btnConfirmRenameVault.addEventListener('click', handleConfirmRenameVault);
+    }
+    if (inputRenameVaultName) {
+      inputRenameVaultName.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleConfirmRenameVault();
+        else if (e.key === 'Escape') closeRenameVaultModal();
+      });
+    }
+    if (btnCancelVaultDelete) {
+      btnCancelVaultDelete.addEventListener('click', closeDeleteVaultModal);
+    }
+    if (btnVaultRemoveFromList) {
+      btnVaultRemoveFromList.addEventListener('click', handleVaultRemoveFromList);
+    }
+    if (btnVaultDeleteFromDisk) {
+      btnVaultDeleteFromDisk.addEventListener('click', handleVaultDeleteFromDisk);
+    }
+  }
+
   // --- Default Basic Mode Save Folder Management ---
   function initDefaultBasicSaveFolder() {
     if (window.AndroidBridge) {
@@ -10181,19 +11000,24 @@
     // Record in recent vaults list
     const uriToRecord = treeUri || openedFolderTreeUri || '';
     if (name) {
-      recentVaults = recentVaults.filter(v => {
-        if (uriToRecord && v.uri) return v.uri !== uriToRecord;
-        return v.name !== name;
-      });
-      recentVaults.unshift({
-        name: name,
-        rootDocId: rootDocId,
-        uri: uriToRecord,
-        openedAt: Date.now()
-      });
-      if (recentVaults.length > 10) recentVaults = recentVaults.slice(0, 10);
+      const existing = recentVaults.find(v => (uriToRecord && v.uri === uriToRecord) || v.name === name);
+      if (existing) {
+        existing.name = name;
+        if (uriToRecord) existing.uri = uriToRecord;
+        if (rootDocId) existing.rootDocId = rootDocId;
+        existing.openedAt = Date.now();
+      } else {
+        recentVaults.unshift({
+          name: name,
+          rootDocId: rootDocId,
+          uri: uriToRecord,
+          openedAt: Date.now()
+        });
+      }
+      if (recentVaults.length > 20) recentVaults = recentVaults.slice(0, 20);
       saveRecentVaults();
       renderRecentVaultsUI();
+      renderVaultDropdownList();
     }
 
     loadFolderTree(rootDocId);
@@ -10209,7 +11033,9 @@
     folderTree.innerHTML = '';
     if (folderStats) folderStats.style.display = 'none';
     if (searchScope === 'folder') setSearchScope('file');
+    toggleVaultDropdown(false);
     renderRecentVaultsUI();
+    renderVaultDropdownList();
   };
 
   btnCloseFolder.addEventListener('click', () => {
@@ -10921,6 +11747,7 @@
   loadPocketNotes();
   initDefaultBasicSaveFolder();
   renderRecentVaultsUI();
+  initVaultDropdown();
 
   const basicRestored = restoreLastOpenedBasic();
   const outlineRestored = restoreLastOpenedOutline();

@@ -257,6 +257,130 @@ class MainActivity : Activity() {
         }
     }
 
+    fun renameFolder(treeUriString: String?, newFolderName: String): String {
+        val response = JSONObject()
+        val trimmed = newFolderName.trim()
+        if (trimmed.isEmpty()) {
+            response.put("status", "error")
+            response.put("message", "Folder name cannot be empty")
+            return response.toString()
+        }
+
+        val targetTreeUri = if (!treeUriString.isNullOrEmpty()) {
+            try { Uri.parse(treeUriString) } catch (e: Exception) { mCurrentTreeUri }
+        } else {
+            mCurrentTreeUri
+        } ?: run {
+            response.put("status", "error")
+            response.put("message", "No folder specified or opened")
+            return response.toString()
+        }
+
+        try {
+            val rootDocId = getRootDocumentId(targetTreeUri)
+            if (rootDocId.isEmpty()) {
+                response.put("status", "error")
+                response.put("message", "Cannot find root folder ID")
+                return response.toString()
+            }
+
+            val docUri = DocumentsContract.buildDocumentUriUsingTree(targetTreeUri, rootDocId)
+            val renamedDocUri = DocumentsContract.renameDocument(contentResolver, docUri, trimmed)
+            if (renamedDocUri == null) {
+                response.put("status", "error")
+                response.put("message", "Storage provider did not allow renaming this folder")
+                return response.toString()
+            }
+
+            val newRootDocId = try {
+                DocumentsContract.getDocumentId(renamedDocUri)
+            } catch (e: Exception) {
+                rootDocId
+            }
+
+            val newTreeUri = try {
+                DocumentsContract.buildTreeDocumentUri(targetTreeUri.authority, newRootDocId)
+            } catch (e: Exception) {
+                renamedDocUri
+            }
+
+            try {
+                contentResolver.takePersistableUriPermission(
+                    newTreeUri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                )
+            } catch (ignored: Exception) {}
+
+            val isCurrent = (mCurrentTreeUri != null && (mCurrentTreeUri == targetTreeUri || mCurrentTreeUri.toString() == targetTreeUri.toString()))
+            if (isCurrent) {
+                mCurrentTreeUri = newTreeUri
+                mPrefs.edit().putString("last_folder_tree_uri", newTreeUri.toString()).apply()
+            }
+
+            response.put("status", "ok")
+            response.put("oldUri", targetTreeUri.toString())
+            response.put("newUri", newTreeUri.toString())
+            response.put("newName", trimmed)
+            response.put("newRootDocId", newRootDocId)
+            response.put("isCurrent", isCurrent)
+
+            if (isCurrent) {
+                runOnUiThread {
+                    notifyFolderOpened(trimmed, newRootDocId, newTreeUri.toString())
+                }
+            }
+            return response.toString()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error renaming folder", e)
+            response.put("status", "error")
+            response.put("message", "${e.javaClass.simpleName}: ${e.message}")
+            return response.toString()
+        }
+    }
+
+    fun deleteFolderFromDisk(treeUriString: String?): String {
+        val response = JSONObject()
+        val targetTreeUri = if (!treeUriString.isNullOrEmpty()) {
+            try { Uri.parse(treeUriString) } catch (e: Exception) { mCurrentTreeUri }
+        } else {
+            mCurrentTreeUri
+        } ?: run {
+            response.put("status", "error")
+            response.put("message", "No folder specified or opened")
+            return response.toString()
+        }
+
+        try {
+            val rootDocId = getRootDocumentId(targetTreeUri)
+            if (rootDocId.isEmpty()) {
+                response.put("status", "error")
+                response.put("message", "Cannot find root folder ID")
+                return response.toString()
+            }
+
+            val docUri = DocumentsContract.buildDocumentUriUsingTree(targetTreeUri, rootDocId)
+            val deleted = DocumentsContract.deleteDocument(contentResolver, docUri)
+            if (deleted) {
+                val isCurrent = (mCurrentTreeUri != null && (mCurrentTreeUri == targetTreeUri || mCurrentTreeUri.toString() == targetTreeUri.toString()))
+                if (isCurrent) {
+                    runOnUiThread {
+                        closeCurrentFolder()
+                    }
+                }
+                response.put("status", "ok")
+            } else {
+                response.put("status", "error")
+                response.put("message", "Storage provider did not allow deleting this folder")
+            }
+            return response.toString()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error deleting folder from disk", e)
+            response.put("status", "error")
+            response.put("message", "${e.javaClass.simpleName}: ${e.message}")
+            return response.toString()
+        }
+    }
+
     fun openDefaultSaveFolderChooser() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
             addFlags(
