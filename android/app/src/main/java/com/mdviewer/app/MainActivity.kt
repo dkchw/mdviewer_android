@@ -30,6 +30,9 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
@@ -48,6 +51,7 @@ class MainActivity : Activity() {
         private const val REQUEST_CODE_FOLDER_CHOOSER = 1002
         private const val REQUEST_CODE_CREATE_FILE = 1003
         private const val REQUEST_CODE_DEFAULT_SAVE_FOLDER = 1004
+        private const val REQUEST_CODE_UNKNOWN_APP_SOURCES = 1005
     }
 
     private var mWebView: WebView? = null
@@ -820,133 +824,223 @@ class MainActivity : Activity() {
         }
     }
 
-    private var lastDownloadedApkUri: Uri? = null
-    private var currentDownloadId: Long = -1L
+    private var lastDownloadedApkFile: File? = null
 
     fun downloadUpdateOnly(apkUrl: String, versionName: String) {
         runOnUiThread {
-            try {
-                Toast.makeText(this, "Downloading MD Viewer update v$versionName...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Downloading MD Viewer update v$versionName...", Toast.LENGTH_SHORT).show()
+        }
 
-                val dm = getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager
-                if (dm == null) {
-                    Toast.makeText(this, "DownloadManager unavailable, opening browser...", Toast.LENGTH_SHORT).show()
-                    openWebUrl(apkUrl)
-                    return@runOnUiThread
+        kotlin.concurrent.thread {
+            try {
+                val updatesDir = File(cacheDir, "updates")
+                if (!updatesDir.exists()) updatesDir.mkdirs()
+                val apkFile = File(updatesDir, "mdviewer-v$versionName.apk")
+                if (apkFile.exists()) apkFile.delete()
+
+                var downloadUrl = apkUrl
+                var connection: HttpURLConnection? = null
+                var redirects = 0
+                while (redirects < 6) {
+                    val url = URL(downloadUrl)
+                    connection = (url.openConnection() as HttpURLConnection).apply {
+                        instanceFollowRedirects = true
+                        connectTimeout = 15000
+                        readTimeout = 25000
+                        setRequestProperty("User-Agent", "MDViewer-Android-App")
+                        setRequestProperty("Accept", "application/octet-stream,application/vnd.android.package-archive,*/*")
+                    }
+                    val code = connection.responseCode
+                    if (code == HttpURLConnection.HTTP_MOVED_TEMP || code == HttpURLConnection.HTTP_MOVED_PERM || code == 307 || code == 308) {
+                        val loc = connection.getHeaderField("Location")
+                        if (!loc.isNullOrEmpty()) {
+                            downloadUrl = loc
+                            redirects++
+                            continue
+                        }
+                    }
+                    break
                 }
 
-                val downloadUri = Uri.parse(apkUrl)
-                val fileName = "mdviewer-v$versionName.apk"
+                val conn = connection ?: throw IOException("Cannot connect to $apkUrl")
+                if (conn.responseCode !in 200..299) {
+                    throw IOException("HTTP error ${conn.responseCode}: ${conn.responseMessage}")
+                }
 
-                val request = DownloadManager.Request(downloadUri).apply {
-                    setTitle("MD Viewer v$versionName")
-                    setDescription("Downloading update package...")
-                    setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                    setMimeType("application/vnd.android.package-archive")
-                    try {
-                        setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
-                    } catch (e: Exception) {
-                        Log.w(TAG, "Cannot set public downloads dir for update", e)
+                conn.inputStream.use { input ->
+                    FileOutputStream(apkFile).use { output ->
+                        val buffer = ByteArray(8192)
+                        var bytesRead: Int
+                        while (input.read(buffer).also { bytesRead = it } != -1) {
+                            output.write(buffer, 0, bytesRead)
+                        }
+                        output.flush()
                     }
                 }
 
-                val downloadId = dm.enqueue(request)
-                currentDownloadId = downloadId
-                Toast.makeText(this, "Downloading update in background... Check status bar.", Toast.LENGTH_SHORT).show()
+                if (!apkFile.exists() || apkFile.length() < 10000L) {
+                    throw IOException("Downloaded APK is too small or invalid (${apkFile.length()} bytes)")
+                }
 
-                val receiver = object : BroadcastReceiver() {
-                    override fun onReceive(context: Context?, intent: Intent?) {
-                        val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1L) ?: -1L
-                        if (id == downloadId) {
+                lastDownloadedApkFile = apkFile
+
+                runOnUiThread {
+                    Toast.makeText(this, "Download complete! Prompting installer...", Toast.LENGTH_SHORT).show()
+                    mWebView?.evaluateJavascript(
+                        "if (typeof window.onUpdateDownloadComplete === 'function') { window.onUpdateDownloadComplete('$versionName'); }",
+                        null
+                    )
+                    installApk(apkFile)
+                }
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Direct download error, falling back to DownloadManager", e)
+                runOnUiThread {
+                    downloadViaDownloadManager(apkUrl, versionName)
+                }
+            }
+        }
+    }
+
+    private fun downloadViaDownloadManager(apkUrl: String, versionName: String) {
+        try {
+            val dm = getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager
+            if (dm == null) {
+                openWebUrl(apkUrl)
+                return
+            }
+
+            val downloadUri = Uri.parse(apkUrl)
+            val fileName = "mdviewer-v$versionName.apk"
+
+            val request = DownloadManager.Request(downloadUri).apply {
+                setTitle("MD Viewer v$versionName")
+                setDescription("Downloading update package...")
+                setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                setMimeType("application/vnd.android.package-archive")
+                try {
+                    setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+                } catch (e: Exception) {
+                    Log.w(TAG, "Cannot set public downloads dir", e)
+                }
+            }
+
+            val downloadId = dm.enqueue(request)
+            Toast.makeText(this, "Downloading update via DownloadManager...", Toast.LENGTH_SHORT).show()
+
+            val receiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1L) ?: -1L
+                    if (id == downloadId) {
+                        try { unregisterReceiver(this) } catch (ignored: Exception) {}
+                        kotlin.concurrent.thread {
                             try {
-                                unregisterReceiver(this)
-                            } catch (ignored: Exception) {}
-
-                            runOnUiThread {
                                 val manager = getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager
-                                val fileUri = manager?.getUriForDownloadedFile(downloadId)
-                                if (fileUri != null) {
-                                    lastDownloadedApkUri = fileUri
+                                val pfd = manager?.openDownloadedFile(downloadId)
+                                if (pfd != null) {
+                                    val updatesDir = File(cacheDir, "updates")
+                                    if (!updatesDir.exists()) updatesDir.mkdirs()
+                                    val targetFile = File(updatesDir, fileName)
+                                    FileInputStream(pfd.fileDescriptor).use { input ->
+                                        FileOutputStream(targetFile).use { output ->
+                                            val buf = ByteArray(8192)
+                                            var n: Int
+                                            while (input.read(buf).also { n = it } != -1) {
+                                                output.write(buf, 0, n)
+                                            }
+                                            output.flush()
+                                        }
+                                    }
+                                    pfd.close()
+                                    lastDownloadedApkFile = targetFile
+                                    runOnUiThread {
+                                        Toast.makeText(this@MainActivity, "Download complete! Prompting installer...", Toast.LENGTH_SHORT).show()
+                                        mWebView?.evaluateJavascript("if (typeof window.onUpdateDownloadComplete === 'function') { window.onUpdateDownloadComplete('$versionName'); }", null)
+                                        installApk(targetFile)
+                                    }
                                 }
-                                Toast.makeText(this@MainActivity, "Download complete! Tap 'Install' in the app or notification to install.", Toast.LENGTH_LONG).show()
-                                mWebView?.evaluateJavascript("if (typeof window.onUpdateDownloadComplete === 'function') { window.onUpdateDownloadComplete('$versionName'); }", null)
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Error copying DownloadManager file", e)
                             }
                         }
                     }
                 }
-
-                val filter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
-                if (Build.VERSION.SDK_INT >= 33) {
-                    registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
-                } else {
-                    registerReceiver(receiver, filter)
-                }
-
-            } catch (e: Exception) {
-                Log.e(TAG, "Native download error", e)
-                Toast.makeText(this, "Download error, opening in browser: ${e.message}", Toast.LENGTH_SHORT).show()
-                openWebUrl(apkUrl)
             }
+
+            val filter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+            if (Build.VERSION.SDK_INT >= 33) {
+                registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
+            } else {
+                registerReceiver(receiver, filter)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "DownloadManager failed", e)
+            openWebUrl(apkUrl)
         }
     }
 
     fun installDownloadedApk() {
         runOnUiThread {
-            val uri = lastDownloadedApkUri ?: run {
-                if (currentDownloadId != -1L) {
-                    val dm = getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager
-                    dm?.getUriForDownloadedFile(currentDownloadId)
-                } else null
-            }
-
-            if (uri != null) {
-                installApk(uri)
+            val file = lastDownloadedApkFile ?: File(cacheDir, "updates").listFiles()?.firstOrNull { it.name.endsWith(".apk") && it.length() > 50000L }
+            if (file != null && file.exists()) {
+                installApk(file)
             } else {
-                Toast.makeText(this, "No downloaded update found. Opening Downloads...", Toast.LENGTH_SHORT).show()
-                try {
-                    val dmIntent = Intent(DownloadManager.ACTION_VIEW_DOWNLOADS).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    }
-                    startActivity(dmIntent)
-                } catch (e: Exception) {
-                    Toast.makeText(this, "Please download the update first.", Toast.LENGTH_SHORT).show()
-                }
+                Toast.makeText(this, "No downloaded update found. Please download the update first.", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     fun isUpdateDownloaded(): Boolean {
-        if (lastDownloadedApkUri != null) return true
-        if (currentDownloadId != -1L) {
-            val dm = getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager
-            return dm?.getUriForDownloadedFile(currentDownloadId) != null
-        }
-        return false
+        if (lastDownloadedApkFile != null && lastDownloadedApkFile!!.exists()) return true
+        val updateFiles = File(cacheDir, "updates").listFiles()
+        return updateFiles?.any { it.name.endsWith(".apk") && it.length() > 50000L } == true
     }
 
     fun downloadAndInstallApk(apkUrl: String, versionName: String) {
         downloadUpdateOnly(apkUrl, versionName)
     }
 
-    private fun installApk(uri: Uri) {
+    private fun installApk(file: File) {
         runOnUiThread {
             try {
+                if (!file.exists() || file.length() == 0L) {
+                    Toast.makeText(this, "Update file not found. Please download again.", Toast.LENGTH_SHORT).show()
+                    return@runOnUiThread
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    if (!packageManager.canRequestPackageInstalls()) {
+                        Toast.makeText(this, "Please allow 'Install unknown apps' to update MD Viewer directly", Toast.LENGTH_LONG).show()
+                        val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                            data = Uri.parse("package:$packageName")
+                        }
+                        startActivityForResult(intent, REQUEST_CODE_UNKNOWN_APP_SOURCES)
+                        return@runOnUiThread
+                    }
+                }
+
+                val contentUri = Uri.parse("content://$packageName.apkprovider/${file.name}")
                 val intent = Intent(Intent.ACTION_VIEW).apply {
-                    setDataAndType(uri, "application/vnd.android.package-archive")
+                    setDataAndType(contentUri, "application/vnd.android.package-archive")
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
                 startActivity(intent)
             } catch (e: Exception) {
-                Log.w(TAG, "Direct package install intent not supported without high-risk permission: ${e.message}")
+                Log.e(TAG, "Cannot launch package installer with provider URI", e)
                 try {
-                    val dmIntent = Intent(DownloadManager.ACTION_VIEW_DOWNLOADS).apply {
+                    val contentUri = Uri.parse("content://$packageName.apkprovider/${file.name}")
+                    @Suppress("DEPRECATION")
+                    val fallbackIntent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
+                        data = contentUri
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
                     }
-                    startActivity(dmIntent)
-                    Toast.makeText(this, "Update downloaded! Tap the file in Downloads or notification to install.", Toast.LENGTH_LONG).show()
+                    startActivity(fallbackIntent)
                 } catch (e2: Exception) {
-                    Toast.makeText(this, "Update downloaded! Tap the notification in your status bar to install.", Toast.LENGTH_LONG).show()
+                    Log.e(TAG, "Fallback install intent failed", e2)
+                    Toast.makeText(this, "Cannot prompt installer: ${e2.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -1169,6 +1263,14 @@ class MainActivity : Activity() {
                     val js = "if(window.loadFromNativeUri){ window.loadFromNativeUri(" +
                             "${JSONObject.quote(newUri.toString())}, ${JSONObject.quote(fileName)}); }"
                     mWebView?.evaluateJavascript(js, null)
+                }
+            }
+            return
+        } else if (requestCode == REQUEST_CODE_UNKNOWN_APP_SOURCES) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && packageManager.canRequestPackageInstalls()) {
+                val file = lastDownloadedApkFile ?: File(cacheDir, "updates").listFiles()?.firstOrNull { it.name.endsWith(".apk") }
+                if (file != null && file.exists()) {
+                    installApk(file)
                 }
             }
             return

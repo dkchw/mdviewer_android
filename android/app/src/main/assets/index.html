@@ -4617,13 +4617,10 @@
             </div>
           </div>
           <div style="display:flex;gap:8px;width:100%;margin-top:6px;flex-wrap:wrap;">
-            <button id="btnSetBasicSaveFolder" class="settings-row-btn" style="flex:1;min-width:120px;justify-content:center;padding:8px 12px;background:var(--accent);color:#fff;border-radius:6px;font-weight:600;font-size:12px;">
+            <button id="btnSetBasicSaveFolder" class="settings-row-btn" style="flex:1;min-width:140px;justify-content:center;padding:8px 12px;background:var(--accent);color:#fff;border-radius:6px;font-weight:600;font-size:12px;">
               📂 Choose Folder
             </button>
-            <button id="btnUseCurrentVaultAsBasicSave" class="settings-row-btn" style="flex:1;min-width:120px;justify-content:center;padding:8px 12px;background:rgba(122,162,247,0.15);border:1px solid var(--accent);color:var(--accent);border-radius:6px;font-weight:600;font-size:12px;">
-              ⚡ Use Current Vault
-            </button>
-            <button id="btnClearBasicSaveFolder" class="settings-row-btn" style="padding:8px 12px;background:rgba(247,118,142,0.15);border:1px solid #f7768e;color:#f7768e;border-radius:6px;font-weight:600;font-size:12px;" title="Reset to App Cache">
+            <button id="btnClearBasicSaveFolder" class="settings-row-btn" style="padding:8px 14px;background:rgba(247,118,142,0.15);border:1px solid #f7768e;color:#f7768e;border-radius:6px;font-weight:600;font-size:12px;" title="Reset to App Cache">
               ✕ Reset
             </button>
           </div>
@@ -4641,7 +4638,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v1.4.0</span>
+          <span class="settings-row-badge" id="appVersionSub">v1.4.1</span>
         </button>
         <div class="settings-row-config">
           <div class="settings-config-label">
@@ -4745,7 +4742,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '1.4.0';
+      window.AndroidBridge.getAppVersion() : '1.4.1';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -5000,7 +4997,6 @@
   const btnClearRecentFiles = document.getElementById('btnClearRecentFiles');
   const settingsDefaultSaveBadge = document.getElementById('settingsDefaultSaveBadge');
   const btnSetBasicSaveFolder = document.getElementById('btnSetBasicSaveFolder');
-  const btnUseCurrentVaultAsBasicSave = document.getElementById('btnUseCurrentVaultAsBasicSave');
   const btnClearBasicSaveFolder = document.getElementById('btnClearBasicSaveFolder');
 
   // Preview Panel elements
@@ -10154,20 +10150,6 @@
     });
   }
 
-  if (btnUseCurrentVaultAsBasicSave) {
-    btnUseCurrentVaultAsBasicSave.addEventListener('click', () => {
-      if (!openedFolderName) {
-        showToast('No vault currently open! Please open a folder first.');
-        return;
-      }
-      const treeUri = openedFolderTreeUri || '';
-      if (window.AndroidBridge && window.AndroidBridge.setDefaultBasicSaveFolder) {
-        window.AndroidBridge.setDefaultBasicSaveFolder(treeUri, openedFolderName);
-      } else {
-        window.onDefaultBasicSaveFolderSet(openedFolderName, treeUri || 'mock_uri');
-      }
-    });
-  }
 
   if (btnClearBasicSaveFolder) {
     btnClearBasicSaveFolder.addEventListener('click', () => {
