@@ -47,6 +47,7 @@ class MainActivity : Activity() {
         private const val REQUEST_CODE_FILE_CHOOSER = 1001
         private const val REQUEST_CODE_FOLDER_CHOOSER = 1002
         private const val REQUEST_CODE_CREATE_FILE = 1003
+        private const val REQUEST_CODE_DEFAULT_SAVE_FOLDER = 1004
     }
 
     private var mWebView: WebView? = null
@@ -153,8 +154,9 @@ class MainActivity : Activity() {
                 mCurrentTreeUri?.let { treeUri ->
                     val folderName = getFolderName(treeUri)
                     val rootDocId = getRootDocumentId(treeUri)
+                    val uriStr = treeUri.toString()
                     webView.post {
-                        notifyFolderOpened(folderName, rootDocId)
+                        notifyFolderOpened(folderName, rootDocId, uriStr)
                     }
                 }
             }
@@ -229,10 +231,63 @@ class MainActivity : Activity() {
         mWebView?.evaluateJavascript("if(window.onFolderClosed){ window.onFolderClosed(); }", null)
     }
 
-    private fun notifyFolderOpened(folderName: String, rootDocId: String) {
+    private fun notifyFolderOpened(folderName: String, rootDocId: String, treeUri: String = mCurrentTreeUri?.toString() ?: "") {
         val js = "if(window.onFolderOpened){ window.onFolderOpened(" +
-                "${JSONObject.quote(folderName)}, ${JSONObject.quote(rootDocId)}); }"
+                "${JSONObject.quote(folderName)}, ${JSONObject.quote(rootDocId)}, ${JSONObject.quote(treeUri)}); }"
         mWebView?.evaluateJavascript(js, null)
+    }
+
+    fun openFolderByUri(uriString: String): Boolean {
+        return try {
+            val treeUri = Uri.parse(uriString)
+            mCurrentTreeUri = treeUri
+            mPrefs.edit().putString("last_folder_tree_uri", uriString).apply()
+            val folderName = getFolderName(treeUri)
+            val rootDocId = getRootDocumentId(treeUri)
+            runOnUiThread {
+                notifyFolderOpened(folderName, rootDocId, uriString)
+            }
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "Cannot open folder by uri: $uriString", e)
+            false
+        }
+    }
+
+    fun openDefaultSaveFolderChooser() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+            addFlags(
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+                Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or
+                Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
+            )
+        }
+        try {
+            startActivityForResult(intent, REQUEST_CODE_DEFAULT_SAVE_FOLDER)
+        } catch (e: Exception) {
+            Log.e(TAG, "Cannot launch default save folder chooser", e)
+        }
+    }
+
+    fun getDefaultBasicSaveFolderUri(): String? = mPrefs.getString("default_basic_save_tree_uri", null)
+    fun getDefaultBasicSaveFolderName(): String? = mPrefs.getString("default_basic_save_folder_name", null)
+
+    fun clearDefaultBasicSaveFolder() {
+        mPrefs.edit().remove("default_basic_save_tree_uri").remove("default_basic_save_folder_name").apply()
+        mWebView?.post {
+            mWebView?.evaluateJavascript("if(window.onDefaultBasicSaveFolderCleared){ window.onDefaultBasicSaveFolderCleared(); }", null)
+        }
+    }
+
+    fun setDefaultBasicSaveFolder(treeUriString: String, folderName: String) {
+        mPrefs.edit().putString("default_basic_save_tree_uri", treeUriString)
+            .putString("default_basic_save_folder_name", folderName).apply()
+        mWebView?.post {
+            val js = "if(window.onDefaultBasicSaveFolderSet){ window.onDefaultBasicSaveFolderSet(" +
+                    "${JSONObject.quote(folderName)}, ${JSONObject.quote(treeUriString)}); }"
+            mWebView?.evaluateJavascript(js, null)
+        }
     }
 
     private fun getRootDocumentId(treeUri: Uri): String {
@@ -543,7 +598,16 @@ class MainActivity : Activity() {
     }
 
     fun writeTreeFileContent(docId: String, content: String): String {
-        val treeUri = mCurrentTreeUri ?: return "ERROR: No folder opened"
+        return writeFileInTreeUri(null, docId, content)
+    }
+
+    fun writeFileInTreeUri(treeUriString: String?, docId: String, content: String): String {
+        val treeUri = if (!treeUriString.isNullOrEmpty()) {
+            try { Uri.parse(treeUriString) } catch (e: Exception) { mCurrentTreeUri }
+        } else {
+            mCurrentTreeUri
+        } ?: return "ERROR: No folder opened"
+
         return try {
             val docUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, docId)
             contentResolver.openOutputStream(docUri, "wt")?.use { stream ->
@@ -558,7 +622,16 @@ class MainActivity : Activity() {
     }
 
     fun createTreeFileContent(fileName: String, content: String): String {
-        val treeUri = mCurrentTreeUri ?: return "ERROR: No folder opened"
+        return createFileInTreeUri(null, fileName, content)
+    }
+
+    fun createFileInTreeUri(treeUriString: String?, fileName: String, content: String): String {
+        val treeUri = if (!treeUriString.isNullOrEmpty()) {
+            try { Uri.parse(treeUriString) } catch (e: Exception) { mCurrentTreeUri }
+        } else {
+            mCurrentTreeUri
+        } ?: return "ERROR: No folder opened"
+
         return try {
             val rootDocId = getRootDocumentId(treeUri)
             val parentUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, rootDocId)
@@ -1021,7 +1094,7 @@ class MainActivity : Activity() {
                 val treeUri = data.data!!
                 var takeFlags = data.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 if (takeFlags == 0) {
-                    takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                 }
                 try {
                     contentResolver.takePersistableUriPermission(treeUri, takeFlags)
@@ -1036,7 +1109,34 @@ class MainActivity : Activity() {
                 val rootDocId = getRootDocumentId(treeUri)
 
                 mWebView?.post {
-                    notifyFolderOpened(folderName, rootDocId)
+                    notifyFolderOpened(folderName, rootDocId, treeUri.toString())
+                }
+            }
+            return
+        } else if (requestCode == REQUEST_CODE_DEFAULT_SAVE_FOLDER) {
+            if (resultCode == Activity.RESULT_OK && data?.data != null) {
+                val treeUri = data.data!!
+                var takeFlags = data.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                if (takeFlags == 0) {
+                    takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                }
+                try {
+                    contentResolver.takePersistableUriPermission(treeUri, takeFlags)
+                } catch (e: Exception) {
+                    Log.w(TAG, "Cannot take persistable permission for default save folder: ${e.message}")
+                }
+
+                val folderName = getFolderName(treeUri)
+                val uriStr = treeUri.toString()
+                mPrefs.edit()
+                    .putString("default_basic_save_tree_uri", uriStr)
+                    .putString("default_basic_save_folder_name", folderName)
+                    .apply()
+
+                mWebView?.post {
+                    val js = "if(window.onDefaultBasicSaveFolderSet){ window.onDefaultBasicSaveFolderSet(" +
+                            "${JSONObject.quote(folderName)}, ${JSONObject.quote(uriStr)}); }"
+                    mWebView?.evaluateJavascript(js, null)
                 }
             }
             return

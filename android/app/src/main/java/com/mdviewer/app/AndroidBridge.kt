@@ -30,6 +30,38 @@ class AndroidBridge(
     }
 
     @JavascriptInterface
+    fun openFolderByUri(uriString: String?): Boolean {
+        if (uriString.isNullOrEmpty()) return false
+        return activity.openFolderByUri(uriString)
+    }
+
+    @JavascriptInterface
+    fun pickDefaultBasicSaveFolder() {
+        handler.post { activity.openDefaultSaveFolderChooser() }
+    }
+
+    @JavascriptInterface
+    fun getDefaultBasicSaveFolderUri(): String? {
+        return activity.getDefaultBasicSaveFolderUri()
+    }
+
+    @JavascriptInterface
+    fun getDefaultBasicSaveFolderName(): String? {
+        return activity.getDefaultBasicSaveFolderName()
+    }
+
+    @JavascriptInterface
+    fun setDefaultBasicSaveFolder(uriString: String?, folderName: String?) {
+        if (uriString.isNullOrEmpty() || folderName.isNullOrEmpty()) return
+        activity.setDefaultBasicSaveFolder(uriString, folderName)
+    }
+
+    @JavascriptInterface
+    fun clearDefaultBasicSaveFolder() {
+        activity.clearDefaultBasicSaveFolder()
+    }
+
+    @JavascriptInterface
     fun closeFolder() {
         handler.post { activity.closeCurrentFolder() }
     }
@@ -72,9 +104,21 @@ class AndroidBridge(
     }
 
     @JavascriptInterface
+    fun writeFileInTreeUri(treeUriString: String?, docId: String?, content: String?): String {
+        if (docId.isNullOrEmpty() || content == null) return "ERROR: Invalid params"
+        return activity.writeFileInTreeUri(treeUriString, docId, content)
+    }
+
+    @JavascriptInterface
     fun createTreeFile(fileName: String?, content: String?): String {
         if (fileName.isNullOrEmpty() || content == null) return "ERROR: Invalid params"
         return activity.createTreeFileContent(fileName, content)
+    }
+
+    @JavascriptInterface
+    fun createFileInTreeUri(treeUriString: String?, fileName: String?, content: String?): String {
+        if (fileName.isNullOrEmpty() || content == null) return "ERROR: Invalid params"
+        return activity.createFileInTreeUri(treeUriString, fileName, content)
     }
 
     @JavascriptInterface
@@ -123,9 +167,9 @@ class AndroidBridge(
     fun getAppVersion(): String {
         return try {
             val pInfo = activity.packageManager.getPackageInfo(activity.packageName, 0)
-            pInfo.versionName ?: "1.3.2"
+            pInfo.versionName ?: "1.4.0"
         } catch (e: Exception) {
-            "1.3.2"
+            "1.4.0"
         }
     }
 
