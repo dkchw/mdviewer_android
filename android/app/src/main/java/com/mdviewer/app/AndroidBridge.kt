@@ -60,6 +60,31 @@ class AndroidBridge(
     }
 
     @JavascriptInterface
+    fun writeNativeFile(uriString: String?, content: String?): String {
+        if (uriString.isNullOrEmpty() || content == null) return "ERROR: Invalid params"
+        return activity.writeNativeFileContent(uriString, content)
+    }
+
+    @JavascriptInterface
+    fun writeTreeFile(docId: String?, content: String?): String {
+        if (docId.isNullOrEmpty() || content == null) return "ERROR: Invalid params"
+        return activity.writeTreeFileContent(docId, content)
+    }
+
+    @JavascriptInterface
+    fun createTreeFile(fileName: String?, content: String?): String {
+        if (fileName.isNullOrEmpty() || content == null) return "ERROR: Invalid params"
+        return activity.createTreeFileContent(fileName, content)
+    }
+
+    @JavascriptInterface
+    fun saveFileAs(suggestedName: String?, content: String?) {
+        handler.post {
+            activity.openCreateFileChooser(suggestedName ?: "Document.md", content ?: "")
+        }
+    }
+
+    @JavascriptInterface
     fun downloadAndInstall(apkUrl: String?, versionName: String?) {
         activity.downloadAndInstallApk(apkUrl ?: "", versionName ?: "")
     }
@@ -81,7 +106,7 @@ class AndroidBridge(
 
     @JavascriptInterface
     fun getAppVersion(): String {
-        return "1.1.0"
+        return "1.2.0"
     }
 
     @JavascriptInterface

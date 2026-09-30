@@ -46,12 +46,14 @@ class MainActivity : Activity() {
         private const val TAG = "MDViewer"
         private const val REQUEST_CODE_FILE_CHOOSER = 1001
         private const val REQUEST_CODE_FOLDER_CHOOSER = 1002
+        private const val REQUEST_CODE_CREATE_FILE = 1003
     }
 
     private var mWebView: WebView? = null
     private var mFilePathCallback: ValueCallback<Array<Uri>>? = null
     private var mPendingIntentUri: Uri? = null
     private var mPendingSharedText: String? = null
+    private var mPendingCreateContent: String? = null
     private var mCurrentTreeUri: Uri? = null
     private lateinit var mPrefs: SharedPreferences
 
@@ -173,6 +175,11 @@ class MainActivity : Activity() {
                 Intent.EXTRA_MIME_TYPES,
                 arrayOf("text/plain", "text/markdown", "text/x-markdown", "application/octet-stream", "*/*")
             )
+            addFlags(
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+                Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+            )
         }
         try {
             startActivityForResult(intent, REQUEST_CODE_FILE_CHOOSER)
@@ -181,10 +188,30 @@ class MainActivity : Activity() {
         }
     }
 
+    fun openCreateFileChooser(suggestedName: String, initialContent: String) {
+        mPendingCreateContent = initialContent
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "text/markdown"
+            putExtra(Intent.EXTRA_TITLE, suggestedName)
+            addFlags(
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+                Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+            )
+        }
+        try {
+            startActivityForResult(intent, REQUEST_CODE_CREATE_FILE)
+        } catch (e: Exception) {
+            Log.e(TAG, "Cannot launch create file chooser", e)
+        }
+    }
+
     fun openFolderChooser() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
             addFlags(
                 Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
                 Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or
                 Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
             )
@@ -497,6 +524,59 @@ class MainActivity : Activity() {
             } ?: "ERROR: Cannot open stream"
         } catch (e: Exception) {
             Log.e(TAG, "Error reading native file: $uriStr", e)
+            "ERROR: ${e.javaClass.simpleName}: ${e.message}"
+        }
+    }
+
+    fun writeNativeFileContent(uriStr: String, content: String): String {
+        return try {
+            val uri = Uri.parse(uriStr)
+            contentResolver.openOutputStream(uri, "wt")?.use { stream ->
+                stream.write(content.toByteArray(StandardCharsets.UTF_8))
+                stream.flush()
+            } ?: return "ERROR: Cannot open output stream"
+            "OK"
+        } catch (e: Exception) {
+            Log.e(TAG, "Error writing native file: $uriStr", e)
+            "ERROR: ${e.javaClass.simpleName}: ${e.message}"
+        }
+    }
+
+    fun writeTreeFileContent(docId: String, content: String): String {
+        val treeUri = mCurrentTreeUri ?: return "ERROR: No folder opened"
+        return try {
+            val docUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, docId)
+            contentResolver.openOutputStream(docUri, "wt")?.use { stream ->
+                stream.write(content.toByteArray(StandardCharsets.UTF_8))
+                stream.flush()
+            } ?: return "ERROR: Cannot open output stream"
+            "OK"
+        } catch (e: Exception) {
+            Log.e(TAG, "Error writing tree file docId=$docId", e)
+            "ERROR: ${e.javaClass.simpleName}: ${e.message}"
+        }
+    }
+
+    fun createTreeFileContent(fileName: String, content: String): String {
+        val treeUri = mCurrentTreeUri ?: return "ERROR: No folder opened"
+        return try {
+            val rootDocId = getRootDocumentId(treeUri)
+            val parentUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, rootDocId)
+            val newDocUri = DocumentsContract.createDocument(contentResolver, parentUri, "text/markdown", fileName)
+                ?: return "ERROR: Could not create document"
+            contentResolver.openOutputStream(newDocUri, "wt")?.use { stream ->
+                stream.write(content.toByteArray(StandardCharsets.UTF_8))
+                stream.flush()
+            }
+            val newDocId = DocumentsContract.getDocumentId(newDocUri)
+            JSONObject().apply {
+                put("status", "ok")
+                put("docId", newDocId)
+                put("uri", newDocUri.toString())
+                put("name", fileName)
+            }.toString()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error creating tree file: $fileName", e)
             "ERROR: ${e.javaClass.simpleName}: ${e.message}"
         }
     }
@@ -915,6 +995,38 @@ class MainActivity : Activity() {
 
                 mWebView?.post {
                     notifyFolderOpened(folderName, rootDocId)
+                }
+            }
+            return
+        } else if (requestCode == REQUEST_CODE_CREATE_FILE) {
+            if (resultCode == Activity.RESULT_OK && data?.data != null) {
+                val newUri = data.data!!
+                val contentToWrite = mPendingCreateContent ?: ""
+                mPendingCreateContent = null
+                val takeFlags = (data.flags) and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                val flagsToTake = if (takeFlags == 0) (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION) else takeFlags
+                try {
+                    contentResolver.takePersistableUriPermission(newUri, flagsToTake)
+                } catch (e: Exception) {
+                    try {
+                        contentResolver.takePersistableUriPermission(newUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    } catch (ignored: Exception) {}
+                }
+
+                try {
+                    contentResolver.openOutputStream(newUri, "wt")?.use { stream ->
+                        stream.write(contentToWrite.toByteArray(StandardCharsets.UTF_8))
+                        stream.flush()
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error writing new file", e)
+                }
+
+                val fileName = getFileName(newUri)
+                mWebView?.post {
+                    val js = "if(window.loadFromNativeUri){ window.loadFromNativeUri(" +
+                            "${JSONObject.quote(newUri.toString())}, ${JSONObject.quote(fileName)}); }"
+                    mWebView?.evaluateJavascript(js, null)
                 }
             }
             return

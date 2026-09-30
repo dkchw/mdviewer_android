@@ -2359,7 +2359,178 @@
     justify-content: center;
     gap: 6px;
   }
-  .opt-toc-action-btn:active { background: #323850; }
+  /* --- Basic Mode Markdown Editor & Dual Personas Styles --- */
+  .mode-tab-btn.basic-tab.active {
+    background: #7aa2f7;
+    color: #15161e;
+    font-weight: 700;
+    box-shadow: 0 1px 6px rgba(122,162,247,0.35);
+  }
+  .mode-tab-btn.outline-tab.active {
+    background: #ff9e64;
+    color: #15161e;
+    font-weight: 700;
+    box-shadow: 0 1px 6px rgba(255,158,100,0.35);
+  }
+
+  .header-actions-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .header-btn.pill-btn {
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    background: #24283b;
+    border: 1px solid #3b4261;
+    color: #7aa2f7;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 28px;
+  }
+  .header-btn.pill-btn:active {
+    background: #7aa2f7;
+    color: #15161e;
+  }
+
+  #basicEditorContainer {
+    display: none;
+    flex-direction: column;
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    background: #1a1b26;
+  }
+  .editor-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 8px;
+    background: #16161e;
+    border-bottom: 1px solid #24283b;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .editor-toolbar::-webkit-scrollbar { display: none; }
+  .ed-tool-btn {
+    background: #1f2335;
+    color: #c0caf5;
+    border: 1px solid #2f354f;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    flex-shrink: 0;
+    height: 28px;
+    transition: all 0.12s ease;
+  }
+  .ed-tool-btn:active {
+    background: #7aa2f7;
+    color: #15161e;
+    transform: scale(0.96);
+  }
+  .ed-sep {
+    width: 1px;
+    height: 16px;
+    background: #2f354f;
+    margin: 0 2px;
+    flex-shrink: 0;
+  }
+  .ed-save-btn {
+    background: #9ece6a;
+    color: #15161e;
+    border-color: #9ece6a;
+    font-weight: 700;
+  }
+  .editor-textarea-wrapper {
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+  }
+  #basicMarkdownEditor {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    padding: 14px 16px 60px 16px;
+    border: none;
+    outline: none;
+    resize: none;
+    background: #1a1b26;
+    color: #c0caf5;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', Menlo, Monaco, Consolas, monospace;
+    font-size: 14.5px;
+    line-height: 1.65;
+    tab-size: 2;
+    box-sizing: border-box;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    word-break: break-word;
+  }
+  .editor-status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 12px;
+    background: #14151f;
+    border-top: 1px solid #24283b;
+    font-size: 11px;
+    color: #787c99;
+    font-family: monospace;
+    flex-shrink: 0;
+  }
+  .editor-save-badge {
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .editor-save-badge.saved {
+    background: rgba(158, 206, 106, 0.15);
+    color: #9ece6a;
+    border: 1px solid rgba(158, 206, 106, 0.3);
+  }
+  .editor-save-badge.dirty {
+    background: rgba(224, 175, 104, 0.15);
+    color: #e0af68;
+    border: 1px solid rgba(224, 175, 104, 0.3);
+  }
+  .drawer-btn-new {
+    background: #7aa2f7;
+    color: #15161e;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    width: 100%;
+    transition: opacity 0.15s ease;
+  }
+  .drawer-btn-new:active { opacity: 0.85; }
 
   #hiddenFileInput { display: none; }
 </style>
@@ -2370,16 +2541,26 @@
   <header id="headerBar">
     <button id="btnOpenDrawer" class="header-btn" title="Open File Manager (or swipe left-to-right)">☰</button>
     <div id="modeSwitcher" class="mode-switcher-container">
-      <button id="modeBasicBtn" class="mode-tab-btn active" title="Rendered Document &amp; Book Reader">📖 Basic</button>
-      <button id="modeOutlineBtn" class="mode-tab-btn" title="Virtual Outline &amp; Tree Reader">📑 Outline</button>
+      <button id="modeBasicBtn" class="mode-tab-btn basic-tab active" title="Basic Markdown Editor &amp; Reader">✍️ Basic Editor</button>
+      <button id="modeOutlineBtn" class="mode-tab-btn outline-tab" title="Virtual Outline &amp; Tree Reader">📑 Outline</button>
     </div>
     <div id="docInfo">
       <div id="docTitle">Guide.md</div>
       <div id="docStats">Loading...</div>
     </div>
-    <button id="btnToggleOptions" class="header-btn" title="View Options &amp; Zoom">Aa</button>
-    <button id="btnToggleFlashcard" class="header-btn" title="Study as Flashcards">🗂</button>
-    <button id="btnToggleSearch" class="header-btn" title="Toggle Search">🔍</button>
+    <!-- Basic Editor Header Actions -->
+    <div id="basicHeaderActions" class="header-actions-group">
+      <button id="btnHeaderBasicSubMode" class="header-btn pill-btn" title="Toggle Edit / Read Mode">✍️ Edit</button>
+      <button id="btnHeaderBasicSave" class="header-btn" title="Save Document (Ctrl+S)">💾</button>
+      <button id="btnHeaderBasicNew" class="header-btn" title="New Note">➕</button>
+      <button id="btnBasicToggleSearch" class="header-btn" title="Search in Document">🔍</button>
+    </div>
+    <!-- Outline Viewer Header Actions -->
+    <div id="outlineHeaderActions" class="header-actions-group" style="display:none;">
+      <button id="btnToggleOptions" class="header-btn" title="View Options &amp; Zoom">Aa</button>
+      <button id="btnToggleFlashcard" class="header-btn" title="Study as Flashcards">🗂</button>
+      <button id="btnToggleSearch" class="header-btn" title="Toggle Search">🔍</button>
+    </div>
   </header>
 
   <!-- Collapsible Top Search Bar -->
@@ -2413,6 +2594,11 @@
       <button id="optOpenTocBtn" class="opt-toc-action-btn">
         <span>📑 Open Table of Contents</span>
       </button>
+      <div class="opt-group-label" style="margin-top:8px;">File Actions</div>
+      <div class="layout-toggle-row">
+        <button id="optNewNoteBtn" class="layout-opt-btn">➕ New Note</button>
+        <button id="optSaveAsBtn" class="layout-opt-btn">💾 Save As...</button>
+      </div>
       <div class="opt-group-label" style="margin-top:8px;">Text Zoom</div>
       <div class="zoom-row">
         <button id="btnBasicZoomOut" class="zoom-btn">A−</button>
@@ -2460,6 +2646,7 @@
       <div id="docContentWrap" class="doc-content-wrap">
         <div class="doc-floating-bar" id="docFloatingBar">
           <div class="doc-floating-left">
+            <button id="docFloatEditBtn" class="doc-tool-btn" title="Switch to Editor Mode">✍️ Edit</button>
             <button id="docFloatTocBtn" class="doc-tool-btn" title="Table of Contents">📑 TOC</button>
             <button id="docFloatDoubleBtn" class="doc-tool-btn" title="Toggle 2-Page Book Mode">📖 2-Page</button>
             <button id="docFloatWideBtn" class="doc-tool-btn" title="Toggle Wide Edge-to-Edge Layout">↔ Wide</button>
@@ -2471,8 +2658,46 @@
           </div>
         </div>
 
+        <!-- Formatted Prose Reader Container -->
         <div id="docBodyContainer" class="doc-body-container">
           <div id="docBody" class="md-body markdown-body"></div>
+        </div>
+
+        <!-- Markdown Editor Container (Basic Edit Mode) -->
+        <div id="basicEditorContainer" class="basic-editor-container" style="display:none;">
+          <div id="editorToolbar" class="editor-toolbar">
+            <button type="button" class="ed-tool-btn" data-action="h1" title="Heading 1">H1</button>
+            <button type="button" class="ed-tool-btn" data-action="h2" title="Heading 2">H2</button>
+            <button type="button" class="ed-tool-btn" data-action="h3" title="Heading 3">H3</button>
+            <div class="ed-sep"></div>
+            <button type="button" class="ed-tool-btn" data-action="bold" title="Bold"><b>B</b></button>
+            <button type="button" class="ed-tool-btn" data-action="italic" title="Italic"><i>I</i></button>
+            <button type="button" class="ed-tool-btn" data-action="strike" title="Strikethrough"><s>S</s></button>
+            <button type="button" class="ed-tool-btn" data-action="inline-code" title="Inline Code">`code`</button>
+            <div class="ed-sep"></div>
+            <button type="button" class="ed-tool-btn" data-action="task" title="Task List">☑ Task</button>
+            <button type="button" class="ed-tool-btn" data-action="bullet" title="Bullet List">• List</button>
+            <button type="button" class="ed-tool-btn" data-action="number" title="Numbered List">1. Num</button>
+            <button type="button" class="ed-tool-btn" data-action="quote" title="Quote">&gt; Quote</button>
+            <button type="button" class="ed-tool-btn" data-action="codeblock" title="Code Block">&lt;/&gt;</button>
+            <button type="button" class="ed-tool-btn" data-action="table" title="Table">▦ Table</button>
+            <button type="button" class="ed-tool-btn" data-action="divider" title="Divider">― Line</button>
+            <div class="ed-sep"></div>
+            <button type="button" class="ed-tool-btn" data-action="wikilink" title="Obsidian Wikilink">[[ ]]</button>
+            <button type="button" class="ed-tool-btn" data-action="link" title="Markdown Link">🔗 Link</button>
+            <button type="button" class="ed-tool-btn" data-action="callout" title="Obsidian Callout">[!NOTE]</button>
+            <div class="ed-sep"></div>
+            <button type="button" class="ed-tool-btn" data-action="undo" title="Undo">↶</button>
+            <button type="button" class="ed-tool-btn" data-action="redo" title="Redo">↷</button>
+            <button type="button" class="ed-tool-btn ed-save-btn" data-action="save" title="Save File (Ctrl+S)">💾 Save</button>
+          </div>
+          <div class="editor-textarea-wrapper">
+            <textarea id="basicMarkdownEditor" class="basic-markdown-editor" spellcheck="false" placeholder="Write or paste your markdown note here..."></textarea>
+          </div>
+          <div id="editorStatusBar" class="editor-status-bar">
+            <span id="editorStatsInfo">0 words • 0 chars • Line 1</span>
+            <span id="editorSaveBadge" class="editor-save-badge saved">Saved ✓</span>
+          </div>
         </div>
 
         <!-- Reading HUD for 2-Page Mode -->
@@ -2496,6 +2721,14 @@
   <footer id="bottomBar">
     <!-- Basic Mode Toolbar (Default) -->
     <div id="basicBottomGroup" class="bottom-group">
+      <button id="btnBasicBottomToggle" class="bar-btn" title="Toggle Edit / Read Mode">
+        <span class="btn-icon" id="basicBottomToggleIcon">✍️</span>
+        <span class="btn-label" id="basicBottomToggleLabel">Edit</span>
+      </button>
+      <button id="btnBasicBottomSave" class="bar-btn" title="Save Document (Ctrl+S)">
+        <span class="btn-icon">💾</span>
+        <span class="btn-label">Save</span>
+      </button>
       <button id="btnDocTocToggle" class="bar-btn" title="Table of Contents">
         <span class="btn-icon">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -2518,18 +2751,7 @@
         </span>
         <span class="btn-label" id="btnDocDoubleLabel">2-Page</span>
       </button>
-      <button id="btnDocWideToggle" class="bar-btn" title="Toggle Wide Edge-to-Edge Layout">
-        <span class="btn-icon">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="15 3 21 3 21 9"></polyline>
-            <polyline points="9 21 3 21 3 15"></polyline>
-            <line x1="21" y1="3" x2="14" y2="10"></line>
-            <line x1="3" y1="21" x2="10" y2="14"></line>
-          </svg>
-        </span>
-        <span class="btn-label" id="btnDocWideLabel">Wide</span>
-      </button>
-      <button id="btnDocOptionsToggle" class="bar-btn" title="Document Options &amp; Zoom">
+      <button id="btnDocOptionsToggle" class="bar-btn" title="Document Options &amp; Layout">
         <span class="btn-icon">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="4 7 4 4 20 4 20 7"></polyline>
@@ -2537,16 +2759,7 @@
             <line x1="12" y1="4" x2="12" y2="16"></line>
           </svg>
         </span>
-        <span class="btn-label">Zoom</span>
-      </button>
-      <button id="btnDocScrollTop" class="bar-btn" title="Scroll to Top of Note">
-        <span class="btn-icon">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="19" x2="12" y2="5"></line>
-            <polyline points="5 12 12 5 19 12"></polyline>
-          </svg>
-        </span>
-        <span class="btn-label">Top</span>
+        <span class="btn-label">More</span>
       </button>
     </div>
 
@@ -2683,18 +2896,21 @@
     <!-- Dual-App Mode Target Selector -->
     <div class="drawer-mode-switch-box">
       <div class="drawer-mode-tabs">
-        <button id="drawerTabBasic" class="drawer-tab-btn active" title="Manage Files for Basic App">
-          <span>📖</span> Basic App
+        <button id="drawerTabBasic" class="drawer-tab-btn basic-tab active" title="Manage Files for Basic Editor">
+          <span>✍️</span> Basic Editor
         </button>
-        <button id="drawerTabOutline" class="drawer-tab-btn" title="Manage Files for Outline App">
-          <span>📑</span> Outline App
+        <button id="drawerTabOutline" class="drawer-tab-btn outline-tab" title="Manage Files for Outline Viewer">
+          <span>📑</span> Outline Viewer
         </button>
       </div>
       <div class="drawer-target-status" id="drawerTargetStatus">
-        Managing: <span class="badge" id="drawerTargetBadge">Basic App</span> (<span id="drawerTargetCurrentDoc">Guide.md</span>)
+        Managing: <span class="badge" id="drawerTargetBadge">Basic Editor</span> (<span id="drawerTargetCurrentDoc">Guide.md</span>)
       </div>
     </div>
 
+    <button id="btnNewNoteDrawer" class="drawer-btn-new" title="Create a blank markdown note in Basic Editor">
+      <span>➕</span> New Blank Note
+    </button>
     <div class="drawer-actions-row">
       <button id="btnOpenDeviceFile" class="drawer-btn-primary">
         <span>📄</span> Open File
@@ -3303,7 +3519,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '1.1.0';
+      window.AndroidBridge.getAppVersion() : '1.2.0';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -3390,6 +3606,34 @@
   const drawerTabOutline = document.getElementById('drawerTabOutline');
   const drawerTargetBadge = document.getElementById('drawerTargetBadge');
   const drawerTargetCurrentDoc = document.getElementById('drawerTargetCurrentDoc');
+
+  // Header Actions Groups
+  const basicHeaderActions = document.getElementById('basicHeaderActions');
+  const outlineHeaderActions = document.getElementById('outlineHeaderActions');
+  const btnHeaderBasicSubMode = document.getElementById('btnHeaderBasicSubMode');
+  const btnHeaderBasicSave = document.getElementById('btnHeaderBasicSave');
+  const btnHeaderBasicNew = document.getElementById('btnHeaderBasicNew');
+  const btnBasicToggleSearch = document.getElementById('btnBasicToggleSearch');
+
+  // Basic Editor Elements
+  const basicEditorContainer = document.getElementById('basicEditorContainer');
+  const editorToolbar = document.getElementById('editorToolbar');
+  const basicMarkdownEditor = document.getElementById('basicMarkdownEditor');
+  const editorStatusBar = document.getElementById('editorStatusBar');
+  const editorStatsInfo = document.getElementById('editorStatsInfo');
+  const editorSaveBadge = document.getElementById('editorSaveBadge');
+  const docFloatEditBtn = document.getElementById('docFloatEditBtn');
+
+  // Basic Bottom Bar Actions
+  const btnBasicBottomToggle = document.getElementById('btnBasicBottomToggle');
+  const basicBottomToggleIcon = document.getElementById('basicBottomToggleIcon');
+  const basicBottomToggleLabel = document.getElementById('basicBottomToggleLabel');
+  const btnBasicBottomSave = document.getElementById('btnBasicBottomSave');
+
+  // Drawer & Options Additions
+  const btnNewNoteDrawer = document.getElementById('btnNewNoteDrawer');
+  const optNewNoteBtn = document.getElementById('optNewNoteBtn');
+  const optSaveAsBtn = document.getElementById('optSaveAsBtn');
 
   // Options Modal Dual-Group Elements
   const basicOptionsGroup = document.getElementById('basicOptionsGroup');
@@ -4409,7 +4653,11 @@
           counter++;
           return match;
         });
-        saveLastOpenedBasic(basicDocName, basicDocUri, basicDocTreeId, basicDocText);
+        if (basicMarkdownEditor) {
+          basicMarkdownEditor.value = basicDocText;
+          updateEditorStats();
+        }
+        saveBasicDocument();
         showToast(cb.checked ? 'Task completed ✓' : 'Task uncompleted');
       });
     });
@@ -4639,6 +4887,18 @@
       toggleDocToc(true);
     });
   }
+  if (optNewNoteBtn) {
+    optNewNoteBtn.addEventListener('click', () => {
+      optionsModal.classList.remove('open');
+      createNewBasicDocument();
+    });
+  }
+  if (optSaveAsBtn) {
+    optSaveAsBtn.addEventListener('click', () => {
+      optionsModal.classList.remove('open');
+      saveAsBasicDocument();
+    });
+  }
   if (btnBasicZoomIn) {
     btnBasicZoomIn.addEventListener('click', () => {
       basicZoom = Math.min(220, basicZoom + 10);
@@ -4658,9 +4918,337 @@
     });
   }
 
+  // --- Basic Mode Editor & Formatted Reader Sub-Mode Logic ---
+  let basicSubMode = localStorage.getItem('mdviewer_basic_submode') || 'read';
+  let editorInputDebounce = null;
+
+  function setBasicSubMode(mode) {
+    basicSubMode = (mode === 'edit') ? 'edit' : 'read';
+    localStorage.setItem('mdviewer_basic_submode', basicSubMode);
+
+    if (basicSubMode === 'edit') {
+      if (docReadingHud) docReadingHud.style.display = 'none';
+      if (basicMarkdownEditor) {
+        basicMarkdownEditor.value = basicDocText;
+        updateEditorStats();
+      }
+      if (basicEditorContainer) basicEditorContainer.style.display = 'flex';
+      if (docBodyContainer) docBodyContainer.style.display = 'none';
+      if (docFloatingBar) docFloatingBar.style.display = 'none';
+
+      if (btnHeaderBasicSubMode) {
+        btnHeaderBasicSubMode.innerHTML = '👁️ Preview';
+        btnHeaderBasicSubMode.title = 'Switch to Formatted Preview';
+      }
+      if (basicBottomToggleLabel) basicBottomToggleLabel.textContent = 'Preview';
+      if (basicBottomToggleIcon) basicBottomToggleIcon.textContent = '👁️';
+      if (docFloatEditBtn) docFloatEditBtn.innerHTML = '👁️ Preview';
+    } else {
+      if (basicMarkdownEditor && basicEditorContainer && basicEditorContainer.style.display === 'flex') {
+        basicDocText = basicMarkdownEditor.value;
+        saveLastOpenedBasic(basicDocName, basicDocUri, basicDocTreeId, basicDocText);
+      }
+      if (basicEditorContainer) basicEditorContainer.style.display = 'none';
+      if (docBodyContainer) docBodyContainer.style.display = 'block';
+      if (docFloatingBar) docFloatingBar.style.display = 'flex';
+
+      renderBasicDocument(basicDocText, basicDocName);
+
+      if (isBasicDoublePage && docReadingHud) {
+        docReadingHud.style.display = 'flex';
+      }
+
+      if (btnHeaderBasicSubMode) {
+        btnHeaderBasicSubMode.innerHTML = '✍️ Edit';
+        btnHeaderBasicSubMode.title = 'Switch to Markdown Editor';
+      }
+      if (basicBottomToggleLabel) basicBottomToggleLabel.textContent = 'Edit';
+      if (basicBottomToggleIcon) basicBottomToggleIcon.textContent = '✍️';
+      if (docFloatEditBtn) docFloatEditBtn.innerHTML = '✍️ Edit';
+    }
+  }
+
+  function toggleBasicSubMode() {
+    setBasicSubMode(basicSubMode === 'edit' ? 'read' : 'edit');
+  }
+
+  function updateEditorStats() {
+    if (!basicMarkdownEditor) return;
+    const txt = basicMarkdownEditor.value;
+    const words = txt.trim() ? txt.trim().split(/\s+/).length : 0;
+    const chars = txt.length;
+    const linesCount = txt.split('\n').length;
+    if (editorStatsInfo) {
+      editorStatsInfo.textContent = `${words.toLocaleString()} words • ${chars.toLocaleString()} chars • ${linesCount.toLocaleString()} lines`;
+    }
+    if (docStats && currentAppMode === 'basic') {
+      const isDirty = editorSaveBadge && editorSaveBadge.classList.contains('dirty');
+      docStats.textContent = `${words.toLocaleString()} words • ${isDirty ? 'Modified •' : 'Saved ✓'}`;
+    }
+  }
+
+  function onEditorInput() {
+    if (!basicMarkdownEditor) return;
+    basicDocText = basicMarkdownEditor.value;
+    updateEditorStats();
+    if (editorSaveBadge) {
+      editorSaveBadge.textContent = 'Modified •';
+      editorSaveBadge.className = 'editor-save-badge dirty';
+    }
+    clearTimeout(editorInputDebounce);
+    editorInputDebounce = setTimeout(() => {
+      saveLastOpenedBasic(basicDocName, basicDocUri, basicDocTreeId, basicDocText);
+    }, 600);
+  }
+
+  function saveBasicDocument() {
+    if (basicSubMode === 'edit' && basicMarkdownEditor) {
+      basicDocText = basicMarkdownEditor.value;
+    }
+    saveLastOpenedBasic(basicDocName, basicDocUri, basicDocTreeId, basicDocText);
+    saveRecentFileForMode('basic', basicDocName, basicDocText, basicDocUri, basicDocTreeId);
+
+    let savedToDisk = false;
+    if (basicDocUri && window.AndroidBridge && window.AndroidBridge.writeNativeFile) {
+      try {
+        const res = window.AndroidBridge.writeNativeFile(basicDocUri, basicDocText);
+        if (res === 'OK') {
+          savedToDisk = true;
+          showToast(`Saved to ${basicDocName} ✓`);
+        } else {
+          showToast(`Could not write to file: ${res}`);
+        }
+      } catch(e) {
+        showToast('Save error: ' + e.message);
+      }
+    } else if (basicDocTreeId && window.AndroidBridge && window.AndroidBridge.writeTreeFile) {
+      try {
+        const res = window.AndroidBridge.writeTreeFile(basicDocTreeId, basicDocText);
+        if (res === 'OK') {
+          savedToDisk = true;
+          showToast(`Saved to ${basicDocName} ✓`);
+        } else {
+          showToast(`Could not write to vault file: ${res}`);
+        }
+      } catch(e) {
+        showToast('Save error: ' + e.message);
+      }
+    } else {
+      showToast(`Saved ${basicDocName} ✓`);
+    }
+
+    if (editorSaveBadge) {
+      editorSaveBadge.textContent = 'Saved ✓';
+      editorSaveBadge.className = 'editor-save-badge saved';
+    }
+    updateEditorStats();
+  }
+
+  function createNewBasicDocument() {
+    const defaultName = 'Note_' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '.md';
+    basicDocName = defaultName;
+    basicDocText = '# ' + defaultName.replace(/\.md$/, '') + '\n\n';
+    basicDocUri = null;
+    basicDocTreeId = null;
+    saveLastOpenedBasic(basicDocName, null, null, basicDocText);
+    saveRecentFileForMode('basic', basicDocName, basicDocText, null, null);
+    setAppMode('basic');
+    setBasicSubMode('edit');
+    if (basicMarkdownEditor) {
+      basicMarkdownEditor.value = basicDocText;
+      basicMarkdownEditor.focus();
+      basicMarkdownEditor.setSelectionRange(basicDocText.length, basicDocText.length);
+    }
+    showToast(`Created new note: ${basicDocName}`);
+    closeDrawer();
+  }
+
+  function saveAsBasicDocument() {
+    if (basicSubMode === 'edit' && basicMarkdownEditor) {
+      basicDocText = basicMarkdownEditor.value;
+    }
+    if (window.AndroidBridge && window.AndroidBridge.saveFileAs) {
+      window.AndroidBridge.saveFileAs(basicDocName || 'Document.md', basicDocText);
+    } else {
+      const blob = new Blob([basicDocText], { type: 'text/markdown;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = basicDocName || 'Document.md';
+      a.click();
+      showToast(`Exported ${basicDocName}`);
+    }
+  }
+
+  function insertEditorFormat(action) {
+    if (!basicMarkdownEditor) return;
+    const ed = basicMarkdownEditor;
+    const start = ed.selectionStart;
+    const end = ed.selectionEnd;
+    const text = ed.value;
+    const selected = text.substring(start, end);
+
+    let replacement = '';
+    let cursorOffset = 0;
+
+    switch (action) {
+      case 'h1':
+        replacement = '# ' + (selected || 'Heading 1');
+        cursorOffset = replacement.length;
+        break;
+      case 'h2':
+        replacement = '## ' + (selected || 'Heading 2');
+        cursorOffset = replacement.length;
+        break;
+      case 'h3':
+        replacement = '### ' + (selected || 'Heading 3');
+        cursorOffset = replacement.length;
+        break;
+      case 'bold':
+        replacement = '**' + (selected || 'bold text') + '**';
+        cursorOffset = start + 2 + (selected ? selected.length : 9);
+        break;
+      case 'italic':
+        replacement = '*' + (selected || 'italic text') + '*';
+        cursorOffset = start + 1 + (selected ? selected.length : 11);
+        break;
+      case 'strike':
+        replacement = '~~' + (selected || 'strikethrough') + '~~';
+        cursorOffset = start + 2 + (selected ? selected.length : 13);
+        break;
+      case 'inline-code':
+        replacement = '`' + (selected || 'code') + '`';
+        cursorOffset = start + 1 + (selected ? selected.length : 4);
+        break;
+      case 'task':
+        replacement = '- [ ] ' + (selected || 'Task item');
+        cursorOffset = replacement.length;
+        break;
+      case 'bullet':
+        replacement = '- ' + (selected || 'List item');
+        cursorOffset = replacement.length;
+        break;
+      case 'number':
+        replacement = '1. ' + (selected || 'List item');
+        cursorOffset = replacement.length;
+        break;
+      case 'quote':
+        replacement = '> ' + (selected || 'Quote');
+        cursorOffset = replacement.length;
+        break;
+      case 'codeblock':
+        replacement = '\n```\n' + (selected || 'code here') + '\n```\n';
+        cursorOffset = replacement.length;
+        break;
+      case 'table':
+        replacement = '\n| Header 1 | Header 2 |\n| -------- | -------- |\n| Item 1   | Item 2   |\n';
+        cursorOffset = replacement.length;
+        break;
+      case 'divider':
+        replacement = '\n---\n';
+        cursorOffset = replacement.length;
+        break;
+      case 'wikilink':
+        replacement = '[[' + (selected || 'Note Title') + ']]';
+        cursorOffset = start + 2 + (selected ? selected.length : 10);
+        break;
+      case 'link':
+        replacement = '[' + (selected || 'Link Title') + '](https://)';
+        cursorOffset = replacement.length;
+        break;
+      case 'callout':
+        replacement = '\n> [!NOTE]\n> ' + (selected || 'Callout content here.') + '\n';
+        cursorOffset = replacement.length;
+        break;
+      case 'undo':
+        document.execCommand('undo');
+        return;
+      case 'redo':
+        document.execCommand('redo');
+        return;
+      case 'save':
+        saveBasicDocument();
+        return;
+      default:
+        return;
+    }
+
+    ed.focus();
+    if (!document.execCommand || !document.execCommand('insertText', false, replacement)) {
+      ed.value = text.substring(0, start) + replacement + text.substring(end);
+      ed.selectionStart = start + cursorOffset;
+      ed.selectionEnd = start + cursorOffset;
+    }
+    basicDocText = ed.value;
+    onEditorInput();
+  }
+
+  // --- Attach Basic Editor Event Listeners ---
+  if (basicMarkdownEditor) {
+    basicMarkdownEditor.addEventListener('input', onEditorInput);
+    basicMarkdownEditor.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = basicMarkdownEditor.selectionStart;
+        const end = basicMarkdownEditor.selectionEnd;
+        basicMarkdownEditor.value = basicMarkdownEditor.value.substring(0, start) + '  ' + basicMarkdownEditor.value.substring(end);
+        basicMarkdownEditor.selectionStart = basicMarkdownEditor.selectionEnd = start + 2;
+        onEditorInput();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        saveBasicDocument();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') {
+        e.preventDefault();
+        toggleBasicSubMode();
+      }
+    });
+  }
+
+  if (editorToolbar) {
+    editorToolbar.addEventListener('click', (e) => {
+      const btn = e.target.closest('.ed-tool-btn');
+      if (!btn) return;
+      const action = btn.dataset.action;
+      if (action) {
+        insertEditorFormat(action);
+      }
+    });
+  }
+
+  if (btnHeaderBasicSubMode) btnHeaderBasicSubMode.addEventListener('click', toggleBasicSubMode);
+  if (btnHeaderBasicSave) btnHeaderBasicSave.addEventListener('click', saveBasicDocument);
+  if (btnHeaderBasicNew) btnHeaderBasicNew.addEventListener('click', createNewBasicDocument);
+  if (btnBasicToggleSearch) {
+    btnBasicToggleSearch.addEventListener('click', () => {
+      searchContainer.classList.toggle('visible');
+      if (searchContainer.classList.contains('visible')) {
+        searchInput.focus();
+        if (searchInput.value.trim()) runCurrentSearch();
+      } else {
+        clearSearch();
+      }
+    });
+  }
+
+  if (btnBasicBottomToggle) btnBasicBottomToggle.addEventListener('click', toggleBasicSubMode);
+  if (btnBasicBottomSave) btnBasicBottomSave.addEventListener('click', saveBasicDocument);
+  if (docFloatEditBtn) docFloatEditBtn.addEventListener('click', toggleBasicSubMode);
+  if (btnNewNoteDrawer) btnNewNoteDrawer.addEventListener('click', createNewBasicDocument);
+
   // --- Unified Dual-App Mode Switcher ---
   function setAppMode(mode) {
     if (mode !== 'basic' && mode !== 'outline') mode = 'basic';
+    
+    // Save current scroll position before switching
+    if (currentAppMode === 'basic') {
+      if (basicSubMode === 'edit' && basicMarkdownEditor) {
+        basicDocText = basicMarkdownEditor.value;
+        saveLastOpenedBasic(basicDocName, basicDocUri, basicDocTreeId, basicDocText);
+      }
+      if (docBodyContainer) basicScrollTop = docBodyContainer.scrollTop;
+    } else if (currentAppMode === 'outline' && scroller) {
+      outlineScrollTop = scroller.scrollTop;
+    }
+
     currentAppMode = mode;
     localStorage.setItem('mdviewer_app_mode', mode);
 
@@ -4673,20 +5261,31 @@
     if (basicBottomGroup) basicBottomGroup.style.display = (mode === 'basic') ? 'flex' : 'none';
     if (outlineBottomGroup) outlineBottomGroup.style.display = (mode === 'outline') ? 'flex' : 'none';
 
+    if (basicHeaderActions) basicHeaderActions.style.display = (mode === 'basic') ? 'inline-flex' : 'none';
+    if (outlineHeaderActions) outlineHeaderActions.style.display = (mode === 'outline') ? 'inline-flex' : 'none';
+
     if (basicOptionsGroup) basicOptionsGroup.style.display = (mode === 'basic') ? 'block' : 'none';
     if (outlineOptionsGroup) outlineOptionsGroup.style.display = (mode === 'outline') ? 'block' : 'none';
 
     if (mode === 'basic') {
       docTitle.textContent = basicDocName || 'Document.md';
       const words = basicDocText.trim() ? basicDocText.trim().split(/\s+/).length : 0;
-      docStats.textContent = `${words.toLocaleString()} words • Basic Mode`;
-      renderBasicDocument(basicDocText, basicDocName);
-      if (docBodyContainer) docBodyContainer.scrollTop = basicScrollTop || 0;
+      docStats.textContent = `${words.toLocaleString()} words • Basic Editor`;
+      setBasicSubMode(basicSubMode);
+      if (basicSubMode === 'read') {
+        renderBasicDocument(basicDocText, basicDocName);
+        if (docBodyContainer) docBodyContainer.scrollTop = basicScrollTop || 0;
+      }
     } else {
+      currentDocName = outlineDocName || 'Guide.md';
       docTitle.textContent = outlineDocName || 'Guide.md';
-      docStats.textContent = `${lines.length} lines • ${headings.length} headings • Outline Mode`;
+      docStats.textContent = `${lines.length} lines • ${headings.length} headings • Outline Viewer`;
       render();
       if (scroller) scroller.scrollTop = outlineScrollTop || 0;
+    }
+
+    if (searchContainer && searchContainer.classList.contains('visible') && searchInput && searchInput.value.trim()) {
+      runCurrentSearch();
     }
   }
 
@@ -4698,8 +5297,9 @@
     drawerTargetMode = mode;
     if (drawerTabBasic) drawerTabBasic.classList.toggle('active', mode === 'basic');
     if (drawerTabOutline) drawerTabOutline.classList.toggle('active', mode === 'outline');
-    if (drawerTargetBadge) drawerTargetBadge.textContent = (mode === 'basic') ? 'Basic App' : 'Outline App';
+    if (drawerTargetBadge) drawerTargetBadge.textContent = (mode === 'basic') ? 'Basic Editor' : 'Outline Viewer';
     if (drawerTargetCurrentDoc) drawerTargetCurrentDoc.textContent = (mode === 'basic') ? (basicDocName || 'Document.md') : (outlineDocName || 'Outline.md');
+    if (btnNewNoteDrawer) btnNewNoteDrawer.style.display = (mode === 'basic') ? 'inline-flex' : 'none';
     renderRecentFilesForDrawer();
   }
 
@@ -6882,11 +7482,20 @@
         basicDocTreeId = null;
         basicDocText = text;
         basicScrollTop = 0;
+        if (basicMarkdownEditor) {
+          basicMarkdownEditor.value = text;
+          updateEditorStats();
+        }
+        if (editorSaveBadge) {
+          editorSaveBadge.textContent = 'Saved ✓';
+          editorSaveBadge.className = 'editor-save-badge saved';
+        }
         saveLastOpenedBasic(basicDocName, uri, null, text);
         saveRecentFileForMode('basic', basicDocName, text, uri, null);
         setAppMode('basic');
         renderBasicDocument(basicDocText, basicDocName);
-        showToast(`Loaded ${basicDocName} into Basic App`);
+        setBasicSubMode(basicSubMode);
+        showToast(`Loaded ${basicDocName} into Basic Editor`);
       } else {
         outlineDocName = fileName || 'Document.md';
         outlineDocUri = uri;
@@ -6948,11 +7557,20 @@
         basicDocTreeId = docId;
         basicDocText = text;
         basicScrollTop = 0;
+        if (basicMarkdownEditor) {
+          basicMarkdownEditor.value = text;
+          updateEditorStats();
+        }
+        if (editorSaveBadge) {
+          editorSaveBadge.textContent = 'Saved ✓';
+          editorSaveBadge.className = 'editor-save-badge saved';
+        }
         saveLastOpenedBasic(basicDocName, null, docId, text);
         saveRecentFileForMode('basic', basicDocName, text, null, docId);
         setAppMode('basic');
         renderBasicDocument(basicDocText, basicDocName);
-        showToast(`Loaded ${basicDocName} into Basic App`);
+        setBasicSubMode(basicSubMode);
+        showToast(`Loaded ${basicDocName} into Basic Editor`);
       } else {
         outlineDocName = fileName || 'Document.md';
         outlineDocUri = null;
@@ -7005,11 +7623,20 @@
       basicDocTreeId = null;
       basicDocText = text;
       basicScrollTop = 0;
+      if (basicMarkdownEditor) {
+        basicMarkdownEditor.value = text;
+        updateEditorStats();
+      }
+      if (editorSaveBadge) {
+        editorSaveBadge.textContent = 'Saved ✓';
+        editorSaveBadge.className = 'editor-save-badge saved';
+      }
       saveLastOpenedBasic(name, null, null, text);
       saveRecentFileForMode('basic', name, text, null, null);
       if (currentAppMode === 'basic') {
         docTitle.textContent = name;
         renderBasicDocument(basicDocText, basicDocName);
+        setBasicSubMode(basicSubMode);
       }
     } else {
       outlineDocName = name;
