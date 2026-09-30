@@ -2532,6 +2532,537 @@
   }
   .drawer-btn-new:active { opacity: 0.85; }
 
+  /* =========================================================================
+     POCKETMARK POCKET NOTES STYLING
+     Dynamic 2-Column Masonry Grid, Quick Switcher Tabs, Colored Cards & Split
+     ========================================================================= */
+  :root {
+    --pnote-orange: #ff9e64;
+    --pnote-yellow: #e0af68;
+    --pnote-purple: #bb9af7;
+    --pnote-blue: #7aa2f7;
+    --pnote-green: #73daca;
+    --pnote-red: #f7768e;
+    --pnote-cyan: #7dcfff;
+    --pnote-default: #9aa5ce;
+  }
+
+  /* Pocket Shelf Container */
+  #pocketShelfView {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    background: #14151f;
+  }
+
+  /* Shelf Search & Tools Bar */
+  .pocket-shelf-bar {
+    padding: 10px 14px 6px;
+    background: #161724;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .pocket-search-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .pocket-search-input-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1f2335;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 6px 12px;
+    height: 38px;
+    box-sizing: border-box;
+  }
+  .pocket-search-input-box:focus-within {
+    border-color: #7aa2f7;
+    box-shadow: 0 0 10px rgba(122, 162, 247, 0.25);
+  }
+  .pocket-search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--fg);
+    font-size: 13.5px;
+  }
+  .pocket-shelf-tool-btn {
+    background: #1f2335;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    border-radius: 10px;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 15px;
+    flex-shrink: 0;
+    transition: all 0.12s ease;
+  }
+  .pocket-shelf-tool-btn:active {
+    background: #24283b;
+    transform: scale(0.95);
+  }
+
+  /* Color Filter Chips */
+  .pocket-chips-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .pocket-chips-row::-webkit-scrollbar { display: none; }
+  .pocket-chip {
+    background: #1c1e2e;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.12s ease;
+  }
+  .pocket-chip:active {
+    background: #24283b;
+  }
+  .pocket-chip.active {
+    background: #24283b;
+    color: #fff;
+    border-color: var(--chip-color, #7aa2f7);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.3);
+  }
+  .pocket-chip-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* Cards Grid Scroll Area */
+  .pocket-shelf-scroll {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 12px 14px 90px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .pocket-notes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .pocket-notes-grid.list-mode {
+    grid-template-columns: 1fr;
+  }
+
+  /* Individual Pocket Note Card */
+  .pocket-card {
+    border-radius: 18px;
+    padding: 13px 12px;
+    background: #181926;
+    border: 2px solid var(--card-color, #7aa2f7);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    overflow: hidden;
+  }
+  .pocket-card:active {
+    transform: scale(0.97);
+  }
+  .pocket-card.color-orange { --card-color: #ff9e64; background: linear-gradient(170deg, rgba(255, 158, 100, 0.10) 0%, #171824 75%); }
+  .pocket-card.color-yellow { --card-color: #e0af68; background: linear-gradient(170deg, rgba(224, 175, 104, 0.10) 0%, #171824 75%); }
+  .pocket-card.color-purple { --card-color: #bb9af7; background: linear-gradient(170deg, rgba(187, 154, 247, 0.10) 0%, #171824 75%); }
+  .pocket-card.color-blue   { --card-color: #7aa2f7; background: linear-gradient(170deg, rgba(122, 162, 247, 0.10) 0%, #171824 75%); }
+  .pocket-card.color-green  { --card-color: #73daca; background: linear-gradient(170deg, rgba(115, 218, 202, 0.10) 0%, #171824 75%); }
+  .pocket-card.color-red    { --card-color: #f7768e; background: linear-gradient(170deg, rgba(247, 118, 142, 0.10) 0%, #171824 75%); }
+  .pocket-card.color-cyan   { --card-color: #7dcfff; background: linear-gradient(170deg, rgba(125, 207, 255, 0.10) 0%, #171824 75%); }
+
+  .pocket-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .pocket-card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.35;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .pocket-card-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--card-color, #7aa2f7);
+    flex-shrink: 0;
+    margin-top: 2px;
+    box-shadow: 0 0 6px var(--card-color);
+  }
+  .pocket-card-snippet {
+    font-size: 11.5px;
+    color: #a9b1d6;
+    line-height: 1.45;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .pocket-notes-grid.list-mode .pocket-card-snippet {
+    -webkit-line-clamp: 2;
+  }
+  .pocket-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 4px;
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .pocket-card-time {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .pocket-card-words {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 1px 6px;
+    border-radius: 8px;
+    color: var(--fg);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* Empty State */
+  .pocket-empty-shelf {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--muted);
+  }
+  .pocket-empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    opacity: 0.6;
+  }
+  .pocket-empty-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--fg);
+    margin-bottom: 6px;
+  }
+  .pocket-empty-sub {
+    font-size: 13px;
+    line-height: 1.4;
+    max-width: 260px;
+  }
+
+  /* Floating Action Button (FAB) */
+  .pocket-fab {
+    position: fixed;
+    right: 20px;
+    bottom: 74px;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7aa2f7, #bb9af7);
+    color: #15161e;
+    font-size: 32px;
+    font-weight: 700;
+    border: none;
+    box-shadow: 0 8px 24px rgba(122, 162, 247, 0.45), 0 2px 6px rgba(0,0,0,0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pocket-fab:active {
+    transform: scale(0.92);
+    box-shadow: 0 4px 12px rgba(122, 162, 247, 0.35);
+  }
+
+  /* Note Editor View Wrapper */
+  #pocketEditorView {
+    display: none;
+    flex-direction: column;
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Horizontal Note Switcher Tab Strip */
+  .pocket-tab-strip {
+    background: #14151f;
+    border-bottom: 1px solid var(--border);
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    flex-shrink: 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .pocket-tab-strip::-webkit-scrollbar { display: none; }
+  .pocket-tab {
+    background: #1a1b26;
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+    padding: 4px 10px 4px 8px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    max-width: 160px;
+    transition: all 0.12s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pocket-tab:active {
+    background: #24283b;
+  }
+  .pocket-tab.active {
+    background: #24283b;
+    border-color: var(--tab-color, #7aa2f7);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  }
+  .pocket-tab-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tab-color, #7aa2f7);
+    flex-shrink: 0;
+  }
+  .pocket-tab-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pocket-tab-close {
+    font-size: 13px;
+    opacity: 0.6;
+    margin-left: 2px;
+    cursor: pointer;
+    padding: 0 2px;
+  }
+  .pocket-tab-close:active {
+    opacity: 1;
+    color: #f7768e;
+  }
+  .pocket-tab-new-btn {
+    background: #1f2335;
+    border: 1.5px dashed var(--border);
+    color: #7aa2f7;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.12s ease;
+  }
+  .pocket-tab-new-btn:active {
+    background: #7aa2f7;
+    color: #16161e;
+    transform: scale(0.92);
+  }
+
+  /* Header inside Pocket Note Editor */
+  .pocket-editor-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+  }
+  .pocket-back-shelf-btn {
+    background: #24283b;
+    border: 1px solid var(--border);
+    color: #7aa2f7;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    height: 28px;
+  }
+  .pocket-back-shelf-btn:active {
+    background: #7aa2f7;
+    color: #16161e;
+  }
+  .pocket-note-color-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--current-note-color, #7aa2f7);
+    border: 2px solid #fff;
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: 0 0 6px var(--current-note-color, #7aa2f7);
+  }
+
+  /* Color Palette Dropdown Modal */
+  #pocketColorModal {
+    position: fixed;
+    top: 54px;
+    right: 60px;
+    background: #1f2335;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 120;
+  }
+  .pocket-color-swatches {
+    display: flex;
+    gap: 8px;
+  }
+  .pocket-color-swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.12s ease;
+  }
+  .pocket-color-swatch:active { transform: scale(1.15); }
+  .pocket-color-swatch.active { border-color: #fff; transform: scale(1.1); }
+
+  /* Split View Container (PocketMark 1.5.0) */
+  #pocketSplitContainer {
+    display: none;
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg);
+  }
+  .pocket-split-active #docContentWrap { display: none !important; }
+  .pocket-split-active #pocketSplitContainer { display: flex !important; flex-direction: column; }
+
+  .pocket-split-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+    position: relative;
+    border-bottom: 2px solid var(--border);
+  }
+  .pocket-split-divider {
+    height: 6px;
+    background: #14151f;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: row-resize;
+    flex-shrink: 0;
+  }
+  .pocket-split-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 12px;
+    background: #191b29;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .pocket-split-select {
+    background: #24283b;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11.5px;
+    font-weight: 600;
+    outline: none;
+    max-width: 180px;
+  }
+  .pocket-split-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+  @media (orientation: landscape) {
+    .pocket-split-active #pocketSplitContainer {
+      flex-direction: row !important;
+    }
+    .pocket-split-pane {
+      border-bottom: none !important;
+      border-right: 2px solid var(--border) !important;
+    }
+    .pocket-split-divider {
+      width: 6px !important;
+      height: 100% !important;
+      cursor: col-resize !important;
+    }
+  }
+
   #hiddenFileInput { display: none; }
 </style>
 </head>
@@ -2539,17 +3070,20 @@
 <div id="app">
   <!-- Top Header Bar -->
   <header id="headerBar">
+    <button id="btnPocketBackShelf" class="pocket-back-shelf-btn" style="display:none;" title="Back to Notes Shelf">‹ Notes</button>
     <button id="btnOpenDrawer" class="header-btn" title="Open File Manager (or swipe left-to-right)">☰</button>
     <div id="modeSwitcher" class="mode-switcher-container">
-      <button id="modeBasicBtn" class="mode-tab-btn basic-tab active" title="Basic Markdown Editor &amp; Reader">✍️ Basic Editor</button>
+      <button id="modeBasicBtn" class="mode-tab-btn basic-tab active" title="PocketMark Notes &amp; Editor">✍️ Pocket Notes</button>
       <button id="modeOutlineBtn" class="mode-tab-btn outline-tab" title="Virtual Outline &amp; Tree Reader">📑 Outline</button>
     </div>
     <div id="docInfo">
       <div id="docTitle">Guide.md</div>
       <div id="docStats">Loading...</div>
     </div>
-    <!-- Basic Editor Header Actions -->
+    <!-- Basic / Pocket Notes Header Actions -->
     <div id="basicHeaderActions" class="header-actions-group">
+      <button id="pocketNoteColorBtn" class="pocket-note-color-btn" style="display:none;" title="Change Note Color"></button>
+      <button id="btnPocketSplitToggle" class="header-btn" style="display:none;" title="Split Screen 2 Notes (PocketMark 1.5.0)">⫤⫥</button>
       <button id="btnHeaderBasicSubMode" class="header-btn pill-btn" title="Toggle Edit / Read Mode">✍️ Edit</button>
       <button id="btnHeaderBasicSave" class="header-btn" title="Save Document (Ctrl+S)">💾</button>
       <button id="btnHeaderBasicNew" class="header-btn" title="New Note">➕</button>
@@ -2562,6 +3096,20 @@
       <button id="btnToggleSearch" class="header-btn" title="Toggle Search">🔍</button>
     </div>
   </header>
+
+  <!-- Pocket Color Palette Modal -->
+  <div id="pocketColorModal">
+    <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;">Note Card Color</div>
+    <div class="pocket-color-swatches" id="pocketColorSwatches">
+      <div class="pocket-color-swatch" data-color="orange" style="background:#ff9e64;" title="Orange"></div>
+      <div class="pocket-color-swatch" data-color="yellow" style="background:#e0af68;" title="Yellow"></div>
+      <div class="pocket-color-swatch" data-color="purple" style="background:#bb9af7;" title="Purple"></div>
+      <div class="pocket-color-swatch" data-color="blue" style="background:#7aa2f7;" title="Blue"></div>
+      <div class="pocket-color-swatch" data-color="green" style="background:#73daca;" title="Green"></div>
+      <div class="pocket-color-swatch" data-color="red" style="background:#f7768e;" title="Red"></div>
+      <div class="pocket-color-swatch" data-color="cyan" style="background:#7dcfff;" title="Cyan"></div>
+    </div>
+  </div>
 
   <!-- Collapsible Top Search Bar -->
   <div id="searchContainer">
@@ -2629,82 +3177,144 @@
     </div>
   </div>
 
-  <!-- Document View (Basic Mode [Default]) -->
+  <!-- Document View (Basic Mode [Default] with PocketMark Notes Engine) -->
   <div id="documentView">
-    <div class="doc-layout" id="docLayout">
-      <!-- Collapsible TOC Sidebar -->
-      <div id="docTocSidebar" class="doc-toc-sidebar">
-        <div class="doc-toc-header">
-          <span>Table of Contents</span>
-          <button id="docTocCollapseBtn" class="doc-tool-btn" title="Close TOC">✕</button>
+    <!-- View 1: Pocket Notes Shelf / Grid (Home screen of Basic Mode) -->
+    <div id="pocketShelfView" class="pocket-shelf-view">
+      <div class="pocket-shelf-bar">
+        <div class="pocket-search-row">
+          <div class="pocket-search-input-box">
+            <span>🔍</span>
+            <input type="search" id="pocketSearchInput" class="pocket-search-input" placeholder="Search notes..." autocomplete="off">
+            <span id="pocketSearchCount" style="font-size:11px;color:var(--muted);white-space:nowrap;"></span>
+          </div>
+          <button id="btnPocketLayoutToggle" class="pocket-shelf-tool-btn" title="Toggle 2-Col Grid / 1-Col List">⊞</button>
         </div>
-        <div id="docTocList" class="doc-toc-list"></div>
+        <div class="pocket-chips-row" id="pocketChipsRow">
+          <button class="pocket-chip active" data-color="all">All</button>
+          <button class="pocket-chip" data-color="orange" style="--chip-color:#ff9e64;"><span class="pocket-chip-dot" style="background:#ff9e64;"></span>Orange</button>
+          <button class="pocket-chip" data-color="yellow" style="--chip-color:#e0af68;"><span class="pocket-chip-dot" style="background:#e0af68;"></span>Yellow</button>
+          <button class="pocket-chip" data-color="purple" style="--chip-color:#bb9af7;"><span class="pocket-chip-dot" style="background:#bb9af7;"></span>Purple</button>
+          <button class="pocket-chip" data-color="blue" style="--chip-color:#7aa2f7;"><span class="pocket-chip-dot" style="background:#7aa2f7;"></span>Blue</button>
+          <button class="pocket-chip" data-color="green" style="--chip-color:#73daca;"><span class="pocket-chip-dot" style="background:#73daca;"></span>Green</button>
+          <button class="pocket-chip" data-color="red" style="--chip-color:#f7768e;"><span class="pocket-chip-dot" style="background:#f7768e;"></span>Red</button>
+        </div>
       </div>
-      <div id="docTocBackdrop" class="doc-toc-backdrop"></div>
+      <div class="pocket-shelf-scroll" id="pocketShelfScroll">
+        <div id="pocketNotesGrid" class="pocket-notes-grid">
+          <!-- Dynamically populated Pocket Cards -->
+        </div>
+      </div>
+      <button id="pocketFabNew" class="pocket-fab" title="Create New Pocket Note">＋</button>
+    </div>
 
-      <!-- Document Content Area -->
-      <div id="docContentWrap" class="doc-content-wrap">
-        <div class="doc-floating-bar" id="docFloatingBar">
-          <div class="doc-floating-left">
-            <button id="docFloatEditBtn" class="doc-tool-btn" title="Switch to Editor Mode">✍️ Edit</button>
-            <button id="docFloatTocBtn" class="doc-tool-btn" title="Table of Contents">📑 TOC</button>
-            <button id="docFloatDoubleBtn" class="doc-tool-btn" title="Toggle 2-Page Book Mode">📖 2-Page</button>
-            <button id="docFloatWideBtn" class="doc-tool-btn" title="Toggle Wide Edge-to-Edge Layout">↔ Wide</button>
+    <!-- View 2: Pocket Note Editor & Reader View -->
+    <div id="pocketEditorView" class="pocket-editor-view" style="display:none;">
+      <!-- Quick Note Switcher Tabs Strip -->
+      <div id="pocketTabStrip" class="pocket-tab-strip">
+        <!-- Dynamically populated Tab Pills + [+] Button -->
+      </div>
+
+      <div class="doc-layout" id="docLayout">
+        <!-- Collapsible TOC Sidebar -->
+        <div id="docTocSidebar" class="doc-toc-sidebar">
+          <div class="doc-toc-header">
+            <span>Table of Contents</span>
+            <button id="docTocCollapseBtn" class="doc-tool-btn" title="Close TOC">✕</button>
           </div>
-          <div class="doc-floating-right">
-            <span id="docWordCount" class="doc-stat-pill">0 words</span>
-            <span id="docReadingTime" class="doc-stat-pill">1 min read</span>
-            <span id="docRenderSpeed" class="doc-stat-pill speed">⚡ 0ms</span>
+          <div id="docTocList" class="doc-toc-list"></div>
+        </div>
+        <div id="docTocBackdrop" class="doc-toc-backdrop"></div>
+
+        <!-- Document Content Area -->
+        <div id="docContentWrap" class="doc-content-wrap">
+          <div class="doc-floating-bar" id="docFloatingBar">
+            <div class="doc-floating-left">
+              <button id="docFloatEditBtn" class="doc-tool-btn" title="Switch to Editor Mode">✍️ Edit</button>
+              <button id="docFloatTocBtn" class="doc-tool-btn" title="Table of Contents">📑 TOC</button>
+              <button id="docFloatDoubleBtn" class="doc-tool-btn" title="Toggle 2-Page Book Mode">📖 2-Page</button>
+              <button id="docFloatWideBtn" class="doc-tool-btn" title="Toggle Wide Edge-to-Edge Layout">↔ Wide</button>
+            </div>
+            <div class="doc-floating-right">
+              <span id="docWordCount" class="doc-stat-pill">0 words</span>
+              <span id="docReadingTime" class="doc-stat-pill">1 min read</span>
+              <span id="docRenderSpeed" class="doc-stat-pill speed">⚡ 0ms</span>
+            </div>
+          </div>
+
+          <!-- Formatted Prose Reader Container -->
+          <div id="docBodyContainer" class="doc-body-container">
+            <div id="docBody" class="md-body markdown-body"></div>
+          </div>
+
+          <!-- Markdown Editor Container (Basic Edit Mode) -->
+          <div id="basicEditorContainer" class="basic-editor-container" style="display:none;">
+            <div id="editorToolbar" class="editor-toolbar">
+              <button type="button" class="ed-tool-btn" data-action="h1" title="Heading 1">H1</button>
+              <button type="button" class="ed-tool-btn" data-action="h2" title="Heading 2">H2</button>
+              <button type="button" class="ed-tool-btn" data-action="h3" title="Heading 3">H3</button>
+              <div class="ed-sep"></div>
+              <button type="button" class="ed-tool-btn" data-action="bold" title="Bold"><b>B</b></button>
+              <button type="button" class="ed-tool-btn" data-action="italic" title="Italic"><i>I</i></button>
+              <button type="button" class="ed-tool-btn" data-action="strike" title="Strikethrough"><s>S</s></button>
+              <button type="button" class="ed-tool-btn" data-action="inline-code" title="Inline Code">`code`</button>
+              <div class="ed-sep"></div>
+              <button type="button" class="ed-tool-btn" data-action="task" title="Task List">☑ Task</button>
+              <button type="button" class="ed-tool-btn" data-action="bullet" title="Bullet List">• List</button>
+              <button type="button" class="ed-tool-btn" data-action="number" title="Numbered List">1. Num</button>
+              <button type="button" class="ed-tool-btn" data-action="quote" title="Quote">&gt; Quote</button>
+              <button type="button" class="ed-tool-btn" data-action="codeblock" title="Code Block">&lt;/&gt;</button>
+              <button type="button" class="ed-tool-btn" data-action="table" title="Table">▦ Table</button>
+              <button type="button" class="ed-tool-btn" data-action="divider" title="Divider">― Line</button>
+              <div class="ed-sep"></div>
+              <button type="button" class="ed-tool-btn" data-action="wikilink" title="Obsidian Wikilink">[[ ]]</button>
+              <button type="button" class="ed-tool-btn" data-action="link" title="Markdown Link">🔗 Link</button>
+              <button type="button" class="ed-tool-btn" data-action="callout" title="Obsidian Callout">[!NOTE]</button>
+              <div class="ed-sep"></div>
+              <button type="button" class="ed-tool-btn" data-action="undo" title="Undo">↶</button>
+              <button type="button" class="ed-tool-btn" data-action="redo" title="Redo">↷</button>
+              <button type="button" class="ed-tool-btn ed-save-btn" data-action="save" title="Save File (Ctrl+S)">💾 Save</button>
+            </div>
+            <div class="editor-textarea-wrapper">
+              <textarea id="basicMarkdownEditor" class="basic-markdown-editor" spellcheck="false" placeholder="Write or paste your markdown note here..."></textarea>
+            </div>
+            <div id="editorStatusBar" class="editor-status-bar">
+              <span id="editorStatsInfo">0 words • 0 chars • Line 1</span>
+              <span id="editorSaveBadge" class="editor-save-badge saved">Saved ✓</span>
+            </div>
+          </div>
+
+          <!-- Reading HUD for 2-Page Mode -->
+          <div id="docReadingHud" class="doc-reading-hud" style="display:none;">
+            <button id="docHudPrevBtn" title="Previous page">‹</button>
+            <span id="docHudPageText">Page 1 / 1</span>
+            <button id="docHudNextBtn" title="Next page">›</button>
           </div>
         </div>
 
-        <!-- Formatted Prose Reader Container -->
-        <div id="docBodyContainer" class="doc-body-container">
-          <div id="docBody" class="md-body markdown-body"></div>
-        </div>
-
-        <!-- Markdown Editor Container (Basic Edit Mode) -->
-        <div id="basicEditorContainer" class="basic-editor-container" style="display:none;">
-          <div id="editorToolbar" class="editor-toolbar">
-            <button type="button" class="ed-tool-btn" data-action="h1" title="Heading 1">H1</button>
-            <button type="button" class="ed-tool-btn" data-action="h2" title="Heading 2">H2</button>
-            <button type="button" class="ed-tool-btn" data-action="h3" title="Heading 3">H3</button>
-            <div class="ed-sep"></div>
-            <button type="button" class="ed-tool-btn" data-action="bold" title="Bold"><b>B</b></button>
-            <button type="button" class="ed-tool-btn" data-action="italic" title="Italic"><i>I</i></button>
-            <button type="button" class="ed-tool-btn" data-action="strike" title="Strikethrough"><s>S</s></button>
-            <button type="button" class="ed-tool-btn" data-action="inline-code" title="Inline Code">`code`</button>
-            <div class="ed-sep"></div>
-            <button type="button" class="ed-tool-btn" data-action="task" title="Task List">☑ Task</button>
-            <button type="button" class="ed-tool-btn" data-action="bullet" title="Bullet List">• List</button>
-            <button type="button" class="ed-tool-btn" data-action="number" title="Numbered List">1. Num</button>
-            <button type="button" class="ed-tool-btn" data-action="quote" title="Quote">&gt; Quote</button>
-            <button type="button" class="ed-tool-btn" data-action="codeblock" title="Code Block">&lt;/&gt;</button>
-            <button type="button" class="ed-tool-btn" data-action="table" title="Table">▦ Table</button>
-            <button type="button" class="ed-tool-btn" data-action="divider" title="Divider">― Line</button>
-            <div class="ed-sep"></div>
-            <button type="button" class="ed-tool-btn" data-action="wikilink" title="Obsidian Wikilink">[[ ]]</button>
-            <button type="button" class="ed-tool-btn" data-action="link" title="Markdown Link">🔗 Link</button>
-            <button type="button" class="ed-tool-btn" data-action="callout" title="Obsidian Callout">[!NOTE]</button>
-            <div class="ed-sep"></div>
-            <button type="button" class="ed-tool-btn" data-action="undo" title="Undo">↶</button>
-            <button type="button" class="ed-tool-btn" data-action="redo" title="Redo">↷</button>
-            <button type="button" class="ed-tool-btn ed-save-btn" data-action="save" title="Save File (Ctrl+S)">💾 Save</button>
+        <!-- Split View Container (PocketMark 1.5.0 Simultaneous Note Editing) -->
+        <div id="pocketSplitContainer">
+          <div class="pocket-split-pane" id="pocketSplitPane1">
+            <div class="pocket-split-header">
+              <span id="pocketSplitTitle1" style="font-weight:700;font-size:12px;color:var(--accent);">Note 1</span>
+              <button id="pocketSplitToggleEdit1" class="doc-tool-btn" title="Toggle Edit/Preview">✍️ Edit</button>
+            </div>
+            <div class="pocket-split-body" id="pocketSplitBody1"></div>
+            <div class="editor-textarea-wrapper" id="pocketSplitEditWrap1" style="display:none;height:100%;">
+              <textarea id="pocketSplitEditor1" class="basic-markdown-editor" spellcheck="false"></textarea>
+            </div>
           </div>
-          <div class="editor-textarea-wrapper">
-            <textarea id="basicMarkdownEditor" class="basic-markdown-editor" spellcheck="false" placeholder="Write or paste your markdown note here..."></textarea>
+          <div class="pocket-split-divider"></div>
+          <div class="pocket-split-pane" id="pocketSplitPane2">
+            <div class="pocket-split-header">
+              <select id="pocketSplitSelect2" class="pocket-split-select" title="Select reference note"></select>
+              <button id="pocketSplitToggleEdit2" class="doc-tool-btn" title="Toggle Edit/Preview">👁️ Preview</button>
+            </div>
+            <div class="pocket-split-body" id="pocketSplitBody2"></div>
+            <div class="editor-textarea-wrapper" id="pocketSplitEditWrap2" style="display:none;height:100%;">
+              <textarea id="pocketSplitEditor2" class="basic-markdown-editor" spellcheck="false"></textarea>
+            </div>
           </div>
-          <div id="editorStatusBar" class="editor-status-bar">
-            <span id="editorStatsInfo">0 words • 0 chars • Line 1</span>
-            <span id="editorSaveBadge" class="editor-save-badge saved">Saved ✓</span>
-          </div>
-        </div>
-
-        <!-- Reading HUD for 2-Page Mode -->
-        <div id="docReadingHud" class="doc-reading-hud" style="display:none;">
-          <button id="docHudPrevBtn" title="Previous page">‹</button>
-          <span id="docHudPageText">Page 1 / 1</span>
-          <button id="docHudNextBtn" title="Next page">›</button>
         </div>
       </div>
     </div>
@@ -3519,7 +4129,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '1.2.0';
+      window.AndroidBridge.getAppVersion() : '1.3.0';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -3645,6 +4255,40 @@
   const btnBasicZoomIn = document.getElementById('btnBasicZoomIn');
   const btnBasicZoomReset = document.getElementById('btnBasicZoomReset');
   const basicZoomDisplay = document.getElementById('basicZoomDisplay');
+
+  // --- PocketMark Pocket Notes DOM Elements ---
+  const btnPocketBackShelf = document.getElementById('btnPocketBackShelf');
+  const pocketNoteColorBtn = document.getElementById('pocketNoteColorBtn');
+  const btnPocketSplitToggle = document.getElementById('btnPocketSplitToggle');
+  const pocketColorModal = document.getElementById('pocketColorModal');
+  const pocketColorSwatches = document.getElementById('pocketColorSwatches');
+
+  const pocketShelfView = document.getElementById('pocketShelfView');
+  const pocketSearchInput = document.getElementById('pocketSearchInput');
+  const pocketSearchCount = document.getElementById('pocketSearchCount');
+  const btnPocketLayoutToggle = document.getElementById('btnPocketLayoutToggle');
+  const pocketChipsRow = document.getElementById('pocketChipsRow');
+  const pocketShelfScroll = document.getElementById('pocketShelfScroll');
+  const pocketNotesGrid = document.getElementById('pocketNotesGrid');
+  const pocketFabNew = document.getElementById('pocketFabNew');
+
+  const pocketEditorView = document.getElementById('pocketEditorView');
+  const pocketTabStrip = document.getElementById('pocketTabStrip');
+
+  const pocketSplitContainer = document.getElementById('pocketSplitContainer');
+  const pocketSplitPane1 = document.getElementById('pocketSplitPane1');
+  const pocketSplitTitle1 = document.getElementById('pocketSplitTitle1');
+  const pocketSplitToggleEdit1 = document.getElementById('pocketSplitToggleEdit1');
+  const pocketSplitBody1 = document.getElementById('pocketSplitBody1');
+  const pocketSplitEditWrap1 = document.getElementById('pocketSplitEditWrap1');
+  const pocketSplitEditor1 = document.getElementById('pocketSplitEditor1');
+
+  const pocketSplitPane2 = document.getElementById('pocketSplitPane2');
+  const pocketSplitSelect2 = document.getElementById('pocketSplitSelect2');
+  const pocketSplitToggleEdit2 = document.getElementById('pocketSplitToggleEdit2');
+  const pocketSplitBody2 = document.getElementById('pocketSplitBody2');
+  const pocketSplitEditWrap2 = document.getElementById('pocketSplitEditWrap2');
+  const pocketSplitEditor2 = document.getElementById('pocketSplitEditor2');
 
   // Active / Selected heading for Collapse Above / Expand Below
   let activeHeadingIdx = -1;
@@ -4987,6 +5631,12 @@
     }
   }
 
+  function updatePocketTabTitle(noteId, title) {
+    if (!pocketTabStrip) return;
+    const tab = pocketTabStrip.querySelector(`.pocket-tab[data-id="${noteId}"] .pocket-tab-title`);
+    if (tab) tab.textContent = title || 'Untitled';
+  }
+
   function onEditorInput() {
     if (!basicMarkdownEditor) return;
     basicDocText = basicMarkdownEditor.value;
@@ -4995,15 +5645,32 @@
       editorSaveBadge.textContent = 'Modified •';
       editorSaveBadge.className = 'editor-save-badge dirty';
     }
+    const cur = pocketNotes.find(n => n.id === currentPocketNoteId);
+    if (cur) {
+      cur.content = basicDocText;
+      cur.title = extractPocketTitle(basicDocText);
+      cur.updatedAt = Date.now();
+      updatePocketTabTitle(cur.id, cur.title);
+      if (docTitle) docTitle.textContent = (cur.title || 'Untitled') + '.md';
+    }
     clearTimeout(editorInputDebounce);
     editorInputDebounce = setTimeout(() => {
       saveLastOpenedBasic(basicDocName, basicDocUri, basicDocTreeId, basicDocText);
+      savePocketNotes();
     }, 600);
   }
 
   function saveBasicDocument() {
     if (basicSubMode === 'edit' && basicMarkdownEditor) {
       basicDocText = basicMarkdownEditor.value;
+    }
+    const cur = pocketNotes.find(n => n.id === currentPocketNoteId);
+    if (cur) {
+      cur.content = basicDocText;
+      cur.title = extractPocketTitle(basicDocText);
+      cur.updatedAt = Date.now();
+      savePocketNotes();
+      renderPocketTabs();
     }
     saveLastOpenedBasic(basicDocName, basicDocUri, basicDocTreeId, basicDocText);
     saveRecentFileForMode('basic', basicDocName, basicDocText, basicDocUri, basicDocTreeId);
@@ -5045,21 +5712,7 @@
   }
 
   function createNewBasicDocument() {
-    const defaultName = 'Note_' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '.md';
-    basicDocName = defaultName;
-    basicDocText = '# ' + defaultName.replace(/\.md$/, '') + '\n\n';
-    basicDocUri = null;
-    basicDocTreeId = null;
-    saveLastOpenedBasic(basicDocName, null, null, basicDocText);
-    saveRecentFileForMode('basic', basicDocName, basicDocText, null, null);
-    setAppMode('basic');
-    setBasicSubMode('edit');
-    if (basicMarkdownEditor) {
-      basicMarkdownEditor.value = basicDocText;
-      basicMarkdownEditor.focus();
-      basicMarkdownEditor.setSelectionRange(basicDocText.length, basicDocText.length);
-    }
-    showToast(`Created new note: ${basicDocName}`);
+    createPocketNote();
     closeDrawer();
   }
 
@@ -5076,6 +5729,612 @@
       a.download = basicDocName || 'Document.md';
       a.click();
       showToast(`Exported ${basicDocName}`);
+    }
+  }
+
+  // ==========================================
+  // POCKETMARK POCKET NOTES ENGINE
+  // Dynamic 2-Col Grid Shelf, Tab Switcher, Color Tagging & Split View
+  // ==========================================
+
+  const POCKET_COLORS = {
+    orange: '#ff9e64',
+    yellow: '#e0af68',
+    purple: '#bb9af7',
+    blue: '#7aa2f7',
+    green: '#73daca',
+    red: '#f7768e',
+    cyan: '#7dcfff',
+    default: '#9aa5ce'
+  };
+
+  const SAMPLE_POCKET_NOTES = [
+    {
+      id: 'pnote_demo_1',
+      title: 'Welcome to PocketMark',
+      content: '# Welcome to PocketMark 📝\n\nA lightweight, beautiful Markdown note taking experience.\n\n### Features\n- **Dynamic Card Shelf**: Organized in a dynamic 2-column card grid or 1-column list.\n- **Quick Switcher Tabs**: Effortlessly switch between multiple notes without losing your place.\n- **Color Tagging**: Color code your notes with vibrant accent palettes.\n- **Split Screen (v1.5.0)**: View or edit two notes simultaneously side-by-side.\n- **Dual-App Mode**: Switch seamlessly between Pocket Notes and Virtual Outline anytime.\n',
+      color: 'orange',
+      updatedAt: Date.now() - 3600000,
+      uri: null,
+      docId: null
+    },
+    {
+      id: 'pnote_demo_2',
+      title: 'School project ToDo list',
+      content: '# School project ToDo list 📋\n\n- [x] Research target users and existing market solutions\n- [x] Design 2-column card grid layout\n- [ ] Implement split screen note comparison\n- [ ] Review markdown parsing performance\n- [ ] Submit final project report\n',
+      color: 'yellow',
+      updatedAt: Date.now() - 7200000,
+      uri: null,
+      docId: null
+    },
+    {
+      id: 'pnote_demo_3',
+      title: 'Programming Notes',
+      content: '# Programming Notes 💻\n\n### Useful Regex Patterns\n- Heading detector: `/^(#{1,6})\\s+(.*)$/`\n- Markdown links: `/\\[([^\\]]+)\\]\\(([^)]+)\\)/`\n\n### Performance Tips\n- Use virtual scrolling for massive documents (100k+ lines)\n- Debounce localStorage autosave to avoid UI thread stutters\n',
+      color: 'purple',
+      updatedAt: Date.now() - 86400000,
+      uri: null,
+      docId: null
+    },
+    {
+      id: 'pnote_demo_4',
+      title: 'Quick Ideas & Inspiration',
+      content: '# Quick Ideas & Inspiration 💡\n\n- Create a customizable theme palette\n- Add support for LaTeX math formulas in markdown\n- Obsidian wikilinks `[[Note Title]]` navigation\n- Offline-first encrypted notes vault\n',
+      color: 'green',
+      updatedAt: Date.now() - 172800000,
+      uri: null,
+      docId: null
+    }
+  ];
+
+  let pocketNotes = [];
+  let currentPocketNoteId = null;
+  let openPocketTabIds = [];
+  let currentPocketView = localStorage.getItem('mdviewer_pocket_view') || 'shelf'; // 'shelf' | 'editor'
+  let pocketLayoutMode = localStorage.getItem('mdviewer_pocket_layout') || 'grid'; // 'grid' | 'list'
+  let pocketFilterColor = 'all';
+  let pocketSearchQuery = '';
+
+  let pocketSplitActive = false;
+  let pocketSplitNoteId2 = null;
+  let pocketSplitSubMode1 = 'edit';
+  let pocketSplitSubMode2 = 'read';
+
+  function getPocketColorHex(color) {
+    return POCKET_COLORS[color] || POCKET_COLORS.default;
+  }
+
+  function extractPocketTitle(content) {
+    if (!content || !content.trim()) return 'Untitled Note';
+    const rawLines = content.split('\n');
+    for (let rawLine of rawLines) {
+      const line = rawLine.trim();
+      if (!line) continue;
+      const cleaned = line.replace(/^[#*\-+\d.]+\s*/, '')
+                          .replace(/[*_~`]/g, '')
+                          .trim();
+      if (cleaned) {
+        return cleaned.length > 50 ? cleaned.slice(0, 48) + '...' : cleaned;
+      }
+    }
+    return 'Untitled Note';
+  }
+
+  function cleanMarkdownSnippet(content) {
+    if (!content) return '';
+    const rawLines = content.split('\n');
+    let bodyLines = [];
+    let skippedFirst = false;
+    for (let rawLine of rawLines) {
+      const trimmed = rawLine.trim();
+      if (!trimmed) continue;
+      if (!skippedFirst) {
+        skippedFirst = true;
+        continue;
+      }
+      const stripped = trimmed
+        .replace(/^[#*\-+\d.]+\s*/, '')
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+        .replace(/\[\[([^\]]+)\]\]/g, '$1')
+        .replace(/[*_~`]/g, '')
+        .trim();
+      if (stripped) bodyLines.push(stripped);
+      if (bodyLines.join(' ').length > 150) break;
+    }
+    const combined = bodyLines.join(' ');
+    return combined.length > 130 ? combined.slice(0, 127) + '...' : (combined || 'No additional text');
+  }
+
+  function formatRelativeTime(ts) {
+    if (!ts) return 'Recent';
+    const diff = Date.now() - ts;
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days === 1) return 'Yesterday';
+    if (days < 7) return `${days}d ago`;
+    const d = new Date(ts);
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+
+  function savePocketNotes() {
+    try {
+      localStorage.setItem('mdviewer_pocket_notes', JSON.stringify(pocketNotes));
+    } catch(e) {}
+  }
+
+  function savePocketTabs() {
+    try {
+      localStorage.setItem('mdviewer_pocket_tabs', JSON.stringify(openPocketTabIds));
+    } catch(e) {}
+  }
+
+  function loadPocketNotes() {
+    try {
+      const raw = localStorage.getItem('mdviewer_pocket_notes');
+      if (raw) {
+        pocketNotes = JSON.parse(raw);
+      }
+    } catch(e) {}
+
+    if (!Array.isArray(pocketNotes) || pocketNotes.length === 0) {
+      pocketNotes = JSON.parse(JSON.stringify(SAMPLE_POCKET_NOTES));
+      if (basicDocText && basicDocText.trim() && basicDocName !== 'Guide.md') {
+        pocketNotes.unshift({
+          id: 'pnote_' + Date.now(),
+          title: extractPocketTitle(basicDocText),
+          content: basicDocText,
+          color: 'blue',
+          updatedAt: Date.now(),
+          uri: basicDocUri || null,
+          docId: basicDocTreeId || null
+        });
+      }
+      savePocketNotes();
+    }
+
+    try {
+      const rawTabs = localStorage.getItem('mdviewer_pocket_tabs');
+      if (rawTabs) {
+        openPocketTabIds = JSON.parse(rawTabs);
+      }
+    } catch(e) {}
+
+    if (!Array.isArray(openPocketTabIds) || openPocketTabIds.length === 0) {
+      openPocketTabIds = [pocketNotes[0].id];
+      savePocketTabs();
+    }
+
+    openPocketTabIds = openPocketTabIds.filter(id => pocketNotes.some(n => n.id === id));
+    if (openPocketTabIds.length === 0 && pocketNotes.length > 0) {
+      openPocketTabIds = [pocketNotes[0].id];
+    }
+
+    if (!currentPocketNoteId || !pocketNotes.some(n => n.id === currentPocketNoteId)) {
+      currentPocketNoteId = openPocketTabIds[0] || (pocketNotes[0] && pocketNotes[0].id);
+    }
+  }
+
+  function renderPocketTabs() {
+    if (!pocketTabStrip) return;
+    pocketTabStrip.innerHTML = '';
+
+    openPocketTabIds.forEach(id => {
+      const note = pocketNotes.find(n => n.id === id);
+      if (!note) return;
+
+      const tab = document.createElement('div');
+      tab.className = 'pocket-tab' + (id === currentPocketNoteId ? ' active' : '');
+      tab.dataset.id = id;
+      const colorHex = getPocketColorHex(note.color);
+
+      tab.innerHTML = `
+        <span class="pocket-tab-dot" style="background:${colorHex};"></span>
+        <span class="pocket-tab-title">${escapeHtml(note.title || 'Untitled')}</span>
+        <button class="pocket-tab-close" title="Close Tab">✕</button>
+      `;
+
+      tab.addEventListener('click', (e) => {
+        if (e.target.closest('.pocket-tab-close')) return;
+        openPocketNote(id);
+      });
+
+      const closeBtn = tab.querySelector('.pocket-tab-close');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          closePocketTab(id);
+        });
+      }
+
+      pocketTabStrip.appendChild(tab);
+
+      if (id === currentPocketNoteId) {
+        setTimeout(() => {
+          tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+        }, 50);
+      }
+    });
+
+    const newBtn = document.createElement('button');
+    newBtn.className = 'pocket-tab-new-btn';
+    newBtn.title = 'Create New Note (Quick)';
+    newBtn.innerHTML = '＋';
+    newBtn.addEventListener('click', () => {
+      createPocketNote();
+    });
+    pocketTabStrip.appendChild(newBtn);
+  }
+
+  function closePocketTab(noteId) {
+    if (basicMarkdownEditor && currentPocketNoteId === noteId) {
+      const cur = pocketNotes.find(n => n.id === noteId);
+      if (cur) {
+        cur.content = basicMarkdownEditor.value;
+        cur.title = extractPocketTitle(cur.content);
+        cur.updatedAt = Date.now();
+        savePocketNotes();
+      }
+    }
+
+    openPocketTabIds = openPocketTabIds.filter(id => id !== noteId);
+    savePocketTabs();
+
+    if (openPocketTabIds.length === 0) {
+      openPocketShelf();
+      return;
+    }
+
+    if (currentPocketNoteId === noteId) {
+      const nextId = openPocketTabIds[openPocketTabIds.length - 1];
+      openPocketNote(nextId);
+    } else {
+      renderPocketTabs();
+    }
+  }
+
+  function renderPocketShelf() {
+    if (!pocketNotesGrid) return;
+    pocketNotesGrid.innerHTML = '';
+
+    pocketNotesGrid.classList.toggle('list-mode', pocketLayoutMode === 'list');
+    if (btnPocketLayoutToggle) {
+      btnPocketLayoutToggle.textContent = (pocketLayoutMode === 'list') ? '⊞' : '☰';
+      btnPocketLayoutToggle.title = (pocketLayoutMode === 'list') ? 'Switch to 2-Column Grid' : 'Switch to 1-Column List';
+    }
+
+    const query = pocketSearchQuery.trim().toLowerCase();
+    const filtered = pocketNotes.filter(note => {
+      if (pocketFilterColor !== 'all' && note.color !== pocketFilterColor) {
+        return false;
+      }
+      if (query) {
+        const tMatch = (note.title || '').toLowerCase().includes(query);
+        const cMatch = (note.content || '').toLowerCase().includes(query);
+        return tMatch || cMatch;
+      }
+      return true;
+    });
+
+    if (pocketSearchCount) {
+      if (query || pocketFilterColor !== 'all') {
+        pocketSearchCount.textContent = `${filtered.length} found`;
+      } else {
+        pocketSearchCount.textContent = `${pocketNotes.length} notes`;
+      }
+    }
+
+    if (filtered.length === 0) {
+      pocketNotesGrid.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 48px 16px; color: var(--muted);">
+          <div style="font-size: 32px; margin-bottom: 8px;">📝</div>
+          <div style="font-size: 15px; font-weight: 700; margin-bottom: 4px; color: var(--fg);">No Notes Found</div>
+          <div style="font-size: 12px;">Try adjusting search or tap <b>＋</b> below to write a note.</div>
+        </div>
+      `;
+      return;
+    }
+
+    filtered.forEach(note => {
+      const card = document.createElement('div');
+      card.className = 'pocket-card';
+      const colorHex = getPocketColorHex(note.color);
+      card.style.setProperty('--card-color', colorHex);
+      card.dataset.id = note.id;
+
+      const words = note.content ? note.content.trim().split(/\s+/).filter(Boolean).length : 0;
+      const snippet = cleanMarkdownSnippet(note.content);
+      const relTime = formatRelativeTime(note.updatedAt);
+
+      card.innerHTML = `
+        <div class="pocket-card-title">${escapeHtml(note.title || 'Untitled')}</div>
+        <div class="pocket-card-snippet">${escapeHtml(snippet)}</div>
+        <div class="pocket-card-footer">
+          <div class="pocket-card-meta">
+            <span class="pocket-card-date">${relTime}</span>
+            <span class="pocket-card-badge">${words} words</span>
+          </div>
+          <div class="pocket-card-actions">
+            <button class="pocket-card-del-btn" title="Delete Note">🗑️</button>
+            <span class="pocket-card-color-dot" style="background:${colorHex};" title="${note.color}"></span>
+          </div>
+        </div>
+      `;
+
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.pocket-card-del-btn')) return;
+        openPocketNote(note.id);
+      });
+
+      const delBtn = card.querySelector('.pocket-card-del-btn');
+      if (delBtn) {
+        delBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deletePocketNote(note.id);
+        });
+      }
+
+      pocketNotesGrid.appendChild(card);
+    });
+  }
+
+  function openPocketShelf() {
+    if (currentPocketView === 'editor' && basicMarkdownEditor && currentPocketNoteId) {
+      const cur = pocketNotes.find(n => n.id === currentPocketNoteId);
+      if (cur) {
+        cur.content = basicMarkdownEditor.value;
+        cur.title = extractPocketTitle(cur.content);
+        cur.updatedAt = Date.now();
+        savePocketNotes();
+      }
+    }
+
+    currentPocketView = 'shelf';
+    localStorage.setItem('mdviewer_pocket_view', 'shelf');
+
+    if (pocketEditorView) pocketEditorView.style.display = 'none';
+    if (pocketShelfView) pocketShelfView.style.display = 'flex';
+    if (basicBottomGroup) basicBottomGroup.style.display = 'none';
+
+    if (btnPocketBackShelf) btnPocketBackShelf.style.display = 'none';
+    if (pocketNoteColorBtn) pocketNoteColorBtn.style.display = 'none';
+    if (btnPocketSplitToggle) btnPocketSplitToggle.style.display = 'none';
+    if (btnHeaderBasicSubMode) btnHeaderBasicSubMode.style.display = 'none';
+    if (btnHeaderBasicSave) btnHeaderBasicSave.style.display = 'none';
+    if (btnHeaderBasicNew) btnHeaderBasicNew.style.display = 'inline-flex';
+    if (pocketColorModal) pocketColorModal.classList.remove('open');
+
+    if (docTitle) docTitle.textContent = 'Pocket Notes';
+    if (docStats) docStats.textContent = `${pocketNotes.length} notes • Tap ＋ to create`;
+
+    renderPocketShelf();
+  }
+
+  function openPocketNote(noteId, preferSubMode = null) {
+    const note = pocketNotes.find(n => n.id === noteId) || pocketNotes[0];
+    if (!note) return;
+
+    if (currentPocketNoteId && currentPocketNoteId !== note.id && basicMarkdownEditor && currentPocketView === 'editor') {
+      const prev = pocketNotes.find(n => n.id === currentPocketNoteId);
+      if (prev) {
+        prev.content = basicMarkdownEditor.value;
+        prev.title = extractPocketTitle(prev.content);
+        prev.updatedAt = Date.now();
+        savePocketNotes();
+      }
+    }
+
+    currentPocketNoteId = note.id;
+    if (!openPocketTabIds.includes(note.id)) {
+      openPocketTabIds.push(note.id);
+      savePocketTabs();
+    }
+
+    currentPocketView = 'editor';
+    localStorage.setItem('mdviewer_pocket_view', 'editor');
+
+    if (pocketShelfView) pocketShelfView.style.display = 'none';
+    if (pocketEditorView) pocketEditorView.style.display = 'flex';
+    if (basicBottomGroup) basicBottomGroup.style.display = 'flex';
+
+    if (btnPocketBackShelf) btnPocketBackShelf.style.display = 'inline-flex';
+    if (pocketNoteColorBtn) {
+      pocketNoteColorBtn.style.display = 'inline-block';
+      pocketNoteColorBtn.style.background = getPocketColorHex(note.color);
+      pocketNoteColorBtn.title = `Color: ${note.color} (Click to change)`;
+    }
+    if (btnPocketSplitToggle) {
+      btnPocketSplitToggle.style.display = 'inline-flex';
+      btnPocketSplitToggle.classList.toggle('active', pocketSplitActive);
+    }
+    if (btnHeaderBasicSubMode) btnHeaderBasicSubMode.style.display = 'inline-flex';
+    if (btnHeaderBasicSave) btnHeaderBasicSave.style.display = 'inline-flex';
+    if (btnHeaderBasicNew) btnHeaderBasicNew.style.display = 'inline-flex';
+
+    basicDocName = (note.title || 'Untitled') + '.md';
+    basicDocText = note.content || '';
+    basicDocUri = note.uri || null;
+    basicDocTreeId = note.docId || null;
+
+    if (docTitle) docTitle.textContent = basicDocName;
+
+    renderPocketTabs();
+
+    if (pocketSplitActive) {
+      renderPocketSplit();
+    } else {
+      if (pocketSplitContainer) pocketSplitContainer.style.display = 'none';
+      if (docLayout) docLayout.style.display = 'flex';
+      if (preferSubMode) {
+        setBasicSubMode(preferSubMode);
+      } else {
+        setBasicSubMode(basicSubMode);
+      }
+      if (basicSubMode === 'read') {
+        renderBasicDocument(basicDocText, basicDocName);
+      } else if (basicMarkdownEditor) {
+        basicMarkdownEditor.value = basicDocText;
+        updateEditorStats();
+      }
+    }
+
+    saveLastOpenedBasic(basicDocName, basicDocUri, basicDocTreeId, basicDocText);
+  }
+
+  function createPocketNote() {
+    if (currentPocketView === 'editor' && basicMarkdownEditor && currentPocketNoteId) {
+      const cur = pocketNotes.find(n => n.id === currentPocketNoteId);
+      if (cur) {
+        cur.content = basicMarkdownEditor.value;
+        cur.title = extractPocketTitle(cur.content);
+        cur.updatedAt = Date.now();
+      }
+    }
+
+    const colorKeys = Object.keys(POCKET_COLORS).filter(k => k !== 'default');
+    const color = colorKeys[pocketNotes.length % colorKeys.length];
+    const newId = 'pnote_' + Date.now();
+    const newNote = {
+      id: newId,
+      title: 'New Note',
+      content: '# New Note\n\n',
+      color: color,
+      updatedAt: Date.now(),
+      uri: null,
+      docId: null
+    };
+
+    pocketNotes.unshift(newNote);
+    savePocketNotes();
+
+    openPocketTabIds.unshift(newId);
+    savePocketTabs();
+
+    openPocketNote(newId, 'edit');
+
+    if (basicMarkdownEditor) {
+      basicMarkdownEditor.focus();
+      const start = 2;
+      const end = basicMarkdownEditor.value.indexOf('\n') > 0 ? basicMarkdownEditor.value.indexOf('\n') : basicMarkdownEditor.value.length;
+      basicMarkdownEditor.setSelectionRange(start, end);
+    }
+
+    showToast('New note created ✓');
+  }
+
+  function deletePocketNote(noteId) {
+    const note = pocketNotes.find(n => n.id === noteId);
+    const title = note ? note.title : 'this note';
+    if (!confirm(`Are you sure you want to delete "${title}"?`)) {
+      return;
+    }
+
+    pocketNotes = pocketNotes.filter(n => n.id !== noteId);
+    openPocketTabIds = openPocketTabIds.filter(id => id !== noteId);
+    savePocketNotes();
+    savePocketTabs();
+
+    showToast(`Deleted "${title}"`);
+
+    if (pocketNotes.length === 0) {
+      createPocketNote();
+      return;
+    }
+
+    if (currentPocketView === 'editor') {
+      if (currentPocketNoteId === noteId) {
+        openPocketNote(openPocketTabIds[0] || pocketNotes[0].id);
+      } else {
+        renderPocketTabs();
+      }
+    } else {
+      renderPocketShelf();
+    }
+  }
+
+  function togglePocketSplit() {
+    pocketSplitActive = !pocketSplitActive;
+    if (btnPocketSplitToggle) btnPocketSplitToggle.classList.toggle('active', pocketSplitActive);
+
+    if (pocketSplitActive) {
+      if (docLayout) docLayout.style.display = 'none';
+      if (pocketSplitContainer) pocketSplitContainer.style.display = 'flex';
+      if (!pocketSplitNoteId2 || pocketSplitNoteId2 === currentPocketNoteId) {
+        const other = pocketNotes.find(n => n.id !== currentPocketNoteId);
+        pocketSplitNoteId2 = other ? other.id : currentPocketNoteId;
+      }
+      renderPocketSplit();
+      showToast('Split Screen Active ⫤⫥');
+    } else {
+      if (pocketSplitContainer) pocketSplitContainer.style.display = 'none';
+      if (docLayout) docLayout.style.display = 'flex';
+      setBasicSubMode(basicSubMode);
+      if (basicSubMode === 'read') {
+        renderBasicDocument(basicDocText, basicDocName);
+      } else if (basicMarkdownEditor) {
+        basicMarkdownEditor.value = basicDocText;
+      }
+      showToast('Exited Split Screen');
+    }
+  }
+
+  function renderPocketSplit() {
+    if (!pocketSplitActive) return;
+
+    const note1 = pocketNotes.find(n => n.id === currentPocketNoteId) || pocketNotes[0];
+    if (pocketSplitTitle1 && note1) {
+      pocketSplitTitle1.textContent = note1.title || 'Note 1';
+      pocketSplitTitle1.style.color = getPocketColorHex(note1.color);
+    }
+    if (pocketSplitToggleEdit1) {
+      pocketSplitToggleEdit1.textContent = (pocketSplitSubMode1 === 'edit') ? '👁️ Preview' : '✍️ Edit';
+    }
+    if (pocketSplitSubMode1 === 'edit') {
+      if (pocketSplitBody1) pocketSplitBody1.style.display = 'none';
+      if (pocketSplitEditWrap1) pocketSplitEditWrap1.style.display = 'block';
+      if (pocketSplitEditor1 && note1) {
+        pocketSplitEditor1.value = note1.content;
+      }
+    } else {
+      if (pocketSplitEditWrap1) pocketSplitEditWrap1.style.display = 'none';
+      if (pocketSplitBody1 && note1) {
+        pocketSplitBody1.style.display = 'block';
+        const res = parseMarkdownToHtml(note1.content || '');
+        pocketSplitBody1.innerHTML = res.html || '<p style="color:var(--muted);font-style:italic;">Empty note</p>';
+      }
+    }
+
+    if (pocketSplitSelect2) {
+      pocketSplitSelect2.innerHTML = '';
+      pocketNotes.forEach(n => {
+        const opt = document.createElement('option');
+        opt.value = n.id;
+        opt.textContent = n.title || 'Untitled';
+        if (n.id === pocketSplitNoteId2) opt.selected = true;
+        pocketSplitSelect2.appendChild(opt);
+      });
+    }
+
+    const note2 = pocketNotes.find(n => n.id === pocketSplitNoteId2) || pocketNotes[1] || note1;
+    if (pocketSplitToggleEdit2) {
+      pocketSplitToggleEdit2.textContent = (pocketSplitSubMode2 === 'edit') ? '👁️ Preview' : '✍️ Edit';
+    }
+    if (pocketSplitSubMode2 === 'edit') {
+      if (pocketSplitBody2) pocketSplitBody2.style.display = 'none';
+      if (pocketSplitEditWrap2) pocketSplitEditWrap2.style.display = 'block';
+      if (pocketSplitEditor2 && note2) {
+        pocketSplitEditor2.value = note2.content;
+      }
+    } else {
+      if (pocketSplitEditWrap2) pocketSplitEditWrap2.style.display = 'none';
+      if (pocketSplitBody2 && note2) {
+        pocketSplitBody2.style.display = 'block';
+        const res = parseMarkdownToHtml(note2.content || '');
+        pocketSplitBody2.innerHTML = res.html || '<p style="color:var(--muted);font-style:italic;">Empty note</p>';
+      }
     }
   }
 
@@ -5234,15 +6493,135 @@
   if (docFloatEditBtn) docFloatEditBtn.addEventListener('click', toggleBasicSubMode);
   if (btnNewNoteDrawer) btnNewNoteDrawer.addEventListener('click', createNewBasicDocument);
 
+  // --- Attach PocketMark Event Listeners ---
+  if (btnPocketBackShelf) btnPocketBackShelf.addEventListener('click', openPocketShelf);
+  if (pocketFabNew) pocketFabNew.addEventListener('click', createPocketNote);
+
+  if (btnPocketLayoutToggle) {
+    btnPocketLayoutToggle.addEventListener('click', () => {
+      pocketLayoutMode = (pocketLayoutMode === 'grid') ? 'list' : 'grid';
+      localStorage.setItem('mdviewer_pocket_layout', pocketLayoutMode);
+      renderPocketShelf();
+    });
+  }
+
+  if (pocketSearchInput) {
+    pocketSearchInput.addEventListener('input', () => {
+      pocketSearchQuery = pocketSearchInput.value;
+      renderPocketShelf();
+    });
+  }
+
+  if (pocketChipsRow) {
+    pocketChipsRow.addEventListener('click', (e) => {
+      const chip = e.target.closest('.pocket-chip');
+      if (!chip) return;
+      pocketChipsRow.querySelectorAll('.pocket-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      pocketFilterColor = chip.dataset.color || 'all';
+      renderPocketShelf();
+    });
+  }
+
+  if (pocketNoteColorBtn) {
+    pocketNoteColorBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (pocketColorModal) pocketColorModal.classList.toggle('open');
+    });
+  }
+
+  if (pocketColorSwatches) {
+    pocketColorSwatches.addEventListener('click', (e) => {
+      const swatch = e.target.closest('.pocket-color-swatch');
+      if (!swatch) return;
+      const color = swatch.dataset.color;
+      if (color && currentPocketNoteId) {
+        const note = pocketNotes.find(n => n.id === currentPocketNoteId);
+        if (note) {
+          note.color = color;
+          savePocketNotes();
+          if (pocketNoteColorBtn) {
+            pocketNoteColorBtn.style.background = getPocketColorHex(color);
+            pocketNoteColorBtn.title = `Color: ${color}`;
+          }
+          renderPocketTabs();
+          if (pocketColorModal) pocketColorModal.classList.remove('open');
+          showToast(`Note color set to ${color}`);
+        }
+      }
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    if (pocketColorModal && pocketColorModal.classList.contains('open')) {
+      if (!pocketColorModal.contains(e.target) && e.target !== pocketNoteColorBtn) {
+        pocketColorModal.classList.remove('open');
+      }
+    }
+  });
+
+  if (btnPocketSplitToggle) btnPocketSplitToggle.addEventListener('click', togglePocketSplit);
+
+  if (pocketSplitToggleEdit1) {
+    pocketSplitToggleEdit1.addEventListener('click', () => {
+      pocketSplitSubMode1 = (pocketSplitSubMode1 === 'edit') ? 'read' : 'edit';
+      renderPocketSplit();
+    });
+  }
+
+  if (pocketSplitToggleEdit2) {
+    pocketSplitToggleEdit2.addEventListener('click', () => {
+      pocketSplitSubMode2 = (pocketSplitSubMode2 === 'edit') ? 'read' : 'edit';
+      renderPocketSplit();
+    });
+  }
+
+  if (pocketSplitSelect2) {
+    pocketSplitSelect2.addEventListener('change', () => {
+      pocketSplitNoteId2 = pocketSplitSelect2.value;
+      renderPocketSplit();
+    });
+  }
+
+  if (pocketSplitEditor1) {
+    pocketSplitEditor1.addEventListener('input', () => {
+      const n1 = pocketNotes.find(n => n.id === currentPocketNoteId);
+      if (n1) {
+        n1.content = pocketSplitEditor1.value;
+        n1.title = extractPocketTitle(n1.content);
+        n1.updatedAt = Date.now();
+        savePocketNotes();
+        updatePocketTabTitle(n1.id, n1.title);
+      }
+    });
+  }
+
+  if (pocketSplitEditor2) {
+    pocketSplitEditor2.addEventListener('input', () => {
+      const n2 = pocketNotes.find(n => n.id === pocketSplitNoteId2);
+      if (n2) {
+        n2.content = pocketSplitEditor2.value;
+        n2.title = extractPocketTitle(n2.content);
+        n2.updatedAt = Date.now();
+        savePocketNotes();
+      }
+    });
+  }
+
   // --- Unified Dual-App Mode Switcher ---
   function setAppMode(mode) {
     if (mode !== 'basic' && mode !== 'outline') mode = 'basic';
     
     // Save current scroll position before switching
     if (currentAppMode === 'basic') {
-      if (basicSubMode === 'edit' && basicMarkdownEditor) {
-        basicDocText = basicMarkdownEditor.value;
-        saveLastOpenedBasic(basicDocName, basicDocUri, basicDocTreeId, basicDocText);
+      if (currentPocketView === 'editor' && basicMarkdownEditor && currentPocketNoteId) {
+        const cur = pocketNotes.find(n => n.id === currentPocketNoteId);
+        if (cur) {
+          cur.content = basicMarkdownEditor.value;
+          cur.title = extractPocketTitle(cur.content);
+          cur.updatedAt = Date.now();
+          savePocketNotes();
+        }
       }
       if (docBodyContainer) basicScrollTop = docBodyContainer.scrollTop;
     } else if (currentAppMode === 'outline' && scroller) {
@@ -5258,7 +6637,7 @@
     if (documentView) documentView.style.display = (mode === 'basic') ? 'flex' : 'none';
     if (scroller) scroller.style.display = (mode === 'outline') ? 'block' : 'none';
 
-    if (basicBottomGroup) basicBottomGroup.style.display = (mode === 'basic') ? 'flex' : 'none';
+    if (basicBottomGroup) basicBottomGroup.style.display = (mode === 'basic' && currentPocketView === 'editor') ? 'flex' : 'none';
     if (outlineBottomGroup) outlineBottomGroup.style.display = (mode === 'outline') ? 'flex' : 'none';
 
     if (basicHeaderActions) basicHeaderActions.style.display = (mode === 'basic') ? 'inline-flex' : 'none';
@@ -5268,15 +6647,16 @@
     if (outlineOptionsGroup) outlineOptionsGroup.style.display = (mode === 'outline') ? 'block' : 'none';
 
     if (mode === 'basic') {
-      docTitle.textContent = basicDocName || 'Document.md';
-      const words = basicDocText.trim() ? basicDocText.trim().split(/\s+/).length : 0;
-      docStats.textContent = `${words.toLocaleString()} words • Basic Editor`;
-      setBasicSubMode(basicSubMode);
-      if (basicSubMode === 'read') {
-        renderBasicDocument(basicDocText, basicDocName);
-        if (docBodyContainer) docBodyContainer.scrollTop = basicScrollTop || 0;
+      if (currentPocketView === 'editor') {
+        openPocketNote(currentPocketNoteId || (pocketNotes[0] && pocketNotes[0].id));
+      } else {
+        openPocketShelf();
       }
     } else {
+      if (btnPocketBackShelf) btnPocketBackShelf.style.display = 'none';
+      if (pocketNoteColorBtn) pocketNoteColorBtn.style.display = 'none';
+      if (btnPocketSplitToggle) btnPocketSplitToggle.style.display = 'none';
+      if (pocketColorModal) pocketColorModal.classList.remove('open');
       currentDocName = outlineDocName || 'Guide.md';
       docTitle.textContent = outlineDocName || 'Guide.md';
       docStats.textContent = `${lines.length} lines • ${headings.length} headings • Outline Viewer`;
@@ -7492,10 +8872,34 @@
         }
         saveLastOpenedBasic(basicDocName, uri, null, text);
         saveRecentFileForMode('basic', basicDocName, text, uri, null);
+
+        // Sync with Pocket Notes
+        let note = pocketNotes.find(n => (uri && n.uri === uri) || n.title === (fileName || '').replace(/\.md$/, ''));
+        if (note) {
+          note.content = text;
+          note.updatedAt = Date.now();
+          if (uri) note.uri = uri;
+        } else {
+          const colorKeys = Object.keys(POCKET_COLORS).filter(k => k !== 'default');
+          note = {
+            id: 'pnote_' + Date.now(),
+            title: (fileName || 'Document').replace(/\.md$/, ''),
+            content: text,
+            color: colorKeys[pocketNotes.length % colorKeys.length],
+            updatedAt: Date.now(),
+            uri: uri || null,
+            docId: null
+          };
+          pocketNotes.unshift(note);
+        }
+        savePocketNotes();
+        if (!openPocketTabIds.includes(note.id)) {
+          openPocketTabIds.unshift(note.id);
+          savePocketTabs();
+        }
         setAppMode('basic');
-        renderBasicDocument(basicDocText, basicDocName);
-        setBasicSubMode(basicSubMode);
-        showToast(`Loaded ${basicDocName} into Basic Editor`);
+        openPocketNote(note.id);
+        showToast(`Loaded ${basicDocName} into Pocket Notes`);
       } else {
         outlineDocName = fileName || 'Document.md';
         outlineDocUri = uri;
@@ -7567,10 +8971,34 @@
         }
         saveLastOpenedBasic(basicDocName, null, docId, text);
         saveRecentFileForMode('basic', basicDocName, text, null, docId);
+
+        // Sync with Pocket Notes
+        let note = pocketNotes.find(n => (docId && n.docId === docId) || n.title === (fileName || '').replace(/\.md$/, ''));
+        if (note) {
+          note.content = text;
+          note.updatedAt = Date.now();
+          if (docId) note.docId = docId;
+        } else {
+          const colorKeys = Object.keys(POCKET_COLORS).filter(k => k !== 'default');
+          note = {
+            id: 'pnote_' + Date.now(),
+            title: (fileName || 'Document').replace(/\.md$/, ''),
+            content: text,
+            color: colorKeys[pocketNotes.length % colorKeys.length],
+            updatedAt: Date.now(),
+            uri: null,
+            docId: docId || null
+          };
+          pocketNotes.unshift(note);
+        }
+        savePocketNotes();
+        if (!openPocketTabIds.includes(note.id)) {
+          openPocketTabIds.unshift(note.id);
+          savePocketTabs();
+        }
         setAppMode('basic');
-        renderBasicDocument(basicDocText, basicDocName);
-        setBasicSubMode(basicSubMode);
-        showToast(`Loaded ${basicDocName} into Basic Editor`);
+        openPocketNote(note.id);
+        showToast(`Loaded ${basicDocName} into Pocket Notes`);
       } else {
         outlineDocName = fileName || 'Document.md';
         outlineDocUri = null;
@@ -7633,11 +9061,32 @@
       }
       saveLastOpenedBasic(name, null, null, text);
       saveRecentFileForMode('basic', name, text, null, null);
-      if (currentAppMode === 'basic') {
-        docTitle.textContent = name;
-        renderBasicDocument(basicDocText, basicDocName);
-        setBasicSubMode(basicSubMode);
+
+      let note = pocketNotes.find(n => n.title === name.replace(/\.md$/, ''));
+      if (note) {
+        note.content = text;
+        note.updatedAt = Date.now();
+      } else {
+        const colorKeys = Object.keys(POCKET_COLORS).filter(k => k !== 'default');
+        note = {
+          id: 'pnote_' + Date.now(),
+          title: name.replace(/\.md$/, ''),
+          content: text,
+          color: colorKeys[pocketNotes.length % colorKeys.length],
+          updatedAt: Date.now(),
+          uri: null,
+          docId: null
+        };
+        pocketNotes.unshift(note);
       }
+      savePocketNotes();
+      if (!openPocketTabIds.includes(note.id)) {
+        openPocketTabIds.unshift(note.id);
+        savePocketTabs();
+      }
+      setAppMode('basic');
+      openPocketNote(note.id);
+      showToast(`Loaded ${name} into Pocket Notes`);
     } else {
       outlineDocName = name;
       outlineDocUri = null;
@@ -8377,6 +9826,14 @@
       hideSelectionToolbar();
       return true;
     }
+    if (pocketColorModal && pocketColorModal.classList.contains('open')) {
+      pocketColorModal.classList.remove('open');
+      return true;
+    }
+    if (currentAppMode === 'basic' && pocketSplitActive) {
+      togglePocketSplit();
+      return true;
+    }
     if (isFlashcardMode) {
       if (isFcFullscreen) {
         exitFcFullscreen();
@@ -8413,11 +9870,16 @@
       hideSearchBar();
       return true;
     }
+    if (currentAppMode === 'basic' && currentPocketView === 'editor') {
+      openPocketShelf();
+      return true;
+    }
     return false;
   };
 
   // --- Initial Load ---
   updateHoverButtonUI();
+  loadPocketNotes();
 
   const basicRestored = restoreLastOpenedBasic();
   const outlineRestored = restoreLastOpenedOutline();
