@@ -1792,6 +1792,575 @@
     transform: translateX(-50%) translateY(0);
   }
 
+  /* --- Unified Mode Switcher in Header --- */
+  .mode-switcher-container {
+    display: inline-flex;
+    align-items: center;
+    background: #14151f;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2px;
+    gap: 2px;
+    flex-shrink: 0;
+    margin: 0 4px;
+  }
+  .mode-tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+  .mode-tab-btn:active {
+    color: var(--fg);
+  }
+  .mode-tab-btn.active {
+    background: #24283b;
+    color: #7aa2f7;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+
+  /* --- Document View (Basic Mode) --- */
+  #documentView {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg);
+    height: 100%;
+    width: 100%;
+  }
+  .doc-layout {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Collapsible TOC Sidebar */
+  .doc-toc-sidebar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 280px;
+    max-width: 85vw;
+    background: #16161e;
+    border-right: 1px solid var(--border);
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.6);
+  }
+  .doc-toc-sidebar.open {
+    transform: translateX(0);
+  }
+  .doc-toc-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 55;
+    display: none;
+  }
+  .doc-toc-backdrop.show {
+    display: block;
+  }
+  .doc-toc-header {
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    background: #14151f;
+  }
+  .doc-toc-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .doc-toc-item {
+    padding: 7px 10px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    color: var(--fg);
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-decoration: none;
+    display: block;
+  }
+  .doc-toc-item:active {
+    background: rgba(122,162,247,0.18);
+    color: #7aa2f7;
+  }
+  .doc-toc-item.lvl-1 { font-weight: 700; color: #7aa2f7; }
+  .doc-toc-item.lvl-2 { padding-left: 18px; font-weight: 600; color: #bb9af7; }
+  .doc-toc-item.lvl-3 { padding-left: 28px; color: #7dcfff; }
+  .doc-toc-item.lvl-4 { padding-left: 38px; color: #9ece6a; }
+
+  /* Document Content Wrap */
+  .doc-content-wrap {
+    flex: 1 1 auto;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 100%;
+  }
+
+  /* Document Floating Top Bar */
+  .doc-floating-bar {
+    background: rgba(26,27,38,0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    padding: 4px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    z-index: 25;
+    min-height: 36px;
+  }
+  .doc-floating-left, .doc-floating-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .doc-tool-btn {
+    background: #242737;
+    color: var(--fg);
+    border: 1px solid var(--border);
+    padding: 3px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .doc-tool-btn:active { background: #2c3040; color: #fff; }
+  .doc-tool-btn.active { background: #24283b; color: #7aa2f7; border-color: #7aa2f7; }
+  .doc-stat-pill {
+    font-size: 10.5px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .doc-stat-pill.speed {
+    color: #9ece6a;
+    background: rgba(158,206,106,0.1);
+    padding: 2px 5px;
+    border-radius: 4px;
+    border: 1px solid rgba(158,206,106,0.25);
+    font-size: 10px;
+  }
+
+  /* Document Body Container */
+  .doc-body-container {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+    height: calc(100% - 36px);
+  }
+  #docBody {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.75;
+    color: #c0caf5;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 20px 20px 80px;
+    box-sizing: border-box;
+    transition: max-width 0.2s ease;
+  }
+  .wide-layout-active #docBody {
+    max-width: 100% !important;
+    padding: 20px 24px 80px;
+  }
+  #docBody h1, #docBody h2, #docBody h3, #docBody h4, #docBody h5, #docBody h6 {
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    font-weight: 700;
+    line-height: 1.3;
+    scroll-margin-top: 50px;
+  }
+  #docBody h1 { font-size: 1.9em; color: #7aa2f7; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+  #docBody h2 { font-size: 1.45em; color: #bb9af7; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+  #docBody h3 { font-size: 1.2em; color: #7dcfff; }
+  #docBody h4 { font-size: 1.05em; color: #9ece6a; }
+  #docBody h5 { font-size: 0.95em; color: #ff9e64; }
+  #docBody h6 { font-size: 0.88em; color: #e0af68; }
+  #docBody p { margin-top: 0; margin-bottom: 14px; }
+  #docBody a { color: #7aa2f7; text-decoration: none; }
+  #docBody a:active { text-decoration: underline; }
+  #docBody hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+  #docBody ul, #docBody ol { margin-top: 0; margin-bottom: 14px; padding-left: 24px; }
+  #docBody li { margin-top: 4px; margin-bottom: 4px; }
+  #docBody li.task-list-item {
+    list-style-type: none;
+    margin-left: -1.3em;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  #docBody input.task-checkbox {
+    width: 17px;
+    height: 17px;
+    cursor: pointer;
+    accent-color: #7aa2f7;
+    margin: 0;
+    flex-shrink: 0;
+    transform: translateY(3px);
+  }
+  #docBody .task-done {
+    text-decoration: line-through;
+    opacity: 0.65;
+  }
+  #docBody blockquote {
+    margin: 14px 0;
+    padding: 6px 14px;
+    color: #9aa5ce;
+    border-left: 4px solid #7aa2f7;
+    background: rgba(122,162,247,0.06);
+    border-radius: 0 6px 6px 0;
+  }
+  #docBody code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 88%;
+    background: rgba(115,218,202,0.12);
+    color: #73daca;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(115,218,202,0.2);
+  }
+  #docBody pre.code-block-wrap {
+    background: #14151f;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    position: relative;
+    margin: 16px 0;
+  }
+  #docBody pre code {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: #c0caf5;
+    font-size: 13px;
+    line-height: 1.5;
+    display: block;
+  }
+  #docBody .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  #docBody .doc-code-copy-btn {
+    background: #24283b;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    font-size: 10.5px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  #docBody table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 13.5px;
+  }
+  #docBody th, #docBody td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: left;
+  }
+  #docBody th { background: #1f2335; font-weight: 700; color: #7aa2f7; }
+  #docBody mark { background: rgba(224,175,104,0.25); color: #ffc777; padding: 1px 4px; border-radius: 3px; }
+  #docBody img { max-width: 100%; border-radius: 6px; border: 1px solid var(--border); margin: 10px 0; }
+
+  /* Callouts */
+  .callout {
+    border-left: 4px solid #7aa2f7;
+    background: rgba(122,162,247,0.06);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 16px 0;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    border-right: 1px solid rgba(255,255,255,0.04);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .callout-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 13px;
+    color: #7aa2f7;
+    margin-bottom: 6px;
+  }
+  .callout-icon { font-size: 14px; }
+  .callout-content { font-size: 13px; color: #c0caf5; line-height: 1.6; }
+  .callout-content p { margin: 4px 0; }
+  .callout-tip { border-left-color: #9ece6a; background: rgba(158,206,106,0.06); }
+  .callout-tip .callout-title { color: #9ece6a; }
+  .callout-warning { border-left-color: #e0af68; background: rgba(224,175,104,0.06); }
+  .callout-warning .callout-title { color: #e0af68; }
+  .callout-important { border-left-color: #bb9af7; background: rgba(187,154,247,0.06); }
+  .callout-important .callout-title { color: #bb9af7; }
+  .callout-danger { border-left-color: #f7768e; background: rgba(247,118,142,0.06); }
+  .callout-danger .callout-title { color: #f7768e; }
+  .callout-quote { border-left-color: #7dcfff; background: rgba(125,207,255,0.06); }
+  .callout-quote .callout-title { color: #7dcfff; }
+
+  /* Wikilinks */
+  .md-wikilink {
+    color: #7aa2f7;
+    background: rgba(122,162,247,0.12);
+    padding: 1px 6px;
+    border-radius: 4px;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  /* Frontmatter box */
+  .doc-frontmatter {
+    background: #14151f;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 18px;
+    overflow: hidden;
+  }
+  .doc-fm-header {
+    background: #1a1b29;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .doc-fm-body {
+    padding: 8px 12px;
+    margin: 0;
+    font-size: 11.5px;
+    color: #9aa5ce;
+    font-family: ui-monospace, monospace;
+    white-space: pre-wrap;
+  }
+
+  /* Double-Page 2-Column Book Mode */
+  .double-page-mode-active .doc-content-wrap {
+    overflow: hidden !important;
+  }
+  .double-page-mode-active .doc-body-container {
+    overflow: hidden !important;
+    height: calc(100% - 36px);
+    padding: 10px 18px 8px !important;
+    box-sizing: border-box;
+  }
+  .double-page-mode-active #docBody {
+    column-count: 2 !important;
+    column-width: auto !important;
+    column-gap: 36px !important;
+    column-fill: auto !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 8px 12px 24px !important;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  .double-page-mode-active #docBody h1,
+  .double-page-mode-active #docBody h2,
+  .double-page-mode-active #docBody h3,
+  .double-page-mode-active #docBody h4,
+  .double-page-mode-active #docBody h5,
+  .double-page-mode-active #docBody h6 {
+    break-inside: avoid;
+    break-after: avoid;
+  }
+  .double-page-mode-active #docBody pre,
+  .double-page-mode-active #docBody blockquote,
+  .double-page-mode-active #docBody table,
+  .double-page-mode-active #docBody li,
+  .double-page-mode-active #docBody .callout {
+    break-inside: avoid;
+  }
+  .double-page-mode-active #docBody img {
+    break-inside: avoid;
+    max-height: calc(100vh - 180px);
+    max-width: 100%;
+    object-fit: contain;
+  }
+
+  /* Reading HUD */
+  .doc-reading-hud {
+    position: absolute;
+    bottom: 12px;
+    right: 16px;
+    background: rgba(22, 22, 30, 0.94);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--fg);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+    z-index: 40;
+  }
+  .doc-reading-hud button {
+    background: #24283b;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  .doc-reading-hud button:active {
+    background: var(--accent);
+    color: #16161e;
+  }
+
+  /* Dual-App Drawer Switcher */
+  .drawer-mode-switch-box {
+    background: #14151f;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 6px;
+    margin-bottom: 12px;
+  }
+  .drawer-mode-tabs {
+    display: flex;
+    gap: 6px;
+  }
+  .drawer-tab-btn {
+    flex: 1;
+    background: #1a1b26;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 4px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.15s ease;
+  }
+  .drawer-tab-btn.active {
+    background: #24283b;
+    color: #7aa2f7;
+    border-color: #7aa2f7;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .drawer-target-status {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .drawer-target-status .badge {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* Bottom Toolbar Dual-Group */
+  .bottom-group {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    align-items: stretch;
+    height: 100%;
+  }
+
+  /* Options Modal Rows */
+  .layout-toggle-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+    margin-bottom: 6px;
+  }
+  .layout-opt-btn {
+    flex: 1;
+    background: #24283b;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+  }
+  .layout-opt-btn:active { background: #323850; }
+  .layout-opt-btn.active { background: #1f2335; border-color: var(--accent); color: var(--accent); }
+  .opt-toc-action-btn {
+    width: 100%;
+    background: #24283b;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    margin-top: 4px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .opt-toc-action-btn:active { background: #323850; }
+
   #hiddenFileInput { display: none; }
 </style>
 </head>
@@ -1800,11 +2369,15 @@
   <!-- Top Header Bar -->
   <header id="headerBar">
     <button id="btnOpenDrawer" class="header-btn" title="Open File Manager (or swipe left-to-right)">☰</button>
+    <div id="modeSwitcher" class="mode-switcher-container">
+      <button id="modeBasicBtn" class="mode-tab-btn active" title="Rendered Document &amp; Book Reader">📖 Basic</button>
+      <button id="modeOutlineBtn" class="mode-tab-btn" title="Virtual Outline &amp; Tree Reader">📑 Outline</button>
+    </div>
     <div id="docInfo">
       <div id="docTitle">Guide.md</div>
       <div id="docStats">Loading...</div>
     </div>
-    <button id="btnToggleOptions" class="header-btn" title="Level folding and zoom">Aa</button>
+    <button id="btnToggleOptions" class="header-btn" title="View Options &amp; Zoom">Aa</button>
     <button id="btnToggleFlashcard" class="header-btn" title="Study as Flashcards">🗂</button>
     <button id="btnToggleSearch" class="header-btn" title="Toggle Search">🔍</button>
   </header>
@@ -1829,81 +2402,205 @@
 
   <!-- Options Modal (Levels & Zoom) -->
   <div id="optionsModal">
-    <div class="opt-group-label">Expand to Heading Level</div>
-    <div class="lvl-buttons" id="lvlGroup">
-      <button class="lvl-btn" data-lvl="1">H1</button>
-      <button class="lvl-btn" data-lvl="2">H2</button>
-      <button class="lvl-btn" data-lvl="3">H3</button>
-      <button class="lvl-btn" data-lvl="4">H4</button>
-      <button class="lvl-btn" data-lvl="5">H5</button>
-      <button class="lvl-btn" data-lvl="6">H6</button>
+    <!-- Basic Mode Options -->
+    <div id="basicOptionsGroup">
+      <div class="opt-group-label">Reading Layout</div>
+      <div class="layout-toggle-row">
+        <button id="optWideToggleBtn" class="layout-opt-btn">↔ Full Wide</button>
+        <button id="optDoubleToggleBtn" class="layout-opt-btn">📖 2-Page Book</button>
+      </div>
+      <div class="opt-group-label" style="margin-top:8px;">Table of Contents</div>
+      <button id="optOpenTocBtn" class="opt-toc-action-btn">
+        <span>📑 Open Table of Contents</span>
+      </button>
+      <div class="opt-group-label" style="margin-top:8px;">Text Zoom</div>
+      <div class="zoom-row">
+        <button id="btnBasicZoomOut" class="zoom-btn">A−</button>
+        <span id="basicZoomDisplay" style="font-size:12px;font-weight:600;">100%</span>
+        <button id="btnBasicZoomIn" class="zoom-btn">A+</button>
+        <button id="btnBasicZoomReset" class="zoom-btn">Reset</button>
+      </div>
     </div>
-    <div class="opt-group-label" style="margin-top:4px;">Text Zoom</div>
-    <div class="zoom-row">
-      <button id="btnZoomOut" class="zoom-btn">A−</button>
-      <span id="zoomDisplay" style="font-size:12px;font-weight:600;">100%</span>
-      <button id="btnZoomIn" class="zoom-btn">A+</button>
-      <button id="btnZoomReset" class="zoom-btn">Reset</button>
+
+    <!-- Outline Mode Options -->
+    <div id="outlineOptionsGroup" style="display:none;">
+      <div class="opt-group-label">Expand to Heading Level</div>
+      <div class="lvl-buttons" id="lvlGroup">
+        <button class="lvl-btn" data-lvl="1">H1</button>
+        <button class="lvl-btn" data-lvl="2">H2</button>
+        <button class="lvl-btn" data-lvl="3">H3</button>
+        <button class="lvl-btn" data-lvl="4">H4</button>
+        <button class="lvl-btn" data-lvl="5">H5</button>
+        <button class="lvl-btn" data-lvl="6">H6</button>
+      </div>
+      <div class="opt-group-label" style="margin-top:4px;">Text Zoom</div>
+      <div class="zoom-row">
+        <button id="btnZoomOut" class="zoom-btn">A−</button>
+        <span id="zoomDisplay" style="font-size:12px;font-weight:600;">100%</span>
+        <button id="btnZoomIn" class="zoom-btn">A+</button>
+        <button id="btnZoomReset" class="zoom-btn">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Document View (Basic Mode [Default]) -->
+  <div id="documentView">
+    <div class="doc-layout" id="docLayout">
+      <!-- Collapsible TOC Sidebar -->
+      <div id="docTocSidebar" class="doc-toc-sidebar">
+        <div class="doc-toc-header">
+          <span>Table of Contents</span>
+          <button id="docTocCollapseBtn" class="doc-tool-btn" title="Close TOC">✕</button>
+        </div>
+        <div id="docTocList" class="doc-toc-list"></div>
+      </div>
+      <div id="docTocBackdrop" class="doc-toc-backdrop"></div>
+
+      <!-- Document Content Area -->
+      <div id="docContentWrap" class="doc-content-wrap">
+        <div class="doc-floating-bar" id="docFloatingBar">
+          <div class="doc-floating-left">
+            <button id="docFloatTocBtn" class="doc-tool-btn" title="Table of Contents">📑 TOC</button>
+            <button id="docFloatDoubleBtn" class="doc-tool-btn" title="Toggle 2-Page Book Mode">📖 2-Page</button>
+            <button id="docFloatWideBtn" class="doc-tool-btn" title="Toggle Wide Edge-to-Edge Layout">↔ Wide</button>
+          </div>
+          <div class="doc-floating-right">
+            <span id="docWordCount" class="doc-stat-pill">0 words</span>
+            <span id="docReadingTime" class="doc-stat-pill">1 min read</span>
+            <span id="docRenderSpeed" class="doc-stat-pill speed">⚡ 0ms</span>
+          </div>
+        </div>
+
+        <div id="docBodyContainer" class="doc-body-container">
+          <div id="docBody" class="md-body markdown-body"></div>
+        </div>
+
+        <!-- Reading HUD for 2-Page Mode -->
+        <div id="docReadingHud" class="doc-reading-hud" style="display:none;">
+          <button id="docHudPrevBtn" title="Previous page">‹</button>
+          <span id="docHudPageText">Page 1 / 1</span>
+          <button id="docHudNextBtn" title="Next page">›</button>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Main Virtualized Scroller -->
-  <main id="scroller">
+  <main id="scroller" style="display:none;">
     <div id="spacer">
       <div id="rows"></div>
     </div>
   </main>
 
-  <!-- Bottom Toolbar (5 Buttons) -->
+  <!-- Bottom Toolbar (Dual Group) -->
   <footer id="bottomBar">
-    <button id="btnCollapseAbove" class="bar-btn" title="Collapse all headings above current view">
-      <span class="btn-icon">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="4" y1="4" x2="20" y2="4"></line>
-          <polyline points="16 12 12 8 8 12"></polyline>
-          <line x1="12" y1="8" x2="12" y2="20"></line>
-        </svg>
-      </span>
-      <span class="btn-label">Collapse<br>above</span>
-    </button>
-    <button id="btnCollapseAll" class="bar-btn" title="Collapse all headings">
-      <span class="btn-icon">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="17 11 12 6 7 11"></polyline>
-          <polyline points="17 18 12 13 7 18"></polyline>
-        </svg>
-      </span>
-      <span class="btn-label">Collapse<br>all</span>
-    </button>
-    <button id="btnHoverToggle" class="bar-btn hover-active" title="Toggle Hover/Tap Outline Preview Mode">
-      <span class="btn-icon">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-          <circle cx="12" cy="12" r="3"></circle>
-        </svg>
-      </span>
-      <span class="btn-label">Hover<br>mode</span>
-      <span class="status-badge" id="hoverBadge">ON</span>
-    </button>
-    <button id="btnExpandAll" class="bar-btn" title="Expand all headings">
-      <span class="btn-icon">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="7 6 12 11 17 6"></polyline>
-          <polyline points="7 13 12 18 17 13"></polyline>
-        </svg>
-      </span>
-      <span class="btn-label">Expand<br>all</span>
-    </button>
-    <button id="btnExpandBelow" class="bar-btn" title="Expand all headings below current view">
-      <span class="btn-icon">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="4" y1="20" x2="20" y2="20"></line>
-          <polyline points="8 12 12 16 16 12"></polyline>
-          <line x1="12" y1="4" x2="12" y2="16"></line>
-        </svg>
-      </span>
-      <span class="btn-label">Expand<br>below</span>
-    </button>
+    <!-- Basic Mode Toolbar (Default) -->
+    <div id="basicBottomGroup" class="bottom-group">
+      <button id="btnDocTocToggle" class="bar-btn" title="Table of Contents">
+        <span class="btn-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+          </svg>
+        </span>
+        <span class="btn-label">TOC</span>
+      </button>
+      <button id="btnDocDoubleToggle" class="bar-btn" title="Toggle 2-Page Book Mode">
+        <span class="btn-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+        </span>
+        <span class="btn-label" id="btnDocDoubleLabel">2-Page</span>
+      </button>
+      <button id="btnDocWideToggle" class="bar-btn" title="Toggle Wide Edge-to-Edge Layout">
+        <span class="btn-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <polyline points="9 21 3 21 3 15"></polyline>
+            <line x1="21" y1="3" x2="14" y2="10"></line>
+            <line x1="3" y1="21" x2="10" y2="14"></line>
+          </svg>
+        </span>
+        <span class="btn-label" id="btnDocWideLabel">Wide</span>
+      </button>
+      <button id="btnDocOptionsToggle" class="bar-btn" title="Document Options &amp; Zoom">
+        <span class="btn-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="4 7 4 4 20 4 20 7"></polyline>
+            <line x1="9" y1="20" x2="15" y2="20"></line>
+            <line x1="12" y1="4" x2="12" y2="16"></line>
+          </svg>
+        </span>
+        <span class="btn-label">Zoom</span>
+      </button>
+      <button id="btnDocScrollTop" class="bar-btn" title="Scroll to Top of Note">
+        <span class="btn-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="19" x2="12" y2="5"></line>
+            <polyline points="5 12 12 5 19 12"></polyline>
+          </svg>
+        </span>
+        <span class="btn-label">Top</span>
+      </button>
+    </div>
+
+    <!-- Outline Mode Toolbar -->
+    <div id="outlineBottomGroup" class="bottom-group" style="display:none;">
+      <button id="btnCollapseAbove" class="bar-btn" title="Collapse all headings above current view">
+        <span class="btn-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="4" x2="20" y2="4"></line>
+            <polyline points="16 12 12 8 8 12"></polyline>
+            <line x1="12" y1="8" x2="12" y2="20"></line>
+          </svg>
+        </span>
+        <span class="btn-label">Collapse<br>above</span>
+      </button>
+      <button id="btnCollapseAll" class="bar-btn" title="Collapse all headings">
+        <span class="btn-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="17 11 12 6 7 11"></polyline>
+            <polyline points="17 18 12 13 7 18"></polyline>
+          </svg>
+        </span>
+        <span class="btn-label">Collapse<br>all</span>
+      </button>
+      <button id="btnHoverToggle" class="bar-btn hover-active" title="Toggle Hover/Tap Outline Preview Mode">
+        <span class="btn-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </span>
+        <span class="btn-label">Hover<br>mode</span>
+        <span class="status-badge" id="hoverBadge">ON</span>
+      </button>
+      <button id="btnExpandAll" class="bar-btn" title="Expand all headings">
+        <span class="btn-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="7 6 12 11 17 6"></polyline>
+            <polyline points="7 13 12 18 17 13"></polyline>
+          </svg>
+        </span>
+        <span class="btn-label">Expand<br>all</span>
+      </button>
+      <button id="btnExpandBelow" class="bar-btn" title="Expand all headings below current view">
+        <span class="btn-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="20" x2="20" y2="20"></line>
+            <polyline points="8 12 12 16 16 12"></polyline>
+            <line x1="12" y1="4" x2="12" y2="16"></line>
+          </svg>
+        </span>
+        <span class="btn-label">Expand<br>below</span>
+      </button>
+    </div>
   </footer>
 </div>
 
@@ -1983,6 +2680,21 @@
     </div>
   </div>
   <div class="drawer-content">
+    <!-- Dual-App Mode Target Selector -->
+    <div class="drawer-mode-switch-box">
+      <div class="drawer-mode-tabs">
+        <button id="drawerTabBasic" class="drawer-tab-btn active" title="Manage Files for Basic App">
+          <span>📖</span> Basic App
+        </button>
+        <button id="drawerTabOutline" class="drawer-tab-btn" title="Manage Files for Outline App">
+          <span>📑</span> Outline App
+        </button>
+      </div>
+      <div class="drawer-target-status" id="drawerTargetStatus">
+        Managing: <span class="badge" id="drawerTargetBadge">Basic App</span> (<span id="drawerTargetCurrentDoc">Guide.md</span>)
+      </div>
+    </div>
+
     <div class="drawer-actions-row">
       <button id="btnOpenDeviceFile" class="drawer-btn-primary">
         <span>📄</span> Open File
@@ -2591,9 +3303,40 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '1.0.9';
+      window.AndroidBridge.getAppVersion() : '1.1.0';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
+  // ==========================================
+  // UNIFIED DUAL-APP ARCHITECTURE
+  // Mode 1: Basic App (Rendered Document & Double-Page Reader) [Default]
+  // Mode 2: Outline App (Virtual Scroller Heading Tree & Hover Reader)
+  // ==========================================
+  let currentAppMode = localStorage.getItem('mdviewer_app_mode') || 'basic'; // Default: BASIC
+
+  // Basic App State
+  let basicDocName = 'Guide.md';
+  let basicDocText = '';
+  let basicDocUri = null;
+  let basicDocTreeId = null;
+  let basicDocToc = [];
+  let basicScrollTop = 0;
+  let basicZoom = parseInt(localStorage.getItem('mdviewer_basic_zoom') || '100', 10);
+  let isBasicDoublePage = localStorage.getItem('mdviewer_basic_double_page') === 'true';
+  let isBasicWideLayout = localStorage.getItem('mdviewer_basic_wide') !== 'false';
+  let recentFilesBasic = [];
+
+  // Outline App State
+  let outlineDocName = 'Guide.md';
+  let outlineDocText = '';
+  let outlineDocUri = null;
+  let outlineDocTreeId = null;
+  let outlineScrollTop = 0;
+  let recentFilesOutline = [];
+
+  // Drawer target mode (which mode receives files opened from the drawer)
+  let drawerTargetMode = currentAppMode;
+
+  // Outline virtual scroller variables
   let currentDocName = 'Guide.md';
   let currentDocUri = null;
   let currentDocTreeId = null;
@@ -2604,6 +3347,60 @@
   let segments = [];
   let prefix = [0];
   let totalVisible = 0;
+
+  // Mode Switcher Elements
+  const modeBasicBtn = document.getElementById('modeBasicBtn');
+  const modeOutlineBtn = document.getElementById('modeOutlineBtn');
+
+  // Document View (Basic Mode) Elements
+  const documentView = document.getElementById('documentView');
+  const docLayout = document.getElementById('docLayout');
+  const docTocSidebar = document.getElementById('docTocSidebar');
+  const docTocBackdrop = document.getElementById('docTocBackdrop');
+  const docTocCollapseBtn = document.getElementById('docTocCollapseBtn');
+  const docTocList = document.getElementById('docTocList');
+  const docContentWrap = document.getElementById('docContentWrap');
+  const docFloatingBar = document.getElementById('docFloatingBar');
+  const docFloatTocBtn = document.getElementById('docFloatTocBtn');
+  const docFloatDoubleBtn = document.getElementById('docFloatDoubleBtn');
+  const docFloatWideBtn = document.getElementById('docFloatWideBtn');
+  const docWordCount = document.getElementById('docWordCount');
+  const docReadingTime = document.getElementById('docReadingTime');
+  const docRenderSpeed = document.getElementById('docRenderSpeed');
+  const docBodyContainer = document.getElementById('docBodyContainer');
+  const docBody = document.getElementById('docBody');
+  const docReadingHud = document.getElementById('docReadingHud');
+  const docHudPrevBtn = document.getElementById('docHudPrevBtn');
+  const docHudNextBtn = document.getElementById('docHudNextBtn');
+  const docHudPageText = document.getElementById('docHudPageText');
+
+  // Bottom Toolbar Groups
+  const basicBottomGroup = document.getElementById('basicBottomGroup');
+  const outlineBottomGroup = document.getElementById('outlineBottomGroup');
+  const btnDocTocToggle = document.getElementById('btnDocTocToggle');
+  const btnDocDoubleToggle = document.getElementById('btnDocDoubleToggle');
+  const btnDocDoubleLabel = document.getElementById('btnDocDoubleLabel');
+  const btnDocWideToggle = document.getElementById('btnDocWideToggle');
+  const btnDocWideLabel = document.getElementById('btnDocWideLabel');
+  const btnDocOptionsToggle = document.getElementById('btnDocOptionsToggle');
+  const btnDocScrollTop = document.getElementById('btnDocScrollTop');
+
+  // Dual-App Drawer Switcher Elements
+  const drawerTabBasic = document.getElementById('drawerTabBasic');
+  const drawerTabOutline = document.getElementById('drawerTabOutline');
+  const drawerTargetBadge = document.getElementById('drawerTargetBadge');
+  const drawerTargetCurrentDoc = document.getElementById('drawerTargetCurrentDoc');
+
+  // Options Modal Dual-Group Elements
+  const basicOptionsGroup = document.getElementById('basicOptionsGroup');
+  const outlineOptionsGroup = document.getElementById('outlineOptionsGroup');
+  const optWideToggleBtn = document.getElementById('optWideToggleBtn');
+  const optDoubleToggleBtn = document.getElementById('optDoubleToggleBtn');
+  const optOpenTocBtn = document.getElementById('optOpenTocBtn');
+  const btnBasicZoomOut = document.getElementById('btnBasicZoomOut');
+  const btnBasicZoomIn = document.getElementById('btnBasicZoomIn');
+  const btnBasicZoomReset = document.getElementById('btnBasicZoomReset');
+  const basicZoomDisplay = document.getElementById('basicZoomDisplay');
 
   // Active / Selected heading for Collapse Above / Expand Below
   let activeHeadingIdx = -1;
@@ -3226,6 +4023,8 @@
   // --- Options Modal Toggle ---
   btnToggleOptions.addEventListener('click', (e) => {
     e.stopPropagation();
+    if (basicOptionsGroup) basicOptionsGroup.style.display = (currentAppMode === 'basic') ? 'block' : 'none';
+    if (outlineOptionsGroup) outlineOptionsGroup.style.display = (currentAppMode === 'outline') ? 'block' : 'none';
     optionsModal.classList.toggle('open');
   });
   document.addEventListener('click', (e) => {
@@ -3247,6 +4046,665 @@
     optionsModal.classList.remove('open');
     showToast('Expanded to level H' + level);
   });
+
+  // =========================================================================
+  // DOCUMENT VIEW (BASIC MODE) ENGINE & CLIENT-SIDE MARKDOWN PARSER
+  // =========================================================================
+
+  function slugifyHeading(s) {
+    return s.toLowerCase().replace(/<[^>]+>/g, '').replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
+  }
+
+  function parseMarkdownToHtml(md) {
+    if (!md) return { html: '', toc: [], words: 0, readingTime: 1 };
+
+    const toc = [];
+    const lines = md.split(/\r\n|\r|\n/);
+    const out = [];
+    let inCode = false;
+    let codeLang = '';
+    let codeLines = [];
+    let inTable = false;
+    let tableRows = [];
+    let inList = false;
+    let listTag = '';
+    let inBq = false;
+    let bqLines = [];
+    let taskIdx = 0;
+    let inFrontmatter = false;
+    let fmLines = [];
+
+    function formatInline(str) {
+      if (!str) return '';
+      let s = escapeHtml(str);
+
+      // Code spans (protected first)
+      const codeTokens = [];
+      s = s.replace(/`([^`]+)`/g, (m, code) => {
+        const ph = '___CODE_' + codeTokens.length + '___';
+        codeTokens.push('<code>' + code + '</code>');
+        return ph;
+      });
+
+      // Obsidian Wikilinks [[target|label]] or [[target]]
+      s = s.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (m, target, label) => {
+        const text = label || target;
+        return '<span class="md-wikilink" data-target="' + escapeHtml(target.trim()) + '">' + escapeHtml(text.trim()) + '</span>';
+      });
+
+      // Images ![alt](url)
+      s = s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" loading="lazy">');
+
+      // Links [text](url)
+      s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+
+      // Auto URLs
+      s = s.replace(/(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+
+      // Bold + Italic
+      s = s.replace(/\*\*\*([^*]+)\*\*\*|___([^_]+)___/g, (m, a, b) => '<strong><em>' + (a || b) + '</em></strong>');
+      // Bold
+      s = s.replace(/\*\*([^*]+)\*\*|__([^_]+)__/g, (m, a, b) => '<strong>' + (a || b) + '</strong>');
+      // Italic
+      s = s.replace(/(^|[^*])\*([^*\s][^*]*?)\*(?!\*)/g, '$1<em>$2</em>');
+      s = s.replace(/(^|[^_])_([^_\s][^_]*?)_(?!_)/g, '$1<em>$2</em>');
+
+      // Strikethrough
+      s = s.replace(/~~([^~]+)~~/g, '<del>$1</del>');
+
+      // Highlight ==text==
+      s = s.replace(/==([^=]+)==/g, '<mark>$1</mark>');
+
+      // Restore code spans
+      codeTokens.forEach((c, i) => {
+        s = s.replace('___CODE_' + i + '___', c);
+      });
+
+      return s;
+    }
+
+    function flushList() {
+      if (inList) {
+        out.push('</' + listTag + '>');
+        inList = false;
+        listTag = '';
+      }
+    }
+
+    function flushTable() {
+      if (inTable && tableRows.length > 0) {
+        let tHtml = '<table><thead>';
+        const headCells = tableRows[0];
+        const aligns = (tableRows.length > 1) ? tableRows[1] : [];
+        tHtml += '<tr>';
+        headCells.forEach((c, idx) => {
+          const align = aligns[idx] ? ' style="text-align:' + aligns[idx] + '"' : '';
+          tHtml += '<th' + align + '>' + formatInline(c) + '</th>';
+        });
+        tHtml += '</tr></thead><tbody>';
+        for (let r = 2; r < tableRows.length; r++) {
+          tHtml += '<tr>';
+          tableRows[r].forEach((c, idx) => {
+            const align = aligns[idx] ? ' style="text-align:' + aligns[idx] + '"' : '';
+            tHtml += '<td' + align + '>' + formatInline(c) + '</td>';
+          });
+          tHtml += '</tr>';
+        }
+        tHtml += '</tbody></table>';
+        out.push(tHtml);
+        inTable = false;
+        tableRows = [];
+      }
+    }
+
+    function flushBlockquote() {
+      if (inBq && bqLines.length > 0) {
+        const first = bqLines[0].trim();
+        const calloutMatch = /^\[!([A-Za-z]+)\]\s*(.*)$/.exec(first);
+        if (calloutMatch) {
+          const type = calloutMatch[1].toLowerCase();
+          let title = calloutMatch[2].trim() || (type.charAt(0).toUpperCase() + type.slice(1));
+          let icon = 'ℹ️';
+          if (type === 'tip' || type === 'hint') icon = '💡';
+          else if (type === 'warning' || type === 'caution') icon = '⚠️';
+          else if (type === 'important') icon = '⚡';
+          else if (type === 'danger' || type === 'error' || type === 'bug') icon = '🛑';
+          else if (type === 'quote') icon = '”';
+          else if (type === 'example') icon = '📋';
+          else if (type === 'todo') icon = '☑';
+
+          let inner = '';
+          for (let i = 1; i < bqLines.length; i++) {
+            inner += '<p>' + formatInline(bqLines[i]) + '</p>';
+          }
+          out.push('<div class="callout callout-' + type + '"><div class="callout-title"><span class="callout-icon">' + icon + '</span><span>' + escapeHtml(title) + '</span></div><div class="callout-content">' + (inner || '<p></p>') + '</div></div>');
+        } else {
+          let inner = bqLines.map(l => '<p>' + formatInline(l) + '</p>').join('');
+          out.push('<blockquote>' + inner + '</blockquote>');
+        }
+        inBq = false;
+        bqLines = [];
+      }
+    }
+
+    for (let i = 0; i < lines.length; i++) {
+      const rawLine = lines[i];
+
+      // Frontmatter check at top
+      if (i === 0 && rawLine.trim() === '---') {
+        inFrontmatter = true;
+        continue;
+      }
+      if (inFrontmatter) {
+        if (rawLine.trim() === '---') {
+          inFrontmatter = false;
+          out.push('<div class="doc-frontmatter"><div class="doc-fm-header">Metadata</div><pre class="doc-fm-body">' + escapeHtml(fmLines.join('\n')) + '</pre></div>');
+        } else {
+          fmLines.push(rawLine);
+        }
+        continue;
+      }
+
+      // Code blocks
+      const codeFenceMatch = /^```([a-zA-Z0-9_-]*)/.exec(rawLine.trim());
+      if (codeFenceMatch) {
+        if (!inCode) {
+          flushList();
+          flushTable();
+          flushBlockquote();
+          inCode = true;
+          codeLang = codeFenceMatch[1] || '';
+          codeLines = [];
+        } else {
+          inCode = false;
+          const codeText = codeLines.join('\n');
+          const langBadge = codeLang ? '<span class="code-lang">' + escapeHtml(codeLang) + '</span>' : '<span></span>';
+          out.push('<pre class="code-block-wrap"><div class="code-header">' + langBadge + '<button class="doc-code-copy-btn">📋 Copy</button></div><code>' + escapeHtml(codeText) + '</code></pre>');
+        }
+        continue;
+      }
+      if (inCode) {
+        codeLines.push(rawLine);
+        continue;
+      }
+
+      // Blockquote lines
+      const bqMatch = /^>\s?(.*)$/.exec(rawLine);
+      if (bqMatch) {
+        flushList();
+        flushTable();
+        inBq = true;
+        bqLines.push(bqMatch[1]);
+        continue;
+      } else {
+        flushBlockquote();
+      }
+
+      // Table lines
+      if (/^\s*\|(.+)\|\s*$/.test(rawLine)) {
+        flushList();
+        const cells = rawLine.trim().split('|').slice(1, -1).map(c => c.trim());
+        if (!inTable) {
+          inTable = true;
+          tableRows = [cells];
+        } else if (tableRows.length === 1 && cells.every(c => /^:?-+:?$/.test(c))) {
+          const aligns = cells.map(c => {
+            if (c.startsWith(':') && c.endsWith(':')) return 'center';
+            if (c.endsWith(':')) return 'right';
+            return 'left';
+          });
+          tableRows.push(aligns);
+        } else {
+          tableRows.push(cells);
+        }
+        continue;
+      } else {
+        flushTable();
+      }
+
+      // Horizontal Rule
+      if (/^\s*([-*_])\1\1[\1\-*_\s]*$/.test(rawLine) && rawLine.trim().length >= 3) {
+        flushList();
+        out.push('<hr>');
+        continue;
+      }
+
+      // Headings (# to ######)
+      const hMatch = /^(#{1,6})\s+(.*)$/.exec(rawLine);
+      if (hMatch) {
+        flushList();
+        const level = hMatch[1].length;
+        const hText = hMatch[2].trim();
+        const slug = slugifyHeading(hText) || ('heading-' + i);
+        toc.push({ level, text: hText, id: slug, line: i });
+        out.push('<h' + level + ' id="' + slug + '" class="doc-heading" data-toc-id="' + slug + '">' + formatInline(hText) + '</h' + level + '>');
+        continue;
+      }
+
+      // Task List item
+      const taskMatch = /^(\s*)[-*+]\s+\[([ xX])\]\s+(.*)$/.exec(rawLine);
+      if (taskMatch) {
+        if (!inList || listTag !== 'ul') {
+          flushList();
+          inList = true;
+          listTag = 'ul';
+          out.push('<ul class="task-list">');
+        }
+        const isChecked = taskMatch[2].toLowerCase() === 'x';
+        const itemContent = formatInline(taskMatch[3]);
+        const doneClass = isChecked ? ' class="task-done"' : '';
+        out.push('<li class="task-list-item"><input type="checkbox" class="task-checkbox" data-task-idx="' + (taskIdx++) + '"' + (isChecked ? ' checked' : '') + '><span' + doneClass + '>' + itemContent + '</span></li>');
+        continue;
+      }
+
+      // Bullet List item
+      const bulletMatch = /^(\s*)[-*+]\s+(.*)$/.exec(rawLine);
+      if (bulletMatch) {
+        if (!inList || listTag !== 'ul') {
+          flushList();
+          inList = true;
+          listTag = 'ul';
+          out.push('<ul>');
+        }
+        out.push('<li>' + formatInline(bulletMatch[2]) + '</li>');
+        continue;
+      }
+
+      // Numbered List item
+      const numMatch = /^(\s*)\d+\.\s+(.*)$/.exec(rawLine);
+      if (numMatch) {
+        if (!inList || listTag !== 'ol') {
+          flushList();
+          inList = true;
+          listTag = 'ol';
+          out.push('<ol>');
+        }
+        out.push('<li>' + formatInline(numMatch[2]) + '</li>');
+        continue;
+      }
+
+      // Empty line
+      if (!rawLine.trim()) {
+        flushList();
+        continue;
+      }
+
+      // Regular paragraph
+      flushList();
+      out.push('<p>' + formatInline(rawLine) + '</p>');
+    }
+
+    flushList();
+    flushTable();
+    flushBlockquote();
+
+    const finalHtml = out.join('\n');
+    const words = md.trim() ? md.trim().split(/\s+/).length : 0;
+    const readingTime = Math.max(1, Math.round(words / 200));
+
+    return { html: finalHtml, toc, words, readingTime };
+  }
+
+  function renderBasicDocument(text, fileName) {
+    if (text !== undefined && text !== null) basicDocText = text;
+    if (fileName) basicDocName = fileName;
+
+    if (!docBody) return;
+    const t0 = performance.now();
+    const res = parseMarkdownToHtml(basicDocText || '');
+    const renderDur = (performance.now() - t0).toFixed(1);
+
+    basicDocToc = res.toc;
+    docBody.innerHTML = res.html || '<p style="color:var(--muted);font-style:italic;">Document is empty.</p>';
+
+    if (docWordCount) docWordCount.textContent = `${res.words.toLocaleString()} words`;
+    if (docReadingTime) docReadingTime.textContent = `${res.readingTime} min read`;
+    if (docRenderSpeed) docRenderSpeed.textContent = `⚡ ${renderDur}ms`;
+
+    // Populate TOC sidebar
+    if (docTocList) {
+      docTocList.innerHTML = '';
+      if (basicDocToc.length === 0) {
+        docTocList.innerHTML = '<div style="font-size:11.5px;color:var(--muted);padding:10px;">No headings in document</div>';
+      } else {
+        basicDocToc.forEach(h => {
+          const item = document.createElement('a');
+          item.className = `doc-toc-item lvl-${h.level}`;
+          item.textContent = h.text;
+          item.href = 'javascript:void(0)';
+          item.addEventListener('click', (e) => {
+            e.preventDefault();
+            scrollToDocHeading(h.id);
+          });
+          docTocList.appendChild(item);
+        });
+      }
+    }
+
+    attachDocTaskCheckboxes();
+    attachDocCodeCopyButtons();
+    attachDocImageLightboxes();
+    attachDocWikilinks();
+    applyBasicZoom();
+    updateDoublePageLayout();
+  }
+
+  function attachDocTaskCheckboxes() {
+    if (!docBody) return;
+    const cbs = docBody.querySelectorAll('input.task-checkbox');
+    cbs.forEach(cb => {
+      cb.addEventListener('change', () => {
+        const idx = parseInt(cb.getAttribute('data-task-idx'), 10);
+        const span = cb.nextElementSibling;
+        if (span) {
+          if (cb.checked) span.classList.add('task-done');
+          else span.classList.remove('task-done');
+        }
+        let counter = 0;
+        basicDocText = basicDocText.replace(/^(\s*[-*+]\s+\[)([ xX])(\]\s+.*)$/gm, (match, pre, cur, post) => {
+          if (counter === idx) {
+            counter++;
+            return pre + (cb.checked ? 'x' : ' ') + post;
+          }
+          counter++;
+          return match;
+        });
+        saveLastOpenedBasic(basicDocName, basicDocUri, basicDocTreeId, basicDocText);
+        showToast(cb.checked ? 'Task completed ✓' : 'Task uncompleted');
+      });
+    });
+  }
+
+  function attachDocCodeCopyButtons() {
+    if (!docBody) return;
+    const copyBtns = docBody.querySelectorAll('.doc-code-copy-btn');
+    copyBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const pre = btn.closest('pre');
+        const code = pre ? pre.querySelector('code') : null;
+        const text = code ? code.innerText : '';
+        if (window.AndroidBridge && window.AndroidBridge.copyToClipboard) {
+          window.AndroidBridge.copyToClipboard(text);
+        } else if (navigator.clipboard) {
+          navigator.clipboard.writeText(text);
+        }
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = '📋 Copy'; }, 2000);
+        showToast('Code copied to clipboard');
+      });
+    });
+  }
+
+  function attachDocImageLightboxes() {
+    if (!docBody) return;
+    const imgs = docBody.querySelectorAll('img');
+    imgs.forEach(img => {
+      img.style.cursor = 'zoom-in';
+      img.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (typeof openImageModal === 'function') {
+          openImageModal(img.src, img.alt);
+        }
+      });
+    });
+  }
+
+  function attachDocWikilinks() {
+    if (!docBody) return;
+    const wikis = docBody.querySelectorAll('.md-wikilink');
+    wikis.forEach(w => {
+      w.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const target = w.getAttribute('data-target');
+        if (!target) return;
+        showToast(`Wikilink: ${target}`);
+        searchInput.value = target;
+        searchContainer.classList.add('visible');
+        scopeFileBtn.classList.add('active');
+        scopeFolderBtn.classList.remove('active');
+        searchScope = 'file';
+        runCurrentSearch();
+      });
+    });
+  }
+
+  function toggleDocToc(forceState) {
+    if (!docTocSidebar) return;
+    const shouldOpen = (forceState !== undefined) ? forceState : !docTocSidebar.classList.contains('open');
+    docTocSidebar.classList.toggle('open', shouldOpen);
+    if (docTocBackdrop) docTocBackdrop.classList.toggle('show', shouldOpen);
+  }
+
+  function scrollToDocHeading(slug) {
+    if (!docBody) return;
+    const target = docBody.querySelector('#' + slug) || docBody.querySelector('[data-toc-id="' + slug + '"]');
+    if (target) {
+      if (isBasicDoublePage) {
+        target.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+      } else {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      setTimeout(updateDoublePageLayout, 200);
+    }
+    toggleDocToc(false);
+  }
+
+  function setDoublePageMode(enabled) {
+    isBasicDoublePage = enabled;
+    localStorage.setItem('mdviewer_basic_double_page', enabled);
+
+    if (documentView) documentView.classList.toggle('double-page-mode-active', enabled);
+    if (docReadingHud) docReadingHud.style.display = enabled ? 'flex' : 'none';
+    if (btnDocDoubleToggle) btnDocDoubleToggle.classList.toggle('active', enabled);
+    if (docFloatDoubleBtn) docFloatDoubleBtn.classList.toggle('active', enabled);
+    if (optDoubleToggleBtn) optDoubleToggleBtn.classList.toggle('active', enabled);
+    if (btnDocDoubleLabel) btnDocDoubleLabel.textContent = enabled ? '1-Page' : '2-Page';
+
+    updateDoublePageLayout();
+  }
+
+  function setWideLayout(enabled) {
+    isBasicWideLayout = enabled;
+    localStorage.setItem('mdviewer_basic_wide', enabled);
+
+    if (documentView) documentView.classList.toggle('wide-layout-active', enabled);
+    if (btnDocWideToggle) btnDocWideToggle.classList.toggle('active', enabled);
+    if (docFloatWideBtn) docFloatWideBtn.classList.toggle('active', enabled);
+    if (optWideToggleBtn) optWideToggleBtn.classList.toggle('active', enabled);
+    if (btnDocWideLabel) btnDocWideLabel.textContent = enabled ? 'Center' : 'Wide';
+
+    updateDoublePageLayout();
+  }
+
+  function updateDoublePageLayout() {
+    if (!isBasicDoublePage || !docBody) return;
+    const scrollW = docBody.scrollWidth;
+    const clientW = docBody.clientWidth;
+    const scrollL = docBody.scrollLeft;
+    if (clientW <= 0) return;
+
+    const totalPages = Math.max(1, Math.ceil(scrollW / clientW));
+    const currentPage = Math.min(totalPages, Math.max(1, Math.round(scrollL / clientW) + 1));
+    const pct = Math.min(100, Math.round((currentPage / totalPages) * 100));
+
+    if (docHudPageText) {
+      docHudPageText.textContent = `Page ${currentPage} / ${totalPages} (${pct}%)`;
+    }
+  }
+
+  function docPageLeft() {
+    if (!docBody) return;
+    docBody.scrollBy({ left: -docBody.clientWidth, behavior: 'smooth' });
+    setTimeout(updateDoublePageLayout, 180);
+  }
+
+  function docPageRight() {
+    if (!docBody) return;
+    docBody.scrollBy({ left: docBody.clientWidth, behavior: 'smooth' });
+    setTimeout(updateDoublePageLayout, 180);
+  }
+
+  function applyBasicZoom() {
+    if (!docBody) return;
+    docBody.style.fontSize = (15 * (basicZoom / 100)) + 'px';
+    if (basicZoomDisplay) basicZoomDisplay.textContent = basicZoom + '%';
+    localStorage.setItem('mdviewer_basic_zoom', basicZoom);
+  }
+
+  // --- Double-Page Touch Swipe Handling ---
+  let docTouchStartX = 0;
+  let docTouchStartY = 0;
+  let docTouchStartTime = 0;
+
+  if (docBodyContainer) {
+    docBodyContainer.addEventListener('touchstart', (e) => {
+      if (!isBasicDoublePage) return;
+      if (e.touches.length === 1) {
+        docTouchStartX = e.touches[0].clientX;
+        docTouchStartY = e.touches[0].clientY;
+        docTouchStartTime = Date.now();
+      }
+    }, { passive: true });
+
+    docBodyContainer.addEventListener('touchend', (e) => {
+      if (!isBasicDoublePage) return;
+      if (e.changedTouches.length === 1) {
+        const dx = e.changedTouches[0].clientX - docTouchStartX;
+        const dy = e.changedTouches[0].clientY - docTouchStartY;
+        const dt = Date.now() - docTouchStartTime;
+        if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.5 && dt < 600) {
+          if (dx < 0) docPageRight();
+          else docPageLeft();
+        }
+      }
+    }, { passive: true });
+
+    docBodyContainer.addEventListener('scroll', () => {
+      if (currentAppMode === 'basic' && !isBasicDoublePage) {
+        basicScrollTop = docBodyContainer.scrollTop;
+      }
+    }, { passive: true });
+  }
+
+  if (docBody) {
+    docBody.addEventListener('scroll', () => {
+      if (isBasicDoublePage) {
+        updateDoublePageLayout();
+      }
+    }, { passive: true });
+  }
+
+  // --- Double-Page HUD Buttons ---
+  if (docHudPrevBtn) docHudPrevBtn.addEventListener('click', docPageLeft);
+  if (docHudNextBtn) docHudNextBtn.addEventListener('click', docPageRight);
+
+  // --- Floating Bar Buttons ---
+  if (docFloatTocBtn) docFloatTocBtn.addEventListener('click', () => toggleDocToc());
+  if (docFloatDoubleBtn) docFloatDoubleBtn.addEventListener('click', () => setDoublePageMode(!isBasicDoublePage));
+  if (docFloatWideBtn) docFloatWideBtn.addEventListener('click', () => setWideLayout(!isBasicWideLayout));
+
+  // --- TOC Sidebar Collapse & Backdrop ---
+  if (docTocCollapseBtn) docTocCollapseBtn.addEventListener('click', () => toggleDocToc(false));
+  if (docTocBackdrop) docTocBackdrop.addEventListener('click', () => toggleDocToc(false));
+
+  // --- Basic Bottom Bar Buttons ---
+  if (btnDocTocToggle) btnDocTocToggle.addEventListener('click', () => toggleDocToc());
+  if (btnDocDoubleToggle) btnDocDoubleToggle.addEventListener('click', () => setDoublePageMode(!isBasicDoublePage));
+  if (btnDocWideToggle) btnDocWideToggle.addEventListener('click', () => setWideLayout(!isBasicWideLayout));
+  if (btnDocOptionsToggle) {
+    btnDocOptionsToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (basicOptionsGroup) basicOptionsGroup.style.display = 'block';
+      if (outlineOptionsGroup) outlineOptionsGroup.style.display = 'none';
+      optionsModal.classList.toggle('open');
+    });
+  }
+  if (btnDocScrollTop) {
+    btnDocScrollTop.addEventListener('click', () => {
+      if (isBasicDoublePage && docBody) {
+        docBody.scrollTo({ left: 0, behavior: 'smooth' });
+      } else if (docBodyContainer) {
+        docBodyContainer.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  }
+
+  // --- Basic Options in Options Modal ---
+  if (optWideToggleBtn) optWideToggleBtn.addEventListener('click', () => setWideLayout(!isBasicWideLayout));
+  if (optDoubleToggleBtn) optDoubleToggleBtn.addEventListener('click', () => setDoublePageMode(!isBasicDoublePage));
+  if (optOpenTocBtn) {
+    optOpenTocBtn.addEventListener('click', () => {
+      optionsModal.classList.remove('open');
+      toggleDocToc(true);
+    });
+  }
+  if (btnBasicZoomIn) {
+    btnBasicZoomIn.addEventListener('click', () => {
+      basicZoom = Math.min(220, basicZoom + 10);
+      applyBasicZoom();
+    });
+  }
+  if (btnBasicZoomOut) {
+    btnBasicZoomOut.addEventListener('click', () => {
+      basicZoom = Math.max(70, basicZoom - 10);
+      applyBasicZoom();
+    });
+  }
+  if (btnBasicZoomReset) {
+    btnBasicZoomReset.addEventListener('click', () => {
+      basicZoom = 100;
+      applyBasicZoom();
+    });
+  }
+
+  // --- Unified Dual-App Mode Switcher ---
+  function setAppMode(mode) {
+    if (mode !== 'basic' && mode !== 'outline') mode = 'basic';
+    currentAppMode = mode;
+    localStorage.setItem('mdviewer_app_mode', mode);
+
+    if (modeBasicBtn) modeBasicBtn.classList.toggle('active', mode === 'basic');
+    if (modeOutlineBtn) modeOutlineBtn.classList.toggle('active', mode === 'outline');
+
+    if (documentView) documentView.style.display = (mode === 'basic') ? 'flex' : 'none';
+    if (scroller) scroller.style.display = (mode === 'outline') ? 'block' : 'none';
+
+    if (basicBottomGroup) basicBottomGroup.style.display = (mode === 'basic') ? 'flex' : 'none';
+    if (outlineBottomGroup) outlineBottomGroup.style.display = (mode === 'outline') ? 'flex' : 'none';
+
+    if (basicOptionsGroup) basicOptionsGroup.style.display = (mode === 'basic') ? 'block' : 'none';
+    if (outlineOptionsGroup) outlineOptionsGroup.style.display = (mode === 'outline') ? 'block' : 'none';
+
+    if (mode === 'basic') {
+      docTitle.textContent = basicDocName || 'Document.md';
+      const words = basicDocText.trim() ? basicDocText.trim().split(/\s+/).length : 0;
+      docStats.textContent = `${words.toLocaleString()} words • Basic Mode`;
+      renderBasicDocument(basicDocText, basicDocName);
+      if (docBodyContainer) docBodyContainer.scrollTop = basicScrollTop || 0;
+    } else {
+      docTitle.textContent = outlineDocName || 'Guide.md';
+      docStats.textContent = `${lines.length} lines • ${headings.length} headings • Outline Mode`;
+      render();
+      if (scroller) scroller.scrollTop = outlineScrollTop || 0;
+    }
+  }
+
+  if (modeBasicBtn) modeBasicBtn.addEventListener('click', () => setAppMode('basic'));
+  if (modeOutlineBtn) modeOutlineBtn.addEventListener('click', () => setAppMode('outline'));
+
+  // --- Dual-App Drawer Mode Switcher ---
+  function setDrawerTargetMode(mode) {
+    drawerTargetMode = mode;
+    if (drawerTabBasic) drawerTabBasic.classList.toggle('active', mode === 'basic');
+    if (drawerTabOutline) drawerTabOutline.classList.toggle('active', mode === 'outline');
+    if (drawerTargetBadge) drawerTargetBadge.textContent = (mode === 'basic') ? 'Basic App' : 'Outline App';
+    if (drawerTargetCurrentDoc) drawerTargetCurrentDoc.textContent = (mode === 'basic') ? (basicDocName || 'Document.md') : (outlineDocName || 'Outline.md');
+    renderRecentFilesForDrawer();
+  }
+
+  if (drawerTabBasic) drawerTabBasic.addEventListener('click', () => setDrawerTargetMode('basic'));
+  if (drawerTabOutline) drawerTabOutline.addEventListener('click', () => setDrawerTargetMode('outline'));
 
   // --- Parser Core (Same high-performance logic as desktop) ---
   const HRE = /^(#{1,6})\s+(.*)$/;
@@ -4487,9 +5945,13 @@
   }
 
   function enterFlashcardMode() {
-    if (lines.length === 0) {
+    const textToUse = (currentAppMode === 'basic') ? basicDocText : rawDocText;
+    if (!textToUse || !textToUse.trim()) {
       showToast('Please open a markdown file first');
       return;
+    }
+    if (currentAppMode === 'basic') {
+      parse(basicDocText);
     }
     isFlashcardMode = true;
     flashcardView.style.display = 'flex';
@@ -4589,7 +6051,14 @@
       cancelAnimationFrame(gamepadRafId);
       gamepadRafId = null;
     }
-    render();
+    if (currentAppMode === 'basic') {
+      if (outlineDocText) {
+        parse(outlineDocText);
+      }
+      renderBasicDocument(basicDocText, basicDocName);
+    } else {
+      render();
+    }
   }
 
   if (btnToggleFlashcard) btnToggleFlashcard.addEventListener('click', enterFlashcardMode);
@@ -4925,6 +6394,28 @@
       }
     } else {
       // Reader Mode Gamepad & Keyboard Keys
+      if (currentAppMode === 'basic') {
+        if (e.key === 'ArrowLeft' || e.key === 'PageUp' || isXboxButtonOrKey('LB', keyCode)) {
+          e.preventDefault();
+          if (isBasicDoublePage) docPageLeft();
+          else if (docBodyContainer) docBodyContainer.scrollBy({ top: -140, behavior: 'smooth' });
+          return;
+        } else if (e.key === 'ArrowRight' || e.key === 'PageDown' || isXboxButtonOrKey('RB', keyCode)) {
+          e.preventDefault();
+          if (isBasicDoublePage) docPageRight();
+          else if (docBodyContainer) docBodyContainer.scrollBy({ top: 140, behavior: 'smooth' });
+          return;
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (docBodyContainer) docBodyContainer.scrollBy({ top: -80, behavior: 'smooth' });
+          return;
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (docBodyContainer) docBodyContainer.scrollBy({ top: 80, behavior: 'smooth' });
+          return;
+        }
+      }
+
       if (isXboxButtonOrKey('X', keyCode)) {
         e.preventDefault();
         if (btnHoverToggle) btnHoverToggle.click();
@@ -5003,11 +6494,133 @@
     runCurrentSearch();
   }
 
+  let basicSearchMarks = [];
+  let basicCurrentMatchIdx = -1;
+
+  function clearBasicDocSearch() {
+    basicSearchMarks = [];
+    basicCurrentMatchIdx = -1;
+    if (docBody) {
+      const marks = docBody.querySelectorAll('mark.doc-search-hit');
+      marks.forEach(m => {
+        const parent = m.parentNode;
+        if (parent) {
+          parent.replaceChild(document.createTextNode(m.textContent), m);
+          parent.normalize();
+        }
+      });
+    }
+  }
+
+  function scrollBasicMarkIntoView(mark) {
+    if (!mark) return;
+    if (isBasicDoublePage && docBody) {
+      const pageIndex = Math.floor(mark.offsetLeft / docBody.clientWidth);
+      docBody.scrollTo({ left: pageIndex * docBody.clientWidth, behavior: 'smooth' });
+    } else {
+      mark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  function highlightCurrentBasicMark() {
+    basicSearchMarks.forEach((m, i) => {
+      if (i === basicCurrentMatchIdx) {
+        m.style.backgroundColor = '#ff9e64';
+        m.style.outline = '2px solid #f7768e';
+      } else {
+        m.style.backgroundColor = '#e0af68';
+        m.style.outline = 'none';
+      }
+    });
+  }
+
+  function runBasicDocSearch(query, navigate = true) {
+    clearBasicDocSearch();
+    if (!query || !docBody) {
+      searchMatchCount.textContent = '';
+      return;
+    }
+    const qLower = query.toLowerCase();
+
+    function highlightTextNodes(node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.nodeValue;
+        const lower = text.toLowerCase();
+        let idx = lower.indexOf(qLower);
+        if (idx !== -1) {
+          const fragment = document.createDocumentFragment();
+          let lastIdx = 0;
+          while (idx !== -1) {
+            if (idx > lastIdx) {
+              fragment.appendChild(document.createTextNode(text.substring(lastIdx, idx)));
+            }
+            const mark = document.createElement('mark');
+            mark.className = 'doc-search-hit';
+            mark.style.backgroundColor = '#e0af68';
+            mark.style.color = '#1a1b26';
+            mark.style.borderRadius = '2px';
+            mark.style.padding = '0 2px';
+            mark.textContent = text.substring(idx, idx + query.length);
+            fragment.appendChild(mark);
+            basicSearchMarks.push(mark);
+            lastIdx = idx + query.length;
+            idx = lower.indexOf(qLower, lastIdx);
+          }
+          if (lastIdx < text.length) {
+            fragment.appendChild(document.createTextNode(text.substring(lastIdx)));
+          }
+          node.parentNode.replaceChild(fragment, node);
+        }
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const tag = node.tagName.toLowerCase();
+        if (tag !== 'script' && tag !== 'style' && tag !== 'mark' && !node.classList.contains('doc-toc-sidebar')) {
+          const children = Array.from(node.childNodes);
+          for (const child of children) {
+            highlightTextNodes(child);
+          }
+        }
+      }
+    }
+
+    highlightTextNodes(docBody);
+
+    if (basicSearchMarks.length > 0) {
+      basicCurrentMatchIdx = 0;
+      searchMatchCount.textContent = `1/${basicSearchMarks.length}`;
+      highlightCurrentBasicMark();
+      if (navigate) {
+        scrollBasicMarkIntoView(basicSearchMarks[0]);
+      }
+    } else {
+      searchMatchCount.textContent = '0/0';
+    }
+  }
+
+  function nextBasicSearchMatch() {
+    if (basicSearchMarks.length === 0) return;
+    basicCurrentMatchIdx = (basicCurrentMatchIdx + 1) % basicSearchMarks.length;
+    searchMatchCount.textContent = `${basicCurrentMatchIdx + 1}/${basicSearchMarks.length}`;
+    highlightCurrentBasicMark();
+    scrollBasicMarkIntoView(basicSearchMarks[basicCurrentMatchIdx]);
+  }
+
+  function prevBasicSearchMatch() {
+    if (basicSearchMarks.length === 0) return;
+    basicCurrentMatchIdx = (basicCurrentMatchIdx - 1 + basicSearchMarks.length) % basicSearchMarks.length;
+    searchMatchCount.textContent = `${basicCurrentMatchIdx + 1}/${basicSearchMarks.length}`;
+    highlightCurrentBasicMark();
+    scrollBasicMarkIntoView(basicSearchMarks[basicCurrentMatchIdx]);
+  }
+
   function runCurrentSearch() {
     const q = searchInput.value.trim();
     if (searchScope === 'file') {
       wsSearchResults.style.display = 'none';
-      runFileSearch(q, true);
+      if (currentAppMode === 'basic') {
+        runBasicDocSearch(q, true);
+      } else {
+        runFileSearch(q, true);
+      }
     } else {
       performFolderWorkspaceSearch(q);
     }
@@ -5058,6 +6671,10 @@
   }
 
   function nextSearchMatch() {
+    if (currentAppMode === 'basic') {
+      nextBasicSearchMatch();
+      return;
+    }
     if (searchMatches.length === 0) return;
     currentMatchIdx = (currentMatchIdx + 1) % searchMatches.length;
     searchMatchCount.textContent = `${currentMatchIdx + 1}/${searchMatches.length}`;
@@ -5066,6 +6683,10 @@
   }
 
   function prevSearchMatch() {
+    if (currentAppMode === 'basic') {
+      prevBasicSearchMatch();
+      return;
+    }
     if (searchMatches.length === 0) return;
     currentMatchIdx = (currentMatchIdx - 1 + searchMatches.length) % searchMatches.length;
     searchMatchCount.textContent = `${currentMatchIdx + 1}/${searchMatches.length}`;
@@ -5074,6 +6695,9 @@
   }
 
   function clearSearch() {
+    if (currentAppMode === 'basic') {
+      clearBasicDocSearch();
+    }
     searchQuery = '';
     searchMatches = [];
     currentMatchIdx = -1;
@@ -5203,7 +6827,7 @@
   function openDrawer() {
     fileDrawer.classList.add('open');
     drawerBackdrop.classList.add('open');
-    updateRecentFilesUI();
+    setDrawerTargetMode(currentAppMode);
   }
   function closeDrawer() {
     fileDrawer.classList.remove('open');
@@ -5228,64 +6852,204 @@
   settingsBackdrop.addEventListener('click', closeSettings);
 
   btnClearRecentFiles.addEventListener('click', () => {
-    recentFiles = [];
-    try {
-      localStorage.removeItem('mdviewer_recents');
-    } catch(e) {}
-    updateRecentFilesUI();
-    showToast('Recent files cleared');
+    const targetMode = drawerTargetMode || currentAppMode;
+    if (targetMode === 'basic') {
+      recentFilesBasic = [];
+      try {
+        localStorage.removeItem('mdviewer_recents_basic');
+      } catch(e) {}
+    } else {
+      recentFilesOutline = [];
+      try {
+        localStorage.removeItem('mdviewer_recents_outline');
+      } catch(e) {}
+    }
+    renderRecentFilesForDrawer();
+    showToast(`Recent files cleared for ${targetMode === 'basic' ? 'Basic' : 'Outline'} App`);
   });
 
-  // --- File Loading Logic ---
-  function loadText(text, fileName, uri, docId) {
-    currentDocName = fileName || 'Document.md';
-    if (uri !== undefined) currentDocUri = uri;
-    if (docId !== undefined) currentDocTreeId = docId;
-    parse(text);
-    scroller.scrollTop = 0;
-    saveRecentFile(currentDocName, text);
-    saveLastOpenedFile(currentDocName, currentDocUri, currentDocTreeId, text);
-    if (isFlashcardMode) {
-      flashcardList = collectFlashcards(flashcardFilter);
-      currentCardIndex = 0;
-      renderCurrentCard();
-    } else {
-      render();
+  // --- Unified Dual-App File Loading Logic ---
+
+  function importFileIntoMode(targetMode, uri, fileName, cachedText = null) {
+    function processText(text) {
+      if (!text || text.startsWith('ERROR:')) {
+        showToast('Error reading file: ' + (text || 'Empty'));
+        return;
+      }
+      if (targetMode === 'basic') {
+        basicDocName = fileName || 'Document.md';
+        basicDocUri = uri;
+        basicDocTreeId = null;
+        basicDocText = text;
+        basicScrollTop = 0;
+        saveLastOpenedBasic(basicDocName, uri, null, text);
+        saveRecentFileForMode('basic', basicDocName, text, uri, null);
+        setAppMode('basic');
+        renderBasicDocument(basicDocText, basicDocName);
+        showToast(`Loaded ${basicDocName} into Basic App`);
+      } else {
+        outlineDocName = fileName || 'Document.md';
+        outlineDocUri = uri;
+        outlineDocTreeId = null;
+        outlineDocText = text;
+        outlineScrollTop = 0;
+        currentDocName = outlineDocName;
+        currentDocUri = uri;
+        currentDocTreeId = null;
+        parse(text);
+        saveLastOpenedOutline(outlineDocName, uri, null, text);
+        saveRecentFileForMode('outline', outlineDocName, text, uri, null);
+        setAppMode('outline');
+        scroller.scrollTop = 0;
+        showToast(`Loaded ${outlineDocName} into Outline App`);
+      }
+      closeDrawer();
     }
-    closeDrawer();
-    showToast(`Loaded ${currentDocName}`);
-  }
 
-  window.loadTextFromNative = function(text, fileName) {
-    loadText(text, fileName);
-  };
+    if (cachedText) {
+      processText(cachedText);
+      return;
+    }
 
-  window.loadFromNativeUri = function(uri, fileName) {
-    currentDocUri = uri;
-    currentDocTreeId = null;
+    let text = '';
     try {
       if (window.AndroidBridge && window.AndroidBridge.readNativeFile) {
-        const text = window.AndroidBridge.readNativeFile(uri);
+        text = window.AndroidBridge.readNativeFile(uri);
         if (text && !text.startsWith('ERROR:')) {
-          loadText(text, fileName, uri, null);
+          processText(text);
           return;
         }
       }
     } catch(e) {
       console.warn('Bridge readNativeFile error, trying fetch', e);
     }
+
     fetch('/api/native_file?uri=' + encodeURIComponent(uri))
       .then(r => {
         if (!r.ok) throw new Error('Status ' + r.status);
         return r.text();
       })
-      .then(text => {
-        loadText(text, fileName, uri, null);
-      })
+      .then(t => processText(t))
       .catch(err => {
         console.error('Failed to load file from native URI', err);
         showToast('Error opening file: ' + err.message);
       });
+  }
+
+  function loadTreeFileIntoMode(targetMode, docId, fileName, cachedText = null) {
+    function processText(text) {
+      if (!text || text.startsWith('ERROR:')) {
+        showToast('Error reading tree file');
+        return;
+      }
+      if (targetMode === 'basic') {
+        basicDocName = fileName || 'Document.md';
+        basicDocUri = null;
+        basicDocTreeId = docId;
+        basicDocText = text;
+        basicScrollTop = 0;
+        saveLastOpenedBasic(basicDocName, null, docId, text);
+        saveRecentFileForMode('basic', basicDocName, text, null, docId);
+        setAppMode('basic');
+        renderBasicDocument(basicDocText, basicDocName);
+        showToast(`Loaded ${basicDocName} into Basic App`);
+      } else {
+        outlineDocName = fileName || 'Document.md';
+        outlineDocUri = null;
+        outlineDocTreeId = docId;
+        outlineDocText = text;
+        outlineScrollTop = 0;
+        currentDocName = outlineDocName;
+        currentDocUri = null;
+        currentDocTreeId = docId;
+        parse(text);
+        saveLastOpenedOutline(outlineDocName, null, docId, text);
+        saveRecentFileForMode('outline', outlineDocName, text, null, docId);
+        setAppMode('outline');
+        scroller.scrollTop = 0;
+        showToast(`Loaded ${outlineDocName} into Outline App`);
+      }
+      closeDrawer();
+    }
+
+    if (cachedText) {
+      processText(cachedText);
+      return;
+    }
+
+    let text = '';
+    try {
+      if (window.AndroidBridge && window.AndroidBridge.readTreeFile) {
+        text = window.AndroidBridge.readTreeFile(docId);
+        if (text && !text.startsWith('ERROR:')) {
+          processText(text);
+          return;
+        }
+      }
+    } catch(e) {}
+
+    fetch('/api/file?docId=' + encodeURIComponent(docId))
+      .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.text();
+      })
+      .then(t => processText(t))
+      .catch(err => showToast('Could not read: ' + fileName + ' (' + err.message + ')'));
+  }
+
+  function loadRawTextIntoMode(targetMode, text, fileName) {
+    const name = fileName || 'Document.md';
+    if (targetMode === 'basic') {
+      basicDocName = name;
+      basicDocUri = null;
+      basicDocTreeId = null;
+      basicDocText = text;
+      basicScrollTop = 0;
+      saveLastOpenedBasic(name, null, null, text);
+      saveRecentFileForMode('basic', name, text, null, null);
+      if (currentAppMode === 'basic') {
+        docTitle.textContent = name;
+        renderBasicDocument(basicDocText, basicDocName);
+      }
+    } else {
+      outlineDocName = name;
+      outlineDocUri = null;
+      outlineDocTreeId = null;
+      outlineDocText = text;
+      outlineScrollTop = 0;
+      currentDocName = name;
+      currentDocUri = null;
+      currentDocTreeId = null;
+      parse(text);
+      saveLastOpenedOutline(name, null, null, text);
+      saveRecentFileForMode('outline', name, text, null, null);
+      if (currentAppMode === 'outline') {
+        docTitle.textContent = name;
+        scroller.scrollTop = 0;
+        render();
+      }
+    }
+    showToast(`Loaded ${name} into ${targetMode === 'basic' ? 'Basic' : 'Outline'} App`);
+    closeDrawer();
+  }
+
+  // Compatibility wrapper
+  function loadText(text, fileName, uri, docId) {
+    if (uri) {
+      importFileIntoMode(drawerTargetMode || currentAppMode, uri, fileName, text);
+    } else if (docId) {
+      loadTreeFileIntoMode(drawerTargetMode || currentAppMode, docId, fileName, text);
+    } else {
+      loadRawTextIntoMode(drawerTargetMode || currentAppMode, text, fileName);
+    }
+  }
+
+  window.loadTextFromNative = function(text, fileName) {
+    loadRawTextIntoMode(drawerTargetMode || currentAppMode, text, fileName);
+  };
+
+  window.loadFromNativeUri = function(uri, fileName) {
+    importFileIntoMode(drawerTargetMode || currentAppMode, uri, fileName);
   };
 
   // Open single file
@@ -5349,20 +7113,7 @@
   async function loadFileFromTree(docId, name) {
     try {
       showToast(`Opening ${name}...`);
-      let text = '';
-      if (window.AndroidBridge && window.AndroidBridge.readTreeFile) {
-        text = window.AndroidBridge.readTreeFile(docId);
-        if (text.startsWith('ERROR:')) {
-          throw new Error(text);
-        }
-      } else {
-        const res = await fetch('/api/file?docId=' + encodeURIComponent(docId));
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        text = await res.text();
-      }
-      currentDocTreeId = docId;
-      currentDocUri = null;
-      loadText(text, name, null, docId);
+      loadTreeFileIntoMode(drawerTargetMode || currentAppMode, docId, name);
     } catch(e) {
       showToast('Could not read: ' + name + ' (' + e.message + ')');
     }
@@ -5697,16 +7448,25 @@
     }
   });
 
-  // --- Recent Files Storage ---
-  const MAX_RECENTS = 6;
-  let recentFiles = [];
+  // --- Dual-App Recent Files & Persistence Storage ---
+  const MAX_RECENTS = 8;
   try {
-    const raw = localStorage.getItem('mdviewer_recents');
-    if (raw) recentFiles = JSON.parse(raw);
+    const rawBasic = localStorage.getItem('mdviewer_recents_basic');
+    if (rawBasic) recentFilesBasic = JSON.parse(rawBasic);
   } catch(e) {}
 
-  function saveLastOpenedFile(name, uri, docId, text) {
-    if (!name || name === 'Guide.md' || name.includes('Benchmark_')) return;
+  try {
+    const rawOutline = localStorage.getItem('mdviewer_recents_outline');
+    if (rawOutline) {
+      recentFilesOutline = JSON.parse(rawOutline);
+    } else {
+      const legacyRaw = localStorage.getItem('mdviewer_recents');
+      if (legacyRaw) recentFilesOutline = JSON.parse(legacyRaw);
+    }
+  } catch(e) {}
+
+  function saveLastOpenedBasic(name, uri, docId, text) {
+    if (!name || name.includes('Benchmark_')) return;
     try {
       const data = {
         name: name,
@@ -5715,17 +7475,28 @@
         text: (text && text.length < 3000000) ? text : '',
         time: Date.now()
       };
-      localStorage.setItem('mdviewer_last_opened', JSON.stringify(data));
-    } catch(e) {
-      try {
-        localStorage.setItem('mdviewer_last_opened', JSON.stringify({ name, uri: uri || null, docId: docId || null, text: '', time: Date.now() }));
-      } catch(e2) {}
-    }
+      localStorage.setItem('mdviewer_last_opened_basic', JSON.stringify(data));
+    } catch(e) {}
   }
 
-  function restoreLastOpenedFile() {
+  function saveLastOpenedOutline(name, uri, docId, text) {
+    if (!name || name.includes('Benchmark_')) return;
     try {
-      const saved = localStorage.getItem('mdviewer_last_opened');
+      const data = {
+        name: name,
+        uri: uri || null,
+        docId: docId || null,
+        text: (text && text.length < 3000000) ? text : '',
+        time: Date.now()
+      };
+      localStorage.setItem('mdviewer_last_opened_outline', JSON.stringify(data));
+      localStorage.setItem('mdviewer_last_opened', JSON.stringify(data));
+    } catch(e) {}
+  }
+
+  function restoreLastOpenedBasic() {
+    try {
+      const saved = localStorage.getItem('mdviewer_last_opened_basic');
       if (!saved) return false;
       const item = JSON.parse(saved);
       if (!item || !item.name) return false;
@@ -5735,14 +7506,13 @@
         try {
           const content = window.AndroidBridge.readTreeFile(item.docId);
           if (content && !content.startsWith('ERROR:')) {
-            currentDocUri = null;
-            currentDocTreeId = item.docId;
-            loadText(content, item.name, null, item.docId);
+            basicDocName = item.name;
+            basicDocUri = null;
+            basicDocTreeId = item.docId;
+            basicDocText = content;
             return true;
           }
-        } catch(e) {
-          console.warn('Could not read tree file for last opened:', e);
-        }
+        } catch(e) {}
       }
 
       // 2. If we have a native URI and bridge supports reading native file
@@ -5750,66 +7520,153 @@
         try {
           const content = window.AndroidBridge.readNativeFile(item.uri);
           if (content && !content.startsWith('ERROR:')) {
-            currentDocUri = item.uri;
-            currentDocTreeId = null;
-            loadText(content, item.name, item.uri, null);
+            basicDocName = item.name;
+            basicDocUri = item.uri;
+            basicDocTreeId = null;
+            basicDocText = content;
             return true;
           }
-        } catch(e) {
-          console.warn('Could not read native URI for last opened:', e);
-        }
+        } catch(e) {}
       }
 
-      // 3. Fallback to cached text if stored
+      // 3. Fallback to cached text
       if (item.text && item.text.trim().length > 0) {
-        currentDocUri = item.uri || null;
-        currentDocTreeId = item.docId || null;
-        loadText(item.text, item.name, item.uri, item.docId);
+        basicDocName = item.name;
+        basicDocUri = item.uri || null;
+        basicDocTreeId = item.docId || null;
+        basicDocText = item.text;
         return true;
       }
     } catch(e) {
-      console.warn('Failed to restore last opened file:', e);
+      console.warn('Failed to restore last opened basic:', e);
     }
     return false;
   }
 
-  function saveRecentFile(name, text) {
-    if (name.includes('Lines') || name.includes('Guide')) return;
-    recentFiles = recentFiles.filter(f => f.name !== name);
-    recentFiles.unshift({
-      name: name,
-      size: text.length,
-      lines: lines.length,
-      snippet: text.slice(0, 15000),
-      time: Date.now()
-    });
-    if (recentFiles.length > MAX_RECENTS) recentFiles.length = MAX_RECENTS;
+  function restoreLastOpenedOutline() {
     try {
-      localStorage.setItem('mdviewer_recents', JSON.stringify(recentFiles));
-    } catch(e) {}
+      const saved = localStorage.getItem('mdviewer_last_opened_outline') || localStorage.getItem('mdviewer_last_opened');
+      if (!saved) return false;
+      const item = JSON.parse(saved);
+      if (!item || !item.name) return false;
+
+      // 1. If we have a tree docId and bridge supports reading tree file
+      if (item.docId && window.AndroidBridge && window.AndroidBridge.readTreeFile) {
+        try {
+          const content = window.AndroidBridge.readTreeFile(item.docId);
+          if (content && !content.startsWith('ERROR:')) {
+            outlineDocName = item.name;
+            outlineDocUri = null;
+            outlineDocTreeId = item.docId;
+            outlineDocText = content;
+            currentDocName = item.name;
+            currentDocUri = null;
+            currentDocTreeId = item.docId;
+            parse(content);
+            return true;
+          }
+        } catch(e) {}
+      }
+
+      // 2. If we have a native URI and bridge supports reading native file
+      if (item.uri && window.AndroidBridge && window.AndroidBridge.readNativeFile) {
+        try {
+          const content = window.AndroidBridge.readNativeFile(item.uri);
+          if (content && !content.startsWith('ERROR:')) {
+            outlineDocName = item.name;
+            outlineDocUri = item.uri;
+            outlineDocTreeId = null;
+            outlineDocText = content;
+            currentDocName = item.name;
+            currentDocUri = item.uri;
+            currentDocTreeId = null;
+            parse(content);
+            return true;
+          }
+        } catch(e) {}
+      }
+
+      // 3. Fallback to cached text
+      if (item.text && item.text.trim().length > 0) {
+        outlineDocName = item.name;
+        outlineDocUri = item.uri || null;
+        outlineDocTreeId = item.docId || null;
+        outlineDocText = item.text;
+        currentDocName = item.name;
+        currentDocUri = item.uri || null;
+        currentDocTreeId = item.docId || null;
+        parse(item.text);
+        return true;
+      }
+    } catch(e) {
+      console.warn('Failed to restore last opened outline:', e);
+    }
+    return false;
   }
 
-  function updateRecentFilesUI() {
+  function saveRecentFileForMode(mode, name, text, uri = null, docId = null) {
+    if (!name || name.includes('Benchmark_')) return;
+    const targetList = (mode === 'basic') ? recentFilesBasic : recentFilesOutline;
+    const storageKey = (mode === 'basic') ? 'mdviewer_recents_basic' : 'mdviewer_recents_outline';
+
+    const filtered = targetList.filter(f => f.name !== name);
+    filtered.unshift({
+      name: name,
+      size: (text && text.length) || 0,
+      lines: text ? text.split('\n').length : 0,
+      snippet: text ? text.slice(0, 15000) : '',
+      uri: uri || null,
+      docId: docId || null,
+      time: Date.now()
+    });
+    if (filtered.length > MAX_RECENTS) filtered.length = MAX_RECENTS;
+
+    if (mode === 'basic') recentFilesBasic = filtered;
+    else recentFilesOutline = filtered;
+
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(filtered));
+    } catch(e) {}
+    renderRecentFilesForDrawer();
+  }
+
+  function renderRecentFilesForDrawer() {
+    if (!recentFileList) return;
+    const targetMode = drawerTargetMode || currentAppMode;
+    const targetList = (targetMode === 'basic') ? recentFilesBasic : recentFilesOutline;
+
     recentFileList.innerHTML = '';
-    if (recentFiles.length === 0) {
-      recentFileList.innerHTML = '<div style="font-size:11.5px;color:var(--muted);padding:4px 0;">No recent files yet.</div>';
+    if (!targetList || targetList.length === 0) {
+      recentFileList.innerHTML = `<div style="font-size:11.5px;color:var(--muted);padding:6px 0;">No recent files in ${targetMode === 'basic' ? 'Basic App' : 'Outline App'} yet.</div>`;
       return;
     }
-    for (const item of recentFiles) {
+
+    for (const item of targetList) {
       const el = document.createElement('div');
       el.className = 'file-item';
+      const icon = (targetMode === 'basic') ? '📖' : '📑';
       el.innerHTML = `
-        <span class="f-icon">📄</span>
+        <span class="f-icon">${icon}</span>
         <div class="f-meta">
           <div class="f-name">${escapeHtml(item.name)}</div>
-          <div class="f-sub">${item.lines.toLocaleString()} lines</div>
+          <div class="f-sub">${item.lines ? item.lines.toLocaleString() + ' lines' : (item.size ? Math.round(item.size / 1024) + ' KB' : 'Recent file')}</div>
         </div>
       `;
       el.addEventListener('click', () => {
-        if (item.snippet) loadText(item.snippet, item.name);
+        if (item.uri) {
+          importFileIntoMode(targetMode, item.uri, item.name, item.snippet);
+        } else if (item.docId) {
+          loadTreeFileIntoMode(targetMode, item.docId, item.name, item.snippet);
+        } else if (item.snippet) {
+          loadRawTextIntoMode(targetMode, item.snippet, item.name);
+        }
       });
       recentFileList.appendChild(el);
     }
+  }
+
+  function updateRecentFilesUI() {
+    renderRecentFilesForDrawer();
   }
 
   // --- Benchmark / Sample Files Generator ---
@@ -5865,18 +7722,21 @@
 
   // --- Share & Copy ---
   document.getElementById('btnCopyDoc').addEventListener('click', () => {
+    const textToCopy = (currentAppMode === 'basic') ? basicDocText : rawDocText;
     if (window.AndroidBridge && window.AndroidBridge.copyToClipboard) {
-      window.AndroidBridge.copyToClipboard(rawDocText);
+      window.AndroidBridge.copyToClipboard(textToCopy);
     } else {
-      navigator.clipboard.writeText(rawDocText)
+      navigator.clipboard.writeText(textToCopy)
         .then(() => showToast('Copied to clipboard'))
         .catch(() => showToast('Failed to copy'));
     }
   });
 
   document.getElementById('btnShareDoc').addEventListener('click', () => {
+    const textToShare = (currentAppMode === 'basic') ? basicDocText : rawDocText;
+    const nameToShare = (currentAppMode === 'basic') ? basicDocName : currentDocName;
     if (window.AndroidBridge && window.AndroidBridge.shareText) {
-      window.AndroidBridge.shareText(rawDocText, currentDocName);
+      window.AndroidBridge.shareText(textToShare, nameToShare);
     } else {
       showToast('Sharing not available in browser mode');
     }
@@ -5932,20 +7792,47 @@
   // --- Initial Load ---
   updateHoverButtonUI();
 
-  if (!restoreLastOpenedFile()) {
+  const basicRestored = restoreLastOpenedBasic();
+  const outlineRestored = restoreLastOpenedOutline();
+
+  if (!basicRestored || !outlineRestored) {
     fetch('guide.md')
       .then(r => {
         if (r.ok) return r.text();
         throw new Error();
       })
       .then(text => {
-        loadText(text, 'Guide.md');
+        if (!basicRestored) {
+          basicDocName = 'Guide.md';
+          basicDocText = text;
+        }
+        if (!outlineRestored) {
+          outlineDocName = 'Guide.md';
+          outlineDocText = text;
+          currentDocName = 'Guide.md';
+          parse(text);
+        }
+        setAppMode(currentAppMode);
       })
       .catch(() => {
-        loadText('# MD Viewer\n\nWelcome! Swipe from left to right to open file manager.', 'Guide.md');
+        const fallbackText = '# MD Viewer\n\nWelcome! Swipe from left to right to open file manager.';
+        if (!basicRestored) {
+          basicDocName = 'Guide.md';
+          basicDocText = fallbackText;
+        }
+        if (!outlineRestored) {
+          outlineDocName = 'Guide.md';
+          outlineDocText = fallbackText;
+          currentDocName = 'Guide.md';
+          parse(fallbackText);
+        }
+        setAppMode(currentAppMode);
       });
+  } else {
+    setAppMode(currentAppMode);
   }
 
+  applyBasicZoom();
   applyZoom();
 
   // Check for updates automatically in background after a short delay
