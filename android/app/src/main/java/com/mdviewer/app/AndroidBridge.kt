@@ -85,6 +85,21 @@ class AndroidBridge(
     }
 
     @JavascriptInterface
+    fun downloadUpdateOnly(apkUrl: String?, versionName: String?) {
+        activity.downloadUpdateOnly(apkUrl ?: "", versionName ?: "")
+    }
+
+    @JavascriptInterface
+    fun installDownloadedUpdate() {
+        activity.installDownloadedApk()
+    }
+
+    @JavascriptInterface
+    fun isUpdateReadyToInstall(): Boolean {
+        return activity.isUpdateDownloaded()
+    }
+
+    @JavascriptInterface
     fun downloadAndInstall(apkUrl: String?, versionName: String?) {
         activity.downloadAndInstallApk(apkUrl ?: "", versionName ?: "")
     }
@@ -106,7 +121,12 @@ class AndroidBridge(
 
     @JavascriptInterface
     fun getAppVersion(): String {
-        return "1.2.0"
+        return try {
+            val pInfo = activity.packageManager.getPackageInfo(activity.packageName, 0)
+            pInfo.versionName ?: "1.3.2"
+        } catch (e: Exception) {
+            "1.3.2"
+        }
     }
 
     @JavascriptInterface

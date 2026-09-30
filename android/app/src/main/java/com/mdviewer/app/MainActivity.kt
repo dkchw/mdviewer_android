@@ -747,7 +747,10 @@ class MainActivity : Activity() {
         }
     }
 
-    fun downloadAndInstallApk(apkUrl: String, versionName: String) {
+    private var lastDownloadedApkUri: Uri? = null
+    private var currentDownloadId: Long = -1L
+
+    fun downloadUpdateOnly(apkUrl: String, versionName: String) {
         runOnUiThread {
             try {
                 Toast.makeText(this, "Downloading MD Viewer update v$versionName...", Toast.LENGTH_SHORT).show()
@@ -775,7 +778,8 @@ class MainActivity : Activity() {
                 }
 
                 val downloadId = dm.enqueue(request)
-                Toast.makeText(this, "Downloading update in background... Check status bar when finished.", Toast.LENGTH_LONG).show()
+                currentDownloadId = downloadId
+                Toast.makeText(this, "Downloading update in background... Check status bar.", Toast.LENGTH_SHORT).show()
 
                 val receiver = object : BroadcastReceiver() {
                     override fun onReceive(context: Context?, intent: Intent?) {
@@ -789,10 +793,10 @@ class MainActivity : Activity() {
                                 val manager = getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager
                                 val fileUri = manager?.getUriForDownloadedFile(downloadId)
                                 if (fileUri != null) {
-                                    installApk(fileUri)
-                                } else {
-                                    Toast.makeText(this@MainActivity, "Update download finished! Tap notification in status bar to install.", Toast.LENGTH_LONG).show()
+                                    lastDownloadedApkUri = fileUri
                                 }
+                                Toast.makeText(this@MainActivity, "Download complete! Tap 'Install' in the app or notification to install.", Toast.LENGTH_LONG).show()
+                                mWebView?.evaluateJavascript("if (typeof window.onUpdateDownloadComplete === 'function') { window.onUpdateDownloadComplete('$versionName'); }", null)
                             }
                         }
                     }
@@ -811,6 +815,44 @@ class MainActivity : Activity() {
                 openWebUrl(apkUrl)
             }
         }
+    }
+
+    fun installDownloadedApk() {
+        runOnUiThread {
+            val uri = lastDownloadedApkUri ?: run {
+                if (currentDownloadId != -1L) {
+                    val dm = getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager
+                    dm?.getUriForDownloadedFile(currentDownloadId)
+                } else null
+            }
+
+            if (uri != null) {
+                installApk(uri)
+            } else {
+                Toast.makeText(this, "No downloaded update found. Opening Downloads...", Toast.LENGTH_SHORT).show()
+                try {
+                    val dmIntent = Intent(DownloadManager.ACTION_VIEW_DOWNLOADS).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    startActivity(dmIntent)
+                } catch (e: Exception) {
+                    Toast.makeText(this, "Please download the update first.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    fun isUpdateDownloaded(): Boolean {
+        if (lastDownloadedApkUri != null) return true
+        if (currentDownloadId != -1L) {
+            val dm = getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager
+            return dm?.getUriForDownloadedFile(currentDownloadId) != null
+        }
+        return false
+    }
+
+    fun downloadAndInstallApk(apkUrl: String, versionName: String) {
+        downloadUpdateOnly(apkUrl, versionName)
     }
 
     private fun installApk(uri: Uri) {

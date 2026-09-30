@@ -1421,6 +1421,34 @@
     font-size: 12.5px;
     cursor: pointer;
   }
+  .upd-btn-primary.upd-btn-install {
+    background: linear-gradient(135deg, #73daca, #2ac3de) !important;
+    color: #15161e !important;
+    box-shadow: 0 4px 15px rgba(115, 218, 202, 0.35);
+  }
+  .upd-btn-primary.upd-btn-install:active {
+    transform: scale(0.98);
+  }
+  .update-status-msg {
+    font-size: 12px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: rgba(122, 162, 247, 0.12);
+    border: 1px solid rgba(122, 162, 247, 0.3);
+    color: #7aa2f7;
+    line-height: 1.4;
+  }
+  .update-spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(122, 162, 247, 0.3);
+    border-top-color: #7aa2f7;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: -2px;
+    margin-right: 6px;
+  }
 
   /* --- Settings Modal --- */
   #settingsBackdrop {
@@ -3278,6 +3306,138 @@
     }
   }
 
+  /* Delete Button & Confirmation Modal */
+  .pocket-delete-header-btn {
+    color: #f7768e !important;
+    background: rgba(247, 118, 142, 0.12) !important;
+    border: 1px solid rgba(247, 118, 142, 0.3) !important;
+    border-radius: 15px !important;
+    font-size: 13px !important;
+    padding: 0 10px !important;
+    height: 30px !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .pocket-delete-header-btn:hover,
+  .pocket-delete-header-btn:active {
+    background: #f7768e !important;
+    color: #1a1b26 !important;
+    border-color: #f7768e !important;
+    transform: scale(1.06);
+    box-shadow: 0 0 10px rgba(247, 118, 142, 0.4);
+  }
+
+  .pocket-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .pocket-card-del-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: rgba(247, 118, 142, 0.12);
+    border: 1px solid rgba(247, 118, 142, 0.25);
+    color: #f7768e;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    padding: 0;
+    line-height: 1;
+  }
+  .pocket-card-del-btn:hover,
+  .pocket-card-del-btn:active {
+    background: #f7768e;
+    color: #1a1b26;
+    border-color: #f7768e;
+    transform: scale(1.12);
+    box-shadow: 0 2px 8px rgba(247, 118, 142, 0.4);
+  }
+
+  .pocket-delete-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .pocket-delete-card {
+    background: #1f2335;
+    border: 1px solid rgba(247, 118, 142, 0.4);
+    border-radius: 16px;
+    padding: 22px 20px;
+    max-width: 330px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+    animation: popUp 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .pocket-delete-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+  .pocket-delete-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #f7768e;
+    margin-bottom: 8px;
+  }
+  .pocket-delete-desc {
+    font-size: 13px;
+    color: #a9b1d6;
+    line-height: 1.45;
+    margin-bottom: 20px;
+  }
+  .pocket-delete-desc b {
+    color: var(--fg);
+    word-break: break-word;
+  }
+  .pocket-delete-actions {
+    display: flex;
+    gap: 10px;
+  }
+  .pocket-delete-cancel-btn {
+    flex: 1;
+    height: 38px;
+    border-radius: 10px;
+    background: #24283b;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .pocket-delete-cancel-btn:hover, .pocket-delete-cancel-btn:active {
+    background: #2c3049;
+  }
+  .pocket-delete-confirm-btn {
+    flex: 1;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f7768e, #db4b4b);
+    border: none;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(247, 118, 142, 0.35);
+    transition: all 0.15s ease;
+  }
+  .pocket-delete-confirm-btn:hover, .pocket-delete-confirm-btn:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 6px rgba(247, 118, 142, 0.5);
+  }
+
   #hiddenFileInput { display: none; }
 </style>
 </head>
@@ -3301,6 +3461,7 @@
       <button id="btnPocketSplitToggle" class="pocket-split-header-btn" style="display:none;" title="Toggle Split Screen"><span>◫</span><span>Split</span></button>
       <button id="btnHeaderBasicSubMode" class="header-btn pill-btn" title="Toggle Edit / Read Mode">✍️ Edit</button>
       <button id="btnBasicToggleSearch" class="header-btn" title="Search in Document">🔍</button>
+      <button id="btnHeaderBasicDelete" class="header-btn pocket-delete-header-btn" style="display:none;" title="Delete this Note">🗑️</button>
     </div>
     <!-- Outline Viewer Header Actions -->
     <div id="outlineHeaderActions" class="header-actions-group" style="display:none;">
@@ -4351,10 +4512,26 @@
     </div>
     <div class="update-changelog-title">Changelog:</div>
     <div class="update-changelog" id="updateChangelog"></div>
+    <div id="updateStatusMsg" class="update-status-msg" style="display:none;"></div>
   </div>
   <div class="update-footer">
     <button id="btnLaterUpdate" class="upd-btn-secondary">Later</button>
-    <button id="btnInstallUpdate" class="upd-btn-primary">Download & Install</button>
+    <button id="btnInstallUpdate" class="upd-btn-primary">⬇️ Download Update</button>
+  </div>
+</div>
+
+<!-- Custom Pocket Note Delete Confirmation Modal -->
+<div id="pocketDeleteModal" class="pocket-delete-modal" style="display:none;">
+  <div class="pocket-delete-card">
+    <div class="pocket-delete-icon">🗑️</div>
+    <div class="pocket-delete-title">Delete Note?</div>
+    <div class="pocket-delete-desc">
+      Are you sure you want to delete <b id="pocketDeleteNoteTitle">"Untitled"</b>? This action cannot be undone.
+    </div>
+    <div class="pocket-delete-actions">
+      <button id="btnCancelDeleteNote" class="pocket-delete-cancel-btn">Cancel</button>
+      <button id="btnConfirmDeleteNote" class="pocket-delete-confirm-btn">Delete Note</button>
+    </div>
   </div>
 </div>
 
@@ -4382,7 +4559,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '1.3.1';
+      window.AndroidBridge.getAppVersion() : '1.3.2';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -4476,6 +4653,7 @@
   const btnHeaderBasicSubMode = document.getElementById('btnHeaderBasicSubMode');
   const btnHeaderBasicNew = document.getElementById('btnHeaderBasicNew');
   const btnBasicToggleSearch = document.getElementById('btnBasicToggleSearch');
+  const btnHeaderBasicDelete = document.getElementById('btnHeaderBasicDelete');
 
   // Basic Editor Elements
   const basicEditorContainer = document.getElementById('basicEditorContainer');
@@ -4645,6 +4823,13 @@
   const updateNewVersion = document.getElementById('updateNewVersion');
   const updateCurrentVersion = document.getElementById('updateCurrentVersion');
   const updateChangelog = document.getElementById('updateChangelog');
+  const updateStatusMsg = document.getElementById('updateStatusMsg');
+
+  // Pocket Note Delete Confirmation Modal elements
+  const pocketDeleteModal = document.getElementById('pocketDeleteModal');
+  const pocketDeleteNoteTitle = document.getElementById('pocketDeleteNoteTitle');
+  const btnCancelDeleteNote = document.getElementById('btnCancelDeleteNote');
+  const btnConfirmDeleteNote = document.getElementById('btnConfirmDeleteNote');
 
   // Options Modal (Levels & Zoom)
   const optionsModal = document.getElementById('optionsModal');
@@ -6328,7 +6513,7 @@
       if (delBtn) {
         delBtn.addEventListener('click', (e) => {
           e.stopPropagation();
-          deletePocketNote(note.id);
+          confirmDeletePocketNote(note.id);
         });
       }
 
@@ -6359,6 +6544,7 @@
     if (btnPocketSplitToggle) btnPocketSplitToggle.style.display = 'none';
     if (btnHeaderBasicSubMode) btnHeaderBasicSubMode.style.display = 'none';
     if (btnHeaderBasicNew) btnHeaderBasicNew.style.display = 'inline-flex';
+    if (btnHeaderBasicDelete) btnHeaderBasicDelete.style.display = 'none';
     if (pocketColorModal) pocketColorModal.classList.remove('open');
 
     if (docTitle) docTitle.textContent = 'Pocket Notes';
@@ -6406,6 +6592,7 @@
     }
     if (btnHeaderBasicSubMode) btnHeaderBasicSubMode.style.display = 'inline-flex';
     if (btnHeaderBasicNew) btnHeaderBasicNew.style.display = 'inline-flex';
+    if (btnHeaderBasicDelete) btnHeaderBasicDelete.style.display = 'inline-flex';
 
     basicDocName = (note.title || 'Untitled') + '.md';
     basicDocText = note.content || '';
@@ -6480,19 +6667,44 @@
     showToast('New note created ✓');
   }
 
+  let pendingDeleteNoteId = null;
+
+  function confirmDeletePocketNote(noteId) {
+    const note = pocketNotes.find(n => n.id === noteId);
+    if (!note) return;
+    pendingDeleteNoteId = noteId;
+    if (pocketDeleteNoteTitle) {
+      pocketDeleteNoteTitle.textContent = `"${note.title || 'Untitled'}"`;
+    }
+    if (pocketDeleteModal) {
+      pocketDeleteModal.style.display = 'flex';
+    }
+  }
+
+  function hidePocketDeleteModal() {
+    pendingDeleteNoteId = null;
+    if (pocketDeleteModal) {
+      pocketDeleteModal.style.display = 'none';
+    }
+  }
+
+  function executeDeletePocketNote() {
+    if (!pendingDeleteNoteId) return;
+    const noteId = pendingDeleteNoteId;
+    hidePocketDeleteModal();
+    deletePocketNote(noteId);
+  }
+
   function deletePocketNote(noteId) {
     const note = pocketNotes.find(n => n.id === noteId);
     const title = note ? note.title : 'this note';
-    if (!confirm(`Are you sure you want to delete "${title}"?`)) {
-      return;
-    }
 
     pocketNotes = pocketNotes.filter(n => n.id !== noteId);
     openPocketTabIds = openPocketTabIds.filter(id => id !== noteId);
     savePocketNotes();
     savePocketTabs();
 
-    showToast(`Deleted "${title}"`);
+    showToast(`Deleted "${title}" ✓`);
 
     if (pocketNotes.length === 0) {
       createPocketNote();
@@ -6501,7 +6713,11 @@
 
     if (currentPocketView === 'editor') {
       if (currentPocketNoteId === noteId) {
-        openPocketNote(openPocketTabIds[0] || pocketNotes[0].id);
+        if (openPocketTabIds.length > 0) {
+          openPocketNote(openPocketTabIds[openPocketTabIds.length - 1]);
+        } else {
+          openPocketShelf();
+        }
       } else {
         renderPocketTabs();
       }
@@ -6764,6 +6980,28 @@
       } else {
         clearSearch();
       }
+    });
+  }
+
+  if (btnHeaderBasicDelete) {
+    btnHeaderBasicDelete.addEventListener('click', () => {
+      if (currentPocketNoteId) {
+        confirmDeletePocketNote(currentPocketNoteId);
+      }
+    });
+  }
+
+  if (btnCancelDeleteNote) {
+    btnCancelDeleteNote.addEventListener('click', hidePocketDeleteModal);
+  }
+
+  if (btnConfirmDeleteNote) {
+    btnConfirmDeleteNote.addEventListener('click', executeDeletePocketNote);
+  }
+
+  if (pocketDeleteModal) {
+    pocketDeleteModal.addEventListener('click', (e) => {
+      if (e.target === pocketDeleteModal) hidePocketDeleteModal();
     });
   }
 
@@ -9732,9 +9970,17 @@
     return 0;
   }
 
+  let updateState = 'initial'; // 'initial' | 'downloading' | 'downloaded'
+
+  function getActiveAppVersion() {
+    return (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
+        window.AndroidBridge.getAppVersion() : CURRENT_APP_VERSION;
+  }
+
   async function checkForUpdates(manual = false) {
     if (manual) showToast('Checking for updates...');
     try {
+      const activeVer = getActiveAppVersion();
       let releaseData = null;
       if (window.AndroidBridge && window.AndroidBridge.checkLatestRelease) {
         const raw = window.AndroidBridge.checkLatestRelease();
@@ -9756,21 +10002,16 @@
       }
 
       if (!releaseData || !releaseData.tag_name) {
-        if (manual) showToast(`You are on the latest version (v${CURRENT_APP_VERSION})`);
+        if (manual) showToast(`You are on the latest version (v${activeVer})`);
         return;
       }
 
       const latestTag = releaseData.tag_name;
-      if (compareVersions(latestTag, CURRENT_APP_VERSION) > 0) {
+      if (compareVersions(latestTag, activeVer) > 0) {
         pendingReleaseData = releaseData;
-        if (controlsConfig.autoDownloadUpdate !== false && !manual) {
-          showToast(`Update ${latestTag} available! Auto-downloading & installing...`);
-          triggerUpdateInstall();
-        } else {
-          showUpdateDialog(releaseData);
-        }
+        showUpdateDialog(releaseData);
       } else {
-        if (manual) showToast(`You are on the latest version (v${CURRENT_APP_VERSION})`);
+        if (manual) showToast(`You are on the latest version (v${activeVer})`);
       }
     } catch(e) {
       if (manual) showToast('Could not check updates: ' + e.message);
@@ -9779,9 +10020,39 @@
 
   function showUpdateDialog(releaseData) {
     closeSettings();
+    pendingReleaseData = releaseData;
+    const activeVer = getActiveAppVersion();
     updateNewVersion.textContent = releaseData.tag_name;
-    updateCurrentVersion.textContent = `Current: v${CURRENT_APP_VERSION}`;
+    updateCurrentVersion.textContent = `Current: v${activeVer}`;
     updateChangelog.textContent = releaseData.body || 'No release notes provided.';
+
+    // Check if APK is already downloaded and ready to install
+    const isReady = (window.AndroidBridge && window.AndroidBridge.isUpdateReadyToInstall) ?
+        window.AndroidBridge.isUpdateReadyToInstall() : false;
+
+    if (isReady) {
+      updateState = 'downloaded';
+      if (btnInstallUpdate) {
+        btnInstallUpdate.textContent = '🚀 Install Update';
+        btnInstallUpdate.className = 'upd-btn-primary upd-btn-install';
+        btnInstallUpdate.disabled = false;
+      }
+      if (updateStatusMsg) {
+        updateStatusMsg.style.display = 'block';
+        updateStatusMsg.innerHTML = '✅ Update package is downloaded and ready to install.';
+      }
+    } else {
+      updateState = 'initial';
+      if (btnInstallUpdate) {
+        btnInstallUpdate.textContent = '⬇️ Download Update';
+        btnInstallUpdate.className = 'upd-btn-primary';
+        btnInstallUpdate.disabled = false;
+      }
+      if (updateStatusMsg) {
+        updateStatusMsg.style.display = 'none';
+      }
+    }
+
     updateModal.style.display = 'flex';
     updateBackdrop.style.display = 'block';
   }
@@ -9791,32 +10062,69 @@
     updateBackdrop.style.display = 'none';
   }
 
-  function triggerUpdateInstall() {
+  function handleUpdateAction() {
     if (!pendingReleaseData) return;
-    let apkAsset = null;
-    if (pendingReleaseData.assets && pendingReleaseData.assets.length) {
-      apkAsset = pendingReleaseData.assets.find(a => a.name && a.name.endsWith('.apk'));
-    }
 
-    const apkUrl = apkAsset ? apkAsset.browser_download_url : pendingReleaseData.html_url;
-    const vName = pendingReleaseData.tag_name.replace(/^v/, '');
+    if (updateState === 'initial') {
+      let apkAsset = null;
+      if (pendingReleaseData.assets && pendingReleaseData.assets.length) {
+        apkAsset = pendingReleaseData.assets.find(a => a.name && a.name.endsWith('.apk'));
+      }
 
-    if (apkAsset && window.AndroidBridge && window.AndroidBridge.downloadAndInstall) {
-      showToast(`Downloading update v${vName} & installing...`);
-      window.AndroidBridge.downloadAndInstall(apkUrl, vName);
-    } else if (window.AndroidBridge && window.AndroidBridge.openExternalUrl) {
-      window.AndroidBridge.openExternalUrl(pendingReleaseData.html_url);
-    } else {
-      window.open(pendingReleaseData.html_url, '_blank');
+      const apkUrl = apkAsset ? apkAsset.browser_download_url : pendingReleaseData.html_url;
+      const vName = pendingReleaseData.tag_name.replace(/^v/, '');
+
+      updateState = 'downloading';
+      if (btnInstallUpdate) {
+        btnInstallUpdate.textContent = '⏳ Downloading...';
+        btnInstallUpdate.disabled = true;
+      }
+      if (updateStatusMsg) {
+        updateStatusMsg.style.display = 'block';
+        updateStatusMsg.innerHTML = '<span class="update-spinner"></span> Downloading update in background... Check status bar for progress.';
+      }
+
+      if (apkAsset && window.AndroidBridge && window.AndroidBridge.downloadUpdateOnly) {
+        window.AndroidBridge.downloadUpdateOnly(apkUrl, vName);
+      } else if (window.AndroidBridge && window.AndroidBridge.openExternalUrl) {
+        window.AndroidBridge.openExternalUrl(pendingReleaseData.html_url);
+        hideUpdateDialog();
+      } else {
+        window.open(pendingReleaseData.html_url, '_blank');
+        hideUpdateDialog();
+      }
+    } else if (updateState === 'downloaded') {
+      if (window.AndroidBridge && window.AndroidBridge.installDownloadedUpdate) {
+        window.AndroidBridge.installDownloadedUpdate();
+      } else {
+        showToast('Please tap the downloaded APK in the status bar to install.');
+      }
+      hideUpdateDialog();
     }
-    hideUpdateDialog();
   }
+
+  // Global callback from Android Bridge when download finishes
+  window.onUpdateDownloadComplete = function(versionName) {
+    updateState = 'downloaded';
+    if (btnInstallUpdate) {
+      btnInstallUpdate.textContent = '🚀 Install Update';
+      btnInstallUpdate.className = 'upd-btn-primary upd-btn-install';
+      btnInstallUpdate.disabled = false;
+    }
+    if (updateStatusMsg) {
+      updateStatusMsg.style.display = 'block';
+      updateStatusMsg.innerHTML = '✅ Download complete! Tap below to install.';
+    }
+    if (updateModal.style.display !== 'flex') {
+      showToast(`MD Viewer v${versionName} downloaded! Open update dialog to install.`);
+    }
+  };
 
   btnCloseUpdate.addEventListener('click', hideUpdateDialog);
   btnLaterUpdate.addEventListener('click', hideUpdateDialog);
   updateBackdrop.addEventListener('click', hideUpdateDialog);
 
-  btnInstallUpdate.addEventListener('click', triggerUpdateInstall);
+  btnInstallUpdate.addEventListener('click', handleUpdateAction);
 
   btnCheckUpdateDrawer.addEventListener('click', () => {
     checkForUpdates(true);
@@ -10135,6 +10443,10 @@
     }
     if (pocketColorModal && pocketColorModal.classList.contains('open')) {
       pocketColorModal.classList.remove('open');
+      return true;
+    }
+    if (pocketDeleteModal && pocketDeleteModal.style.display === 'flex') {
+      hidePocketDeleteModal();
       return true;
     }
     if (currentAppMode === 'basic' && pocketSplitActive) {
