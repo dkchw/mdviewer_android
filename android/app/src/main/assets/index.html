@@ -2835,25 +2835,37 @@
     position: relative;
   }
 
-  /* Horizontal Note Switcher Tab Strip */
-  .pocket-tab-strip {
-    background: #14151f;
+  /* =========================================================================
+     POCKETMARK TAB BAR & QUICK SWITCHER STRIP
+     ========================================================================= */
+  .pocket-tab-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: #141522;
     border-bottom: 1px solid var(--border);
-    padding: 6px 10px;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .pocket-tab-strip {
     display: flex;
     align-items: center;
     gap: 6px;
     overflow-x: auto;
-    flex-shrink: 0;
+    flex: 1;
+    min-width: 0;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    padding-right: 4px;
   }
   .pocket-tab-strip::-webkit-scrollbar { display: none; }
   .pocket-tab {
-    background: #1a1b26;
+    background: #1c1e2e;
     border: 1.5px solid var(--border);
     color: var(--muted);
-    padding: 4px 10px 4px 8px;
+    padding: 4px 6px 4px 10px;
     border-radius: 16px;
     font-size: 12px;
     font-weight: 600;
@@ -2862,108 +2874,175 @@
     gap: 6px;
     cursor: pointer;
     white-space: nowrap;
-    max-width: 160px;
-    transition: all 0.12s ease;
+    max-width: 170px;
+    height: 32px;
+    box-sizing: border-box;
+    transition: all 0.15s ease;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
   }
-  .pocket-tab:active {
-    background: #24283b;
+  .pocket-tab:hover {
+    background: #222538;
+    color: var(--fg);
   }
   .pocket-tab.active {
     background: #24283b;
     border-color: var(--tab-color, #7aa2f7);
     color: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.4);
   }
   .pocket-tab-dot {
     width: 8px;
     height: 8px;
+    min-width: 8px;
     border-radius: 50%;
     background: var(--tab-color, #7aa2f7);
     flex-shrink: 0;
+    box-shadow: 0 0 6px var(--tab-color, #7aa2f7);
   }
   .pocket-tab-title {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    max-width: 105px;
+    font-size: 12px;
+    font-weight: 600;
   }
   .pocket-tab-close {
-    font-size: 13px;
-    opacity: 0.6;
-    margin-left: 2px;
-    cursor: pointer;
-    padding: 0 2px;
-  }
-  .pocket-tab-close:active {
-    opacity: 1;
-    color: #f7768e;
-  }
-  .pocket-tab-new-btn {
-    background: #1f2335;
-    border: 1.5px dashed var(--border);
-    color: #7aa2f7;
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
     border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: var(--muted);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 0;
+    line-height: 1;
+    margin-left: 2px;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+  }
+  .pocket-tab-close:hover,
+  .pocket-tab-close:active {
+    background: #f7768e !important;
+    color: #14151f !important;
+    transform: scale(1.15);
+  }
+  .pocket-tab.active .pocket-tab-close {
+    background: rgba(255, 255, 255, 0.14);
+    color: var(--fg);
+  }
+  .pocket-tab-new-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, rgba(122, 162, 247, 0.22), rgba(187, 154, 247, 0.22));
+    border: 1px solid rgba(122, 162, 247, 0.5);
+    color: #7aa2f7;
+    padding: 0 13px;
+    height: 32px;
+    border-radius: 16px;
+    font-size: 12px;
     font-weight: 700;
     cursor: pointer;
+    white-space: nowrap;
     flex-shrink: 0;
-    transition: all 0.12s ease;
+    box-shadow: 0 2px 8px rgba(122, 162, 247, 0.18);
+    transition: all 0.15s ease;
   }
-  .pocket-tab-new-btn:active {
-    background: #7aa2f7;
-    color: #16161e;
-    transform: scale(0.92);
+  .pocket-tab-new-action-btn:hover {
+    background: linear-gradient(135deg, rgba(122, 162, 247, 0.35), rgba(187, 154, 247, 0.35));
+    border-color: #7aa2f7;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(122, 162, 247, 0.3);
+  }
+  .pocket-tab-new-action-btn:active {
+    transform: scale(0.95);
+  }
+  .pocket-tab-new-icon {
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .pocket-tab-new-text {
+    font-size: 11.5px;
+    letter-spacing: 0.2px;
   }
 
   /* Header inside Pocket Note Editor */
-  .pocket-editor-nav {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex: 1;
-    min-width: 0;
-  }
   .pocket-back-shelf-btn {
-    background: #24283b;
+    background: #1f2335;
     border: 1px solid var(--border);
     color: #7aa2f7;
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 700;
-    padding: 4px 8px;
-    border-radius: 6px;
+    padding: 4px 10px;
+    border-radius: 15px;
     display: inline-flex;
     align-items: center;
     gap: 4px;
     cursor: pointer;
     flex-shrink: 0;
-    height: 28px;
+    height: 30px;
+    transition: all 0.15s ease;
+  }
+  .pocket-back-shelf-btn:hover {
+    background: #24283b;
+    border-color: #7aa2f7;
   }
   .pocket-back-shelf-btn:active {
-    background: #7aa2f7;
-    color: #16161e;
+    transform: scale(0.95);
   }
   .pocket-note-color-btn {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     background: var(--current-note-color, #7aa2f7);
     border: 2px solid #fff;
     cursor: pointer;
     flex-shrink: 0;
     box-shadow: 0 0 6px var(--current-note-color, #7aa2f7);
+    transition: transform 0.15s ease;
+  }
+  .pocket-note-color-btn:active {
+    transform: scale(1.15);
+  }
+
+  .pocket-split-header-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 4px 10px;
+    height: 30px;
+    border-radius: 15px;
+    background: #1f2335;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .pocket-split-header-btn.active {
+    background: rgba(122, 162, 247, 0.22);
+    border-color: #7aa2f7;
+    color: #7aa2f7;
+    box-shadow: 0 0 10px rgba(122, 162, 247, 0.25);
   }
 
   /* Color Palette Dropdown Modal */
   #pocketColorModal {
     position: fixed;
     top: 54px;
-    right: 60px;
+    right: 50px;
     background: #1f2335;
     border: 1px solid var(--border);
     border-radius: 14px;
@@ -2989,19 +3068,103 @@
   .pocket-color-swatch:active { transform: scale(1.15); }
   .pocket-color-swatch.active { border-color: #fff; transform: scale(1.1); }
 
-  /* Split View Container (PocketMark 1.5.0) */
+  /* =========================================================================
+     DEDICATED SPLIT SCREEN CONTAINER
+     Live Preview & Dual-Note Side-by-Side Comparison
+     ========================================================================= */
   #pocketSplitContainer {
     display: none;
+    flex-direction: column;
     flex: 1 1 auto;
     width: 100%;
     height: 100%;
     overflow: hidden;
     position: relative;
-    background: var(--bg);
+    background: #14151f;
   }
-  .pocket-split-active #docContentWrap { display: none !important; }
-  .pocket-split-active #pocketSplitContainer { display: flex !important; flex-direction: column; }
-
+  .pocket-split-toolbar {
+    height: 40px;
+    padding: 0 12px;
+    background: #161726;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .pocket-split-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--fg);
+  }
+  .pocket-split-icon {
+    font-size: 14px;
+    color: #7aa2f7;
+  }
+  .pocket-split-badge {
+    background: #1f2335;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .pocket-split-mode-selector {
+    display: flex;
+    background: #10111a;
+    padding: 2px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    gap: 2px;
+  }
+  .pocket-split-mode-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    white-space: nowrap;
+  }
+  .pocket-split-mode-btn.active {
+    background: #24283b;
+    color: #7aa2f7;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+  .pocket-split-close-btn {
+    background: rgba(247, 118, 142, 0.12);
+    border: 1px solid rgba(247, 118, 142, 0.35);
+    color: #f7768e;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .pocket-split-close-btn:hover {
+    background: #f7768e;
+    color: #14151f;
+  }
+  .pocket-split-panes-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+  }
   .pocket-split-pane {
     flex: 1;
     display: flex;
@@ -3009,11 +3172,71 @@
     min-height: 0;
     min-width: 0;
     position: relative;
-    border-bottom: 2px solid var(--border);
+    background: var(--bg);
+    overflow: hidden;
+  }
+  .pocket-split-pane-header {
+    height: 34px;
+    padding: 0 12px;
+    background: #181926;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .pocket-split-pane-title-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+  .pocket-split-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #7aa2f7;
+    flex-shrink: 0;
+  }
+  .pocket-split-pane-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--fg);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+  }
+  .pocket-pane-tool-btn {
+    background: #1f2335;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .pocket-pane-tool-btn:hover {
+    background: #24283b;
+    border-color: #7aa2f7;
+    color: #7aa2f7;
+  }
+  .pocket-split-select {
+    background: #1f2335;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    outline: none;
+    max-width: 150px;
   }
   .pocket-split-divider {
     height: 6px;
-    background: #14151f;
+    background: #12131d;
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     display: flex;
@@ -3022,44 +3245,36 @@
     cursor: row-resize;
     flex-shrink: 0;
   }
-  .pocket-split-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 6px 12px;
-    background: #191b29;
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-  .pocket-split-select {
-    background: #24283b;
-    border: 1px solid var(--border);
-    color: var(--fg);
-    border-radius: 6px;
-    padding: 3px 8px;
-    font-size: 11.5px;
-    font-weight: 600;
-    outline: none;
-    max-width: 180px;
+  .pocket-split-divider-handle {
+    width: 32px;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--muted);
+    opacity: 0.4;
   }
   .pocket-split-body {
     flex: 1;
     overflow-y: auto;
-    padding: 12px 16px;
+    padding: 14px 18px;
     -webkit-overflow-scrolling: touch;
+    font-size: 14px;
   }
   @media (orientation: landscape) {
-    .pocket-split-active #pocketSplitContainer {
-      flex-direction: row !important;
-    }
-    .pocket-split-pane {
-      border-bottom: none !important;
-      border-right: 2px solid var(--border) !important;
+    .pocket-split-panes-body {
+      flex-direction: row;
     }
     .pocket-split-divider {
-      width: 6px !important;
-      height: 100% !important;
-      cursor: col-resize !important;
+      width: 6px;
+      height: 100%;
+      border-top: none;
+      border-bottom: none;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      cursor: col-resize;
+    }
+    .pocket-split-divider-handle {
+      width: 2px;
+      height: 32px;
     }
   }
 
@@ -3083,10 +3298,8 @@
     <!-- Basic / Pocket Notes Header Actions -->
     <div id="basicHeaderActions" class="header-actions-group">
       <button id="pocketNoteColorBtn" class="pocket-note-color-btn" style="display:none;" title="Change Note Color"></button>
-      <button id="btnPocketSplitToggle" class="header-btn" style="display:none;" title="Split Screen 2 Notes (PocketMark 1.5.0)">⫤⫥</button>
+      <button id="btnPocketSplitToggle" class="pocket-split-header-btn" style="display:none;" title="Toggle Split Screen"><span>◫</span><span>Split</span></button>
       <button id="btnHeaderBasicSubMode" class="header-btn pill-btn" title="Toggle Edit / Read Mode">✍️ Edit</button>
-      <button id="btnHeaderBasicSave" class="header-btn" title="Save Document (Ctrl+S)">💾</button>
-      <button id="btnHeaderBasicNew" class="header-btn" title="New Note">➕</button>
       <button id="btnBasicToggleSearch" class="header-btn" title="Search in Document">🔍</button>
     </div>
     <!-- Outline Viewer Header Actions -->
@@ -3210,9 +3423,15 @@
 
     <!-- View 2: Pocket Note Editor & Reader View -->
     <div id="pocketEditorView" class="pocket-editor-view" style="display:none;">
-      <!-- Quick Note Switcher Tabs Strip -->
-      <div id="pocketTabStrip" class="pocket-tab-strip">
-        <!-- Dynamically populated Tab Pills + [+] Button -->
+      <!-- Quick Note Switcher Tabs Strip & Fixed Action Button -->
+      <div class="pocket-tab-bar-container">
+        <div id="pocketTabStrip" class="pocket-tab-strip">
+          <!-- Dynamically populated Tab Pills -->
+        </div>
+        <button id="pocketTabNewBtnPinned" class="pocket-tab-new-action-btn" title="Create New Note">
+          <span class="pocket-tab-new-icon">＋</span>
+          <span class="pocket-tab-new-text">New Note</span>
+        </button>
       </div>
 
       <div class="doc-layout" id="docLayout">
@@ -3273,14 +3492,13 @@
               <div class="ed-sep"></div>
               <button type="button" class="ed-tool-btn" data-action="undo" title="Undo">↶</button>
               <button type="button" class="ed-tool-btn" data-action="redo" title="Redo">↷</button>
-              <button type="button" class="ed-tool-btn ed-save-btn" data-action="save" title="Save File (Ctrl+S)">💾 Save</button>
             </div>
             <div class="editor-textarea-wrapper">
               <textarea id="basicMarkdownEditor" class="basic-markdown-editor" spellcheck="false" placeholder="Write or paste your markdown note here..."></textarea>
             </div>
             <div id="editorStatusBar" class="editor-status-bar">
               <span id="editorStatsInfo">0 words • 0 chars • Line 1</span>
-              <span id="editorSaveBadge" class="editor-save-badge saved">Saved ✓</span>
+              <span id="editorSaveBadge" class="editor-save-badge saved">Autosaved ✓</span>
             </div>
           </div>
 
@@ -3291,28 +3509,67 @@
             <button id="docHudNextBtn" title="Next page">›</button>
           </div>
         </div>
+      </div>
 
-        <!-- Split View Container (PocketMark 1.5.0 Simultaneous Note Editing) -->
-        <div id="pocketSplitContainer">
+      <!-- Dedicated Full-Height Split Screen Workspace -->
+      <div id="pocketSplitContainer" class="pocket-split-container" style="display:none;">
+        <div class="pocket-split-toolbar">
+          <div class="pocket-split-info">
+            <span class="pocket-split-icon">◫</span>
+            <span class="pocket-split-badge">Split Screen</span>
+          </div>
+          <div class="pocket-split-mode-selector">
+            <button id="btnSplitModePreview" class="pocket-split-mode-btn active" title="Show Live Rendered Markdown Preview">
+              👁️ Live Preview
+            </button>
+            <button id="btnSplitModeCompare" class="pocket-split-mode-btn" title="Compare or edit two notes side-by-side">
+              📄 Compare Note
+            </button>
+          </div>
+          <button id="btnSplitClose" class="pocket-split-close-btn" title="Exit Split Screen (Return to Single Note)">
+            ✕ Close Split
+          </button>
+        </div>
+
+        <div class="pocket-split-panes-body">
+          <!-- Pane 1: Primary Active Note -->
           <div class="pocket-split-pane" id="pocketSplitPane1">
-            <div class="pocket-split-header">
-              <span id="pocketSplitTitle1" style="font-weight:700;font-size:12px;color:var(--accent);">Note 1</span>
-              <button id="pocketSplitToggleEdit1" class="doc-tool-btn" title="Toggle Edit/Preview">✍️ Edit</button>
+            <div class="pocket-split-pane-header">
+              <div class="pocket-split-pane-title-group">
+                <span class="pocket-split-dot" id="pocketSplitDot1"></span>
+                <span class="pocket-split-pane-title" id="pocketSplitTitle1">Note 1</span>
+                <span class="pocket-split-tag">Primary</span>
+              </div>
+              <div class="pocket-split-pane-actions">
+                <button id="pocketSplitToggleEdit1" class="pocket-pane-tool-btn" title="Toggle Edit / Preview">👁️ Preview</button>
+              </div>
             </div>
-            <div class="pocket-split-body" id="pocketSplitBody1"></div>
-            <div class="editor-textarea-wrapper" id="pocketSplitEditWrap1" style="display:none;height:100%;">
-              <textarea id="pocketSplitEditor1" class="basic-markdown-editor" spellcheck="false"></textarea>
+            <div class="pocket-split-body md-body markdown-body" id="pocketSplitBody1" style="display:none;"></div>
+            <div class="editor-textarea-wrapper" id="pocketSplitEditWrap1" style="height:100%;">
+              <textarea id="pocketSplitEditor1" class="basic-markdown-editor" spellcheck="false" placeholder="Write markdown here..."></textarea>
             </div>
           </div>
-          <div class="pocket-split-divider"></div>
+
+          <!-- Visual Divider -->
+          <div class="pocket-split-divider">
+            <div class="pocket-split-divider-handle"></div>
+          </div>
+
+          <!-- Pane 2: Live Preview or Note 2 -->
           <div class="pocket-split-pane" id="pocketSplitPane2">
-            <div class="pocket-split-header">
-              <select id="pocketSplitSelect2" class="pocket-split-select" title="Select reference note"></select>
-              <button id="pocketSplitToggleEdit2" class="doc-tool-btn" title="Toggle Edit/Preview">👁️ Preview</button>
+            <div class="pocket-split-pane-header">
+              <div class="pocket-split-pane-title-group">
+                <span class="pocket-split-dot" id="pocketSplitDot2"></span>
+                <span class="pocket-split-pane-title" id="pocketSplitTitle2">Live Preview</span>
+                <select id="pocketSplitSelect2" class="pocket-split-select" style="display:none;" title="Select note to compare"></select>
+              </div>
+              <div class="pocket-split-pane-actions">
+                <button id="pocketSplitToggleEdit2" class="pocket-pane-tool-btn" style="display:none;" title="Toggle Edit / Preview">✍️ Edit</button>
+              </div>
             </div>
-            <div class="pocket-split-body" id="pocketSplitBody2"></div>
+            <div class="pocket-split-body md-body markdown-body" id="pocketSplitBody2"></div>
             <div class="editor-textarea-wrapper" id="pocketSplitEditWrap2" style="display:none;height:100%;">
-              <textarea id="pocketSplitEditor2" class="basic-markdown-editor" spellcheck="false"></textarea>
+              <textarea id="pocketSplitEditor2" class="basic-markdown-editor" spellcheck="false" placeholder="Write in second note..."></textarea>
             </div>
           </div>
         </div>
@@ -3334,10 +3591,6 @@
       <button id="btnBasicBottomToggle" class="bar-btn" title="Toggle Edit / Read Mode">
         <span class="btn-icon" id="basicBottomToggleIcon">✍️</span>
         <span class="btn-label" id="basicBottomToggleLabel">Edit</span>
-      </button>
-      <button id="btnBasicBottomSave" class="bar-btn" title="Save Document (Ctrl+S)">
-        <span class="btn-icon">💾</span>
-        <span class="btn-label">Save</span>
       </button>
       <button id="btnDocTocToggle" class="bar-btn" title="Table of Contents">
         <span class="btn-icon">
@@ -4129,7 +4382,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '1.3.0';
+      window.AndroidBridge.getAppVersion() : '1.3.1';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -4221,7 +4474,6 @@
   const basicHeaderActions = document.getElementById('basicHeaderActions');
   const outlineHeaderActions = document.getElementById('outlineHeaderActions');
   const btnHeaderBasicSubMode = document.getElementById('btnHeaderBasicSubMode');
-  const btnHeaderBasicSave = document.getElementById('btnHeaderBasicSave');
   const btnHeaderBasicNew = document.getElementById('btnHeaderBasicNew');
   const btnBasicToggleSearch = document.getElementById('btnBasicToggleSearch');
 
@@ -4238,7 +4490,6 @@
   const btnBasicBottomToggle = document.getElementById('btnBasicBottomToggle');
   const basicBottomToggleIcon = document.getElementById('basicBottomToggleIcon');
   const basicBottomToggleLabel = document.getElementById('basicBottomToggleLabel');
-  const btnBasicBottomSave = document.getElementById('btnBasicBottomSave');
 
   // Drawer & Options Additions
   const btnNewNoteDrawer = document.getElementById('btnNewNoteDrawer');
@@ -4274,9 +4525,15 @@
 
   const pocketEditorView = document.getElementById('pocketEditorView');
   const pocketTabStrip = document.getElementById('pocketTabStrip');
+  const pocketTabNewBtnPinned = document.getElementById('pocketTabNewBtnPinned');
 
   const pocketSplitContainer = document.getElementById('pocketSplitContainer');
+  const btnSplitModePreview = document.getElementById('btnSplitModePreview');
+  const btnSplitModeCompare = document.getElementById('btnSplitModeCompare');
+  const btnSplitClose = document.getElementById('btnSplitClose');
+
   const pocketSplitPane1 = document.getElementById('pocketSplitPane1');
+  const pocketSplitDot1 = document.getElementById('pocketSplitDot1');
   const pocketSplitTitle1 = document.getElementById('pocketSplitTitle1');
   const pocketSplitToggleEdit1 = document.getElementById('pocketSplitToggleEdit1');
   const pocketSplitBody1 = document.getElementById('pocketSplitBody1');
@@ -4284,6 +4541,8 @@
   const pocketSplitEditor1 = document.getElementById('pocketSplitEditor1');
 
   const pocketSplitPane2 = document.getElementById('pocketSplitPane2');
+  const pocketSplitDot2 = document.getElementById('pocketSplitDot2');
+  const pocketSplitTitle2 = document.getElementById('pocketSplitTitle2');
   const pocketSplitSelect2 = document.getElementById('pocketSplitSelect2');
   const pocketSplitToggleEdit2 = document.getElementById('pocketSplitToggleEdit2');
   const pocketSplitBody2 = document.getElementById('pocketSplitBody2');
@@ -5642,7 +5901,7 @@
     basicDocText = basicMarkdownEditor.value;
     updateEditorStats();
     if (editorSaveBadge) {
-      editorSaveBadge.textContent = 'Modified •';
+      editorSaveBadge.textContent = 'Saving...';
       editorSaveBadge.className = 'editor-save-badge dirty';
     }
     const cur = pocketNotes.find(n => n.id === currentPocketNoteId);
@@ -5653,14 +5912,17 @@
       updatePocketTabTitle(cur.id, cur.title);
       if (docTitle) docTitle.textContent = (cur.title || 'Untitled') + '.md';
     }
+    if (pocketSplitActive && pocketSplitDisplayMode === 'preview' && pocketSplitBody2) {
+      const res = parseMarkdownToHtml(basicDocText);
+      pocketSplitBody2.innerHTML = res.html || '<p style="color:var(--muted);font-style:italic;">Empty note</p>';
+    }
     clearTimeout(editorInputDebounce);
     editorInputDebounce = setTimeout(() => {
-      saveLastOpenedBasic(basicDocName, basicDocUri, basicDocTreeId, basicDocText);
-      savePocketNotes();
-    }, 600);
+      saveBasicDocument(true);
+    }, 400);
   }
 
-  function saveBasicDocument() {
+  function saveBasicDocument(silent = false) {
     if (basicSubMode === 'edit' && basicMarkdownEditor) {
       basicDocText = basicMarkdownEditor.value;
     }
@@ -5681,31 +5943,31 @@
         const res = window.AndroidBridge.writeNativeFile(basicDocUri, basicDocText);
         if (res === 'OK') {
           savedToDisk = true;
-          showToast(`Saved to ${basicDocName} ✓`);
-        } else {
+          if (!silent) showToast(`Saved to ${basicDocName} ✓`);
+        } else if (!silent) {
           showToast(`Could not write to file: ${res}`);
         }
       } catch(e) {
-        showToast('Save error: ' + e.message);
+        if (!silent) showToast('Save error: ' + e.message);
       }
     } else if (basicDocTreeId && window.AndroidBridge && window.AndroidBridge.writeTreeFile) {
       try {
         const res = window.AndroidBridge.writeTreeFile(basicDocTreeId, basicDocText);
         if (res === 'OK') {
           savedToDisk = true;
-          showToast(`Saved to ${basicDocName} ✓`);
-        } else {
+          if (!silent) showToast(`Saved to ${basicDocName} ✓`);
+        } else if (!silent) {
           showToast(`Could not write to vault file: ${res}`);
         }
       } catch(e) {
-        showToast('Save error: ' + e.message);
+        if (!silent) showToast('Save error: ' + e.message);
       }
     } else {
-      showToast(`Saved ${basicDocName} ✓`);
+      if (!silent) showToast(`Saved ${basicDocName} ✓`);
     }
 
     if (editorSaveBadge) {
-      editorSaveBadge.textContent = 'Saved ✓';
+      editorSaveBadge.textContent = 'Autosaved ✓';
       editorSaveBadge.className = 'editor-save-badge saved';
     }
     updateEditorStats();
@@ -5796,6 +6058,7 @@
   let pocketSearchQuery = '';
 
   let pocketSplitActive = false;
+  let pocketSplitDisplayMode = 'preview'; // 'preview' | 'compare'
   let pocketSplitNoteId2 = null;
   let pocketSplitSubMode1 = 'edit';
   let pocketSplitSubMode2 = 'read';
@@ -5934,7 +6197,7 @@
       tab.innerHTML = `
         <span class="pocket-tab-dot" style="background:${colorHex};"></span>
         <span class="pocket-tab-title">${escapeHtml(note.title || 'Untitled')}</span>
-        <button class="pocket-tab-close" title="Close Tab">✕</button>
+        <button class="pocket-tab-close" title="Close Tab" aria-label="Close Tab">✕</button>
       `;
 
       tab.addEventListener('click', (e) => {
@@ -5946,6 +6209,7 @@
       if (closeBtn) {
         closeBtn.addEventListener('click', (e) => {
           e.stopPropagation();
+          e.preventDefault();
           closePocketTab(id);
         });
       }
@@ -5958,15 +6222,6 @@
         }, 50);
       }
     });
-
-    const newBtn = document.createElement('button');
-    newBtn.className = 'pocket-tab-new-btn';
-    newBtn.title = 'Create New Note (Quick)';
-    newBtn.innerHTML = '＋';
-    newBtn.addEventListener('click', () => {
-      createPocketNote();
-    });
-    pocketTabStrip.appendChild(newBtn);
   }
 
   function closePocketTab(noteId) {
@@ -6103,7 +6358,6 @@
     if (pocketNoteColorBtn) pocketNoteColorBtn.style.display = 'none';
     if (btnPocketSplitToggle) btnPocketSplitToggle.style.display = 'none';
     if (btnHeaderBasicSubMode) btnHeaderBasicSubMode.style.display = 'none';
-    if (btnHeaderBasicSave) btnHeaderBasicSave.style.display = 'none';
     if (btnHeaderBasicNew) btnHeaderBasicNew.style.display = 'inline-flex';
     if (pocketColorModal) pocketColorModal.classList.remove('open');
 
@@ -6151,7 +6405,6 @@
       btnPocketSplitToggle.classList.toggle('active', pocketSplitActive);
     }
     if (btnHeaderBasicSubMode) btnHeaderBasicSubMode.style.display = 'inline-flex';
-    if (btnHeaderBasicSave) btnHeaderBasicSave.style.display = 'inline-flex';
     if (btnHeaderBasicNew) btnHeaderBasicNew.style.display = 'inline-flex';
 
     basicDocName = (note.title || 'Untitled') + '.md';
@@ -6164,6 +6417,8 @@
     renderPocketTabs();
 
     if (pocketSplitActive) {
+      if (docLayout) docLayout.style.display = 'none';
+      if (pocketSplitContainer) pocketSplitContainer.style.display = 'flex';
       renderPocketSplit();
     } else {
       if (pocketSplitContainer) pocketSplitContainer.style.display = 'none';
@@ -6267,7 +6522,7 @@
         pocketSplitNoteId2 = other ? other.id : currentPocketNoteId;
       }
       renderPocketSplit();
-      showToast('Split Screen Active ⫤⫥');
+      showToast('Split Screen Active ◫');
     } else {
       if (pocketSplitContainer) pocketSplitContainer.style.display = 'none';
       if (docLayout) docLayout.style.display = 'flex';
@@ -6284,10 +6539,16 @@
   function renderPocketSplit() {
     if (!pocketSplitActive) return;
 
+    if (btnSplitModePreview) btnSplitModePreview.classList.toggle('active', pocketSplitDisplayMode === 'preview');
+    if (btnSplitModeCompare) btnSplitModeCompare.classList.toggle('active', pocketSplitDisplayMode === 'compare');
+
     const note1 = pocketNotes.find(n => n.id === currentPocketNoteId) || pocketNotes[0];
     if (pocketSplitTitle1 && note1) {
       pocketSplitTitle1.textContent = note1.title || 'Note 1';
       pocketSplitTitle1.style.color = getPocketColorHex(note1.color);
+    }
+    if (pocketSplitDot1 && note1) {
+      pocketSplitDot1.style.background = getPocketColorHex(note1.color);
     }
     if (pocketSplitToggleEdit1) {
       pocketSplitToggleEdit1.textContent = (pocketSplitSubMode1 === 'edit') ? '👁️ Preview' : '✍️ Edit';
@@ -6296,7 +6557,7 @@
       if (pocketSplitBody1) pocketSplitBody1.style.display = 'none';
       if (pocketSplitEditWrap1) pocketSplitEditWrap1.style.display = 'block';
       if (pocketSplitEditor1 && note1) {
-        pocketSplitEditor1.value = note1.content;
+        pocketSplitEditor1.value = note1.content || '';
       }
     } else {
       if (pocketSplitEditWrap1) pocketSplitEditWrap1.style.display = 'none';
@@ -6307,33 +6568,51 @@
       }
     }
 
-    if (pocketSplitSelect2) {
-      pocketSplitSelect2.innerHTML = '';
-      pocketNotes.forEach(n => {
-        const opt = document.createElement('option');
-        opt.value = n.id;
-        opt.textContent = n.title || 'Untitled';
-        if (n.id === pocketSplitNoteId2) opt.selected = true;
-        pocketSplitSelect2.appendChild(opt);
-      });
-    }
-
-    const note2 = pocketNotes.find(n => n.id === pocketSplitNoteId2) || pocketNotes[1] || note1;
-    if (pocketSplitToggleEdit2) {
-      pocketSplitToggleEdit2.textContent = (pocketSplitSubMode2 === 'edit') ? '👁️ Preview' : '✍️ Edit';
-    }
-    if (pocketSplitSubMode2 === 'edit') {
-      if (pocketSplitBody2) pocketSplitBody2.style.display = 'none';
-      if (pocketSplitEditWrap2) pocketSplitEditWrap2.style.display = 'block';
-      if (pocketSplitEditor2 && note2) {
-        pocketSplitEditor2.value = note2.content;
+    if (pocketSplitDisplayMode === 'preview') {
+      if (pocketSplitTitle2) pocketSplitTitle2.textContent = 'Live Preview';
+      if (pocketSplitDot2 && note1) pocketSplitDot2.style.background = getPocketColorHex(note1.color);
+      if (pocketSplitSelect2) pocketSplitSelect2.style.display = 'none';
+      if (pocketSplitToggleEdit2) pocketSplitToggleEdit2.style.display = 'none';
+      if (pocketSplitEditWrap2) pocketSplitEditWrap2.style.display = 'none';
+      if (pocketSplitBody2) {
+        pocketSplitBody2.style.display = 'block';
+        const res = parseMarkdownToHtml(note1 ? (note1.content || '') : '');
+        pocketSplitBody2.innerHTML = res.html || '<p style="color:var(--muted);font-style:italic;">Empty note</p>';
       }
     } else {
-      if (pocketSplitEditWrap2) pocketSplitEditWrap2.style.display = 'none';
-      if (pocketSplitBody2 && note2) {
-        pocketSplitBody2.style.display = 'block';
-        const res = parseMarkdownToHtml(note2.content || '');
-        pocketSplitBody2.innerHTML = res.html || '<p style="color:var(--muted);font-style:italic;">Empty note</p>';
+      if (pocketSplitTitle2) pocketSplitTitle2.textContent = 'Compare Note:';
+      if (pocketSplitSelect2) {
+        pocketSplitSelect2.style.display = 'inline-block';
+        pocketSplitSelect2.innerHTML = '';
+        pocketNotes.forEach(n => {
+          const opt = document.createElement('option');
+          opt.value = n.id;
+          opt.textContent = n.title || 'Untitled';
+          if (n.id === pocketSplitNoteId2) opt.selected = true;
+          pocketSplitSelect2.appendChild(opt);
+        });
+      }
+      if (pocketSplitToggleEdit2) {
+        pocketSplitToggleEdit2.style.display = 'inline-flex';
+        pocketSplitToggleEdit2.textContent = (pocketSplitSubMode2 === 'edit') ? '👁️ Preview' : '✍️ Edit';
+      }
+
+      const note2 = pocketNotes.find(n => n.id === pocketSplitNoteId2) || pocketNotes[1] || note1;
+      if (pocketSplitDot2 && note2) pocketSplitDot2.style.background = getPocketColorHex(note2.color);
+
+      if (pocketSplitSubMode2 === 'edit') {
+        if (pocketSplitBody2) pocketSplitBody2.style.display = 'none';
+        if (pocketSplitEditWrap2) pocketSplitEditWrap2.style.display = 'block';
+        if (pocketSplitEditor2 && note2) {
+          pocketSplitEditor2.value = note2.content || '';
+        }
+      } else {
+        if (pocketSplitEditWrap2) pocketSplitEditWrap2.style.display = 'none';
+        if (pocketSplitBody2 && note2) {
+          pocketSplitBody2.style.display = 'block';
+          const res = parseMarkdownToHtml(note2.content || '');
+          pocketSplitBody2.innerHTML = res.html || '<p style="color:var(--muted);font-style:italic;">Empty note</p>';
+        }
       }
     }
   }
@@ -6474,8 +6753,8 @@
   }
 
   if (btnHeaderBasicSubMode) btnHeaderBasicSubMode.addEventListener('click', toggleBasicSubMode);
-  if (btnHeaderBasicSave) btnHeaderBasicSave.addEventListener('click', saveBasicDocument);
   if (btnHeaderBasicNew) btnHeaderBasicNew.addEventListener('click', createNewBasicDocument);
+  if (pocketTabNewBtnPinned) pocketTabNewBtnPinned.addEventListener('click', createPocketNote);
   if (btnBasicToggleSearch) {
     btnBasicToggleSearch.addEventListener('click', () => {
       searchContainer.classList.toggle('visible');
@@ -6489,7 +6768,6 @@
   }
 
   if (btnBasicBottomToggle) btnBasicBottomToggle.addEventListener('click', toggleBasicSubMode);
-  if (btnBasicBottomSave) btnBasicBottomSave.addEventListener('click', saveBasicDocument);
   if (docFloatEditBtn) docFloatEditBtn.addEventListener('click', toggleBasicSubMode);
   if (btnNewNoteDrawer) btnNewNoteDrawer.addEventListener('click', createNewBasicDocument);
 
@@ -6561,6 +6839,21 @@
   });
 
   if (btnPocketSplitToggle) btnPocketSplitToggle.addEventListener('click', togglePocketSplit);
+  if (btnSplitClose) btnSplitClose.addEventListener('click', togglePocketSplit);
+
+  if (btnSplitModePreview) {
+    btnSplitModePreview.addEventListener('click', () => {
+      pocketSplitDisplayMode = 'preview';
+      renderPocketSplit();
+    });
+  }
+
+  if (btnSplitModeCompare) {
+    btnSplitModeCompare.addEventListener('click', () => {
+      pocketSplitDisplayMode = 'compare';
+      renderPocketSplit();
+    });
+  }
 
   if (pocketSplitToggleEdit1) {
     pocketSplitToggleEdit1.addEventListener('click', () => {
@@ -6590,8 +6883,18 @@
         n1.content = pocketSplitEditor1.value;
         n1.title = extractPocketTitle(n1.content);
         n1.updatedAt = Date.now();
-        savePocketNotes();
+        basicDocText = n1.content;
+        if (basicMarkdownEditor) basicMarkdownEditor.value = n1.content;
         updatePocketTabTitle(n1.id, n1.title);
+        if (pocketSplitTitle1) pocketSplitTitle1.textContent = n1.title;
+        if (pocketSplitDisplayMode === 'preview' && pocketSplitBody2) {
+          const res = parseMarkdownToHtml(n1.content || '');
+          pocketSplitBody2.innerHTML = res.html || '<p style="color:var(--muted);font-style:italic;">Empty note</p>';
+        }
+        clearTimeout(editorInputDebounce);
+        editorInputDebounce = setTimeout(() => {
+          saveBasicDocument(true);
+        }, 400);
       }
     });
   }
@@ -6603,7 +6906,11 @@
         n2.content = pocketSplitEditor2.value;
         n2.title = extractPocketTitle(n2.content);
         n2.updatedAt = Date.now();
-        savePocketNotes();
+        updatePocketTabTitle(n2.id, n2.title);
+        clearTimeout(editorInputDebounce);
+        editorInputDebounce = setTimeout(() => {
+          savePocketNotes();
+        }, 400);
       }
     });
   }
