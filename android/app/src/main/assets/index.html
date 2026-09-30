@@ -1780,6 +1780,318 @@
     min-width: 78px;
   }
 
+  /* Flashcard View Mode Toggle (Study vs Gallery) */
+  .fc-mode-toggle-group {
+    display: inline-flex;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-right: 4px;
+  }
+  .fc-mode-btn {
+    background: #191b29 !important;
+    color: var(--muted) !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 5px 10px !important;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .fc-mode-btn:active {
+    background: #242737 !important;
+  }
+  .fc-mode-btn.active {
+    background: var(--accent) !important;
+    color: #16161e !important;
+    font-weight: 700 !important;
+  }
+
+  /* Flashcard Gallery Review Container */
+  .fc-gallery-view {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+    position: relative;
+    min-height: 0;
+  }
+  .fc-gallery-subbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    background: #181926;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  .fc-gallery-face-toggle {
+    display: inline-flex;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: #13141f;
+  }
+  .fc-gallery-face-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    padding: 5px 11px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .fc-gallery-face-btn:not(:last-child) {
+    border-right: 1px solid var(--border);
+  }
+  .fc-gallery-face-btn:active {
+    background: rgba(122, 162, 247, 0.15);
+  }
+  .fc-gallery-face-btn.active {
+    background: rgba(122, 162, 247, 0.22);
+    color: #7aa2f7;
+    font-weight: 700;
+    box-shadow: inset 0 0 8px rgba(122, 162, 247, 0.2);
+  }
+  .fc-gallery-search-box {
+    flex: 1;
+    min-width: 140px;
+    max-width: 320px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #1f2335;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px 10px;
+    height: 32px;
+    box-sizing: border-box;
+  }
+  .fc-gallery-search-box:focus-within {
+    border-color: #7aa2f7;
+    box-shadow: 0 0 8px rgba(122, 162, 247, 0.2);
+  }
+  .fc-gallery-search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--fg);
+    font-size: 12px;
+  }
+  .fc-gallery-search-icon {
+    font-size: 12px;
+    opacity: 0.6;
+    flex-shrink: 0;
+  }
+  .fc-gallery-search-clear {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 0 4px;
+    cursor: pointer;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .fc-gallery-search-clear:hover {
+    color: #fff;
+  }
+  .fc-gallery-count {
+    color: var(--muted);
+    font-size: 11.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    margin-left: auto;
+  }
+
+  /* Gallery Cards Scroll & Grid */
+  .fc-gallery-scroll {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 14px 16px 60px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .fc-gallery-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Gallery Cards */
+  .fc-gcard {
+    background: #1a1b28;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+    overflow: hidden;
+    transition: transform 0.12s ease, border-color 0.12s ease;
+  }
+  .fc-gcard:hover {
+    border-color: rgba(122, 162, 247, 0.4);
+  }
+
+  /* Front Only Card */
+  .fc-gcard.mode-front {
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: radial-gradient(ellipse at center, #21253a 0%, #171825 100%);
+    border-color: rgba(122, 162, 247, 0.35);
+  }
+  .fc-gcard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .fc-gcard-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+  }
+  .fc-gcard-badge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: rgba(122, 162, 247, 0.18);
+    color: var(--accent);
+    letter-spacing: .04em;
+    flex-shrink: 0;
+  }
+  .fc-gcard-breadcrumb {
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .fc-gcard-index {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--muted);
+    background: rgba(255,255,255,0.06);
+    padding: 1px 6px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .fc-gcard-front-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.38;
+    word-break: break-word;
+  }
+  .fc-gcard-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .fc-gcard-study-btn {
+    background: #24283b;
+    border: 1px solid var(--border);
+    color: #7aa2f7;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .fc-gcard-study-btn:active {
+    background: #7aa2f7;
+    color: #14151f;
+  }
+  .fc-gcard-flip-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+
+  /* Back Only Card */
+  .fc-gcard.mode-back {
+    display: flex;
+    flex-direction: column;
+    padding: 14px 16px;
+    gap: 8px;
+  }
+  .fc-gcard-back-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--accent);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding-bottom: 6px;
+    margin-bottom: 2px;
+  }
+  .fc-gcard-body {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: #c0caf5;
+    max-height: 280px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    word-break: break-word;
+  }
+
+  /* Both Side-by-Side Card */
+  .fc-gcard.mode-both {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    min-height: 120px;
+  }
+  .fc-gcard-side-front {
+    padding: 16px;
+    background: radial-gradient(ellipse at center, #22263d 0%, #181927 100%);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .fc-gcard-side-back {
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: #191a26;
+    overflow: hidden;
+  }
+  @media (max-width: 640px) {
+    .fc-gcard.mode-both {
+      grid-template-columns: 1fr;
+    }
+    .fc-gcard-side-front {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 14px;
+    }
+    .fc-gcard-side-back {
+      padding: 12px 14px;
+    }
+  }
+
   /* --- Update Modal --- */
   #updateBackdrop {
     position: fixed;
@@ -3086,8 +3398,21 @@
     background: #24283b;
     transform: scale(0.95);
   }
+  .pocket-size-toggle-btn {
+    width: auto;
+    min-width: 38px;
+    padding: 0 9px;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .pocket-size-toggle-btn.mode-full {
+    border-color: rgba(122, 162, 247, 0.6);
+    color: #7aa2f7;
+    background: rgba(122, 162, 247, 0.12);
+  }
 
-  /* Color Filter Chips */
+  /* Filter Chips (Color & Tags) */
   .pocket-chips-row {
     display: flex;
     align-items: center;
@@ -3112,6 +3437,7 @@
     align-items: center;
     gap: 5px;
     transition: all 0.12s ease;
+    user-select: none;
   }
   .pocket-chip:active {
     background: #24283b;
@@ -3128,6 +3454,17 @@
     border-radius: 50%;
     background: currentColor;
   }
+  .pocket-chip.tag-chip {
+    border-color: rgba(187, 154, 247, 0.4);
+    color: #bb9af7;
+    background: rgba(187, 154, 247, 0.08);
+  }
+  .pocket-chip.tag-chip.active {
+    background: #bb9af7;
+    color: #14151f;
+    border-color: #bb9af7;
+    box-shadow: 0 1px 8px rgba(187, 154, 247, 0.35);
+  }
 
   /* Cards Grid Scroll Area */
   .pocket-shelf-scroll {
@@ -3141,6 +3478,7 @@
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
+    align-items: start;
   }
   .pocket-notes-grid.list-mode {
     grid-template-columns: 1fr;
@@ -3162,9 +3500,10 @@
     -webkit-tap-highlight-color: transparent;
     transition: transform 0.12s ease, box-shadow 0.12s ease;
     overflow: hidden;
+    box-sizing: border-box;
   }
   .pocket-card:active {
-    transform: scale(0.97);
+    transform: scale(0.985);
   }
   .pocket-card.color-orange { --card-color: #ff9e64; background: linear-gradient(170deg, rgba(255, 158, 100, 0.10) 0%, #171824 75%); }
   .pocket-card.color-yellow { --card-color: #e0af68; background: linear-gradient(170deg, rgba(224, 175, 104, 0.10) 0%, #171824 75%); }
@@ -3200,6 +3539,141 @@
     margin-top: 2px;
     box-shadow: 0 0 6px var(--card-color);
   }
+
+  /* Tag Badges on Cards */
+  .pocket-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+  }
+  .pocket-card-tag {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #bb9af7;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .pocket-card-tag:active {
+    background: rgba(187, 154, 247, 0.3);
+    border-color: #bb9af7;
+    color: #fff;
+  }
+  .pocket-card-add-tag-btn {
+    background: transparent;
+    border: 1px dashed rgba(255,255,255,0.25);
+    color: var(--muted);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.12s ease;
+  }
+  .pocket-card-add-tag-btn:active {
+    border-color: #7aa2f7;
+    color: #7aa2f7;
+    transform: scale(1.15);
+  }
+
+  /* Card Size Modes */
+  .pocket-card.card-size-full .pocket-card-body {
+    max-height: none;
+    -webkit-line-clamp: unset;
+    display: block;
+    overflow: visible;
+  }
+  .pocket-card.card-size-medium .pocket-card-body {
+    max-height: 180px;
+    display: -webkit-box;
+    -webkit-line-clamp: 8;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .pocket-card.card-size-compact .pocket-card-body {
+    max-height: 68px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .pocket-notes-grid.list-mode .pocket-card.card-size-compact .pocket-card-body {
+    -webkit-line-clamp: 2;
+    max-height: 48px;
+  }
+
+  /* Rich Card Body Markdown Styles */
+  .pocket-card-body {
+    font-size: 12px;
+    line-height: 1.48;
+    color: #c0caf5;
+    word-break: break-word;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .pocket-card-body p {
+    margin: 0 0 6px 0;
+  }
+  .pocket-card-body p:last-child {
+    margin-bottom: 0;
+  }
+  .pocket-card-body ul, .pocket-card-body ol {
+    margin: 3px 0 6px 14px;
+    padding: 0;
+  }
+  .pocket-card-body li {
+    margin-bottom: 2px;
+  }
+  .pocket-card-body h1, .pocket-card-body h2, .pocket-card-body h3, .pocket-card-body h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin: 5px 0 3px 0;
+    color: #fff;
+  }
+  .pocket-card-body blockquote {
+    border-left: 3px solid var(--card-color, #7aa2f7);
+    padding: 2px 0 2px 8px;
+    margin: 4px 0;
+    color: #a9b1d6;
+    font-style: italic;
+  }
+  .pocket-card-body pre {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    padding: 5px 7px;
+    overflow-x: auto;
+    font-size: 11px;
+    margin: 4px 0;
+  }
+  .pocket-card-body code {
+    background: rgba(255,255,255,0.08);
+    padding: 1px 4px;
+    border-radius: 4px;
+    font-size: 11px;
+  }
+  .pocket-card-body input[type="checkbox"] {
+    accent-color: #7aa2f7;
+    margin-right: 5px;
+    transform: translateY(1px);
+    cursor: pointer;
+  }
+  .pocket-card-read-more {
+    font-size: 11px;
+    font-weight: 600;
+    color: #7aa2f7;
+    padding-top: 4px;
+    opacity: 0.9;
+  }
+
   .pocket-card-snippet {
     font-size: 11.5px;
     color: #a9b1d6;
@@ -3209,7 +3683,6 @@
     -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
   .pocket-notes-grid.list-mode .pocket-card-snippet {
     -webkit-line-clamp: 2;
@@ -3223,10 +3696,15 @@
     font-size: 10px;
     color: var(--muted);
   }
-  .pocket-card-time {
-    white-space: nowrap;
+  .pocket-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
     overflow: hidden;
-    text-overflow: ellipsis;
+  }
+  .pocket-card-date {
+    white-space: nowrap;
   }
   .pocket-card-words {
     background: rgba(255,255,255,0.06);
@@ -3236,6 +3714,31 @@
     color: var(--fg);
     font-weight: 600;
     white-space: nowrap;
+  }
+  .pocket-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .pocket-card-size-btn,
+  .pocket-card-del-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px;
+    opacity: 0.7;
+    transition: all 0.12s ease;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pocket-card-size-btn:active,
+  .pocket-card-del-btn:active {
+    opacity: 1;
+    transform: scale(1.18);
   }
 
   /* Empty State */
@@ -3536,6 +4039,137 @@
   }
   .pocket-color-swatch:active { transform: scale(1.15); }
   .pocket-color-swatch.active { border-color: #fff; transform: scale(1.1); }
+
+  /* Pocket Note Tag & Metadata Bar (Basic Note Editor) */
+  .pocket-note-tag-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 12px;
+    background: #161725;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .pocket-note-tag-bar::-webkit-scrollbar { display: none; }
+  .pocket-tag-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .pocket-tag-bar-left::-webkit-scrollbar { display: none; }
+  .pocket-tag-bar-icon {
+    font-size: 13px;
+    flex-shrink: 0;
+    opacity: 0.85;
+  }
+  .pocket-note-tag-chips {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+  .pocket-tag-chip {
+    background: rgba(122, 162, 247, 0.15);
+    border: 1px solid rgba(122, 162, 247, 0.4);
+    color: #7aa2f7;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px 2px 9px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    user-select: none;
+  }
+  .pocket-tag-del-btn {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    opacity: 0.65;
+    transition: opacity 0.12s ease;
+  }
+  .pocket-tag-del-btn:hover, .pocket-tag-del-btn:active {
+    opacity: 1;
+    color: #f7768e;
+  }
+  .pocket-tag-input-box {
+    display: inline-flex;
+    align-items: center;
+    background: #1c1e2e;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 2px 8px;
+    height: 26px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    transition: border-color 0.15s ease;
+  }
+  .pocket-tag-input-box:focus-within {
+    border-color: #7aa2f7;
+    box-shadow: 0 0 8px rgba(122, 162, 247, 0.2);
+  }
+  .pocket-tag-input-hash {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 3px;
+  }
+  .pocket-tag-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--fg);
+    font-size: 11.5px;
+    width: 78px;
+    padding: 0;
+  }
+  .pocket-tag-add-btn {
+    background: transparent;
+    border: none;
+    color: #7aa2f7;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    padding: 0 0 0 4px;
+    line-height: 1;
+    transition: transform 0.12s ease;
+  }
+  .pocket-tag-add-btn:active {
+    transform: scale(1.2);
+  }
+  .pocket-tag-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .pocket-tag-bar-color-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+    background: var(--current-note-color, #7aa2f7);
+    transition: transform 0.12s ease;
+  }
+  .pocket-tag-bar-color-btn:active {
+    transform: scale(1.2);
+  }
 
   /* =========================================================================
      DEDICATED SPLIT SCREEN CONTAINER
@@ -3899,6 +4533,7 @@
     <!-- Basic / Pocket Notes Header Actions -->
     <div id="basicHeaderActions" class="header-actions-group">
       <button id="pocketNoteColorBtn" class="pocket-note-color-btn" style="display:none;" title="Change Note Color"></button>
+      <button id="btnPocketNoteTagHeader" class="header-btn pill-btn" style="display:none; font-size:11.5px; padding:3px 8px; gap:4px;" title="Manage Tags">🏷️ Tags</button>
       <button id="btnPocketSplitToggle" class="pocket-split-header-btn" style="display:none;" title="Toggle Split Screen"><span>◫</span><span>Split</span></button>
       <button id="btnHeaderBasicSubMode" class="header-btn pill-btn" title="Toggle Edit / Read Mode">✍️ Edit</button>
       <button id="btnBasicToggleSearch" class="header-btn" title="Search in Document">🔍</button>
@@ -4003,16 +4638,14 @@
             <input type="search" id="pocketSearchInput" class="pocket-search-input" placeholder="Search notes..." autocomplete="off">
             <span id="pocketSearchCount" style="font-size:11px;color:var(--muted);white-space:nowrap;"></span>
           </div>
+          <button id="btnPocketCardSizeToggle" class="pocket-shelf-tool-btn pocket-size-toggle-btn mode-full" title="Card Preview Size: Full Length (Tap to cycle)">
+            <span id="pocketCardSizeIcon">↕️</span>
+            <span id="pocketCardSizeText" style="font-size:11px;font-weight:700;margin-left:3px;">Full</span>
+          </button>
           <button id="btnPocketLayoutToggle" class="pocket-shelf-tool-btn" title="Toggle 2-Col Grid / 1-Col List">⊞</button>
         </div>
         <div class="pocket-chips-row" id="pocketChipsRow">
-          <button class="pocket-chip active" data-color="all">All</button>
-          <button class="pocket-chip" data-color="orange" style="--chip-color:#ff9e64;"><span class="pocket-chip-dot" style="background:#ff9e64;"></span>Orange</button>
-          <button class="pocket-chip" data-color="yellow" style="--chip-color:#e0af68;"><span class="pocket-chip-dot" style="background:#e0af68;"></span>Yellow</button>
-          <button class="pocket-chip" data-color="purple" style="--chip-color:#bb9af7;"><span class="pocket-chip-dot" style="background:#bb9af7;"></span>Purple</button>
-          <button class="pocket-chip" data-color="blue" style="--chip-color:#7aa2f7;"><span class="pocket-chip-dot" style="background:#7aa2f7;"></span>Blue</button>
-          <button class="pocket-chip" data-color="green" style="--chip-color:#73daca;"><span class="pocket-chip-dot" style="background:#73daca;"></span>Green</button>
-          <button class="pocket-chip" data-color="red" style="--chip-color:#f7768e;"><span class="pocket-chip-dot" style="background:#f7768e;"></span>Red</button>
+          <!-- Populated dynamically with All, tags (#todo, #work), and colors -->
         </div>
       </div>
       <div class="pocket-shelf-scroll" id="pocketShelfScroll">
@@ -4034,6 +4667,22 @@
           <span class="pocket-tab-new-icon">＋</span>
           <span class="pocket-tab-new-text">New Note</span>
         </button>
+      </div>
+
+      <!-- Pocket Note Tag & Metadata Bar (Allow tagging in Basic Note) -->
+      <div id="pocketNoteTagBar" class="pocket-note-tag-bar">
+        <div class="pocket-tag-bar-left">
+          <span class="pocket-tag-bar-icon" title="Note Tags">🏷️</span>
+          <div id="pocketNoteTagChips" class="pocket-note-tag-chips"></div>
+          <div class="pocket-tag-input-box">
+            <span class="pocket-tag-input-hash">#</span>
+            <input type="text" id="pocketTagInput" class="pocket-tag-input" placeholder="Add tag..." autocomplete="off" maxlength="25">
+            <button id="btnPocketAddTagConfirm" class="pocket-tag-add-btn" title="Add tag">＋</button>
+          </div>
+        </div>
+        <div class="pocket-tag-bar-right">
+          <button id="pocketTagBarColorBtn" class="pocket-tag-bar-color-btn" title="Change note color"></button>
+        </div>
       </div>
 
       <div class="doc-layout" id="docLayout">
@@ -4292,6 +4941,10 @@
       <button id="fcFilterH2" data-filter="h2" title="Level 2 headings">H2</button>
       <button id="fcFilterAll" data-filter="all" title="All headings">All</button>
     </div>
+    <div class="fc-mode-toggle-group" id="fcModeToggleGroup">
+      <button id="btnFcModeStudy" class="fc-mode-btn active" title="1-Card Interactive Study Mode">🗂️ Study</button>
+      <button id="btnFcModeGallery" class="fc-mode-btn" title="All-Cards Gallery Review">▦ Gallery</button>
+    </div>
     <button id="fcShuffleBtn" title="Shuffle flashcards">🔀</button>
     <button id="fcColToggleBtn" title="Toggle 2-Column Page Mode vs 1-Column Scroll">❚❚ 2-Col</button>
     <button id="fcFullscreenBtn" title="Toggle Fullscreen Mode (F)">⛶ Fullscreen</button>
@@ -4336,6 +4989,28 @@
       <button id="fcPrevBtn" title="Previous card">◀ Prev</button>
       <button id="fcFlipBtn" title="Flip card">Flip Card</button>
       <button id="fcNextBtn" title="Next card">Next ▶</button>
+    </div>
+  </div>
+
+  <!-- Flashcard Gallery Review Container -->
+  <div id="flashcardGalleryView" class="fc-gallery-view" style="display:none;">
+    <div class="fc-gallery-subbar">
+      <div class="fc-gallery-face-toggle" id="fcGalleryFaceGroup">
+        <button class="fc-gallery-face-btn" data-face="front" title="Show Front of all cards">Front Only</button>
+        <button class="fc-gallery-face-btn" data-face="back" title="Show Back (answers) of all cards">Back Only</button>
+        <button class="fc-gallery-face-btn active" data-face="both" title="Show Front and Back side-by-side">Both (Front &amp; Back)</button>
+      </div>
+      <div class="fc-gallery-search-box">
+        <span class="fc-gallery-search-icon">🔍</span>
+        <input type="text" id="fcGallerySearchInput" class="fc-gallery-search-input" placeholder="Filter cards..." aria-label="Filter gallery cards" autocomplete="off" />
+        <button id="fcGallerySearchClear" class="fc-gallery-search-clear" title="Clear filter" style="display:none;">✕</button>
+      </div>
+      <div class="fc-gallery-count" id="fcGalleryCount">0 cards</div>
+    </div>
+    <div class="fc-gallery-scroll" id="fcGalleryScroll">
+      <div class="fc-gallery-grid" id="fcGalleryGrid">
+        <!-- Rendered dynamically -->
+      </div>
     </div>
   </div>
 </div>
@@ -4968,7 +5643,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v1.4.3</span>
+          <span class="settings-row-badge" id="appVersionSub">v1.4.4</span>
         </button>
         <div class="settings-row-config">
           <div class="settings-config-label">
@@ -5095,6 +5770,25 @@
   </div>
 </div>
 
+<!-- Custom Pocket Note Tag Modal (for Card Tagging & Quick Tag Management) -->
+<div id="pocketTagModal" class="pocket-delete-modal" style="display:none; z-index: 1050;">
+  <div class="pocket-delete-card" style="max-width: 340px;">
+    <div class="pocket-delete-icon" style="background: rgba(187,154,247,0.15); color: #bb9af7;">🏷️</div>
+    <div class="pocket-delete-title">Manage Tags</div>
+    <div class="pocket-delete-desc" id="pocketTagModalNoteTitle" style="margin-bottom: 10px;">
+      Add or remove tags for this note.
+    </div>
+    <div id="pocketTagModalChips" class="pocket-tag-modal-chips" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; min-height:28px;"></div>
+    <div style="display:flex; gap:6px;">
+      <input type="text" id="inputModalTag" class="rename-vault-input" placeholder="New tag name (e.g. work, todo)" maxlength="30" style="flex:1;">
+      <button id="btnModalAddTag" class="pocket-shelf-tool-btn" style="height:38px; width:44px; color:#7aa2f7; font-weight:700;">＋</button>
+    </div>
+    <div class="pocket-delete-actions" style="margin-top: 14px;">
+      <button id="btnCloseTagModal" class="pocket-delete-cancel-btn" style="flex:1;">Done</button>
+    </div>
+  </div>
+</div>
+
 <!-- Floating Quick Selection & Copy Toolbar -->
 <div id="selectionToolbar">
   <button id="btnCopySelection" class="sel-btn" title="Copy selection">
@@ -5119,7 +5813,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '1.4.3';
+      window.AndroidBridge.getAppVersion() : '1.4.4';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -5252,6 +5946,7 @@
   // --- PocketMark Pocket Notes DOM Elements ---
   const btnPocketBackShelf = document.getElementById('btnPocketBackShelf');
   const pocketNoteColorBtn = document.getElementById('pocketNoteColorBtn');
+  const btnPocketNoteTagHeader = document.getElementById('btnPocketNoteTagHeader');
   const btnPocketSplitToggle = document.getElementById('btnPocketSplitToggle');
   const pocketColorModal = document.getElementById('pocketColorModal');
   const pocketColorSwatches = document.getElementById('pocketColorSwatches');
@@ -5259,6 +5954,9 @@
   const pocketShelfView = document.getElementById('pocketShelfView');
   const pocketSearchInput = document.getElementById('pocketSearchInput');
   const pocketSearchCount = document.getElementById('pocketSearchCount');
+  const btnPocketCardSizeToggle = document.getElementById('btnPocketCardSizeToggle');
+  const pocketCardSizeIcon = document.getElementById('pocketCardSizeIcon');
+  const pocketCardSizeText = document.getElementById('pocketCardSizeText');
   const btnPocketLayoutToggle = document.getElementById('btnPocketLayoutToggle');
   const pocketChipsRow = document.getElementById('pocketChipsRow');
   const pocketShelfScroll = document.getElementById('pocketShelfScroll');
@@ -5268,6 +5966,20 @@
   const pocketEditorView = document.getElementById('pocketEditorView');
   const pocketTabStrip = document.getElementById('pocketTabStrip');
   const pocketTabNewBtnPinned = document.getElementById('pocketTabNewBtnPinned');
+
+  // Tag Bar & Modal Elements
+  const pocketNoteTagBar = document.getElementById('pocketNoteTagBar');
+  const pocketNoteTagChips = document.getElementById('pocketNoteTagChips');
+  const pocketTagInput = document.getElementById('pocketTagInput');
+  const btnPocketAddTagConfirm = document.getElementById('btnPocketAddTagConfirm');
+  const pocketTagBarColorBtn = document.getElementById('pocketTagBarColorBtn');
+
+  const pocketTagModal = document.getElementById('pocketTagModal');
+  const pocketTagModalNoteTitle = document.getElementById('pocketTagModalNoteTitle');
+  const pocketTagModalChips = document.getElementById('pocketTagModalChips');
+  const inputModalTag = document.getElementById('inputModalTag');
+  const btnModalAddTag = document.getElementById('btnModalAddTag');
+  const btnCloseTagModal = document.getElementById('btnCloseTagModal');
 
   const pocketSplitContainer = document.getElementById('pocketSplitContainer');
   const btnSplitModePreview = document.getElementById('btnSplitModePreview');
@@ -5443,12 +6155,26 @@
   let flashcardFilter = 'outline';
   let fcTwoColumn = false;
   let currentBackPageIndex = 0;
+  let fcViewMode = 'study'; // 'study' | 'gallery'
+  let fcGalleryFaceMode = localStorage.getItem('mdviewer_fc_gallery_face') || 'both'; // 'front' | 'back' | 'both'
+  let fcGallerySearchQuery = '';
 
   const btnToggleFlashcard = document.getElementById('btnToggleFlashcard');
   const btnOpenFlashcards = document.getElementById('btnOpenFlashcards');
   const flashcardView = document.getElementById('flashcardView');
   const fcExitBtn = document.getElementById('fcExitBtn');
   const fcFilterGroup = document.getElementById('fcFilterGroup');
+  const fcModeToggleGroup = document.getElementById('fcModeToggleGroup');
+  const btnFcModeStudy = document.getElementById('btnFcModeStudy');
+  const btnFcModeGallery = document.getElementById('btnFcModeGallery');
+  const flashcardStage = document.getElementById('flashcardStage');
+  const flashcardGalleryView = document.getElementById('flashcardGalleryView');
+  const fcGalleryFaceGroup = document.getElementById('fcGalleryFaceGroup');
+  const fcGallerySearchInput = document.getElementById('fcGallerySearchInput');
+  const fcGallerySearchClear = document.getElementById('fcGallerySearchClear');
+  const fcGalleryCount = document.getElementById('fcGalleryCount');
+  const fcGalleryScroll = document.getElementById('fcGalleryScroll');
+  const fcGalleryGrid = document.getElementById('fcGalleryGrid');
   const fcShuffleBtn = document.getElementById('fcShuffleBtn');
   const fcColToggleBtn = document.getElementById('fcColToggleBtn');
   const fcFullscreenBtn = document.getElementById('fcFullscreenBtn');
@@ -6845,8 +7571,9 @@
     {
       id: 'pnote_demo_1',
       title: 'Welcome to PocketMark',
-      content: '# Welcome to PocketMark 📝\n\nA lightweight, beautiful Markdown note taking experience.\n\n### Features\n- **Dynamic Card Shelf**: Organized in a dynamic 2-column card grid or 1-column list.\n- **Quick Switcher Tabs**: Effortlessly switch between multiple notes without losing your place.\n- **Color Tagging**: Color code your notes with vibrant accent palettes.\n- **Split Screen (v1.5.0)**: View or edit two notes simultaneously side-by-side.\n- **Dual-App Mode**: Switch seamlessly between Pocket Notes and Virtual Outline anytime.\n',
+      content: '# Welcome to PocketMark 📝\n\nA lightweight, beautiful Markdown note taking experience.\n\n### Features\n- **Dynamic Card Shelf**: Organized in a dynamic 2-column card grid or 1-column list.\n- **Quick Switcher Tabs**: Effortlessly switch between multiple notes without losing your place.\n- **Color & Text Tagging**: Tag your notes with custom tags and vibrant accent palettes.\n- **Full-Length Previews**: Read your notes and checklists straight from the home shelf.\n- **Split Screen**: View or edit two notes simultaneously side-by-side.\n',
       color: 'orange',
+      tags: ['welcome', 'guide'],
       updatedAt: Date.now() - 3600000,
       uri: null,
       docId: null
@@ -6856,6 +7583,7 @@
       title: 'School project ToDo list',
       content: '# School project ToDo list 📋\n\n- [x] Research target users and existing market solutions\n- [x] Design 2-column card grid layout\n- [ ] Implement split screen note comparison\n- [ ] Review markdown parsing performance\n- [ ] Submit final project report\n',
       color: 'yellow',
+      tags: ['todo', 'school'],
       updatedAt: Date.now() - 7200000,
       uri: null,
       docId: null
@@ -6865,6 +7593,7 @@
       title: 'Programming Notes',
       content: '# Programming Notes 💻\n\n### Useful Regex Patterns\n- Heading detector: `/^(#{1,6})\\s+(.*)$/`\n- Markdown links: `/\\[([^\\]]+)\\]\\(([^)]+)\\)/`\n\n### Performance Tips\n- Use virtual scrolling for massive documents (100k+ lines)\n- Debounce localStorage autosave to avoid UI thread stutters\n',
       color: 'purple',
+      tags: ['coding', 'regex'],
       updatedAt: Date.now() - 86400000,
       uri: null,
       docId: null
@@ -6874,6 +7603,7 @@
       title: 'Quick Ideas & Inspiration',
       content: '# Quick Ideas & Inspiration 💡\n\n- Create a customizable theme palette\n- Add support for LaTeX math formulas in markdown\n- Obsidian wikilinks `[[Note Title]]` navigation\n- Offline-first encrypted notes vault\n',
       color: 'green',
+      tags: ['ideas'],
       updatedAt: Date.now() - 172800000,
       uri: null,
       docId: null
@@ -6885,7 +7615,10 @@
   let openPocketTabIds = [];
   let currentPocketView = localStorage.getItem('mdviewer_pocket_view') || 'shelf'; // 'shelf' | 'editor'
   let pocketLayoutMode = localStorage.getItem('mdviewer_pocket_layout') || 'grid'; // 'grid' | 'list'
+  let pocketCardSizeMode = localStorage.getItem('mdviewer_pocket_card_size') || 'full'; // 'full' | 'compact' | 'medium'
+  let pocketCardSizeOverrides = {}; // per-note overrides { [noteId]: 'full' | 'compact' }
   let pocketFilterColor = 'all';
+  let pocketFilterTag = 'all';
   let pocketSearchQuery = '';
 
   let pocketSplitActive = false;
@@ -6954,6 +7687,178 @@
     return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   }
 
+  function getNoteTags(note) {
+    if (!note) return [];
+    const set = new Set();
+    if (Array.isArray(note.tags)) {
+      note.tags.forEach(t => {
+        const clean = (t || '').trim().replace(/^#/, '').toLowerCase();
+        if (clean) set.add(clean);
+      });
+    }
+    // Auto-detect hashtags from content
+    if (note.content) {
+      const matches = note.content.match(/(?:^|\s)#([a-zA-Z0-9_\u4e00-\u9fa5-]+)/g);
+      if (matches) {
+        matches.forEach(m => {
+          const tag = m.trim().replace(/^#/, '').toLowerCase();
+          if (tag && tag.length > 0 && !/^#+$/.test(tag)) {
+            set.add(tag);
+          }
+        });
+      }
+    }
+    return Array.from(set);
+  }
+
+  function getAllPocketTags() {
+    const set = new Set();
+    pocketNotes.forEach(n => {
+      getNoteTags(n).forEach(t => set.add(t));
+    });
+    return Array.from(set).sort();
+  }
+
+  function addTagToNote(noteId, rawTag) {
+    if (!rawTag) return;
+    const tag = rawTag.trim().replace(/^#/, '').toLowerCase();
+    if (!tag) return;
+    const note = pocketNotes.find(n => n.id === noteId);
+    if (!note) return;
+    if (!Array.isArray(note.tags)) note.tags = [];
+    if (!note.tags.includes(tag)) {
+      note.tags.push(tag);
+      note.updatedAt = Date.now();
+      savePocketNotes();
+      showToast(`Added tag #${tag} ✓`);
+    }
+  }
+
+  function removeTagFromNote(noteId, rawTag) {
+    if (!rawTag) return;
+    const tag = rawTag.trim().replace(/^#/, '').toLowerCase();
+    const note = pocketNotes.find(n => n.id === noteId);
+    if (!note) return;
+    if (Array.isArray(note.tags)) {
+      note.tags = note.tags.filter(t => t.toLowerCase() !== tag);
+      note.updatedAt = Date.now();
+      savePocketNotes();
+      showToast(`Removed tag #${tag}`);
+    }
+  }
+
+  function renderCardBodyHtml(note, sizeMode) {
+    if (!note || !note.content) {
+      return '<p style="color:var(--muted);font-style:italic;margin:0;">Empty note</p>';
+    }
+
+    if (sizeMode === 'compact') {
+      const snippet = cleanMarkdownSnippet(note.content);
+      return `<div class="pocket-card-snippet">${escapeHtml(snippet)}</div>`;
+    }
+
+    // Strip leading title header line if it begins with # and resembles title
+    const lines = note.content.split('\n');
+    let bodyLines = [];
+    let skippedTitle = false;
+    for (let i = 0; i < lines.length; i++) {
+      const rawLine = lines[i];
+      if (!skippedTitle && /^\s*#+\s+/.test(rawLine)) {
+        skippedTitle = true;
+        continue;
+      }
+      bodyLines.push(rawLine);
+    }
+
+    let bodyText = bodyLines.join('\n').trim();
+    if (!bodyText) {
+      bodyText = note.content.trim();
+    }
+
+    // If note is unusually massive (> 1800 chars), cap with a subtle read more button
+    const isVeryLong = bodyText.length > 1800;
+    const toRender = isVeryLong ? bodyText.slice(0, 1600) + '...' : bodyText;
+
+    const parsed = parseMarkdownToHtml(toRender);
+    let html = parsed.html || '<p style="color:var(--muted);font-style:italic;margin:0;">Empty note</p>';
+
+    if (isVeryLong) {
+      html += '<div class="pocket-card-read-more">📖 Read full note in editor...</div>';
+    }
+
+    return html;
+  }
+
+  function toggleCardTask(noteId, isChecked, taskIdx) {
+    const note = pocketNotes.find(n => n.id === noteId);
+    if (!note || !note.content) return;
+    let count = 0;
+    const regex = /^(\s*[-*+]\s+\[)([ xX])(\]\s+.*)$/gm;
+    note.content = note.content.replace(regex, (match, prefix, state, suffix) => {
+      if (count === taskIdx) {
+        count++;
+        return prefix + (isChecked ? 'x' : ' ') + suffix;
+      }
+      count++;
+      return match;
+    });
+    note.updatedAt = Date.now();
+    savePocketNotes();
+    renderPocketShelf();
+    showToast(isChecked ? 'Task completed ✓' : 'Task reopened');
+  }
+
+  function updatePocketCardSizeButton() {
+    if (!btnPocketCardSizeToggle) return;
+    btnPocketCardSizeToggle.className = `pocket-shelf-tool-btn pocket-size-toggle-btn mode-${pocketCardSizeMode}`;
+    if (pocketCardSizeIcon) {
+      pocketCardSizeIcon.textContent = (pocketCardSizeMode === 'full') ? '↕️' : (pocketCardSizeMode === 'compact') ? '⊟' : '≣';
+    }
+    if (pocketCardSizeText) {
+      pocketCardSizeText.textContent = (pocketCardSizeMode === 'full') ? 'Full' : (pocketCardSizeMode === 'compact') ? 'Compact' : 'Medium';
+    }
+    btnPocketCardSizeToggle.title = `Card Size: ${pocketCardSizeMode.toUpperCase()} (Tap to cycle)`;
+  }
+
+  function renderPocketChipsRow() {
+    if (!pocketChipsRow) return;
+    const allTags = getAllPocketTags();
+    const isAllActive = (pocketFilterColor === 'all' && pocketFilterTag === 'all');
+    let html = `<button class="pocket-chip ${isAllActive ? 'active' : ''}" data-type="all">All</button>`;
+
+    allTags.forEach(tag => {
+      const isActive = (pocketFilterTag === tag);
+      html += `<button class="pocket-chip tag-chip ${isActive ? 'active' : ''}" data-type="tag" data-tag="${escapeHtml(tag)}">#${escapeHtml(tag)}</button>`;
+    });
+
+    const colors = ['orange', 'yellow', 'purple', 'blue', 'green', 'red', 'cyan'];
+    colors.forEach(col => {
+      const isActive = (pocketFilterColor === col && pocketFilterTag === 'all');
+      const hex = POCKET_COLORS[col] || '#7aa2f7';
+      const label = col.charAt(0).toUpperCase() + col.slice(1);
+      html += `<button class="pocket-chip ${isActive ? 'active' : ''}" data-type="color" data-color="${col}" style="--chip-color:${hex};"><span class="pocket-chip-dot" style="background:${hex};"></span>${label}</button>`;
+    });
+
+    pocketChipsRow.innerHTML = html;
+  }
+
+  function renderPocketNoteTagChips(note) {
+    if (!pocketNoteTagChips || !note) return;
+    const tags = getNoteTags(note);
+    pocketNoteTagChips.innerHTML = tags.map(t => `
+      <span class="pocket-tag-chip">#${escapeHtml(t)} <button class="pocket-tag-del-btn" data-tag="${escapeHtml(t)}">✕</button></span>
+    `).join('');
+
+    pocketNoteTagChips.querySelectorAll('.pocket-tag-del-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const tag = btn.dataset.tag;
+        removeTagFromNote(note.id, tag);
+        renderPocketNoteTagChips(note);
+      });
+    });
+  }
+
   function savePocketNotes() {
     try {
       localStorage.setItem('mdviewer_pocket_notes', JSON.stringify(pocketNotes));
@@ -6982,12 +7887,18 @@
           title: extractPocketTitle(basicDocText),
           content: basicDocText,
           color: 'blue',
+          tags: [],
           updatedAt: Date.now(),
           uri: basicDocUri || null,
           docId: basicDocTreeId || null
         });
       }
       savePocketNotes();
+    } else {
+      pocketNotes = pocketNotes.map(n => ({
+        ...n,
+        tags: Array.isArray(n.tags) ? n.tags : []
+      }));
     }
 
     try {
@@ -7092,21 +8003,30 @@
       btnPocketLayoutToggle.title = (pocketLayoutMode === 'list') ? 'Switch to 2-Column Grid' : 'Switch to 1-Column List';
     }
 
+    updatePocketCardSizeButton();
+
     const query = pocketSearchQuery.trim().toLowerCase();
+    const cleanQuery = query.replace(/^#/, '');
+
     const filtered = pocketNotes.filter(note => {
       if (pocketFilterColor !== 'all' && note.color !== pocketFilterColor) {
+        return false;
+      }
+      const noteTags = getNoteTags(note);
+      if (pocketFilterTag !== 'all' && !noteTags.includes(pocketFilterTag)) {
         return false;
       }
       if (query) {
         const tMatch = (note.title || '').toLowerCase().includes(query);
         const cMatch = (note.content || '').toLowerCase().includes(query);
-        return tMatch || cMatch;
+        const tagMatch = noteTags.some(t => t.includes(cleanQuery));
+        return tMatch || cMatch || tagMatch;
       }
       return true;
     });
 
     if (pocketSearchCount) {
-      if (query || pocketFilterColor !== 'all') {
+      if (query || pocketFilterColor !== 'all' || pocketFilterTag !== 'all') {
         pocketSearchCount.textContent = `${filtered.length} found`;
       } else {
         pocketSearchCount.textContent = `${pocketNotes.length} notes`;
@@ -7118,7 +8038,7 @@
         <div style="grid-column: 1 / -1; text-align: center; padding: 48px 16px; color: var(--muted);">
           <div style="font-size: 32px; margin-bottom: 8px;">📝</div>
           <div style="font-size: 15px; font-weight: 700; margin-bottom: 4px; color: var(--fg);">No Notes Found</div>
-          <div style="font-size: 12px;">Try adjusting search or tap <b>＋</b> below to write a note.</div>
+          <div style="font-size: 12px;">Try adjusting search/filters or tap <b>＋</b> below to write a note.</div>
         </div>
       `;
       return;
@@ -7126,32 +8046,91 @@
 
     filtered.forEach(note => {
       const card = document.createElement('div');
-      card.className = 'pocket-card';
+      const noteSize = pocketCardSizeOverrides[note.id] || pocketCardSizeMode;
+      card.className = `pocket-card card-size-${noteSize}`;
       const colorHex = getPocketColorHex(note.color);
       card.style.setProperty('--card-color', colorHex);
       card.dataset.id = note.id;
 
       const words = note.content ? note.content.trim().split(/\s+/).filter(Boolean).length : 0;
-      const snippet = cleanMarkdownSnippet(note.content);
       const relTime = formatRelativeTime(note.updatedAt);
+      const tags = getNoteTags(note);
+      const bodyHtml = renderCardBodyHtml(note, noteSize);
+
+      const tagsHtml = `
+        <div class="pocket-card-tags">
+          ${tags.map(t => `<span class="pocket-card-tag" data-tag="${escapeHtml(t)}">#${escapeHtml(t)}</span>`).join('')}
+          <button class="pocket-card-add-tag-btn" data-id="${note.id}" title="Add Tag">＋</button>
+        </div>
+      `;
 
       card.innerHTML = `
-        <div class="pocket-card-title">${escapeHtml(note.title || 'Untitled')}</div>
-        <div class="pocket-card-snippet">${escapeHtml(snippet)}</div>
+        <div class="pocket-card-header">
+          <div class="pocket-card-title">${escapeHtml(note.title || 'Untitled')}</div>
+          <span class="pocket-card-dot" style="background:${colorHex};" title="${note.color}"></span>
+        </div>
+        ${tagsHtml}
+        <div class="pocket-card-body">${bodyHtml}</div>
         <div class="pocket-card-footer">
           <div class="pocket-card-meta">
             <span class="pocket-card-date">${relTime}</span>
-            <span class="pocket-card-badge">${words} words</span>
+            <span class="pocket-card-words">${words} words</span>
           </div>
           <div class="pocket-card-actions">
+            <button class="pocket-card-size-btn" data-id="${note.id}" title="Toggle Preview Size (Full / Compact)">${noteSize === 'full' ? '↕️' : '⊟'}</button>
             <button class="pocket-card-del-btn" title="Delete Note">🗑️</button>
-            <span class="pocket-card-color-dot" style="background:${colorHex};" title="${note.color}"></span>
           </div>
         </div>
       `;
 
       card.addEventListener('click', (e) => {
+        // Tag clicked on card -> filter shelf
+        const tagBadge = e.target.closest('.pocket-card-tag');
+        if (tagBadge) {
+          e.stopPropagation();
+          const tag = tagBadge.dataset.tag;
+          if (tag) {
+            pocketFilterTag = tag;
+            pocketFilterColor = 'all';
+            renderPocketChipsRow();
+            renderPocketShelf();
+            showToast(`Filtered by #${tag}`);
+          }
+          return;
+        }
+
+        // Add tag button clicked on card
+        const addTagBtn = e.target.closest('.pocket-card-add-tag-btn');
+        if (addTagBtn) {
+          e.stopPropagation();
+          openPocketTagModal(note.id);
+          return;
+        }
+
+        // Per-note size toggle button clicked
+        const sizeBtn = e.target.closest('.pocket-card-size-btn');
+        if (sizeBtn) {
+          e.stopPropagation();
+          const curSize = pocketCardSizeOverrides[note.id] || pocketCardSizeMode;
+          const nextSize = (curSize === 'full') ? 'compact' : 'full';
+          pocketCardSizeOverrides[note.id] = nextSize;
+          renderPocketShelf();
+          showToast(`Note preview: ${nextSize === 'full' ? 'Full Length' : 'Compact'}`);
+          return;
+        }
+
+        // Delete button
         if (e.target.closest('.pocket-card-del-btn')) return;
+
+        // Interactive task checkbox clicked directly on card
+        const chk = e.target.closest('.task-checkbox');
+        if (chk) {
+          e.stopPropagation();
+          const taskIdx = parseInt(chk.dataset.taskIdx, 10);
+          toggleCardTask(note.id, chk.checked, isNaN(taskIdx) ? 0 : taskIdx);
+          return;
+        }
+
         openPocketNote(note.id);
       });
 
@@ -7187,6 +8166,7 @@
 
     if (btnPocketBackShelf) btnPocketBackShelf.style.display = 'none';
     if (pocketNoteColorBtn) pocketNoteColorBtn.style.display = 'none';
+    if (btnPocketNoteTagHeader) btnPocketNoteTagHeader.style.display = 'none';
     if (btnPocketSplitToggle) btnPocketSplitToggle.style.display = 'none';
     if (btnHeaderBasicSubMode) btnHeaderBasicSubMode.style.display = 'none';
     if (btnHeaderBasicNew) btnHeaderBasicNew.style.display = 'inline-flex';
@@ -7196,6 +8176,8 @@
     if (docTitle) docTitle.textContent = 'Pocket Notes';
     if (docStats) docStats.textContent = `${pocketNotes.length} notes • Tap ＋ to create`;
 
+    renderPocketChipsRow();
+    updatePocketCardSizeButton();
     renderPocketShelf();
   }
 
@@ -7232,6 +8214,7 @@
       pocketNoteColorBtn.style.background = getPocketColorHex(note.color);
       pocketNoteColorBtn.title = `Color: ${note.color} (Click to change)`;
     }
+    if (btnPocketNoteTagHeader) btnPocketNoteTagHeader.style.display = 'inline-flex';
     if (btnPocketSplitToggle) {
       btnPocketSplitToggle.style.display = 'inline-flex';
       btnPocketSplitToggle.classList.toggle('active', pocketSplitActive);
@@ -7239,6 +8222,13 @@
     if (btnHeaderBasicSubMode) btnHeaderBasicSubMode.style.display = 'inline-flex';
     if (btnHeaderBasicNew) btnHeaderBasicNew.style.display = 'inline-flex';
     if (btnHeaderBasicDelete) btnHeaderBasicDelete.style.display = 'inline-flex';
+
+    if (pocketTagBarColorBtn) {
+      pocketTagBarColorBtn.style.background = getPocketColorHex(note.color);
+      pocketTagBarColorBtn.title = `Color: ${note.color} (Click to change)`;
+    }
+    if (pocketTagInput) pocketTagInput.value = '';
+    renderPocketNoteTagChips(note);
 
     basicDocName = (note.title || 'Untitled') + '.md';
     basicDocText = note.content || '';
@@ -7273,6 +8263,59 @@
     saveLastOpenedBasic(basicDocName, basicDocUri, basicDocTreeId, basicDocText);
   }
 
+  let activeTagModalNoteId = null;
+
+  function openPocketTagModal(noteId) {
+    const note = pocketNotes.find(n => n.id === noteId);
+    if (!note) return;
+    activeTagModalNoteId = noteId;
+
+    if (pocketTagModalNoteTitle) {
+      pocketTagModalNoteTitle.textContent = `Tags for "${note.title || 'Untitled'}"`;
+    }
+    renderModalTagChips();
+    if (inputModalTag) {
+      inputModalTag.value = '';
+    }
+    if (pocketTagModal) {
+      pocketTagModal.style.display = 'flex';
+      if (inputModalTag) inputModalTag.focus();
+    }
+  }
+
+  function renderModalTagChips() {
+    if (!pocketTagModalChips || !activeTagModalNoteId) return;
+    const note = pocketNotes.find(n => n.id === activeTagModalNoteId);
+    if (!note) return;
+    const tags = getNoteTags(note);
+    if (tags.length === 0) {
+      pocketTagModalChips.innerHTML = '<span style="font-size:11.5px;color:var(--muted);font-style:italic;">No tags added yet. Type below and tap ＋</span>';
+      return;
+    }
+    pocketTagModalChips.innerHTML = tags.map(t => `
+      <span class="pocket-tag-chip">#${escapeHtml(t)} <button class="pocket-tag-del-btn" data-tag="${escapeHtml(t)}">✕</button></span>
+    `).join('');
+
+    pocketTagModalChips.querySelectorAll('.pocket-tag-del-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const tag = btn.dataset.tag;
+        removeTagFromNote(activeTagModalNoteId, tag);
+        renderModalTagChips();
+        if (currentPocketView === 'editor' && currentPocketNoteId === activeTagModalNoteId) {
+          renderPocketNoteTagChips(note);
+        }
+      });
+    });
+  }
+
+  function closePocketTagModal() {
+    activeTagModalNoteId = null;
+    if (pocketTagModal) pocketTagModal.style.display = 'none';
+    renderPocketChipsRow();
+    renderPocketShelf();
+  }
+
   function createPocketNote() {
     if (currentPocketView === 'editor' && basicMarkdownEditor && currentPocketNoteId) {
       const cur = pocketNotes.find(n => n.id === currentPocketNoteId);
@@ -7291,6 +8334,7 @@
       title: 'New Note',
       content: '# New Note\n\n',
       color: color,
+      tags: [],
       updatedAt: Date.now(),
       uri: null,
       docId: null,
@@ -7653,6 +8697,12 @@
     });
   }
 
+  if (pocketTagModal) {
+    pocketTagModal.addEventListener('click', (e) => {
+      if (e.target === pocketTagModal) closePocketTagModal();
+    });
+  }
+
   if (btnBasicBottomToggle) btnBasicBottomToggle.addEventListener('click', toggleBasicSubMode);
   if (docFloatEditBtn) docFloatEditBtn.addEventListener('click', toggleBasicSubMode);
   if (btnNewNoteDrawer) btnNewNoteDrawer.addEventListener('click', createNewBasicDocument);
@@ -7660,6 +8710,26 @@
   // --- Attach PocketMark Event Listeners ---
   if (btnPocketBackShelf) btnPocketBackShelf.addEventListener('click', openPocketShelf);
   if (pocketFabNew) pocketFabNew.addEventListener('click', createPocketNote);
+
+  if (btnPocketCardSizeToggle) {
+    btnPocketCardSizeToggle.addEventListener('click', () => {
+      if (pocketCardSizeMode === 'full') {
+        pocketCardSizeMode = 'compact';
+      } else if (pocketCardSizeMode === 'compact') {
+        pocketCardSizeMode = 'medium';
+      } else {
+        pocketCardSizeMode = 'full';
+      }
+      localStorage.setItem('mdviewer_pocket_card_size', pocketCardSizeMode);
+      pocketCardSizeOverrides = {}; // clear per-note overrides on global size toggle
+      updatePocketCardSizeButton();
+      renderPocketShelf();
+      const desc = (pocketCardSizeMode === 'full') ? 'Full Length Preview (Read whole note)' :
+                   (pocketCardSizeMode === 'compact') ? 'Compact Cards (Snippet only)' :
+                   'Medium Passage (~8 lines)';
+      showToast(`Card Size: ${desc}`);
+    });
+  }
 
   if (btnPocketLayoutToggle) {
     btnPocketLayoutToggle.addEventListener('click', () => {
@@ -7680,11 +8750,97 @@
     pocketChipsRow.addEventListener('click', (e) => {
       const chip = e.target.closest('.pocket-chip');
       if (!chip) return;
-      pocketChipsRow.querySelectorAll('.pocket-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      pocketFilterColor = chip.dataset.color || 'all';
+      const type = chip.dataset.type;
+      if (type === 'all') {
+        pocketFilterColor = 'all';
+        pocketFilterTag = 'all';
+      } else if (type === 'tag') {
+        const tag = chip.dataset.tag;
+        if (pocketFilterTag === tag) {
+          pocketFilterTag = 'all';
+        } else {
+          pocketFilterTag = tag;
+          pocketFilterColor = 'all';
+        }
+      } else if (type === 'color') {
+        const color = chip.dataset.color;
+        if (pocketFilterColor === color) {
+          pocketFilterColor = 'all';
+        } else {
+          pocketFilterColor = color;
+          pocketFilterTag = 'all';
+        }
+      }
+      renderPocketChipsRow();
       renderPocketShelf();
     });
+  }
+
+  // --- Note Tag Bar Listeners (Editor) ---
+  function handleAddTagFromEditor() {
+    if (!pocketTagInput || !currentPocketNoteId) return;
+    const val = pocketTagInput.value.trim();
+    if (!val) return;
+    addTagToNote(currentPocketNoteId, val);
+    pocketTagInput.value = '';
+    const note = pocketNotes.find(n => n.id === currentPocketNoteId);
+    if (note) renderPocketNoteTagChips(note);
+  }
+
+  if (btnPocketAddTagConfirm) {
+    btnPocketAddTagConfirm.addEventListener('click', handleAddTagFromEditor);
+  }
+  if (pocketTagInput) {
+    pocketTagInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleAddTagFromEditor();
+      }
+    });
+  }
+
+  if (pocketTagBarColorBtn) {
+    pocketTagBarColorBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (pocketColorModal) pocketColorModal.classList.toggle('open');
+    });
+  }
+
+  if (btnPocketNoteTagHeader) {
+    btnPocketNoteTagHeader.addEventListener('click', () => {
+      if (currentPocketNoteId) {
+        if (pocketTagInput) {
+          pocketTagInput.focus();
+        } else {
+          openPocketTagModal(currentPocketNoteId);
+        }
+      }
+    });
+  }
+
+  // --- Tag Modal Listeners ---
+  function handleAddTagFromModal() {
+    if (!inputModalTag || !activeTagModalNoteId) return;
+    const val = inputModalTag.value.trim();
+    if (!val) return;
+    addTagToNote(activeTagModalNoteId, val);
+    inputModalTag.value = '';
+    renderModalTagChips();
+  }
+
+  if (btnModalAddTag) {
+    btnModalAddTag.addEventListener('click', handleAddTagFromModal);
+  }
+  if (inputModalTag) {
+    inputModalTag.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleAddTagFromModal();
+      }
+    });
+  }
+  if (btnCloseTagModal) {
+    btnCloseTagModal.addEventListener('click', closePocketTagModal);
   }
 
   if (pocketNoteColorBtn) {
@@ -7708,6 +8864,10 @@
             pocketNoteColorBtn.style.background = getPocketColorHex(color);
             pocketNoteColorBtn.title = `Color: ${color}`;
           }
+          if (pocketTagBarColorBtn) {
+            pocketTagBarColorBtn.style.background = getPocketColorHex(color);
+            pocketTagBarColorBtn.title = `Color: ${color}`;
+          }
           renderPocketTabs();
           if (pocketColorModal) pocketColorModal.classList.remove('open');
           showToast(`Note color set to ${color}`);
@@ -7718,7 +8878,7 @@
 
   document.addEventListener('click', (e) => {
     if (pocketColorModal && pocketColorModal.classList.contains('open')) {
-      if (!pocketColorModal.contains(e.target) && e.target !== pocketNoteColorBtn) {
+      if (!pocketColorModal.contains(e.target) && e.target !== pocketNoteColorBtn && e.target !== pocketTagBarColorBtn) {
         pocketColorModal.classList.remove('open');
       }
     }
@@ -8658,6 +9818,24 @@
     updateColumnState();
   }
 
+  function getCardBodyHtml(h, maxPreview = 800) {
+    if (!h) return '';
+    const startLine = h.line + 1;
+    const endLine = h.end;
+    if (startLine > endLine) {
+      return '<div class="prow-line plain" style="padding:12px 14px; font-style:italic; opacity:0.6;"><span class="txt">(Empty section)</span></div>';
+    }
+    let html = '';
+    const end = Math.min(endLine, startLine + maxPreview);
+    for (let i = startLine; i <= end; i++) {
+      html += panelRowHtml(i, -1);
+    }
+    if (endLine > end) {
+      html += '<div class="prow-line plain" style="padding:8px 12px; font-style:italic; opacity:0.7;"><span class="txt">(Section continues...)</span></div>';
+    }
+    return html;
+  }
+
   function renderCurrentCard() {
     if (!flashcardList || flashcardList.length === 0) {
       fcCard.classList.remove('flipped');
@@ -8696,22 +9874,8 @@
     fcBackTitle.textContent = '#'.repeat(h.level) + ' ' + h.text;
     fcBackTitle.style.color = `var(--h${h.level})`;
 
-    const startLine = h.line + 1;
-    const endLine = h.end;
-    if (startLine > endLine) {
-      if (fcBackContent) fcBackContent.innerHTML = '<div class="prow-line plain" style="padding:20px; font-style:italic; opacity:0.6;"><span class="txt">(Empty section)</span></div>';
-    } else {
-      let html = '';
-      const maxPreview = 800;
-      const end = Math.min(endLine, startLine + maxPreview);
-      for (let i = startLine; i <= end; i++) {
-        html += panelRowHtml(i, -1);
-      }
-      if (endLine > end) {
-        html += '<div class="prow-line plain" style="padding:10px 12px; font-style:italic; opacity:0.7;"><span class="txt">(Section continues...)</span></div>';
-      }
-      if (fcBackContent) fcBackContent.innerHTML = html;
-    }
+    if (fcBackContent) fcBackContent.innerHTML = getCardBodyHtml(h, 800);
+
     updateColumnState();
     applyFcZoom();
     currentBackPageIndex = 0;
@@ -8753,8 +9917,189 @@
       [flashcardList[i], flashcardList[j]] = [flashcardList[j], flashcardList[i]];
     }
     currentCardIndex = 0;
-    renderCurrentCard();
+    if (fcViewMode === 'gallery') {
+      renderFlashcardGallery();
+    } else {
+      renderCurrentCard();
+    }
     showToast('Cards shuffled');
+  }
+
+  // --- Flashcard Gallery Review Implementation ---
+  function setFcViewMode(mode) {
+    fcViewMode = mode;
+    if (fcViewMode === 'gallery') {
+      if (btnFcModeStudy) btnFcModeStudy.classList.remove('active');
+      if (btnFcModeGallery) btnFcModeGallery.classList.add('active');
+      if (flashcardStage) flashcardStage.style.display = 'none';
+      if (flashcardGalleryView) flashcardGalleryView.style.display = 'flex';
+      if (fcColToggleBtn) fcColToggleBtn.style.display = 'none';
+      if (fcGalleryFaceGroup) {
+        fcGalleryFaceGroup.querySelectorAll('button').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.face === fcGalleryFaceMode);
+        });
+      }
+      renderFlashcardGallery();
+    } else {
+      fcViewMode = 'study';
+      if (btnFcModeGallery) btnFcModeGallery.classList.remove('active');
+      if (btnFcModeStudy) btnFcModeStudy.classList.add('active');
+      if (flashcardGalleryView) flashcardGalleryView.style.display = 'none';
+      if (flashcardStage) flashcardStage.style.display = 'flex';
+      if (fcColToggleBtn) fcColToggleBtn.style.display = '';
+      renderCurrentCard();
+    }
+  }
+
+  function setFcGalleryFace(face) {
+    fcGalleryFaceMode = face;
+    try {
+      localStorage.setItem('mdviewer_fc_gallery_face', face);
+    } catch(e) {}
+    if (fcGalleryFaceGroup) {
+      fcGalleryFaceGroup.querySelectorAll('button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.face === face);
+      });
+    }
+    renderFlashcardGallery();
+  }
+
+  function renderFlashcardGallery() {
+    if (!fcGalleryGrid) return;
+    if (!flashcardList || flashcardList.length === 0) {
+      fcGalleryGrid.innerHTML = `
+        <div style="text-align:center; padding:48px 16px; color:var(--muted);">
+          <div style="font-size:32px; margin-bottom:8px;">📭</div>
+          <div style="font-size:14px; font-weight:600;">No flashcards available</div>
+          <div style="font-size:12px; margin-top:4px; opacity:0.8;">Open a document with headings to review.</div>
+        </div>
+      `;
+      if (fcGalleryCount) fcGalleryCount.textContent = '0 cards';
+      if (fcStats) fcStats.textContent = '0 / 0';
+      return;
+    }
+
+    const q = (fcGallerySearchQuery || '').toLowerCase();
+    const filtered = flashcardList.filter(h => {
+      if (!q) return true;
+      if (h.text && h.text.toLowerCase().includes(q)) return true;
+      const bc = getBreadcrumb(h);
+      if (bc && bc.toLowerCase().includes(q)) return true;
+      const startLine = h.line + 1;
+      const endLine = Math.min(h.end, h.line + 150);
+      for (let l = startLine; l <= endLine; l++) {
+        if (rows[l] && rows[l].raw && rows[l].raw.toLowerCase().includes(q)) return true;
+      }
+      return false;
+    });
+
+    if (fcGalleryCount) {
+      if (q) {
+        fcGalleryCount.textContent = `${filtered.length} of ${flashcardList.length} cards`;
+      } else {
+        fcGalleryCount.textContent = `${flashcardList.length} cards`;
+      }
+    }
+    if (fcStats) {
+      fcStats.textContent = `Gallery: ${flashcardList.length} cards`;
+    }
+
+    if (filtered.length === 0) {
+      fcGalleryGrid.innerHTML = `
+        <div style="text-align:center; padding:48px 16px; color:var(--muted);">
+          <div style="font-size:32px; margin-bottom:8px;">🔍</div>
+          <div style="font-size:14px; font-weight:600;">No matching cards found</div>
+          <div style="font-size:12px; margin-top:4px; opacity:0.8;">Try a different search keyword or heading filter.</div>
+        </div>
+      `;
+      return;
+    }
+
+    const face = fcGalleryFaceMode || 'both';
+    let cardsHtml = '';
+    const totalCards = flashcardList.length;
+
+    for (let i = 0; i < filtered.length; i++) {
+      const h = filtered[i];
+      const origIndex = flashcardList.indexOf(h);
+      const cardNum = origIndex + 1;
+      const breadcrumb = getBreadcrumb(h);
+      const levelColor = `var(--h${h.level})`;
+
+      if (face === 'front') {
+        // Front Only: Title, Meta, Index, Peek button, Study button
+        cardsHtml += `
+          <div class="fc-gcard mode-front" data-index="${origIndex}">
+            <div class="fc-gcard-header">
+              <div class="fc-gcard-meta">
+                <span class="fc-gcard-badge" style="color:${levelColor}; background:rgba(122,162,247,0.16);">H${h.level}</span>
+                ${breadcrumb ? `<span class="fc-gcard-breadcrumb">${escapeHtml(breadcrumb)}</span>` : ''}
+              </div>
+              <span class="fc-gcard-index">${cardNum} / ${totalCards}</span>
+            </div>
+            <div class="fc-gcard-front-title" style="color:${levelColor};">${escapeHtml(h.text)}</div>
+            <div class="fc-gcard-actions">
+              <button class="fc-gcard-flip-btn" data-action="peek" data-index="${origIndex}">Peek Answer ▾</button>
+              <button class="fc-gcard-study-btn" data-action="study" data-index="${origIndex}">🗂️ Study</button>
+            </div>
+            <div class="fc-gcard-peek-body" id="fcPeekBody_${origIndex}" style="display:none; margin-top:10px; padding:10px 12px; background:rgba(0,0,0,0.25); border-radius:8px; border:1px dashed var(--border); font-size:12.5px; color:#c0caf5; max-height:220px; overflow-y:auto;">
+              ${getCardBodyHtml(h, 200)}
+            </div>
+          </div>
+        `;
+      } else if (face === 'back') {
+        // Back Only: Answers / Content, Header, Index, Study button
+        cardsHtml += `
+          <div class="fc-gcard mode-back" data-index="${origIndex}">
+            <div class="fc-gcard-header">
+              <div class="fc-gcard-meta">
+                <span class="fc-gcard-badge" style="color:${levelColor}; background:rgba(122,162,247,0.16);">H${h.level}</span>
+                ${breadcrumb ? `<span class="fc-gcard-breadcrumb">${escapeHtml(breadcrumb)}</span>` : ''}
+              </div>
+              <span class="fc-gcard-index">${cardNum} / ${totalCards}</span>
+            </div>
+            <div class="fc-gcard-back-title" style="color:${levelColor};">
+              ${'#'.repeat(h.level)} ${escapeHtml(h.text)}
+            </div>
+            <div class="fc-gcard-body md-body markdown-body">
+              ${getCardBodyHtml(h, 250)}
+            </div>
+            <div class="fc-gcard-actions">
+              <button class="fc-gcard-study-btn" data-action="study" data-index="${origIndex}">🗂️ Study</button>
+            </div>
+          </div>
+        `;
+      } else {
+        // Both: Side-by-Side (Front on left, Back on right)
+        cardsHtml += `
+          <div class="fc-gcard mode-both" data-index="${origIndex}">
+            <div class="fc-gcard-side-front">
+              <div class="fc-gcard-header">
+                <div class="fc-gcard-meta">
+                  <span class="fc-gcard-badge" style="color:${levelColor}; background:rgba(122,162,247,0.16);">H${h.level}</span>
+                  ${breadcrumb ? `<span class="fc-gcard-breadcrumb">${escapeHtml(breadcrumb)}</span>` : ''}
+                </div>
+                <span class="fc-gcard-index">${cardNum} / ${totalCards}</span>
+              </div>
+              <div class="fc-gcard-front-title" style="color:${levelColor};">${escapeHtml(h.text)}</div>
+              <div class="fc-gcard-actions" style="margin-top:auto; padding-top:10px;">
+                <button class="fc-gcard-study-btn" data-action="study" data-index="${origIndex}">🗂️ Study</button>
+              </div>
+            </div>
+            <div class="fc-gcard-side-back">
+              <div class="fc-gcard-back-title" style="color:${levelColor};">
+                ${'#'.repeat(h.level)} ${escapeHtml(h.text)}
+              </div>
+              <div class="fc-gcard-body md-body markdown-body">
+                ${getCardBodyHtml(h, 250)}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    fcGalleryGrid.innerHTML = cardsHtml;
   }
 
   // --- Standard Xbox One Controller Definitions & Gamepad Loop ---
@@ -9132,7 +10477,7 @@
     applyFcZoom();
     flashcardList = collectFlashcards(flashcardFilter);
     currentCardIndex = 0;
-    renderCurrentCard();
+    setFcViewMode(fcViewMode);
 
     // Start gamepad polling
     if (!gamepadRafId) {
@@ -9224,6 +10569,9 @@
       cancelAnimationFrame(gamepadRafId);
       gamepadRafId = null;
     }
+    fcGallerySearchQuery = '';
+    if (fcGallerySearchInput) fcGallerySearchInput.value = '';
+    if (fcGallerySearchClear) fcGallerySearchClear.style.display = 'none';
     if (currentAppMode === 'basic') {
       if (outlineDocText) {
         parse(outlineDocText);
@@ -9281,7 +10629,76 @@
       flashcardFilter = btn.dataset.filter;
       flashcardList = collectFlashcards(flashcardFilter);
       currentCardIndex = 0;
-      renderCurrentCard();
+      if (fcViewMode === 'gallery') {
+        renderFlashcardGallery();
+      } else {
+        renderCurrentCard();
+      }
+    });
+  }
+
+  // Flashcard Mode Switcher (Study vs Gallery)
+  if (btnFcModeStudy) {
+    btnFcModeStudy.addEventListener('click', () => {
+      setFcViewMode('study');
+    });
+  }
+  if (btnFcModeGallery) {
+    btnFcModeGallery.addEventListener('click', () => {
+      setFcViewMode('gallery');
+    });
+  }
+
+  // Gallery Face Selector (Front, Back, Both)
+  if (fcGalleryFaceGroup) {
+    fcGalleryFaceGroup.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-face]');
+      if (!btn) return;
+      setFcGalleryFace(btn.dataset.face);
+    });
+  }
+
+  // Gallery Search Input & Clear
+  if (fcGallerySearchInput) {
+    fcGallerySearchInput.addEventListener('input', (e) => {
+      fcGallerySearchQuery = (e.target.value || '').trim();
+      if (fcGallerySearchClear) {
+        fcGallerySearchClear.style.display = fcGallerySearchQuery ? 'inline-flex' : 'none';
+      }
+      renderFlashcardGallery();
+    });
+  }
+  if (fcGallerySearchClear) {
+    fcGallerySearchClear.addEventListener('click', () => {
+      if (fcGallerySearchInput) fcGallerySearchInput.value = '';
+      fcGallerySearchQuery = '';
+      fcGallerySearchClear.style.display = 'none';
+      renderFlashcardGallery();
+    });
+  }
+
+  // Gallery Card Actions (Study jump & Peek toggle)
+  if (fcGalleryGrid) {
+    fcGalleryGrid.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      const action = btn.dataset.action;
+      const idx = parseInt(btn.dataset.index, 10);
+      if (isNaN(idx)) return;
+
+      if (action === 'study') {
+        currentCardIndex = idx;
+        setFcViewMode('study');
+        renderCurrentCard();
+        showToast(`Studying card ${currentCardIndex + 1} of ${flashcardList.length}`);
+      } else if (action === 'peek') {
+        const peekEl = document.getElementById('fcPeekBody_' + idx);
+        if (peekEl) {
+          const isHidden = peekEl.style.display === 'none';
+          peekEl.style.display = isHidden ? 'block' : 'none';
+          btn.textContent = isHidden ? 'Hide Answer ▴' : 'Peek Answer ▾';
+        }
+      }
     });
   }
 
@@ -10082,6 +11499,7 @@
             title: (fileName || 'Document').replace(/\.md$/, ''),
             content: text,
             color: colorKeys[pocketNotes.length % colorKeys.length],
+            tags: [],
             updatedAt: Date.now(),
             uri: uri || null,
             docId: null
@@ -10181,6 +11599,7 @@
             title: (fileName || 'Document').replace(/\.md$/, ''),
             content: text,
             color: colorKeys[pocketNotes.length % colorKeys.length],
+            tags: [],
             updatedAt: Date.now(),
             uri: null,
             docId: docId || null
@@ -10269,6 +11688,7 @@
           title: name.replace(/\.md$/, ''),
           content: text,
           color: colorKeys[pocketNotes.length % colorKeys.length],
+          tags: [],
           updatedAt: Date.now(),
           uri: null,
           docId: null
@@ -11695,6 +13115,10 @@
       hidePocketDeleteModal();
       return true;
     }
+    if (pocketTagModal && pocketTagModal.style.display === 'flex') {
+      closePocketTagModal();
+      return true;
+    }
     if (currentAppMode === 'basic' && pocketSplitActive) {
       togglePocketSplit();
       return true;
@@ -11702,6 +13126,10 @@
     if (isFlashcardMode) {
       if (isFcFullscreen) {
         exitFcFullscreen();
+        return true;
+      }
+      if (fcViewMode === 'gallery') {
+        setFcViewMode('study');
         return true;
       }
       exitFlashcardMode();
