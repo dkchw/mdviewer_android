@@ -58,8 +58,8 @@ kotlinc -cp "$PLATFORM_JAR:$APP_DIR/libs/kotlin-stdlib.jar" \
     "$BUILD_DIR/gen/com/mdviewer/app/R.java" \
     "$SRC_DIR/java/com/mdviewer/app/"*.kt
 
-echo "4. Dexing classes with d8..."
-"$BT/d8" --lib "$PLATFORM_JAR" \
+echo "4. Dexing classes with d8 in release mode..."
+"$BT/d8" --release --min-api 24 --lib "$PLATFORM_JAR" \
     --output "$BUILD_DIR/" \
     "$APP_DIR/libs/kotlin-stdlib.jar" \
     $(find "$BUILD_DIR/classes" -name "*.class")
@@ -87,6 +87,7 @@ VERSIONED_APK="$OUT_DIR/mdviewer-v${VERSION_NAME}.apk"
 
 echo "7. Signing APK with apksigner (v1, v2, v3)..."
 "$BT/apksigner" sign \
+    --min-sdk-version 24 \
     --v1-signing-enabled true \
     --v2-signing-enabled true \
     --v3-signing-enabled true \

@@ -209,4 +209,16 @@ Turn any markdown document or note into interactive study flashcards:
 
 ---
 
+## 🛡️ 9. What's New in v2.4.1
+
+- **🔒 Google Play Protect Security Fix**:
+  - Removed deprecated and flagged system intent extras (`EXTRA_NOT_UNKNOWN_SOURCE`) from package installation logic that triggered Play Protect Trojan/Dropper false positives.
+  - Added Android 11+ (API 30+) `<queries>` intent declarations for package installation and web browsing.
+  - Explicitly configured `android:debuggable="false"` in the application manifest.
+  - D8 dex bytecode compiled with `--release` mode and minimum SDK 24 optimizations.
+- **📖 In-App Updater Architecture Guide**:
+  - Published comprehensive technical guide [`UPDATER.md`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/UPDATER.md) detailing the zero-dependency background updater architecture, GitHub Releases API integration, Android `DownloadManager`, and secure sandboxed `ApkProvider`.
+
+---
+
 *MD Viewer — Fast, Offline, Private Markdown Reading & Writing on Android.*

@@ -1163,20 +1163,7 @@ class MainActivity : Activity() {
                 startActivity(intent)
             } catch (e: Exception) {
                 Log.e(TAG, "Cannot launch package installer with provider URI", e)
-                try {
-                    val contentUri = Uri.parse("content://$packageName.apkprovider/${file.name}")
-                    @Suppress("DEPRECATION")
-                    val fallbackIntent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
-                        data = contentUri
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
-                    }
-                    startActivity(fallbackIntent)
-                } catch (e2: Exception) {
-                    Log.e(TAG, "Fallback install intent failed", e2)
-                    Toast.makeText(this, "Cannot prompt package installer: ${e2.message}", Toast.LENGTH_LONG).show()
-                }
+                Toast.makeText(this, "Cannot prompt package installer: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }
