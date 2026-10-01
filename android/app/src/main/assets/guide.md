@@ -264,4 +264,15 @@ Turn any markdown document or note into interactive study flashcards:
 
 ---
 
+## 🚀 12. What's New in v2.4.4
+
+- **🏷️ Full HTML Open & Close Tag Recognition**:
+  - **Preserved Closing HTML Tags**: Fixed HTML tokenization bug where closing tags (e.g. `</span>`, `</b>`, `</i>`, `</font>`, `</strong>`) were not preserved as safe tokens, causing them to be escaped into literal text like `&lt;/span&gt;` on screen.
+  - **Paired Tag Tokenization**: Opening and closing tags are now paired and protected with collision-resistant safe tokens (`@@@SAFEHTML_N@@@`), preventing Markdown inline syntax collisions (e.g., italic/bold underscores) from breaking HTML structures.
+  - **Flexible Whitespace Tolerance**: Enhanced regex matching to cleanly handle tags with inner spacing, such as `</span >`, `</ span>`, `<br />`, and `<hr />`.
+  - **Standalone HTML Block Tag Handling**: Opening or closing HTML tags placed on their own lines (e.g., `<span style="...">` and `</span>` wrapping multiple lines) are recognized as standalone HTML blocks rather than being wrapped in conflicting `<p>...</p>` tags that break styling.
+  - **Outline Scroller HTML Heading Rendering**: Formatted HTML tags in headings (`# Header with <span style="...">Color</span>`) now render formatted HTML in Outline mode and Hover Outline preview instead of escaped raw text.
+
+---
+
 *MD Viewer — Fast, Offline, Private Markdown Reading & Writing on Android.*

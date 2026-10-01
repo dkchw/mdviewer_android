@@ -6934,7 +6934,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v2.4.3</span>
+          <span class="settings-row-badge" id="appVersionSub">v2.4.4</span>
         </button>
         <div class="settings-row-config">
           <div class="settings-config-label">
@@ -7255,7 +7255,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '2.4.3';
+      window.AndroidBridge.getAppVersion() : '2.4.4';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -8359,10 +8359,10 @@
     let fmLines = [];
 
     function sanitizeHtmlTag(tag) {
-      const m = /^<\/?([a-zA-Z0-9]+)([\s\S]*?)>$/.exec(tag);
+      const m = /^<(\/)?\s*([a-zA-Z0-9]+)([\s\S]*?)>$/.exec(tag);
       if (!m) return escapeHtml(tag);
-      const isClosing = tag.startsWith('</');
-      const tagName = m[1].toLowerCase();
+      const isClosing = Boolean(m[1]) || tag.startsWith('</');
+      const tagName = m[2].toLowerCase();
       const safeTags = new Set([
         'span', 'font', 'b', 'strong', 'i', 'em', 'u', 's', 'strike', 'del', 'ins',
         'mark', 'kbd', 'code', 'pre', 'sub', 'sup', 'abbr', 'ruby', 'rt', 'rp',
@@ -8374,13 +8374,14 @@
         return escapeHtml(tag);
       }
       if (isClosing) return '</' + tagName + '>';
-      let attrs = m[2] || '';
+      let attrs = m[3] || '';
       // Strip dangerous event handlers (e.g. onclick, onload, onerror)
       attrs = attrs.replace(/\bon\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
       // Strip javascript / vbscript pseudo-protocols
       attrs = attrs.replace(/\b(href|src)\s*=\s*(?:"javascript:[^"]*"|'javascript:[^']*'|javascript:[^\s>]+)/gi, '');
-      const isSelfClosing = tag.endsWith('/>');
-      return '<' + tagName + attrs + (isSelfClosing ? ' />' : '>');
+      const isSelfClosing = tag.endsWith('/>') || attrs.trim().endsWith('/');
+      const cleanAttrs = attrs.replace(/\/+\s*$/, '');
+      return '<' + tagName + cleanAttrs + (isSelfClosing ? ' />' : '>');
     }
 
     function formatInline(str) {
@@ -8397,8 +8398,8 @@
       // Protect safe HTML tags so they are preserved
       const safeHtmlTokens = [];
       let s = str.replace(/<!--[\s\S]*?-->/g, '');
-      s = s.replace(/<\/?[a-zA-Z0-9]+(?:\s+[^>]*)?>/g, (tag) => {
-        const token = '___SAFEHTML_' + safeHtmlTokens.length + '___';
+      s = s.replace(/<(\/)?\s*([a-zA-Z0-9]+)([^>]*)>/g, (tag) => {
+        const token = '@@SAFEHTML' + safeHtmlTokens.length + '@@';
         safeHtmlTokens.push(sanitizeHtmlTag(tag));
         return token;
       });
@@ -8406,7 +8407,7 @@
       // Code spans (protected next)
       const codeTokens = [];
       s = s.replace(/`([^`]+)`/g, (m, code) => {
-        const ph = '___CODE_' + codeTokens.length + '___';
+        const ph = '@@CODE' + codeTokens.length + '@@';
         codeTokens.push('<code>' + escapeHtml(code) + '</code>');
         return ph;
       });
@@ -8445,12 +8446,12 @@
 
       // Restore code spans
       codeTokens.forEach((c, i) => {
-        s = s.replace('___CODE_' + i + '___', c);
+        s = s.split('@@CODE' + i + '@@').join(c);
       });
 
       // Restore safe HTML tokens
       safeHtmlTokens.forEach((c, i) => {
-        s = s.replace('___SAFEHTML_' + i + '___', c);
+        s = s.split('@@SAFEHTML' + i + '@@').join(c);
       });
 
       return s;
@@ -8676,7 +8677,7 @@
         continue;
       }
 
-      const blockHtmlMatch = /^<\/?(details|div|center|table|thead|tbody|tfoot|tr|th|td|section|article|aside|figure|figcaption)\b([^>]*)>$/i.exec(trimmedLine);
+      const blockHtmlMatch = /^<(\/)?\s*(details|div|center|table|thead|tbody|tfoot|tr|th|td|section|article|aside|figure|figcaption|span|font|b|strong|i|em|u|s|strike|del|ins|mark|kbd|code|pre|sub|sup|p|a)\b([^>]*)>$/i.exec(trimmedLine);
       if (blockHtmlMatch) {
         flushList();
         flushTable();
@@ -12720,6 +12721,12 @@
     return t;
   }
 
+  const SAFE_INLINE_HTML_TAGS = new Set([
+    'span', 'font', 'b', 'strong', 'i', 'em', 'u', 's', 'strike', 'del', 'ins',
+    'mark', 'kbd', 'code', 'sub', 'sup', 'abbr', 'small', 'q', 'cite', 'br', 'wbr',
+    'ruby', 'rt', 'rp', 'dfn', 'time', 'a', 'p', 'div'
+  ]);
+
   function formatPlainHtml(rawText) {
     if (!rawText) return '';
     // Fast path: if no markdown formatting characters exist, avoid all regex!
@@ -12731,23 +12738,23 @@
     }
     const safeHtmlTokens = [];
     let s = rawText.replace(/<!--[\s\S]*?-->/g, '');
-    s = s.replace(/<\/?[a-zA-Z0-9]+(?:\s+[^>]*)?>/g, (tag) => {
-      const m = /^<\/?([a-zA-Z0-9]+)([\s\S]*?)>$/.exec(tag);
-      if (!m) return escapeHtml(tag);
-      const isClosing = tag.startsWith('</');
-      const tagName = m[1].toLowerCase();
-      const safeTags = new Set([
-        'span', 'font', 'b', 'strong', 'i', 'em', 'u', 's', 'strike', 'del', 'ins',
-        'mark', 'kbd', 'code', 'sub', 'sup', 'abbr', 'small', 'q', 'cite', 'br'
-      ]);
-      if (!safeTags.has(tagName)) return escapeHtml(tag);
-      if (isClosing) return '</' + tagName + '>';
-      let attrs = m[2] || '';
+    s = s.replace(/<(\/)?\s*([a-zA-Z0-9]+)([^>]*)>/g, (tag, closingSlash, rawTagName, rawAttrs) => {
+      const isClosing = Boolean(closingSlash) || tag.startsWith('</');
+      const tagName = rawTagName.toLowerCase();
+      if (!SAFE_INLINE_HTML_TAGS.has(tagName)) return escapeHtml(tag);
+      if (isClosing) {
+        const sanitized = '</' + tagName + '>';
+        const token = '@@SAFEHTML' + safeHtmlTokens.length + '@@';
+        safeHtmlTokens.push(sanitized);
+        return token;
+      }
+      let attrs = rawAttrs || '';
       attrs = attrs.replace(/\bon\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
       attrs = attrs.replace(/\b(href|src)\s*=\s*(?:"javascript:[^"]*"|'javascript:[^']*'|javascript:[^\s>]+)/gi, '');
-      const isSelfClosing = tag.endsWith('/>');
-      const sanitized = '<' + tagName + attrs + (isSelfClosing ? ' />' : '>');
-      const token = '___SAFEHTML_' + safeHtmlTokens.length + '___';
+      const isSelfClosing = tag.endsWith('/>') || attrs.trim().endsWith('/');
+      const cleanAttrs = attrs.replace(/\/+\s*$/, '');
+      const sanitized = '<' + tagName + cleanAttrs + (isSelfClosing ? ' />' : '>');
+      const token = '@@SAFEHTML' + safeHtmlTokens.length + '@@';
       safeHtmlTokens.push(sanitized);
       return token;
     });
@@ -12756,7 +12763,7 @@
     s = mdInline(s);
 
     safeHtmlTokens.forEach((c, i) => {
-      s = s.replace('___SAFEHTML_' + i + '___', c);
+      s = s.split('@@SAFEHTML' + i + '@@').join(c);
     });
     return s;
   }
@@ -12812,7 +12819,7 @@
       const isActive = (hIdx === activeHeadingIdx);
       const activeClass = isActive ? ' active-heading' : '';
 
-      let txtHtml = escapeHtml('#'.repeat(h.level) + ' ' + h.text);
+      let txtHtml = escapeHtml('#'.repeat(h.level) + ' ') + formatPlainHtml(h.text);
       if (searchQuery && searchScope === 'file') {
         txtHtml = highlightInHtml(txtHtml, searchQuery, isTarget);
       }
@@ -13154,7 +13161,7 @@
 
     if (hSubIdx !== undefined) {
       const subH = headings[hSubIdx];
-      return `<div class="prow-line heading h${subH.level}${targetCls}" data-pline="${lineNo}">${escapeHtml('#'.repeat(subH.level) + ' ' + subH.text)}</div>`;
+      return `<div class="prow-line heading h${subH.level}${targetCls}" data-pline="${lineNo}">${escapeHtml('#'.repeat(subH.level) + ' ') + formatPlainHtml(subH.text)}</div>`;
     }
     return `<div class="prow-line plain${targetCls}" data-pline="${lineNo}">${renderPlainLine(text)}</div>`;
   }
@@ -13167,7 +13174,7 @@
     currentPreviewHIdx = hIdx;
     currentPreviewTargetLine = (targetLineNo !== undefined) ? targetLineNo : -1;
     const h = headings[hIdx];
-    panelTitle.textContent = '#'.repeat(h.level) + ' ' + h.text;
+    panelTitle.innerHTML = escapeHtml('#'.repeat(h.level) + ' ') + formatPlainHtml(h.text);
     panelTitle.style.color = `var(--h${h.level})`;
 
     if (isSameHeading) {
