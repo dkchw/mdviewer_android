@@ -18,11 +18,11 @@ MD Viewer provides three dedicated modes tailored for different writing, reading
   - Quick note edit button (**`✏️`**) with **Large Document Guard** protection.
 - **☑️ Checklist Mode**:
   - Virtualized interactive checklist reader and task manager.
-  - Dedicated 4-button bottom bar: **`☑️ Check All`**, **`⬜ Uncheck All`**, **`↶ Undo`**, and **`↷ Redo`**.
-  - Direct one-tap task toggling (`- [ ]` / `- [x]`) and live completion percentage.
+  - Dedicated crisp SVG toolbar matching Outline mode: **Check all**, **Uncheck all**, **Undo**, and **Redo**.
+  - Direct one-tap task toggling (`- [ ]` / `- [x]`) with animated custom squircle checkboxes and haptic feedback.
 
 > [!TIP]
-> **Switching Modes**: Switch anytime using the **mode dropdown** on the top header bar (**✍️ Notes** / **📑 Outline** / **☑️ Checklist**) or by tapping the mode tabs inside the left File Manager drawer.
+> **Switching Modes**: Switch anytime using the modern floating pill dropdown on the top header bar (**✍️ Notes** / **📑 Outline** / **☑️ Checklist**) with instant mode previews, or tap the mode tabs inside the left File Manager drawer.
 
 ---
 
@@ -180,6 +180,32 @@ Turn any markdown document or note into interactive study flashcards:
   - `📑`: Open Table of Contents sidebar.
   - `📖`: Toggle 2-Page Book Mode (two-column landscape eBook view).
   - `↔`: Toggle Wide Edge-to-Edge layout.
+
+---
+
+## 🌟 8. What's New in v2.4.0
+
+- **✨ Modern Custom Checkboxes**:
+  - Upgraded all interactive task checkboxes across Notes mode, card previews, Outline mode, and Checklist mode with custom animated squircles (`20x20px`, smooth border radius).
+  - Smooth vector checkmark SVG animation on check with dynamic spring scaling.
+  - Generous touch target area (36x36px hit target) for effortless mobile tapping.
+  - Tactile haptic micro-vibration feedback on check/uncheck.
+  - Elegant smooth strike-through transition for completed tasks.
+- **🌐 Safe HTML Rendering in Markdown**:
+  - Full support for rendering HTML tags within Markdown documents without escaping them into raw code.
+  - Safely renders inline elements: `<span style="...">`, `<font color="...">`, `<b>`, `<strong>`, `<i>`, `<em>`, `<u>`, `<s>`, `<del>`, `<ins>`, `<mark>`, `<kbd>`, `<code>`, `<sub>`, `<sup>`, `<abbr>`, `<br>`, `<img>`, and `<a>`.
+  - Safely renders block elements: `<details><summary>...</summary>...</details>` with collapsible card styling, `<div>`, `<center>`, `<table>` with formatted cells, and `<hr>`.
+  - Built-in XSS protection that automatically neutralizes unsafe event handlers (`on*`) and malicious pseudo-protocols (`javascript:`).
+  - Supported in both Prose Reader notes and Outline / Checklist virtual scrollers!
+- **⚡ Crisp Vector Checklist Toolbar**:
+  - Checklist mode bottom bar upgraded with crisp 24x24 vector SVG icons (`stroke-width="2.2"`) matching Outline mode visual standards.
+  - Two-line labels (`Check all`, `Uncheck all`, `Undo`, `Redo`) and active touch animations.
+  - Active and disabled button state styling (reduced opacity and event prevention when undo/redo stacks are empty).
+- **💎 Modern Floating Pill Mode Dropdown**:
+  - Replaced the native system `<select>` with a modern floating pill button in the top bar.
+  - Features current mode icon, mode title, and rotating animated chevron indicator.
+  - Rich popover menu with frosted glassmorphism (`backdrop-filter: blur(16px)`), colored squircle icon badges, mode titles, descriptions, and active checkmarks.
+  - Tap-to-dismiss backdrop and haptic vibration feedback.
 
 ---
 

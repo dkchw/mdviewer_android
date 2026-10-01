@@ -2832,18 +2832,146 @@
     align-items: baseline;
     gap: 8px;
   }
-  #docBody input.task-checkbox {
-    width: 17px;
-    height: 17px;
-    cursor: pointer;
-    accent-color: #7aa2f7;
+  /* Modern Custom Animated Checkboxes */
+  #docBody li.task-list-item {
+    list-style-type: none;
+    margin-left: -1.3em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 3px 0;
+  }
+  input.task-checkbox,
+  input.outline-task-cb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
     margin: 0;
     flex-shrink: 0;
-    transform: translateY(3px);
+    border: 2px solid var(--border-hl, #3b4261);
+    border-radius: 6px;
+    background-color: var(--bg-card, #191b28);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 0% 0%;
+    cursor: pointer;
+    position: relative;
+    display: inline-grid;
+    place-content: center;
+    transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    vertical-align: middle;
+    -webkit-tap-highlight-color: transparent;
   }
-  #docBody .task-done {
+  input.task-checkbox::after,
+  input.outline-task-cb::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    bottom: -8px;
+    left: -8px;
+    right: -8px;
+  }
+  input.task-checkbox:hover,
+  input.outline-task-cb:hover {
+    border-color: var(--accent, #7aa2f7);
+    box-shadow: 0 0 8px rgba(122, 162, 247, 0.25);
+  }
+  input.task-checkbox:active,
+  input.outline-task-cb:active {
+    transform: scale(0.88);
+  }
+  input.task-checkbox:checked,
+  input.outline-task-cb:checked {
+    background-color: var(--accent, #7aa2f7);
+    border-color: var(--accent, #7aa2f7);
+    background-size: 75% 75%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+    box-shadow: 0 2px 8px rgba(122, 162, 247, 0.4);
+  }
+  input.task-checkbox:focus-visible,
+  input.outline-task-cb:focus-visible {
+    outline: 2px solid var(--accent, #7aa2f7);
+    outline-offset: 2px;
+  }
+  .task-done,
+  .outline-task-text.task-done {
     text-decoration: line-through;
-    opacity: 0.65;
+    text-decoration-color: var(--accent, #7aa2f7);
+    text-decoration-thickness: 1.5px;
+    opacity: 0.52;
+    transition: opacity 0.25s ease, text-decoration-color 0.25s ease;
+  }
+
+  /* HTML Tag Support in Markdown */
+  #docBody details {
+    margin: 12px 0;
+    padding: 10px 14px;
+    background: var(--bg-card, #191b28);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+  }
+  #docBody details[open] {
+    border-color: var(--accent);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  }
+  #docBody summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--fg);
+    user-select: none;
+    outline: none;
+    padding: 2px 0;
+    transition: color 0.15s ease;
+  }
+  #docBody summary:hover {
+    color: var(--accent);
+  }
+  #docBody kbd {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 0.85em;
+    font-family: inherit;
+    color: var(--fg);
+    background: var(--bg-card);
+    border: 1px solid var(--border-hl);
+    border-radius: 5px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  }
+  #docBody mark {
+    background: rgba(224, 175, 104, 0.35);
+    color: inherit;
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+  #docBody u {
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 3px;
+  }
+  #docBody table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 13.5px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  #docBody th, #docBody td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+  }
+  #docBody th {
+    background: var(--bg-card);
+    font-weight: 600;
+    color: var(--fg);
+  }
+  #docBody center {
+    text-align: center;
+    margin: 12px 0;
   }
   #docBody blockquote {
     margin: 14px 0;
@@ -3227,6 +3355,193 @@
   }
   .header-actions-group::-webkit-scrollbar { display: none; }
 
+  /* Modern Floating Pill Mode Switcher Dropdown & Popover */
+  .mode-switcher-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .header-mode-pill-btn {
+    height: 32px;
+    padding: 0 10px 0 8px;
+    border-radius: 999px;
+    background: #191b28;
+    border: 1px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .header-mode-pill-btn:hover {
+    border-color: var(--accent);
+    background: #202334;
+  }
+  .header-mode-pill-btn:active {
+    transform: scale(0.96);
+  }
+  .header-mode-pill-btn.open {
+    border-color: var(--accent);
+    background: #202334;
+    box-shadow: 0 0 10px rgba(122, 162, 247, 0.25);
+  }
+
+  .mode-pill-icon {
+    font-size: 14px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+  }
+  .mode-pill-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.2px;
+  }
+  .mode-pill-chevron {
+    color: var(--muted);
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+    flex-shrink: 0;
+  }
+  .header-mode-pill-btn.open .mode-pill-chevron {
+    transform: rotate(180deg);
+    color: var(--accent);
+  }
+
+  .mode-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 250px;
+    background: rgba(21, 22, 30, 0.98);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-hl, #3b4261);
+    border-radius: 14px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.06);
+    padding: 6px;
+    z-index: 1500;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    animation: modeDdSlideIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes modeDdSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-6px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .mode-dropdown-header {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    padding: 6px 10px 4px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 2px;
+  }
+
+  .mode-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    transition: background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mode-dropdown-item:hover {
+    background: rgba(122, 162, 247, 0.12);
+  }
+  .mode-dropdown-item:active {
+    transform: scale(0.98);
+    background: rgba(122, 162, 247, 0.2);
+  }
+  .mode-dropdown-item.active {
+    background: rgba(122, 162, 247, 0.16);
+  }
+
+  .mode-item-icon-box {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .mode-item-icon-box.basic-icon-box {
+    background: rgba(122, 162, 247, 0.15);
+    border: 1px solid rgba(122, 162, 247, 0.3);
+  }
+  .mode-item-icon-box.outline-icon-box {
+    background: rgba(125, 207, 255, 0.15);
+    border: 1px solid rgba(125, 207, 255, 0.3);
+  }
+  .mode-item-icon-box.checklist-icon-box {
+    background: rgba(158, 206, 106, 0.15);
+    border: 1px solid rgba(158, 206, 106, 0.3);
+  }
+
+  .mode-item-details {
+    flex: 1;
+    min-width: 0;
+  }
+  .mode-item-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--fg);
+    line-height: 1.25;
+  }
+  .mode-item-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mode-item-check {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    opacity: 0;
+    transform: scale(0.6);
+    transition: all 0.18s ease;
+  }
+  .mode-dropdown-item.active .mode-item-check {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .mode-dropdown-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1490;
+    background: transparent;
+  }
+
   .header-mode-dropdown {
     height: 32px;
     background: #191b28;
@@ -3240,9 +3555,6 @@
     outline: none;
     max-width: 120px;
     text-overflow: ellipsis;
-  }
-  .header-mode-dropdown:focus {
-    border-color: var(--accent);
   }
 
   #headerBar.in-editor #modeSwitcher {
@@ -5197,7 +5509,55 @@
     <button id="btnPocketBackShelf" class="pocket-back-shelf-btn" style="display:none;" title="Back to Notes Shelf">‹</button>
     <button id="btnOpenDrawer" class="header-btn" title="Open File Manager (or swipe left-to-right)">☰</button>
     <div id="modeSwitcher" class="mode-switcher-container">
-      <select id="modeSelectDropdown" class="header-mode-dropdown" title="Select App Mode">
+      <button id="modeDropdownTrigger" class="header-mode-pill-btn" type="button" aria-haspopup="true" aria-expanded="false" title="Switch App Mode">
+        <span id="modeDropdownIcon" class="mode-pill-icon">✍️</span>
+        <span id="modeDropdownLabel" class="mode-pill-label">Notes</span>
+        <svg class="mode-pill-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+      <div id="modeDropdownMenu" class="mode-dropdown-menu" style="display:none;" role="menu">
+        <div class="mode-dropdown-header">SWITCH VIEW MODE</div>
+        <button class="mode-dropdown-item active" data-mode="basic" type="button" role="menuitem">
+          <div class="mode-item-icon-box basic-icon-box">✍️</div>
+          <div class="mode-item-details">
+            <div class="mode-item-title">Notes</div>
+            <div class="mode-item-desc">Cards, Markdown &amp; Split Screen</div>
+          </div>
+          <div class="mode-item-check">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+        </button>
+        <button class="mode-dropdown-item" data-mode="outline" type="button" role="menuitem">
+          <div class="mode-item-icon-box outline-icon-box">📑</div>
+          <div class="mode-item-details">
+            <div class="mode-item-title">Outline</div>
+            <div class="mode-item-desc">Fast Heading Tree &amp; Zoom</div>
+          </div>
+          <div class="mode-item-check">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+        </button>
+        <button class="mode-dropdown-item" data-mode="checklist" type="button" role="menuitem">
+          <div class="mode-item-icon-box checklist-icon-box">☑️</div>
+          <div class="mode-item-details">
+            <div class="mode-item-title">Checklist</div>
+            <div class="mode-item-desc">Interactive Tasks, Batch &amp; Undo</div>
+          </div>
+          <div class="mode-item-check">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+        </button>
+      </div>
+      <div id="modeDropdownBackdrop" class="mode-dropdown-backdrop" style="display:none;"></div>
+      <!-- Hidden select for programmatic and event compatibility -->
+      <select id="modeSelectDropdown" class="header-mode-dropdown" style="display:none;" tabindex="-1" aria-hidden="true" title="Select App Mode">
         <option value="basic">✍️ Notes</option>
         <option value="outline">📑 Outline</option>
         <option value="checklist">☑️ Checklist</option>
@@ -5620,19 +5980,39 @@
     <!-- Checklist Mode Toolbar -->
     <div id="checklistBottomGroup" class="bottom-group" style="display:none;">
       <button id="btnChecklistCheckAll" class="bar-btn" title="Check All Tasks">
-        <span class="btn-icon">☑️</span>
-        <span class="btn-label">Check all</span>
+        <span class="btn-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 11 12 14 22 4"></polyline>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+        </span>
+        <span class="btn-label">Check<br>all</span>
       </button>
       <button id="btnChecklistUncheckAll" class="bar-btn" title="Uncheck All Tasks">
-        <span class="btn-icon">⬜</span>
-        <span class="btn-label">Uncheck all</span>
+        <span class="btn-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+        </span>
+        <span class="btn-label">Uncheck<br>all</span>
       </button>
       <button id="btnChecklistUndo" class="bar-btn" title="Undo Task Change">
-        <span class="btn-icon">↶</span>
+        <span class="btn-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7v6h6"></path>
+            <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+          </svg>
+        </span>
         <span class="btn-label">Undo</span>
       </button>
       <button id="btnChecklistRedo" class="bar-btn" title="Redo Task Change">
-        <span class="btn-icon">↷</span>
+        <span class="btn-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 7v6h-6"></path>
+            <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"></path>
+          </svg>
+        </span>
         <span class="btn-label">Redo</span>
       </button>
     </div>
@@ -6414,7 +6794,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v2.3.0</span>
+          <span class="settings-row-badge" id="appVersionSub">v2.4.0</span>
         </button>
         <div class="settings-row-config">
           <div class="settings-config-label">
@@ -7751,17 +8131,53 @@
     let inFrontmatter = false;
     let fmLines = [];
 
+    function sanitizeHtmlTag(tag) {
+      const m = /^<\/?([a-zA-Z0-9]+)([\s\S]*?)>$/.exec(tag);
+      if (!m) return escapeHtml(tag);
+      const isClosing = tag.startsWith('</');
+      const tagName = m[1].toLowerCase();
+      const safeTags = new Set([
+        'span', 'font', 'b', 'strong', 'i', 'em', 'u', 's', 'strike', 'del', 'ins',
+        'mark', 'kbd', 'code', 'pre', 'sub', 'sup', 'abbr', 'ruby', 'rt', 'rp',
+        'small', 'q', 'cite', 'dfn', 'time', 'br', 'wbr', 'hr', 'div', 'p', 'center',
+        'details', 'summary', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td',
+        'section', 'article', 'aside', 'figure', 'figcaption', 'a', 'img', 'video', 'audio', 'source'
+      ]);
+      if (!safeTags.has(tagName)) {
+        return escapeHtml(tag);
+      }
+      if (isClosing) return '</' + tagName + '>';
+      let attrs = m[2] || '';
+      // Strip dangerous event handlers (e.g. onclick, onload, onerror)
+      attrs = attrs.replace(/\bon\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+      // Strip javascript / vbscript pseudo-protocols
+      attrs = attrs.replace(/\b(href|src)\s*=\s*(?:"javascript:[^"]*"|'javascript:[^']*'|javascript:[^\s>]+)/gi, '');
+      const isSelfClosing = tag.endsWith('/>');
+      return '<' + tagName + attrs + (isSelfClosing ? ' />' : '>');
+    }
+
     function formatInline(str) {
       if (!str) return '';
-      let s = escapeHtml(str);
 
-      // Code spans (protected first)
+      // Protect safe HTML tags so they are preserved
+      const safeHtmlTokens = [];
+      let s = str.replace(/<!--[\s\S]*?-->/g, '');
+      s = s.replace(/<\/?[a-zA-Z0-9]+(?:\s+[^>]*)?>/g, (tag) => {
+        const token = '___SAFEHTML_' + safeHtmlTokens.length + '___';
+        safeHtmlTokens.push(sanitizeHtmlTag(tag));
+        return token;
+      });
+
+      // Code spans (protected next)
       const codeTokens = [];
       s = s.replace(/`([^`]+)`/g, (m, code) => {
         const ph = '___CODE_' + codeTokens.length + '___';
-        codeTokens.push('<code>' + code + '</code>');
+        codeTokens.push('<code>' + escapeHtml(code) + '</code>');
         return ph;
       });
+
+      // Escape remaining raw text
+      s = escapeHtml(s);
 
       // Obsidian Wikilinks [[target|label]] or [[target]]
       s = s.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (m, target, label) => {
@@ -7795,6 +8211,11 @@
       // Restore code spans
       codeTokens.forEach((c, i) => {
         s = s.replace('___CODE_' + i + '___', c);
+      });
+
+      // Restore safe HTML tokens
+      safeHtmlTokens.forEach((c, i) => {
+        s = s.replace('___SAFEHTML_' + i + '___', c);
       });
 
       return s;
@@ -8009,6 +8430,34 @@
         continue;
       }
 
+      // Standalone Block HTML tags (<details>, </details>, <summary>...</summary>, <div>, </div>, <table>, etc.)
+      const trimmedLine = rawLine.trim();
+      const summaryMatch = /^<summary\b([^>]*)>([\s\S]*?)<\/summary>$/i.exec(trimmedLine);
+      if (summaryMatch) {
+        flushList();
+        flushTable();
+        flushBlockquote();
+        out.push('<summary' + summaryMatch[1] + '>' + formatInline(summaryMatch[2]) + '</summary>');
+        continue;
+      }
+
+      const blockHtmlMatch = /^<\/?(details|div|center|table|thead|tbody|tfoot|tr|th|td|section|article|aside|figure|figcaption)\b([^>]*)>$/i.exec(trimmedLine);
+      if (blockHtmlMatch) {
+        flushList();
+        flushTable();
+        flushBlockquote();
+        out.push(sanitizeHtmlTag(trimmedLine));
+        continue;
+      }
+
+      if (/^<hr\s*\/?>$/i.test(trimmedLine)) {
+        flushList();
+        flushTable();
+        flushBlockquote();
+        out.push('<hr>');
+        continue;
+      }
+
       // Regular paragraph
       flushList();
       out.push('<p>' + formatInline(rawLine) + '</p>');
@@ -8074,6 +8523,9 @@
     const cbs = docBody.querySelectorAll('input.task-checkbox');
     cbs.forEach(cb => {
       cb.addEventListener('change', () => {
+        if (window.navigator && window.navigator.vibrate) {
+          try { window.navigator.vibrate(12); } catch (_) {}
+        }
         const idx = parseInt(cb.getAttribute('data-task-idx'), 10);
         const span = cb.nextElementSibling;
         if (span) {
@@ -11337,6 +11789,24 @@
     localStorage.setItem('mdviewer_app_mode', mode);
 
     if (modeSelectDropdown) modeSelectDropdown.value = mode;
+    if (modeDropdownIcon && modeDropdownLabel) {
+      if (mode === 'basic') {
+        modeDropdownIcon.textContent = '✍️';
+        modeDropdownLabel.textContent = 'Notes';
+      } else if (mode === 'checklist') {
+        modeDropdownIcon.textContent = '☑️';
+        modeDropdownLabel.textContent = 'Checklist';
+      } else {
+        modeDropdownIcon.textContent = '📑';
+        modeDropdownLabel.textContent = 'Outline';
+      }
+    }
+    if (modeDropdownMenu) {
+      const ddItems = modeDropdownMenu.querySelectorAll('.mode-dropdown-item');
+      ddItems.forEach(it => {
+        it.classList.toggle('active', it.getAttribute('data-mode') === mode);
+      });
+    }
     if (modeBasicBtn) modeBasicBtn.classList.toggle('active', mode === 'basic');
     if (modeOutlineBtn) modeOutlineBtn.classList.toggle('active', mode === 'outline');
 
@@ -11383,6 +11853,78 @@
       runCurrentSearch();
     }
   }
+
+  const modeDropdownTrigger = document.getElementById('modeDropdownTrigger');
+  const modeDropdownLabel = document.getElementById('modeDropdownLabel');
+  const modeDropdownIcon = document.getElementById('modeDropdownIcon');
+  const modeDropdownMenu = document.getElementById('modeDropdownMenu');
+  const modeDropdownBackdrop = document.getElementById('modeDropdownBackdrop');
+
+  function openModeDropdown() {
+    if (!modeDropdownMenu) return;
+    modeDropdownMenu.style.display = 'flex';
+    if (modeDropdownBackdrop) modeDropdownBackdrop.style.display = 'block';
+    if (modeDropdownTrigger) {
+      modeDropdownTrigger.classList.add('open');
+      modeDropdownTrigger.setAttribute('aria-expanded', 'true');
+    }
+  }
+
+  function closeModeDropdown() {
+    if (!modeDropdownMenu) return;
+    modeDropdownMenu.style.display = 'none';
+    if (modeDropdownBackdrop) modeDropdownBackdrop.style.display = 'none';
+    if (modeDropdownTrigger) {
+      modeDropdownTrigger.classList.remove('open');
+      modeDropdownTrigger.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  if (modeDropdownTrigger) {
+    modeDropdownTrigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (modeDropdownMenu && modeDropdownMenu.style.display === 'flex') {
+        closeModeDropdown();
+      } else {
+        if (window.navigator && window.navigator.vibrate) {
+          try { window.navigator.vibrate(8); } catch (_) {}
+        }
+        openModeDropdown();
+      }
+    });
+  }
+
+  if (modeDropdownBackdrop) {
+    modeDropdownBackdrop.addEventListener('click', () => {
+      closeModeDropdown();
+    });
+  }
+
+  if (modeDropdownMenu) {
+    const items = modeDropdownMenu.querySelectorAll('.mode-dropdown-item');
+    items.forEach(it => {
+      it.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const targetMode = it.getAttribute('data-mode');
+        if (targetMode) {
+          if (window.navigator && window.navigator.vibrate) {
+            try { window.navigator.vibrate(12); } catch (_) {}
+          }
+          setAppMode(targetMode);
+          setDrawerTargetMode(targetMode);
+          closeModeDropdown();
+        }
+      });
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    if (modeDropdownMenu && modeDropdownMenu.style.display === 'flex') {
+      if (!modeDropdownMenu.contains(e.target) && !modeDropdownTrigger.contains(e.target)) {
+        closeModeDropdown();
+      }
+    }
+  });
 
   if (modeSelectDropdown) {
     modeSelectDropdown.addEventListener('change', () => {
@@ -11480,15 +12022,22 @@
 
   function updateChecklistUndoRedoButtons() {
     if (btnChecklistUndo) {
-      btnChecklistUndo.style.opacity = (checklistHistory.length > 0) ? '1' : '0.45';
+      const canUndo = checklistHistory.length > 0;
+      btnChecklistUndo.style.opacity = canUndo ? '1' : '0.4';
+      btnChecklistUndo.style.pointerEvents = canUndo ? 'auto' : 'none';
     }
     if (btnChecklistRedo) {
-      btnChecklistRedo.style.opacity = (checklistRedoHistory.length > 0) ? '1' : '0.45';
+      const canRedo = checklistRedoHistory.length > 0;
+      btnChecklistRedo.style.opacity = canRedo ? '1' : '0.4';
+      btnChecklistRedo.style.pointerEvents = canRedo ? 'auto' : 'none';
     }
   }
 
   function toggleOutlineTask(lineNo, isChecked) {
     if (lineNo < 0 || lineNo >= lines.length) return;
+    if (window.navigator && window.navigator.vibrate) {
+      try { window.navigator.vibrate(12); } catch (_) {}
+    }
     const oldLine = lines[lineNo];
     const taskRe = /^(\s*[-*+]\s+\[)[ xX](\]\s*.*)$/;
     if (!taskRe.test(oldLine)) return;
@@ -11505,6 +12054,9 @@
 
   if (btnChecklistCheckAll) {
     btnChecklistCheckAll.addEventListener('click', () => {
+      if (window.navigator && window.navigator.vibrate) {
+        try { window.navigator.vibrate(12); } catch (_) {}
+      }
       const taskRe = /^(\s*[-*+]\s+\[) (\]\s*.*)$/;
       const changes = [];
       for (let i = 0; i < lines.length; i++) {
@@ -11522,7 +12074,7 @@
         render();
         updateChecklistStats();
         scheduleAutoSaveOutline();
-        showToast(`Checked all (${changes.length} tasks) ☑️`);
+        showToast(`Checked all (${changes.length} tasks) ✓`);
       } else {
         showToast('All tasks are already checked');
       }
@@ -11531,6 +12083,9 @@
 
   if (btnChecklistUncheckAll) {
     btnChecklistUncheckAll.addEventListener('click', () => {
+      if (window.navigator && window.navigator.vibrate) {
+        try { window.navigator.vibrate(12); } catch (_) {}
+      }
       const taskRe = /^(\s*[-*+]\s+\[)[xX](\]\s*.*)$/;
       const changes = [];
       for (let i = 0; i < lines.length; i++) {
@@ -11548,7 +12103,7 @@
         render();
         updateChecklistStats();
         scheduleAutoSaveOutline();
-        showToast(`Unchecked all (${changes.length} tasks) ⬜`);
+        showToast(`Unchecked all (${changes.length} tasks)`);
       } else {
         showToast('All tasks are already unchecked');
       }
@@ -11560,6 +12115,9 @@
       if (checklistHistory.length === 0) {
         showToast('Nothing to undo');
         return;
+      }
+      if (window.navigator && window.navigator.vibrate) {
+        try { window.navigator.vibrate(10); } catch (_) {}
       }
       const item = checklistHistory.pop();
       checklistRedoHistory.push(item);
@@ -11581,6 +12139,9 @@
       if (checklistRedoHistory.length === 0) {
         showToast('Nothing to redo');
         return;
+      }
+      if (window.navigator && window.navigator.vibrate) {
+        try { window.navigator.vibrate(10); } catch (_) {}
       }
       const item = checklistRedoHistory.pop();
       checklistHistory.push(item);
@@ -11871,27 +12432,61 @@
     return t;
   }
 
+  function formatPlainHtml(rawText) {
+    if (!rawText) return '';
+    const safeHtmlTokens = [];
+    let s = rawText.replace(/<!--[\s\S]*?-->/g, '');
+    s = s.replace(/<\/?[a-zA-Z0-9]+(?:\s+[^>]*)?>/g, (tag) => {
+      const m = /^<\/?([a-zA-Z0-9]+)([\s\S]*?)>$/.exec(tag);
+      if (!m) return escapeHtml(tag);
+      const isClosing = tag.startsWith('</');
+      const tagName = m[1].toLowerCase();
+      const safeTags = new Set([
+        'span', 'font', 'b', 'strong', 'i', 'em', 'u', 's', 'strike', 'del', 'ins',
+        'mark', 'kbd', 'code', 'sub', 'sup', 'abbr', 'small', 'q', 'cite', 'br'
+      ]);
+      if (!safeTags.has(tagName)) return escapeHtml(tag);
+      if (isClosing) return '</' + tagName + '>';
+      let attrs = m[2] || '';
+      attrs = attrs.replace(/\bon\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+      attrs = attrs.replace(/\b(href|src)\s*=\s*(?:"javascript:[^"]*"|'javascript:[^']*'|javascript:[^\s>]+)/gi, '');
+      const isSelfClosing = tag.endsWith('/>');
+      const sanitized = '<' + tagName + attrs + (isSelfClosing ? ' />' : '>');
+      const token = '___SAFEHTML_' + safeHtmlTokens.length + '___';
+      safeHtmlTokens.push(sanitized);
+      return token;
+    });
+
+    s = escapeHtml(s);
+    s = mdInline(s);
+
+    safeHtmlTokens.forEach((c, i) => {
+      s = s.replace('___SAFEHTML_' + i + '___', c);
+    });
+    return s;
+  }
+
   function renderPlainLine(rawText, lineNo) {
     if (/^\s*([-*_])\1\1[\1\-*_\s]*$/.test(rawText) && rawText.trim().length >= 3) {
       return '<span class="md-hr">────────────────────────</span>';
     }
     const bq = /^(\s*)>\s?(.*)$/.exec(rawText);
     if (bq) {
-      return `<span class="md-quote">▏ ${mdInline(escapeHtml(bq[2]))}</span>`;
+      return `<span class="md-quote">▏ ${formatPlainHtml(bq[2])}</span>`;
     }
     const taskMatch = /^(\s*)([-*+])\s+\[([ xX])\]\s*(.*)$/.exec(rawText);
     if (taskMatch) {
       const indent = escapeHtml(taskMatch[1]);
       const isChecked = taskMatch[3].toLowerCase() === 'x';
-      const textPart = mdInline(escapeHtml(taskMatch[4]));
+      const textPart = formatPlainHtml(taskMatch[4]);
       const lNoAttr = (lineNo !== undefined && lineNo !== null) ? `data-line="${lineNo}"` : '';
       return `${indent}<label class="outline-task-label" onclick="event.stopPropagation()"><input type="checkbox" class="outline-task-cb" ${lNoAttr} ${isChecked ? 'checked' : ''}><span class="outline-task-text ${isChecked ? 'task-done' : ''}">${textPart}</span></label>`;
     }
     const li = /^(\s*)([-*+])\s+(.*)$/.exec(rawText);
     if (li) {
-      return `${escapeHtml(li[1])}<span class="md-bullet">•</span>${mdInline(escapeHtml(li[3]))}`;
+      return `${escapeHtml(li[1])}<span class="md-bullet">•</span>${formatPlainHtml(li[3])}`;
     }
-    return mdInline(escapeHtml(rawText));
+    return formatPlainHtml(rawText);
   }
 
   function highlightInHtml(htmlStr, query, isCurrentLine) {
