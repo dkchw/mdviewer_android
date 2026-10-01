@@ -4657,6 +4657,212 @@
     box-shadow: 0 2px 6px rgba(247, 118, 142, 0.5);
   }
 
+  /* --- User Guide & Helper Modal --- */
+  #guideBackdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(3px);
+    z-index: 1070;
+    display: none;
+  }
+  #guideModal {
+    position: fixed;
+    z-index: 1071;
+    left: 12px;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: 600px;
+    max-height: 88vh;
+    height: 85vh;
+    margin: 0 auto;
+    background: #16161e;
+    border: 1px solid var(--accent);
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: popUp 0.2s ease-out;
+  }
+  .guide-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: #191b29;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .guide-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .guide-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .guide-open-doc-btn {
+    background: rgba(122, 162, 247, 0.15);
+    color: #7aa2f7;
+    border: 1px solid rgba(122, 162, 247, 0.35);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+  }
+  .guide-open-doc-btn:active {
+    background: #7aa2f7;
+    color: #15161e;
+  }
+  .guide-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  .guide-close-btn:active {
+    color: var(--fg);
+    background: #2c3040;
+  }
+  .guide-search-bar {
+    padding: 8px 14px;
+    background: #13141f;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .guide-search-input {
+    flex: 1;
+    background: #1f2335;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 10px;
+    color: var(--fg);
+    font-size: 12.5px;
+    outline: none;
+  }
+  .guide-search-input:focus {
+    border-color: var(--accent);
+  }
+  .guide-nav-chips {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 8px 14px;
+    background: #141520;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .guide-nav-chips::-webkit-scrollbar {
+    display: none;
+  }
+  .guide-chip {
+    padding: 3px 9px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    background: #1f2335;
+    color: #a9b1d6;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .guide-chip:active,
+  .guide-chip.active {
+    background: var(--accent);
+    color: #15161e;
+    border-color: var(--accent);
+  }
+  .guide-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    -webkit-overflow-scrolling: touch;
+    color: var(--fg);
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+  .guide-body h1, .guide-body h2, .guide-body h3 {
+    color: #7aa2f7;
+    margin-top: 16px;
+    margin-bottom: 8px;
+  }
+  .guide-body h2 {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+  }
+  .guide-body ul, .guide-body ol {
+    padding-left: 20px;
+    margin-bottom: 12px;
+  }
+  .guide-body li {
+    margin-bottom: 4px;
+  }
+  .guide-body blockquote {
+    background: rgba(122, 162, 247, 0.08);
+    border-left: 3px solid var(--accent);
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 12.5px;
+  }
+  .guide-body code {
+    background: rgba(0,0,0,0.35);
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #7dcfff;
+  }
+  .guide-body pre {
+    background: #13141f;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    overflow-x: auto;
+    font-size: 12px;
+    margin: 12px 0;
+  }
+  .drawer-guide-action-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(122, 162, 247, 0.1);
+    color: #7aa2f7;
+    border: 1px solid rgba(122, 162, 247, 0.3);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: all 0.15s ease;
+  }
+  .drawer-guide-action-btn:active {
+    background: #7aa2f7;
+    color: #15161e;
+  }
+
   #hiddenFileInput { display: none; }
 </style>
 </head>
@@ -4742,6 +4948,7 @@
         <button id="optNewNoteBtn" class="layout-opt-btn">➕ New Note</button>
         <button id="optSaveAsBtn" class="layout-opt-btn">💾 Save As...</button>
       </div>
+      <button id="btnOptionsOpenGuide" class="layout-opt-btn" style="width:100%; margin-top:6px;">📖 Help & User Guide</button>
       <div class="opt-group-label" style="margin-top:8px;">Text Zoom</div>
       <div class="zoom-row">
         <button id="btnBasicZoomOut" class="zoom-btn">A−</button>
@@ -4769,6 +4976,7 @@
         <button id="btnZoomIn" class="zoom-btn">A+</button>
         <button id="btnZoomReset" class="zoom-btn">Reset</button>
       </div>
+      <button id="btnOptionsOpenGuideOutline" class="layout-opt-btn" style="width:100%; margin-top:8px;">📖 Help & User Guide</button>
     </div>
   </div>
 
@@ -5172,6 +5380,9 @@
       <span>📁</span> File Manager
     </div>
     <div class="drawer-header-actions">
+      <button id="btnOpenGuideDrawer" class="drawer-icon-btn" title="User Guide & Helper" aria-label="User Guide">
+        <span style="font-size:15px;">📖</span>
+      </button>
       <button id="btnOpenSettings" class="drawer-icon-btn" title="Settings" aria-label="Settings">
         <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"></circle>
@@ -5208,6 +5419,10 @@
         <span>📁</span> Open Folder
       </button>
     </div>
+
+    <button id="btnDrawerGuideAction" class="drawer-guide-action-btn" title="Open Interactive User Guide, Features & Shortcuts">
+      <span>📖</span> User Guide & Helper
+    </button>
 
     <!-- Quick Reopen Last Vault & Recent Vaults -->
     <div id="drawerVaultsHistory" class="drawer-vault-history-container" style="display:none;">
@@ -5721,6 +5936,21 @@
       </div>
     </div>
 
+    <!-- Help & Documentation -->
+    <div class="settings-group">
+      <div class="settings-group-title">Help & Documentation</div>
+      <div class="settings-card">
+        <button class="settings-row-btn" id="btnSettingsOpenGuide">
+          <span class="settings-row-icon">📖</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">User Guide & Helper</span>
+            <span class="settings-row-desc">Interactive features, gestures, shortcuts & manuals</span>
+          </div>
+          <span class="settings-row-badge" style="color:var(--accent);">Open</span>
+        </button>
+      </div>
+    </div>
+
     <!-- Performance Stress Tests -->
     <div class="settings-group">
       <div class="settings-group-title">Performance Stress Tests</div>
@@ -5986,6 +6216,31 @@
       <button id="btnCancelMoveToVault" class="pocket-delete-cancel-btn">Cancel</button>
       <button id="btnConfirmMoveToVault" class="pocket-delete-confirm-btn" style="background: var(--accent); color: #16161e;">🚀 Move to Vault</button>
     </div>
+  </div>
+</div>
+
+<!-- Interactive User Guide & Helper Modal -->
+<div id="guideBackdrop"></div>
+<div id="guideModal">
+  <div class="guide-header">
+    <div class="guide-title">
+      <span>📖</span> User Guide & Helper
+    </div>
+    <div class="guide-header-actions">
+      <button id="btnGuideOpenInEditor" class="guide-open-doc-btn" title="Open Guide directly in Markdown Editor / Outline Viewer">
+        📄 Open as Note
+      </button>
+      <button id="btnCloseGuide" class="guide-close-btn" title="Close" aria-label="Close">✕</button>
+    </div>
+  </div>
+  <div class="guide-search-bar">
+    <input type="search" id="inputGuideSearch" class="guide-search-input" placeholder="🔍 Search guide, topics & shortcuts..." autocomplete="off">
+  </div>
+  <div class="guide-nav-chips" id="guideNavChips">
+    <!-- Populated dynamically with section chips -->
+  </div>
+  <div class="guide-body markdown-body" id="guideContent">
+    <div style="text-align:center; padding:24px; color:var(--muted);">Loading User Guide...</div>
   </div>
 </div>
 
@@ -6354,6 +6609,20 @@
   const btnConfirmMoveToVault = document.getElementById('btnConfirmMoveToVault');
   let pendingMoveToVaultNoteId = null;
   let pendingVaultMove = null;
+
+  // Guide Modal & Helper elements
+  const guideBackdrop = document.getElementById('guideBackdrop');
+  const guideModal = document.getElementById('guideModal');
+  const btnCloseGuide = document.getElementById('btnCloseGuide');
+  const btnGuideOpenInEditor = document.getElementById('btnGuideOpenInEditor');
+  const inputGuideSearch = document.getElementById('inputGuideSearch');
+  const guideNavChips = document.getElementById('guideNavChips');
+  const guideContent = document.getElementById('guideContent');
+  const btnOpenGuideDrawer = document.getElementById('btnOpenGuideDrawer');
+  const btnDrawerGuideAction = document.getElementById('btnDrawerGuideAction');
+  const btnSettingsOpenGuide = document.getElementById('btnSettingsOpenGuide');
+  const btnOptionsOpenGuide = document.getElementById('btnOptionsOpenGuide');
+  const btnOptionsOpenGuideOutline = document.getElementById('btnOptionsOpenGuideOutline');
 
   // Options Modal (Levels & Zoom)
   const optionsModal = document.getElementById('optionsModal');
@@ -9043,6 +9312,118 @@
     }, 7000);
   }
 
+  // --- User Guide & Helper System ---
+  let cachedGuideMarkdown = null;
+  let cachedGuideParsed = null;
+
+  async function loadGuideContent() {
+    if (cachedGuideParsed) return cachedGuideParsed;
+    try {
+      const resp = await fetch('guide.md');
+      if (resp.ok) {
+        cachedGuideMarkdown = await resp.text();
+      }
+    } catch (e) {
+      console.warn('Could not fetch guide.md:', e);
+    }
+    if (!cachedGuideMarkdown) {
+      cachedGuideMarkdown = '# MD Viewer Guide\n\nWelcome to MD Viewer!';
+    }
+    cachedGuideParsed = parseMarkdownToHtml(cachedGuideMarkdown);
+    return cachedGuideParsed;
+  }
+
+  async function openGuideModal(targetTopicId = null) {
+    if (settingsModal) closeSettings();
+    if (guideBackdrop) guideBackdrop.style.display = 'block';
+    if (guideModal) guideModal.style.display = 'flex';
+
+    if (inputGuideSearch) inputGuideSearch.value = '';
+
+    const parsed = await loadGuideContent();
+    if (guideContent) {
+      guideContent.innerHTML = parsed.html;
+      guideContent.querySelectorAll('.copy-code-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const codeEl = btn.closest('.code-block-wrap')?.querySelector('code');
+          if (codeEl) {
+            navigator.clipboard?.writeText(codeEl.innerText || '');
+            showToast('Copied to clipboard ✓');
+          }
+        });
+      });
+    }
+
+    if (guideNavChips && parsed.toc) {
+      guideNavChips.innerHTML = '';
+      const allChip = document.createElement('button');
+      allChip.className = 'guide-chip active';
+      allChip.textContent = '🌟 All Topics';
+      allChip.addEventListener('click', () => {
+        guideNavChips.querySelectorAll('.guide-chip').forEach(c => c.classList.remove('active'));
+        allChip.classList.add('active');
+        if (inputGuideSearch) inputGuideSearch.value = '';
+        renderGuideFiltered('');
+        guideContent.scrollTop = 0;
+      });
+      guideNavChips.appendChild(allChip);
+
+      parsed.toc.filter(item => item.level <= 2).forEach(item => {
+        const chip = document.createElement('button');
+        chip.className = 'guide-chip';
+        chip.textContent = item.text.replace(/^[0-9.]+\s*/, '');
+        chip.addEventListener('click', () => {
+          guideNavChips.querySelectorAll('.guide-chip').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          const targetEl = guideContent.querySelector(`#${item.id}`) ||
+            Array.from(guideContent.querySelectorAll('h1, h2, h3')).find(h => h.textContent.includes(item.text));
+          if (targetEl) {
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+        guideNavChips.appendChild(chip);
+      });
+    }
+
+    if (targetTopicId && guideContent) {
+      setTimeout(() => {
+        const el = guideContent.querySelector(`#${targetTopicId}`);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 50);
+    }
+  }
+
+  function hideGuideModal() {
+    if (guideBackdrop) guideBackdrop.style.display = 'none';
+    if (guideModal) guideModal.style.display = 'none';
+  }
+
+  function renderGuideFiltered(query) {
+    if (!guideContent) return;
+    const q = (query || '').toLowerCase().trim();
+    if (!q) {
+      const allElements = guideContent.querySelectorAll('h1, h2, h3, p, ul, ol, blockquote, pre, .code-block-wrap, hr');
+      allElements.forEach(el => el.style.display = '');
+      return;
+    }
+
+    const h2Elements = Array.from(guideContent.querySelectorAll('h2'));
+    h2Elements.forEach(h2 => {
+      let next = h2.nextElementSibling;
+      const sectionElements = [h2];
+      while (next && next.tagName !== 'H2' && next.tagName !== 'H1') {
+        sectionElements.push(next);
+        next = next.nextElementSibling;
+      }
+      const sectionText = sectionElements.map(el => el.textContent).join(' ').toLowerCase();
+      const matches = sectionText.includes(q);
+      sectionElements.forEach(el => {
+        el.style.display = matches ? '' : 'none';
+      });
+    });
+  }
+
   function togglePocketSplit() {
     pocketSplitActive = !pocketSplitActive;
     if (btnPocketSplitToggle) btnPocketSplitToggle.classList.toggle('active', pocketSplitActive);
@@ -9414,6 +9795,65 @@
         e.preventDefault();
         confirmMoveToVault();
       }
+    });
+  }
+
+  // --- Attach Guide Modal Listeners ---
+  if (btnCloseGuide) {
+    btnCloseGuide.addEventListener('click', hideGuideModal);
+  }
+  if (guideBackdrop) {
+    guideBackdrop.addEventListener('click', hideGuideModal);
+  }
+  if (btnGuideOpenInEditor) {
+    btnGuideOpenInEditor.addEventListener('click', async () => {
+      hideGuideModal();
+      closeDrawer();
+      let text = cachedGuideMarkdown;
+      if (!text) {
+        try {
+          const resp = await fetch('guide.md');
+          if (resp.ok) text = await resp.text();
+        } catch(e) {}
+      }
+      if (!text) text = '# MD Viewer Guide\n\nWelcome to MD Viewer!';
+      loadText(text, 'Guide.md');
+      showToast('Loaded User Guide 📖');
+    });
+  }
+  if (inputGuideSearch) {
+    inputGuideSearch.addEventListener('input', (e) => {
+      renderGuideFiltered(e.target.value);
+    });
+  }
+  if (btnOpenGuideDrawer) {
+    btnOpenGuideDrawer.addEventListener('click', () => {
+      closeDrawer();
+      openGuideModal();
+    });
+  }
+  if (btnDrawerGuideAction) {
+    btnDrawerGuideAction.addEventListener('click', () => {
+      closeDrawer();
+      openGuideModal();
+    });
+  }
+  if (btnSettingsOpenGuide) {
+    btnSettingsOpenGuide.addEventListener('click', () => {
+      closeSettings();
+      openGuideModal();
+    });
+  }
+  if (btnOptionsOpenGuide) {
+    btnOptionsOpenGuide.addEventListener('click', () => {
+      if (optionsModal) optionsModal.classList.remove('open');
+      openGuideModal();
+    });
+  }
+  if (btnOptionsOpenGuideOutline) {
+    btnOptionsOpenGuideOutline.addEventListener('click', () => {
+      if (optionsModal) optionsModal.classList.remove('open');
+      openGuideModal();
     });
   }
 
@@ -13894,6 +14334,10 @@
         return true;
       }
       exitFlashcardMode();
+      return true;
+    }
+    if (guideModal && guideModal.style.display === 'flex') {
+      hideGuideModal();
       return true;
     }
     if (settingsModal.style.display === 'flex') {

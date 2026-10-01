@@ -1,47 +1,28 @@
 # MD Viewer for Android
 
-An ultra-fast, lightweight, and offline Markdown Outline Reader ported to Android, capable of smoothly rendering and folding documents up to **1,000,000 lines** at 60 FPS.
+An ultra-fast, lightweight, and offline Markdown workspace and outline reader ported to Android, capable of smoothly rendering, folding, and searching documents up to **1,000,000 lines** at 60 FPS.
 
-## Features
+## Key Features
 
-- **Open Entire Folders & Workspaces**:
-  - Open any directory on your device via Android Storage Access Framework (`ACTION_OPEN_DOCUMENT_TREE`).
-  - Interactive directory tree explorer in the slide-out drawer with folders and files.
-  - Expand and collapse subdirectories with `▸` / `▾` arrows.
-  - Automatically remembers the opened folder and restores it upon reopening the app.
-  - Close or switch folders at any time.
-- **Workspace Search Across Folders**:
-  - Search across all Markdown files in the opened folder.
-  - Real-time search result list with file names, line numbers, and matching line snippets.
-  - Tapping a result automatically opens that file and navigates to the matching line.
-- **Blazing Performance**: Pure virtualized scroller that only renders visible viewport DOM elements (~40 elements), achieving instantaneous rendering and fluid 60 FPS scrolling on huge files (100k to 1M lines).
-- **Collapsible Top Search Bar**:
-  - Toggled with the `🔍` button.
-  - Switch between searching "This File" and searching "Folder Workspace".
-  - Live query matching with golden target pulse highlight.
-  - `▲` and `▼` buttons to jump between matches, automatically expanding folded parent headings.
-  - Can be easily hidden to maximize reading space.
-- **Bottom Navigation Toolbar (5 Dedicated Buttons)**:
-  1. **Collapse above**: Folds all headings located above the current viewing position.
-  2. **Collapse all**: Folds every heading in the document for an instant high-level summary.
-  3. **Hover mode toggle**: Toggles tap outline preview mode.
-     - **ON**: Tapping any heading opens a floating preview panel with formatted section text without navigating away.
-     - **OFF**: Tapping any heading toggles folding/expansion directly.
-  4. **Expand all**: Unfolds all headings in the document.
-  5. **Expand below**: Unfolds all headings located below the current viewing position.
-- **Swipe Left-to-Right File Manager**:
-  - Swipe horizontally from left to right (or tap `☰`) to slide out the File Manager drawer.
-  - Open any single `.md`, `.markdown`, or `.txt` file, or open an entire folder.
-  - Access recent files and built-in 10K, 100K, and 1,000,000-line performance stress tests.
+- **Unified Dual-App Workspace**:
+  - **Basic Editor & PocketMark Notes Engine**: Multi-note shelf, full/compact/medium preview toggles with dual (top & bottom) collapse buttons, 6-color categorization, #tag filtering, checklist toggles on cards, split screen note preview & compare, high-performance large text paste (zero-allocation counters), ASCII box diagram builder with monospace grid alignment and wrap toggle.
+  - **Move Notes to Outline Vault**: Transfer notes into device storage vaults with target vault and subfolder picker, Move vs Copy, and instant "View in Outline" navigation.
+  - **Outline Viewer Mode**: 1,000,000-line virtualized scroller (60 FPS), Obsidian-style mobile file tree with vertical hierarchy guides and note counters, vault dropdown switcher (reorder, rename on disk, delete), 5 dedicated outline buttons (Collapse Above, Collapse All, Hover Preview, Expand All, Expand Below), deep workspace search.
+- **Flashcard Study & Gallery Review System**:
+  - Automatic card generation from headings, Q&A (`Q: ... A: ...`), and term definitions (`Term :: Def`).
+  - 3D flip card study mode with outline scoping.
+  - Gallery Review mode with Front, Back, or Both (side-by-side) views and real-time search filtering.
+- **Interactive In-App User Guide & Helper**:
+  - Dedicated interactive Helper Page accessible anytime via the File Drawer (`📖 User Guide & Helper`), Settings, or Options Modal.
+  - Features real-time topic search, navigation chips (`🚀 Overview`, `✍️ Pocket Notes`, `📁 Move to Vault`, `✍️ Formatting Toolbar`, `📑 Outline Viewer`, `🎴 Flashcards`, `📱 Gestures`), and a `📄 Open as Note` action to load the guide directly into your workspace.
 - **System Integration**:
   - Registered as a viewer for `.md` and `.txt` files — tap any Markdown file in your Android file manager to open directly with MD Viewer.
-  - Hardware Back button support (closes preview panel -> closes workspace search -> closes file drawer -> closes search bar -> exits).
-  - Share & copy tools.
+  - Hardware Back button support (dismisses modals -> closes preview panel -> exits).
 
 ## APK Deliverables
 
 - Signed ready-to-install APK: [`dist/mdviewer.apk`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/dist/mdviewer.apk)
-- Size: ~154 KB (zero bloat, zero heavy dependencies)
+- Size: ~900 KB (zero bloat, zero heavy dependencies)
 
 ## Building the APK
 
@@ -55,5 +36,5 @@ Builds, dexes, aligns, and signs the APK in 2-3 seconds using the local Android 
 Open the `android/` directory in Android Studio or run with Gradle wrapper:
 ```bash
 cd android
-./gradlew assembleDebug
+./gradlew assembleRelease
 ```
