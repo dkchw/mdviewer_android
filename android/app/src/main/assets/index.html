@@ -2643,6 +2643,365 @@
     color: var(--fg);
     background: rgba(255,255,255,0.1);
   }
+
+  /* --- Checkpoints Modal & Banner Styles --- */
+  .checkpoint-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 850;
+    background: rgba(10, 12, 20, 0.68);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .checkpoint-backdrop.open { display: block; }
+
+  .checkpoint-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(520px, calc(100vw - 24px));
+    max-height: calc(88vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    background: #1a1b26;
+    border: 1px solid var(--border-hl, #3b4261);
+    border-radius: 16px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75);
+    z-index: 860;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: popUp 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .checkpoint-modal.open { display: flex; }
+
+  .cp-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid var(--border, #292e42);
+  }
+  .cp-modal-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .cp-modal-icon { font-size: 20px; line-height: 1; }
+  .cp-modal-title { font-size: 15px; font-weight: 700; color: var(--fg); }
+  .cp-modal-subtitle { font-size: 11px; color: var(--muted); max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cp-modal-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+  .cp-modal-close-btn:active { background: rgba(255,255,255,0.08); color: var(--fg); }
+
+  .cp-stats-banner {
+    padding: 12px 16px;
+    background: #16161e;
+    border-bottom: 1px solid var(--border, #292e42);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .cp-stats-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 140px;
+  }
+  .cp-stats-count { font-size: 12.5px; font-weight: 600; color: var(--fg); }
+  .cp-stats-bar-track {
+    width: 130px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .cp-stats-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent, #7aa2f7), #9ece6a);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+  .cp-stats-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .cp-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .cp-action-btn.primary {
+    background: var(--accent, #7aa2f7);
+    color: #16161e;
+  }
+  .cp-action-btn.primary:active { opacity: 0.85; transform: scale(0.97); }
+  .cp-action-btn.outline {
+    background: transparent;
+    border-color: var(--border-hl, #3b4261);
+    color: var(--fg);
+  }
+  .cp-action-btn.outline:active { background: rgba(255,255,255,0.06); }
+
+  .cp-save-form {
+    padding: 14px 16px;
+    background: rgba(122, 162, 247, 0.05);
+    border-bottom: 1px solid var(--border-hl, #3b4261);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .cp-form-title { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
+  .cp-form-row { display: flex; flex-direction: column; gap: 4px; }
+  .cp-form-label { font-size: 11px; font-weight: 600; color: var(--muted); }
+  .cp-text-input, .cp-textarea {
+    width: 100%;
+    background: #16161e;
+    border: 1px solid var(--border, #292e42);
+    color: var(--fg);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    box-sizing: border-box;
+  }
+  .cp-text-input:focus, .cp-textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .cp-textarea { resize: vertical; min-height: 52px; }
+  .cp-form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+  .cp-btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .cp-btn-primary {
+    background: var(--accent);
+    color: #16161e;
+    border: none;
+    font-weight: 700;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  .cp-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .cp-vault-indicator {
+    font-size: 10.5px;
+    color: #9ece6a;
+    font-weight: 600;
+    text-transform: none;
+  }
+
+  .cp-list-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 48vh;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cp-empty-state {
+    text-align: center;
+    padding: 32px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+  }
+  .cp-empty-icon { font-size: 32px; }
+  .cp-empty-title { font-size: 14px; font-weight: 600; color: var(--fg); }
+  .cp-empty-desc { font-size: 12px; max-width: 320px; line-height: 1.4; }
+
+  .cp-cards-container { display: flex; flex-direction: column; gap: 8px; }
+
+  .cp-card {
+    background: #16161e;
+    border: 1px solid var(--border, #292e42);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: border-color 0.15s ease;
+  }
+  .cp-card:hover { border-color: var(--border-hl, #3b4261); }
+  .cp-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .cp-card-title-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .cp-card-title { font-size: 13.5px; font-weight: 700; color: var(--fg); }
+  .cp-card-time { font-size: 10.5px; color: var(--muted); }
+  .cp-card-badge {
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(122, 162, 247, 0.14);
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  .cp-card-badge.complete {
+    background: rgba(158, 206, 106, 0.14);
+    color: #9ece6a;
+  }
+
+  .cp-card-note {
+    background: rgba(224, 175, 104, 0.08);
+    border-left: 3px solid #e0af68;
+    border-radius: 0 6px 6px 0;
+    padding: 6px 10px;
+    font-size: 12px;
+    color: #ff9e64;
+    line-height: 1.35;
+    word-break: break-word;
+  }
+  .cp-card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 2px;
+  }
+  .cp-btn-card {
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .cp-btn-restore {
+    background: var(--accent);
+    color: #16161e;
+    border: none;
+    font-weight: 700;
+  }
+  .cp-btn-restore:active { opacity: 0.85; transform: scale(0.97); }
+  .cp-btn-edit-note { background: transparent; color: var(--fg); }
+  .cp-btn-edit-note:active { background: rgba(255,255,255,0.06); }
+  .cp-btn-delete { background: transparent; color: var(--red, #f7768e); border-color: transparent; }
+  .cp-btn-delete:active { background: rgba(247, 118, 142, 0.1); }
+
+  .cp-modal-footer {
+    padding: 8px 16px;
+    background: #14141d;
+    border-top: 1px solid var(--border, #292e42);
+    font-size: 10.5px;
+    color: var(--muted);
+  }
+
+  /* --- Checkpoint Active Notification Banner --- */
+  .checkpoint-active-banner {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: linear-gradient(90deg, #1f2335 0%, #1a1b26 100%);
+    border-bottom: 1px solid var(--border-hl, #3b4261);
+    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    animation: fadeIn 0.2s ease-out;
+  }
+  .cp-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    overflow: hidden;
+  }
+  .cp-banner-badge {
+    background: var(--accent);
+    color: #16161e;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .cp-banner-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--fg);
+    white-space: nowrap;
+  }
+  .cp-banner-note {
+    font-size: 11px;
+    color: #e0af68;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cp-banner-actions { display: flex; align-items: center; gap: 4px; }
+  .cp-banner-btn {
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: var(--fg);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .cp-banner-close {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 2px 6px;
+  }
+
   .opt-group-label { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; }
   .lvl-buttons {
     display: grid;
@@ -5695,6 +6054,7 @@
       <div id="outlineHeaderActions" class="header-actions-group" style="display:none;">
         <button id="btnOutlineEditNote" class="header-btn pill-btn" title="Edit Note / Fix Typo">✏️ Edit</button>
         <button id="btnToggleOptions" class="header-btn pill-btn" title="Typography, Text Zoom &amp; Headings">Aa View</button>
+        <button id="btnHeaderCheckpoints" class="header-btn pill-btn" title="Checkpoints: Save, Resume &amp; Notes">🚩 Checkpoints</button>
         <button id="btnToggleFlashcard" class="header-btn pill-btn" title="Study as Flashcards">🗂 Cards</button>
         <button id="btnToggleSearch" class="header-btn pill-btn" title="Toggle Search">🔍 Search</button>
       </div>
@@ -5809,7 +6169,84 @@
         <button id="btnOptUndo" class="layout-opt-btn">↩ Undo</button>
         <button id="btnOptRedo" class="layout-opt-btn">↪ Redo</button>
       </div>
+      <div class="opt-group-label" style="margin-top:8px;">Checkpoints &amp; Runs</div>
+      <div class="layout-toggle-row">
+        <button id="btnOptCheckpoints" class="layout-opt-btn">🚩 Checkpoints</button>
+        <button id="btnOptStartNewRun" class="layout-opt-btn">🔄 New Run</button>
+      </div>
       <button id="btnOptionsOpenGuideChecklist" class="layout-opt-btn" style="width:100%; margin-top:8px;">📖 Help &amp; User Guide</button>
+    </div>
+  </div>
+
+  <!-- Checkpoints Modal & Backdrop -->
+  <div id="checkpointBackdrop" class="checkpoint-backdrop"></div>
+  <div id="checkpointModal" class="checkpoint-modal" role="dialog" aria-labelledby="checkpointModalTitle">
+    <div class="cp-modal-header">
+      <div class="cp-modal-title-wrap">
+        <span class="cp-modal-icon">🚩</span>
+        <div>
+          <div class="cp-modal-title" id="checkpointModalTitle">Checkpoints &amp; Runs</div>
+          <div class="cp-modal-subtitle" id="checkpointDocSubtitle">Document.md</div>
+        </div>
+      </div>
+      <button id="btnCheckpointModalClose" class="cp-modal-close-btn" type="button" title="Close Checkpoints">✕</button>
+    </div>
+
+    <!-- Active Status & Quick Actions -->
+    <div class="cp-stats-banner">
+      <div class="cp-stats-left">
+        <span class="cp-stats-count" id="cpStatsCount">0 / 0 completed</span>
+        <div class="cp-stats-bar-track">
+          <div class="cp-stats-bar-fill" id="cpStatsBarFill" style="width: 0%;"></div>
+        </div>
+      </div>
+      <div class="cp-stats-actions">
+        <button id="btnCpToggleSaveForm" class="cp-action-btn primary" type="button" title="Save Current State as Checkpoint">
+          <span>＋ Save Checkpoint</span>
+        </button>
+        <button id="btnCpStartNewRun" class="cp-action-btn outline" type="button" title="Clear all checkboxes for a new run/bike">
+          <span>🔄 Start New Run</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Save Checkpoint Form (Collapsible) -->
+    <div id="cpSaveForm" class="cp-save-form" style="display:none;">
+      <div class="cp-form-title">Save Current Checkpoint</div>
+      <div class="cp-form-row">
+        <label for="cpInputTitle" class="cp-form-label">Checkpoint Name / Label</label>
+        <input type="text" id="cpInputTitle" class="cp-text-input" placeholder="e.g. Bike 1: Trek FX 3">
+      </div>
+      <div class="cp-form-row">
+        <label for="cpInputNote" class="cp-form-label">Reminder Note</label>
+        <textarea id="cpInputNote" class="cp-textarea" rows="2" placeholder="e.g. Adjusted derailleur, waiting for brake pads; paused for lunch"></textarea>
+      </div>
+      <div class="cp-form-actions">
+        <button id="btnCpCancelSave" class="cp-btn-secondary" type="button">Cancel</button>
+        <button id="btnCpConfirmSave" class="cp-btn-primary" type="button">💾 Save to Vault</button>
+      </div>
+    </div>
+
+    <!-- Checkpoints List -->
+    <div class="cp-list-header">
+      <span>Saved Checkpoints (<span id="cpCountBadge">0</span>)</span>
+      <span class="cp-vault-indicator" id="cpVaultIndicator" title="Checkpoints are stored in .checkpoints folder">📁 Vault: Ready</span>
+    </div>
+    <div id="cpListScroll" class="cp-list-scroll">
+      <!-- Dynamically populated checkpoint cards -->
+      <div id="cpEmptyState" class="cp-empty-state">
+        <div class="cp-empty-icon">🚩</div>
+        <div class="cp-empty-title">No checkpoints saved yet</div>
+        <div class="cp-empty-desc">Save a checkpoint to preserve checked &amp; unchecked items along with reminder notes. You can restore them anytime!</div>
+      </div>
+      <div id="cpCardsContainer" class="cp-cards-container"></div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="cp-modal-footer">
+      <div class="cp-footer-tip">
+        <span>💡 Checkpoints are saved in <code>.checkpoints/</code> inside your vault (invisible in vault list, visible in file manager).</span>
+      </div>
     </div>
   </div>
 
@@ -6017,6 +6454,19 @@
     </div>
   </div>
 
+  <!-- Checkpoint Active Reminder Banner -->
+  <div id="checkpointActiveBanner" class="checkpoint-active-banner" style="display:none;">
+    <div class="cp-banner-content">
+      <span class="cp-banner-badge">🚩 Checkpoint Active</span>
+      <span class="cp-banner-title" id="cpBannerTitle">Bike 1</span>
+      <span class="cp-banner-note" id="cpBannerNote">Reminder note</span>
+    </div>
+    <div class="cp-banner-actions">
+      <button id="btnBannerCpManage" class="cp-banner-btn" type="button" title="View or Switch Checkpoints">Manage</button>
+      <button id="btnBannerCpDismiss" class="cp-banner-close" type="button" title="Dismiss Banner">✕</button>
+    </div>
+  </div>
+
   <!-- Main Virtualized Scroller -->
   <main id="scroller" style="display:none;">
     <div id="spacer">
@@ -6154,6 +6604,15 @@
           </svg>
         </span>
         <span class="btn-label">Redo</span>
+      </button>
+      <button id="btnChecklistCheckpoints" class="bar-btn" title="Save &amp; Manage Checkpoints &amp; Runs">
+        <span class="btn-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+            <line x1="4" y1="22" x2="4" y2="15"></line>
+          </svg>
+        </span>
+        <span class="btn-label">Check<br>points</span>
       </button>
     </div>
   </footer>
@@ -6934,7 +7393,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v2.4.4</span>
+          <span class="settings-row-badge" id="appVersionSub">v2.4.5</span>
         </button>
         <div class="settings-row-config">
           <div class="settings-config-label">
@@ -7255,7 +7714,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '2.4.4';
+      window.AndroidBridge.getAppVersion() : '2.4.5';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -12117,8 +12576,11 @@
       docTitle.textContent = outlineDocName || 'Guide.md';
       if (mode === 'checklist') {
         updateChecklistStats();
+        if (typeof updateActiveCheckpointBanner === 'function') updateActiveCheckpointBanner();
       } else {
         docStats.textContent = `${lines.length} lines • ${headings.length} headings • Outline Viewer`;
+        const banner = document.getElementById('checkpointActiveBanner');
+        if (banner) banner.style.display = 'none';
       }
       render();
       if (scroller) scroller.scrollTop = outlineScrollTop || 0;
@@ -12444,6 +12906,568 @@
       scheduleAutoSaveOutline();
       updateChecklistUndoRedoButtons();
       showToast('Redo successful ↷');
+    });
+  }
+
+  // ==========================================
+  // CHECKPOINT & RUN MANAGER (.checkpoints in vault & local)
+  // ==========================================
+  let activeCheckpoint = null;
+  let cachedCheckpoints = [];
+
+  const btnHeaderCheckpoints = document.getElementById('btnHeaderCheckpoints');
+  const btnChecklistCheckpoints = document.getElementById('btnChecklistCheckpoints');
+  const btnOptCheckpoints = document.getElementById('btnOptCheckpoints');
+  const btnOptStartNewRun = document.getElementById('btnOptStartNewRun');
+
+  const checkpointModal = document.getElementById('checkpointModal');
+  const checkpointBackdrop = document.getElementById('checkpointBackdrop');
+  const btnCheckpointModalClose = document.getElementById('btnCheckpointModalClose');
+  const checkpointDocSubtitle = document.getElementById('checkpointDocSubtitle');
+  const cpStatsCount = document.getElementById('cpStatsCount');
+  const cpStatsBarFill = document.getElementById('cpStatsBarFill');
+  const btnCpToggleSaveForm = document.getElementById('btnCpToggleSaveForm');
+  const btnCpStartNewRun = document.getElementById('btnCpStartNewRun');
+  const cpSaveForm = document.getElementById('cpSaveForm');
+  const cpInputTitle = document.getElementById('cpInputTitle');
+  const cpInputNote = document.getElementById('cpInputNote');
+  const btnCpCancelSave = document.getElementById('btnCpCancelSave');
+  const btnCpConfirmSave = document.getElementById('btnCpConfirmSave');
+  const cpCountBadge = document.getElementById('cpCountBadge');
+  const cpVaultIndicator = document.getElementById('cpVaultIndicator');
+  const cpEmptyState = document.getElementById('cpEmptyState');
+  const cpCardsContainer = document.getElementById('cpCardsContainer');
+
+  const checkpointActiveBanner = document.getElementById('checkpointActiveBanner');
+  const cpBannerTitle = document.getElementById('cpBannerTitle');
+  const cpBannerNote = document.getElementById('cpBannerNote');
+  const btnBannerCpManage = document.getElementById('btnBannerCpManage');
+  const btnBannerCpDismiss = document.getElementById('btnBannerCpDismiss');
+
+  function getActiveDocIdentifier() {
+    return currentDocName || outlineDocName || 'Document.md';
+  }
+
+  function getCheckpointStorageKey(docName) {
+    const name = docName || getActiveDocIdentifier();
+    return 'mdviewer_checkpoints_' + name.replace(/[^a-zA-Z0-9_-]/g, '_');
+  }
+
+  function loadLocalCheckpoints(docName) {
+    try {
+      const raw = localStorage.getItem(getCheckpointStorageKey(docName));
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      console.warn('Error reading local checkpoints', e);
+      return [];
+    }
+  }
+
+  function saveLocalCheckpoints(docName, list) {
+    try {
+      localStorage.setItem(getCheckpointStorageKey(docName), JSON.stringify(list));
+    } catch (e) {
+      console.warn('Error saving local checkpoints', e);
+    }
+  }
+
+  function parseCheckpointFromMarkdown(content, fileName, docId, lastModified) {
+    if (!content) return null;
+    const match = /<!--\s*MDVIEWER_CHECKPOINT_DATA\s*([\s\S]*?)\s*-->/.exec(content);
+    if (match) {
+      try {
+        const data = JSON.parse(match[1]);
+        data.vaultDocId = docId;
+        data.vaultFileName = fileName;
+        data.inVault = true;
+        if (!data.timestamp && lastModified) data.timestamp = lastModified;
+        return data;
+      } catch (e) {
+        console.warn('Error parsing embedded checkpoint data', e);
+      }
+    }
+    return null;
+  }
+
+  function loadAllCheckpointsForActiveDoc() {
+    const docName = getActiveDocIdentifier();
+    const localList = loadLocalCheckpoints(docName);
+    const byId = new Map();
+
+    localList.forEach(cp => {
+      byId.set(cp.id, cp);
+    });
+
+    let vaultAvailable = false;
+    if (window.AndroidBridge && window.AndroidBridge.getCheckpointsFromVault) {
+      try {
+        const rawVault = window.AndroidBridge.getCheckpointsFromVault(docName);
+        if (rawVault) {
+          const resp = JSON.parse(rawVault);
+          if (resp && resp.status === 'ok') {
+            vaultAvailable = true;
+            const items = resp.checkpoints || [];
+            items.forEach(item => {
+              const cp = parseCheckpointFromMarkdown(item.content, item.fileName, item.docId, item.lastModified);
+              if (cp && cp.id) {
+                const existing = byId.get(cp.id);
+                if (existing) {
+                  existing.inVault = true;
+                  existing.vaultDocId = cp.vaultDocId;
+                  existing.vaultFileName = cp.vaultFileName;
+                  if (cp.lines && cp.lines.length) existing.lines = cp.lines;
+                  if (cp.rawDocText) existing.rawDocText = cp.rawDocText;
+                } else {
+                  byId.set(cp.id, cp);
+                }
+              }
+            });
+          } else if (resp && resp.status === 'no_vault') {
+            vaultAvailable = false;
+          }
+        }
+      } catch (e) {
+        console.warn('Error loading checkpoints from vault', e);
+      }
+    }
+
+    cachedCheckpoints = Array.from(byId.values()).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+    if (cpVaultIndicator) {
+      cpVaultIndicator.textContent = vaultAvailable ? '📁 Vault: .checkpoints (Active)' : '💾 Device Local Storage';
+      cpVaultIndicator.style.color = vaultAvailable ? '#9ece6a' : '#7aa2f7';
+    }
+
+    renderCheckpointsList();
+  }
+
+  function renderCheckpointsList() {
+    if (!cpCardsContainer || !cpEmptyState) return;
+    cpCardsContainer.innerHTML = '';
+
+    if (cpCountBadge) {
+      cpCountBadge.textContent = cachedCheckpoints.length;
+    }
+
+    if (cachedCheckpoints.length === 0) {
+      cpEmptyState.style.display = 'flex';
+      return;
+    }
+
+    cpEmptyState.style.display = 'none';
+
+    cachedCheckpoints.forEach(cp => {
+      const card = document.createElement('div');
+      card.className = 'cp-card';
+
+      const isComplete = (cp.totalTasks > 0 && cp.checkedTasks >= cp.totalTasks);
+      const badgeCls = isComplete ? 'cp-card-badge complete' : 'cp-card-badge';
+      const pctText = (cp.totalTasks > 0) ? `${cp.checkedTasks}/${cp.totalTasks} (${cp.pct}%)` : 'No tasks';
+      const dateDisplay = cp.dateStr || (cp.timestamp ? new Date(cp.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '');
+
+      const topRow = document.createElement('div');
+      topRow.className = 'cp-card-top';
+
+      const titleWrap = document.createElement('div');
+      titleWrap.className = 'cp-card-title-wrap';
+
+      const titleEl = document.createElement('div');
+      titleEl.className = 'cp-card-title';
+      titleEl.textContent = cp.title || 'Untitled Checkpoint';
+
+      const timeEl = document.createElement('div');
+      timeEl.className = 'cp-card-time';
+      timeEl.textContent = dateDisplay + (cp.inVault ? ' • 📁 in vault' : ' • 💾 local');
+
+      titleWrap.appendChild(titleEl);
+      titleWrap.appendChild(timeEl);
+
+      const badgeEl = document.createElement('span');
+      badgeEl.className = badgeCls;
+      badgeEl.textContent = pctText;
+
+      topRow.appendChild(titleWrap);
+      topRow.appendChild(badgeEl);
+      card.appendChild(topRow);
+
+      if (cp.note) {
+        const noteEl = document.createElement('div');
+        noteEl.className = 'cp-card-note';
+        noteEl.textContent = '💬 ' + cp.note;
+        card.appendChild(noteEl);
+      }
+
+      const actionsRow = document.createElement('div');
+      actionsRow.className = 'cp-card-actions';
+
+      const btnRestore = document.createElement('button');
+      btnRestore.className = 'cp-btn-card cp-btn-restore';
+      btnRestore.type = 'button';
+      btnRestore.innerHTML = '▶️ Restore / Switch';
+      btnRestore.title = 'Switch checklist to this saved state';
+      btnRestore.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        restoreCheckpoint(cp);
+      });
+
+      const btnEditNote = document.createElement('button');
+      btnEditNote.className = 'cp-btn-card cp-btn-edit-note';
+      btnEditNote.type = 'button';
+      btnEditNote.innerHTML = '✏️ Note';
+      btnEditNote.title = 'Edit or add reminder note';
+      btnEditNote.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        promptEditCheckpointNote(cp);
+      });
+
+      const btnDelete = document.createElement('button');
+      btnDelete.className = 'cp-btn-card cp-btn-delete';
+      btnDelete.type = 'button';
+      btnDelete.innerHTML = '🗑️';
+      btnDelete.title = 'Delete this checkpoint';
+      btnDelete.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        confirmDeleteCheckpoint(cp);
+      });
+
+      actionsRow.appendChild(btnDelete);
+      actionsRow.appendChild(btnEditNote);
+      actionsRow.appendChild(btnRestore);
+      card.appendChild(actionsRow);
+
+      cpCardsContainer.appendChild(card);
+    });
+  }
+
+  function saveCurrentCheckpoint(titleInput, noteInput) {
+    const docName = getActiveDocIdentifier();
+    const stats = getChecklistStats();
+    const checkpointId = 'cp_' + Date.now();
+    const now = new Date();
+    const dateFormatted = now.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    const runNumber = cachedCheckpoints.length + 1;
+    const finalTitle = (titleInput && titleInput.trim()) ? titleInput.trim() : `Run #${runNumber} • ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    const finalNote = (noteInput && noteInput.trim()) ? noteInput.trim() : '';
+
+    const currentLines = (lines && lines.length > 0) ? lines.slice() : (rawDocText ? rawDocText.split(/\r?\n/) : []);
+    const docText = currentLines.join('\n');
+
+    const cp = {
+      id: checkpointId,
+      docName: docName,
+      title: finalTitle,
+      note: finalNote,
+      timestamp: Date.now(),
+      dateStr: dateFormatted,
+      totalTasks: stats.total,
+      checkedTasks: stats.done,
+      pct: stats.pct,
+      lines: currentLines,
+      rawDocText: docText,
+      inVault: false
+    };
+
+    // 1. Format Markdown file for vault (.checkpoints folder)
+    const mdFileContent = `---
+checkpoint_id: "${cp.id}"
+document: "${cp.docName.replace(/"/g, '\\"')}"
+title: "${cp.title.replace(/"/g, '\\"')}"
+date: "${now.toISOString()}"
+tasks_checked: ${cp.checkedTasks}
+tasks_total: ${cp.totalTasks}
+progress: "${cp.pct}%"
+note: "${cp.note.replace(/"/g, '\\"')}"
+---
+
+# 🚩 Checkpoint: ${cp.title}
+> **Document**: ${cp.docName}  
+> **Saved**: ${cp.dateStr}  
+> **Progress**: ${cp.checkedTasks}/${cp.totalTasks} completed (${cp.pct}%)  
+${cp.note ? `> **Reminder Note**: ${cp.note}\n` : ''}
+---
+
+<!-- MDVIEWER_CHECKPOINT_DATA
+${JSON.stringify(cp)}
+-->
+
+${docText}
+`;
+
+    // 2. Save to vault if available
+    if (window.AndroidBridge && window.AndroidBridge.saveCheckpointToVault) {
+      try {
+        const vRespRaw = window.AndroidBridge.saveCheckpointToVault(docName, checkpointId, mdFileContent);
+        if (vRespRaw) {
+          const vResp = JSON.parse(vRespRaw);
+          if (vResp && vResp.status === 'ok') {
+            cp.inVault = true;
+            cp.vaultDocId = vResp.docId;
+            cp.vaultFileName = vResp.fileName;
+          }
+        }
+      } catch (e) {
+        console.warn('Error writing checkpoint to vault', e);
+      }
+    }
+
+    // 3. Save to Local Storage
+    const existing = loadLocalCheckpoints(docName);
+    existing.unshift(cp);
+    saveLocalCheckpoints(docName, existing);
+
+    activeCheckpoint = cp;
+    updateActiveCheckpointBanner();
+
+    if (window.navigator && window.navigator.vibrate) {
+      try { window.navigator.vibrate(15); } catch (_) {}
+    }
+
+    showToast(`Checkpoint saved: "${cp.title}" 💾`);
+
+    if (cpSaveForm) cpSaveForm.style.display = 'none';
+    if (cpInputTitle) cpInputTitle.value = '';
+    if (cpInputNote) cpInputNote.value = '';
+
+    loadAllCheckpointsForActiveDoc();
+  }
+
+  function restoreCheckpoint(cp) {
+    if (!cp) return;
+
+    if (cp.lines && cp.lines.length > 0) {
+      lines = cp.lines.slice();
+      rawDocText = lines.join('\n');
+    } else if (cp.rawDocText) {
+      rawDocText = cp.rawDocText;
+      lines = rawDocText.split(/\r?\n/);
+    } else {
+      showToast('Checkpoint content unavailable');
+      return;
+    }
+
+    outlineDocText = rawDocText;
+    render();
+    updateChecklistStats();
+    scheduleAutoSaveOutline();
+
+    activeCheckpoint = cp;
+    updateActiveCheckpointBanner();
+    closeCheckpointModal();
+
+    if (window.navigator && window.navigator.vibrate) {
+      try { window.navigator.vibrate([20, 50, 20]); } catch (_) {}
+    }
+
+    showToast(`Restored: "${cp.title}" (${cp.checkedTasks}/${cp.totalTasks} ✓)`);
+  }
+
+  function updateActiveCheckpointBanner() {
+    if (!checkpointActiveBanner) return;
+    if (activeCheckpoint && currentAppMode === 'checklist') {
+      if (cpBannerTitle) cpBannerTitle.textContent = activeCheckpoint.title;
+      if (cpBannerNote) {
+        if (activeCheckpoint.note) {
+          cpBannerNote.textContent = '• ' + activeCheckpoint.note;
+          cpBannerNote.style.display = 'inline';
+        } else {
+          cpBannerNote.style.display = 'none';
+        }
+      }
+      checkpointActiveBanner.style.display = 'flex';
+    } else {
+      checkpointActiveBanner.style.display = 'none';
+    }
+  }
+
+  function startNewRun() {
+    const stats = getChecklistStats();
+    if (stats.done > 0) {
+      const msg = `Start a new run? This will uncheck all ${stats.done} completed tasks so you can check a new bike/item.\n\n(Tip: Save a checkpoint first if you wish to return to this run later!)`;
+      if (!confirm(msg)) {
+        return;
+      }
+    }
+
+    const taskRe = /^(\s*[-*+]\s+\[)[xX](\]\s*.*)$/;
+    const changes = [];
+    for (let i = 0; i < lines.length; i++) {
+      const oldLine = lines[i];
+      if (taskRe.test(oldLine)) {
+        const newLine = oldLine.replace(taskRe, '$1 $2');
+        changes.push({ lineNo: i, oldLine, newLine });
+        lines[i] = newLine;
+      }
+    }
+
+    if (changes.length > 0) {
+      pushChecklistHistory('uncheckAll', changes);
+    }
+
+    rawDocText = lines.join('\n');
+    outlineDocText = rawDocText;
+    render();
+    updateChecklistStats();
+    scheduleAutoSaveOutline();
+
+    activeCheckpoint = null;
+    updateActiveCheckpointBanner();
+    closeCheckpointModal();
+
+    if (window.navigator && window.navigator.vibrate) {
+      try { window.navigator.vibrate(15); } catch (_) {}
+    }
+
+    showToast('Started fresh run! All tasks unchecked 🔄');
+  }
+
+  function promptEditCheckpointNote(cp) {
+    const newNote = prompt(`Edit reminder note for "${cp.title}":`, cp.note || '');
+    if (newNote === null) return;
+    cp.note = newNote.trim();
+
+    const docName = getActiveDocIdentifier();
+    const localList = loadLocalCheckpoints(docName);
+    const item = localList.find(x => x.id === cp.id);
+    if (item) item.note = cp.note;
+    saveLocalCheckpoints(docName, localList);
+
+    if (cp.inVault && window.AndroidBridge && window.AndroidBridge.saveCheckpointToVault) {
+      const now = new Date(cp.timestamp || Date.now());
+      const mdContent = `---
+checkpoint_id: "${cp.id}"
+document: "${cp.docName.replace(/"/g, '\\"')}"
+title: "${cp.title.replace(/"/g, '\\"')}"
+date: "${now.toISOString()}"
+tasks_checked: ${cp.checkedTasks}
+tasks_total: ${cp.totalTasks}
+progress: "${cp.pct}%"
+note: "${cp.note.replace(/"/g, '\\"')}"
+---
+
+# 🚩 Checkpoint: ${cp.title}
+> **Document**: ${cp.docName}  
+> **Saved**: ${cp.dateStr}  
+> **Progress**: ${cp.checkedTasks}/${cp.totalTasks} completed (${cp.pct}%)  
+${cp.note ? `> **Reminder Note**: ${cp.note}\n` : ''}
+---
+
+<!-- MDVIEWER_CHECKPOINT_DATA
+${JSON.stringify(cp)}
+-->
+
+${cp.rawDocText || ''}
+`;
+      try { window.AndroidBridge.saveCheckpointToVault(docName, cp.id, mdContent); } catch (e) {}
+    }
+
+    if (activeCheckpoint && activeCheckpoint.id === cp.id) {
+      activeCheckpoint.note = cp.note;
+      updateActiveCheckpointBanner();
+    }
+
+    showToast('Reminder note updated ✏️');
+    loadAllCheckpointsForActiveDoc();
+  }
+
+  function confirmDeleteCheckpoint(cp) {
+    if (!confirm(`Delete checkpoint "${cp.title}"?`)) return;
+
+    const docName = getActiveDocIdentifier();
+    const localList = loadLocalCheckpoints(docName).filter(x => x.id !== cp.id);
+    saveLocalCheckpoints(docName, localList);
+
+    if (cp.vaultDocId && window.AndroidBridge && window.AndroidBridge.deleteCheckpointFromVault) {
+      try { window.AndroidBridge.deleteCheckpointFromVault(cp.vaultDocId); } catch (e) {}
+    }
+
+    if (activeCheckpoint && activeCheckpoint.id === cp.id) {
+      activeCheckpoint = null;
+      updateActiveCheckpointBanner();
+    }
+
+    showToast(`Deleted checkpoint "${cp.title}" 🗑️`);
+    loadAllCheckpointsForActiveDoc();
+  }
+
+  function openCheckpointModal() {
+    if (optionsModal) optionsModal.classList.remove('open');
+    if (optionsBackdrop) optionsBackdrop.style.display = 'none';
+
+    const s = getChecklistStats();
+    if (cpStatsCount) {
+      cpStatsCount.textContent = `${s.done} / ${s.total} completed (${s.pct}%)`;
+    }
+    if (cpStatsBarFill) {
+      cpStatsBarFill.style.width = `${s.pct}%`;
+    }
+    if (checkpointDocSubtitle) {
+      checkpointDocSubtitle.textContent = getActiveDocIdentifier();
+    }
+
+    if (cpSaveForm) cpSaveForm.style.display = 'none';
+    if (cpInputTitle) {
+      const nextRun = cachedCheckpoints.length + 1;
+      const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      cpInputTitle.value = `Run #${nextRun} (${nowTime})`;
+    }
+    if (cpInputNote) cpInputNote.value = '';
+
+    loadAllCheckpointsForActiveDoc();
+
+    if (checkpointModal) checkpointModal.classList.add('open');
+    if (checkpointBackdrop) checkpointBackdrop.classList.add('open');
+  }
+
+  function closeCheckpointModal() {
+    if (checkpointModal) checkpointModal.classList.remove('open');
+    if (checkpointBackdrop) checkpointBackdrop.classList.remove('open');
+  }
+
+  // Checkpoints Event Listeners
+  if (btnHeaderCheckpoints) btnHeaderCheckpoints.addEventListener('click', openCheckpointModal);
+  if (btnChecklistCheckpoints) btnChecklistCheckpoints.addEventListener('click', openCheckpointModal);
+  if (btnOptCheckpoints) btnOptCheckpoints.addEventListener('click', openCheckpointModal);
+  if (btnOptStartNewRun) btnOptStartNewRun.addEventListener('click', startNewRun);
+
+  if (btnCheckpointModalClose) btnCheckpointModalClose.addEventListener('click', closeCheckpointModal);
+  if (checkpointBackdrop) checkpointBackdrop.addEventListener('click', closeCheckpointModal);
+
+  if (btnCpToggleSaveForm) {
+    btnCpToggleSaveForm.addEventListener('click', () => {
+      if (!cpSaveForm) return;
+      const isHidden = (cpSaveForm.style.display === 'none' || !cpSaveForm.style.display);
+      cpSaveForm.style.display = isHidden ? 'flex' : 'none';
+      if (isHidden && cpInputTitle) {
+        cpInputTitle.focus();
+        cpInputTitle.select();
+      }
+    });
+  }
+
+  if (btnCpStartNewRun) btnCpStartNewRun.addEventListener('click', startNewRun);
+  if (btnCpCancelSave) {
+    btnCpCancelSave.addEventListener('click', () => {
+      if (cpSaveForm) cpSaveForm.style.display = 'none';
+    });
+  }
+  if (btnCpConfirmSave) {
+    btnCpConfirmSave.addEventListener('click', () => {
+      const t = cpInputTitle ? cpInputTitle.value : '';
+      const n = cpInputNote ? cpInputNote.value : '';
+      saveCurrentCheckpoint(t, n);
+    });
+  }
+
+  if (btnBannerCpManage) btnBannerCpManage.addEventListener('click', openCheckpointModal);
+  if (btnBannerCpDismiss) {
+    btnBannerCpDismiss.addEventListener('click', () => {
+      if (checkpointActiveBanner) checkpointActiveBanner.style.display = 'none';
     });
   }
 

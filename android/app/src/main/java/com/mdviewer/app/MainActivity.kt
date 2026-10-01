@@ -785,6 +785,227 @@ class MainActivity : Activity() {
         }
     }
 
+    // --- Checkpoints in Vault (.checkpoints folder) ---
+    private fun getOrCreateCheckpointsFolder(treeUri: Uri): String? {
+        val rootDocId = getRootDocumentId(treeUri)
+        if (rootDocId.isEmpty()) return null
+
+        val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, rootDocId)
+        val projection = arrayOf(
+            DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+            DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+            DocumentsContract.Document.COLUMN_MIME_TYPE
+        )
+
+        try {
+            contentResolver.query(childrenUri, projection, null, null, null)?.use { cursor ->
+                val idCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
+                val nameCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
+                val mimeCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE)
+                while (cursor.moveToNext()) {
+                    val id = if (idCol >= 0) cursor.getString(idCol) else null
+                    val name = if (nameCol >= 0) cursor.getString(nameCol) else null
+                    val mime = if (mimeCol >= 0) cursor.getString(mimeCol) else null
+                    if (name == ".checkpoints" && mime == DocumentsContract.Document.MIME_TYPE_DIR && id != null) {
+                        return id
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Error checking for .checkpoints folder: ${e.message}")
+        }
+
+        return try {
+            val rootUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, rootDocId)
+            val newDirUri = DocumentsContract.createDocument(
+                contentResolver,
+                rootUri,
+                DocumentsContract.Document.MIME_TYPE_DIR,
+                ".checkpoints"
+            ) ?: return null
+            DocumentsContract.getDocumentId(newDirUri)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error creating .checkpoints folder", e)
+            null
+        }
+    }
+
+    fun saveCheckpointToVault(docName: String, checkpointId: String, content: String): String {
+        val response = JSONObject()
+        val treeUri = mCurrentTreeUri ?: run {
+            response.put("status", "no_vault")
+            response.put("message", "No vault folder currently open")
+            return response.toString()
+        }
+
+        return try {
+            val dirDocId = getOrCreateCheckpointsFolder(treeUri) ?: run {
+                response.put("status", "error")
+                response.put("message", "Could not access or create .checkpoints folder in vault")
+                return response.toString()
+            }
+
+            val safeDocName = docName.replace(Regex("[^a-zA-Z0-9._-]"), "_").trim()
+            val fileName = "${safeDocName}_${checkpointId}.md"
+
+            val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, dirDocId)
+            var existingDocUri: Uri? = null
+            contentResolver.query(
+                childrenUri,
+                arrayOf(DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_DISPLAY_NAME),
+                null, null, null
+            )?.use { cursor ->
+                val idCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
+                val nameCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
+                while (cursor.moveToNext()) {
+                    val id = if (idCol >= 0) cursor.getString(idCol) else null
+                    val name = if (nameCol >= 0) cursor.getString(nameCol) else null
+                    if (name == fileName && id != null) {
+                        existingDocUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, id)
+                        break
+                    }
+                }
+            }
+
+            val targetDocUri = existingDocUri ?: run {
+                val dirUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, dirDocId)
+                DocumentsContract.createDocument(contentResolver, dirUri, "text/markdown", fileName)
+                    ?: run {
+                        response.put("status", "error")
+                        response.put("message", "Could not create checkpoint document in .checkpoints")
+                        return response.toString()
+                    }
+            }
+
+            contentResolver.openOutputStream(targetDocUri, "wt")?.use { stream ->
+                stream.write(content.toByteArray(StandardCharsets.UTF_8))
+                stream.flush()
+            }
+
+            val finalDocId = DocumentsContract.getDocumentId(targetDocUri)
+            response.put("status", "ok")
+            response.put("docId", finalDocId)
+            response.put("fileName", fileName)
+            response.toString()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error saving checkpoint to vault", e)
+            response.put("status", "error")
+            response.put("message", "${e.javaClass.simpleName}: ${e.message}")
+            response.toString()
+        }
+    }
+
+    fun getCheckpointsFromVault(docName: String?): String {
+        val response = JSONObject()
+        val treeUri = mCurrentTreeUri ?: run {
+            response.put("status", "no_vault")
+            response.put("checkpoints", JSONArray())
+            return response.toString()
+        }
+
+        return try {
+            val rootDocId = getRootDocumentId(treeUri)
+            val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, rootDocId)
+            var dirDocId: String? = null
+            contentResolver.query(
+                childrenUri,
+                arrayOf(DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_DISPLAY_NAME, DocumentsContract.Document.COLUMN_MIME_TYPE),
+                null, null, null
+            )?.use { cursor ->
+                val idCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
+                val nameCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
+                val mimeCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE)
+                while (cursor.moveToNext()) {
+                    val id = if (idCol >= 0) cursor.getString(idCol) else null
+                    val name = if (nameCol >= 0) cursor.getString(nameCol) else null
+                    val mime = if (mimeCol >= 0) cursor.getString(mimeCol) else null
+                    if (name == ".checkpoints" && mime == DocumentsContract.Document.MIME_TYPE_DIR && id != null) {
+                        dirDocId = id
+                        break
+                    }
+                }
+            }
+
+            if (dirDocId == null) {
+                response.put("status", "ok")
+                response.put("checkpoints", JSONArray())
+                return response.toString()
+            }
+
+            val safeDocName = if (!docName.isNullOrEmpty()) docName.replace(Regex("[^a-zA-Z0-9._-]"), "_").trim() else ""
+            val cpChildrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, dirDocId)
+            val checkpointsArr = JSONArray()
+
+            contentResolver.query(
+                cpChildrenUri,
+                arrayOf(
+                    DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                    DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                    DocumentsContract.Document.COLUMN_LAST_MODIFIED
+                ),
+                null, null, null
+            )?.use { cursor ->
+                val idCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
+                val nameCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
+                val modCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)
+
+                while (cursor.moveToNext()) {
+                    val id = if (idCol >= 0) cursor.getString(idCol) else null
+                    val name = if (nameCol >= 0) cursor.getString(nameCol) else null
+                    val lastMod = if (modCol >= 0) cursor.getLong(modCol) else 0L
+
+                    if (id != null && name != null) {
+                        if (safeDocName.isEmpty() || name.startsWith(safeDocName)) {
+                            try {
+                                val fileUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, id)
+                                val text = contentResolver.openInputStream(fileUri)?.bufferedReader(StandardCharsets.UTF_8)?.use { it.readText() } ?: ""
+                                val itemObj = JSONObject().apply {
+                                    put("docId", id)
+                                    put("fileName", name)
+                                    put("lastModified", lastMod)
+                                    put("content", text)
+                                }
+                                checkpointsArr.put(itemObj)
+                            } catch (readEx: Exception) {
+                                Log.w(TAG, "Error reading checkpoint file $name: ${readEx.message}")
+                            }
+                        }
+                    }
+                }
+            }
+
+            response.put("status", "ok")
+            response.put("checkpoints", checkpointsArr)
+            response.toString()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting checkpoints from vault", e)
+            response.put("status", "error")
+            response.put("message", "${e.javaClass.simpleName}: ${e.message}")
+            response.put("checkpoints", JSONArray())
+            response.toString()
+        }
+    }
+
+    fun deleteCheckpointFromVault(checkpointDocId: String): String {
+        val response = JSONObject()
+        val treeUri = mCurrentTreeUri ?: run {
+            response.put("status", "no_vault")
+            return response.toString()
+        }
+
+        return try {
+            val docUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, checkpointDocId)
+            val deleted = DocumentsContract.deleteDocument(contentResolver, docUri)
+            response.put("status", if (deleted) "ok" else "error")
+            response.toString()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error deleting checkpoint $checkpointDocId", e)
+            response.put("status", "error")
+            response.put("message", "${e.javaClass.simpleName}: ${e.message}")
+            response.toString()
+        }
+    }
+
     fun setSystemUiFullscreen(fullscreen: Boolean) {
         runOnUiThread {
             try {

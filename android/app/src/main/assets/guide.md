@@ -275,4 +275,16 @@ Turn any markdown document or note into interactive study flashcards:
 
 ---
 
+## 🚀 13. What's New in v2.4.5
+
+- **🚩 Checklist Checkpoints & Multi-Run Manager**:
+  - **Save Checkpoints with Reminder Notes**: Save the exact state of what is checked and still unchecked at any moment with a custom label (e.g., `Bike 1: Trek FX`) and personal reminder notes (e.g., `Adjusted derailleur, waiting for brake pads; paused for lunch`).
+  - **Vault-Integrated Hidden Storage (`.checkpoints/`)**: Checkpoints are saved directly inside your vault folder under `.checkpoints/`. They remain completely invisible in MD Viewer's vault file list (via dotfile filtering), yet are readily accessible and readable in Android file explorers (e.g., Files app with "Show hidden files" turned on) or on a PC.
+  - **Human-Readable Markdown Checkpoint Files**: Each checkpoint is stored on disk as a clean Markdown document with YAML metadata and complete task snapshot, making it fully portable and human-readable outside the app.
+  - **Start New Run / Fast Reset**: One-tap `🔄 Start New Run` unchecks all items with confirmation, enabling you to inspect a new bike/item immediately using the same template without losing prior runs.
+  - **Instant Restore & Switch**: Browse saved checkpoints anytime, see completion statistics (`8/18 (44%)`), and tap `▶️ Restore / Switch` to restore prior checkbox states and display the reminder note.
+  - **Multi-Touchpoints**: Easily accessible via header toolbar (`🚩 Checkpoints`), checklist bottom bar (`Checkpoints`), and typography/view menu (`Aa View`).
+
+---
+
 *MD Viewer — Fast, Offline, Private Markdown Reading & Writing on Android.*

@@ -146,6 +146,27 @@ class AndroidBridge(
     }
 
     @JavascriptInterface
+    fun saveCheckpointToVault(docName: String?, checkpointId: String?, content: String?): String {
+        if (docName.isNullOrEmpty() || checkpointId.isNullOrEmpty() || content == null) {
+            return "{\"status\":\"error\",\"message\":\"Missing arguments\"}"
+        }
+        return activity.saveCheckpointToVault(docName, checkpointId, content)
+    }
+
+    @JavascriptInterface
+    fun getCheckpointsFromVault(docName: String?): String {
+        return activity.getCheckpointsFromVault(docName)
+    }
+
+    @JavascriptInterface
+    fun deleteCheckpointFromVault(checkpointDocId: String?): String {
+        if (checkpointDocId.isNullOrEmpty()) {
+            return "{\"status\":\"error\",\"message\":\"Missing checkpointDocId\"}"
+        }
+        return activity.deleteCheckpointFromVault(checkpointDocId)
+    }
+
+    @JavascriptInterface
     fun saveFileAs(suggestedName: String?, content: String?) {
         handler.post {
             activity.openCreateFileChooser(suggestedName ?: "Document.md", content ?: "")
@@ -201,9 +222,9 @@ class AndroidBridge(
     fun getAppVersion(): String {
         return try {
             val pInfo = activity.packageManager.getPackageInfo(activity.packageName, 0)
-            pInfo.versionName ?: "2.4.4"
+            pInfo.versionName ?: "2.4.5"
         } catch (e: Exception) {
-            "2.4.4"
+            "2.4.5"
         }
     }
 
