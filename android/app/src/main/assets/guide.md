@@ -4,20 +4,25 @@ Welcome to **MD Viewer**! A high-performance, lightweight, and 100% offline Mark
 
 ---
 
-## 🚀 1. Dual-App Architecture
+## 🚀 1. Triple-App Architecture
 
-MD Viewer provides two dedicated modes tailored for different writing and reading workflows:
+MD Viewer provides three dedicated modes tailored for different writing, reading, and task workflows:
 
-- **✍️ Basic Editor & PocketMark Notes (Default)**:
-  - Designed for drafting notes, prose reading, and daily task management.
-  - Multi-note shelf with colored cards, interactive task checkboxes, split-screen comparison, and rich formatting.
+- **✍️ Notes Mode (Basic Editor & PocketMark Notes)**:
+  - Designed for drafting notes, prose reading, and personal note organization.
+  - Multi-note waterfall gallery with dynamic card heights, colored cards, split-screen comparison, and rich formatting.
+  - 100% full-screen workspace with no empty bottom bar.
 - **📑 Outline Viewer Mode**:
   - Designed for large-scale documentation, books, research, and Obsidian vaults.
   - Custom virtualized rendering pipeline capable of opening 100k to 1,000,000 lines with zero lag.
-  - Obsidian-style tree explorer with hierarchical folder guides and deep workspace search.
+  - Quick note edit button (**`✏️`**) with **Large Document Guard** protection.
+- **☑️ Checklist Mode**:
+  - Virtualized interactive checklist reader and task manager.
+  - Dedicated 4-button bottom bar: **`☑️ Check All`**, **`⬜ Uncheck All`**, **`↶ Undo`**, and **`↷ Redo`**.
+  - Direct one-tap task toggling (`- [ ]` / `- [x]`) and live completion percentage.
 
 > [!TIP]
-> **Switching Modes**: Tap the mode pills in the top action bar (**✍️ Notes** / **📑 Outline**) or select the target app mode inside the left File Manager drawer.
+> **Switching Modes**: Switch anytime using the **mode dropdown** on the top header bar (**✍️ Notes** / **📑 Outline** / **☑️ Checklist**) or by tapping the mode tabs inside the left File Manager drawer.
 
 ---
 
@@ -25,6 +30,8 @@ MD Viewer provides two dedicated modes tailored for different writing and readin
 
 Your personal idea board and notebook shelf on Android:
 
+- **Waterfall Masonry Layout (Auto-Fit Height)**:
+  - Cards dynamically stack in a 2-column waterfall layout with zero blank space below short cards. Subsequent notes automatically fill gaps directly beneath shorter notes.
 - **Card Size Preview Controls**:
   - Tap **`↕️`** on the top shelf toolbar to cycle global card preview sizes (Full, Compact, Medium).
   - **Dual Compact / Expand Buttons**: Long cards feature toggle buttons at **both the top and bottom** (`▲` / `▼`). You can collapse a long note from the bottom (`▲`) without scrolling all the way back up, or expand (`▼`) when previewing!
@@ -128,6 +135,13 @@ Designed for reading massive documents and browsing full vaults:
 - **Workspace Search Across All Vault Files**:
   - Switch the search bar scope from **File** to **Folder**.
   - Searches through all markdown documents in the vault, displaying matching lines and snippets with direct jump navigation.
+- **Quick Note Edit Button (`✏️`) & Large Document Guard**:
+  - Tap **`✏️`** on the top outline header bar to quickly fix typos or revise text using the rich markdown editor.
+  - **Large Document Guard (>5,000 to 100,000+ lines)**: If the document is large, the Guard Modal prompts you to choose between:
+    - *Edit Active Section Only*: Loads only the current heading's content (~50-300 lines) with zero latency.
+    - *Edit Visible Window*: Loads ~300 lines around your current scroll position.
+    - *Load Entire File Anyway*: Full file editing.
+  - When finished, tap **`‹ Back`** to instantly splice edits back into the document and refresh the outline structure without memory spikes.
 
 ---
 

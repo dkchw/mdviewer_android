@@ -81,7 +81,10 @@ if [ ! -f "$KEYSTORE" ]; then
         -alias androiddebugkey -keyalg RSA -keysize 2048
 fi
 
+VERSION_NAME=$(grep -o 'android:versionName="[^"]*"' "$SRC_DIR/AndroidManifest.xml" | cut -d'"' -f2)
 FINAL_APK="$OUT_DIR/mdviewer.apk"
+VERSIONED_APK="$OUT_DIR/mdviewer-v${VERSION_NAME}.apk"
+
 echo "7. Signing APK with apksigner (v1, v2, v3)..."
 "$BT/apksigner" sign \
     --v1-signing-enabled true \
@@ -97,7 +100,13 @@ echo "7. Signing APK with apksigner (v1, v2, v3)..."
 echo "8. Verifying APK signature..."
 "$BT/apksigner" verify "$FINAL_APK"
 
+cp -f "$FINAL_APK" "$VERSIONED_APK"
+mkdir -p "$BASE_DIR/../dist"
+cp -f "$FINAL_APK" "$BASE_DIR/../dist/mdviewer.apk"
+cp -f "$VERSIONED_APK" "$BASE_DIR/../dist/mdviewer-v${VERSION_NAME}.apk"
+
 echo ""
 echo "=== BUILD SUCCESSFUL ==="
 echo "APK location: $FINAL_APK"
-ls -lh "$FINAL_APK"
+echo "Versioned APK: $VERSIONED_APK"
+ls -lh "$FINAL_APK" "$VERSIONED_APK"

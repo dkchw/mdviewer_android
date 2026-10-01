@@ -324,9 +324,9 @@
     border-left: 3.5px solid var(--accent) !important;
   }
 
-  /* --- Bottom Action Toolbar (5 Buttons) --- */
+  /* --- Bottom Action Toolbar --- */
   #bottomBar {
-    display: flex;
+    display: none;
     align-items: stretch;
     justify-content: space-around;
     height: calc(54px + env(safe-area-inset-bottom, 0px));
@@ -340,6 +340,9 @@
     overflow: hidden;
     contain: paint layout;
     box-sizing: border-box;
+  }
+  #bottomBar:empty {
+    display: none !important;
   }
 
   .bar-btn {
@@ -3213,15 +3216,52 @@
   .header-actions-group {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    flex-shrink: 0;
+    gap: 2px;
+    flex-shrink: 1;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
   }
-  .header-btn.pill-btn {
-    border-radius: 8px;
-    width: 32px;
+  .header-actions-group::-webkit-scrollbar { display: none; }
+
+  .header-mode-dropdown {
     height: 32px;
+    background: #191b28;
+    color: var(--accent);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    outline: none;
+    max-width: 120px;
+    text-overflow: ellipsis;
+  }
+  .header-mode-dropdown:focus {
+    border-color: var(--accent);
+  }
+
+  #headerBar.in-editor #modeSwitcher {
+    display: none !important;
+  }
+
+  #headerBar.in-editor #docInfo {
+    max-width: 75px;
+    flex: 0 1 auto;
+  }
+
+  .header-btn.pill-btn {
+    border-radius: 7px;
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    flex: 0 0 30px;
     padding: 0;
-    font-size: 13.5px;
+    font-size: 13px;
     font-weight: 700;
     background: #1f2335;
     border: 1px solid var(--border);
@@ -3235,6 +3275,25 @@
     background: rgba(122, 162, 247, 0.25);
     border-color: #7aa2f7;
     color: #7aa2f7;
+  }
+
+  .header-actions-group .header-btn,
+  .header-actions-group .pocket-split-header-btn,
+  .header-actions-group .pocket-delete-header-btn {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    flex: 0 0 30px;
+    padding: 0;
+    font-size: 13px;
+    border-radius: 7px;
+  }
+  .header-actions-group .pocket-note-color-btn {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    flex: 0 0 18px;
+    margin: 0 1px;
   }
 
   #basicEditorContainer {
@@ -3541,13 +3600,44 @@
     -webkit-overflow-scrolling: touch;
   }
   .pocket-notes-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    align-items: start;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    width: 100%;
+    box-sizing: border-box;
   }
   .pocket-notes-grid.list-mode {
-    grid-template-columns: minmax(0, 1fr);
+    display: flex;
+    flex-direction: column;
+  }
+  .pocket-grid-col {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Outline & Checklist Mode Interactive Tasks */
+  .outline-task-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .outline-task-cb {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    margin: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .outline-task-text.task-done {
+    text-decoration: line-through;
+    opacity: 0.52;
   }
 
   /* Individual Pocket Note Card */
@@ -5107,8 +5197,11 @@
     <button id="btnPocketBackShelf" class="pocket-back-shelf-btn" style="display:none;" title="Back to Notes Shelf">‹</button>
     <button id="btnOpenDrawer" class="header-btn" title="Open File Manager (or swipe left-to-right)">☰</button>
     <div id="modeSwitcher" class="mode-switcher-container">
-      <button id="modeBasicBtn" class="mode-tab-btn basic-tab active" title="PocketMark Notes &amp; Editor">✍️ Notes</button>
-      <button id="modeOutlineBtn" class="mode-tab-btn outline-tab" title="Virtual Outline &amp; Tree Reader">📑 Outline</button>
+      <select id="modeSelectDropdown" class="header-mode-dropdown" title="Select App Mode">
+        <option value="basic">✍️ Notes</option>
+        <option value="outline">📑 Outline</option>
+        <option value="checklist">☑️ Checklist</option>
+      </select>
     </div>
     <div id="docInfo">
       <div id="docTitle">Guide.md</div>
@@ -5128,6 +5221,7 @@
     </div>
     <!-- Outline Viewer Header Actions -->
     <div id="outlineHeaderActions" class="header-actions-group" style="display:none;">
+      <button id="btnOutlineEditNote" class="header-btn" title="Edit Note / Fix Typo">✏️</button>
       <button id="btnToggleOptions" class="header-btn" title="View Options &amp; Zoom">Aa</button>
       <button id="btnToggleFlashcard" class="header-btn" title="Study as Flashcards">🗂</button>
       <button id="btnToggleSearch" class="header-btn" title="Toggle Search">🔍</button>
@@ -5523,6 +5617,25 @@
         <span class="btn-label">Expand<br>below</span>
       </button>
     </div>
+    <!-- Checklist Mode Toolbar -->
+    <div id="checklistBottomGroup" class="bottom-group" style="display:none;">
+      <button id="btnChecklistCheckAll" class="bar-btn" title="Check All Tasks">
+        <span class="btn-icon">☑️</span>
+        <span class="btn-label">Check all</span>
+      </button>
+      <button id="btnChecklistUncheckAll" class="bar-btn" title="Uncheck All Tasks">
+        <span class="btn-icon">⬜</span>
+        <span class="btn-label">Uncheck all</span>
+      </button>
+      <button id="btnChecklistUndo" class="bar-btn" title="Undo Task Change">
+        <span class="btn-icon">↶</span>
+        <span class="btn-label">Undo</span>
+      </button>
+      <button id="btnChecklistRedo" class="bar-btn" title="Redo Task Change">
+        <span class="btn-icon">↷</span>
+        <span class="btn-label">Redo</span>
+      </button>
+    </div>
   </footer>
 </div>
 
@@ -5634,11 +5747,14 @@
     <!-- Dual-App Mode Target Selector -->
     <div class="drawer-mode-switch-box">
       <div class="drawer-mode-tabs">
-        <button id="drawerTabBasic" class="drawer-tab-btn basic-tab active" title="Manage Files for Basic Editor">
-          <span>✍️</span> Basic Editor
+        <button id="drawerTabBasic" class="drawer-tab-btn basic-tab active" title="Manage Files for Notes">
+          <span>✍️</span> Notes
         </button>
         <button id="drawerTabOutline" class="drawer-tab-btn outline-tab" title="Manage Files for Outline Viewer">
-          <span>📑</span> Outline Viewer
+          <span>📑</span> Outline
+        </button>
+        <button id="drawerTabChecklist" class="drawer-tab-btn checklist-tab" title="Manage Files for Checklist Mode">
+          <span>☑️</span> Checklist
         </button>
       </div>
       <div class="drawer-target-status" id="drawerTargetStatus">
@@ -6298,7 +6414,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v2.2.0</span>
+          <span class="settings-row-badge" id="appVersionSub">v2.3.0</span>
         </button>
         <div class="settings-row-config">
           <div class="settings-config-label">
@@ -6562,6 +6678,48 @@
   <button id="btnDeselectSelection" class="sel-btn sel-btn-close" title="Deselect">✕</button>
 </div>
 
+<!-- Large Document Edit Guard Modal -->
+<div id="outlineEditGuardModal" class="pocket-delete-modal" style="display:none; z-index: 1250;">
+  <div class="pocket-delete-card" style="max-width: 360px; text-align: left;">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+      <div class="pocket-delete-icon" style="background: rgba(247,118,142,0.15); color: #f7768e; margin:0;">🛡️</div>
+      <div>
+        <div class="pocket-delete-title" style="text-align: left; margin:0; font-size:16px;">Large Document Guard</div>
+        <div id="guardLineCountText" style="font-size:11.5px; color:var(--muted);">100,000 lines</div>
+      </div>
+    </div>
+    <p style="font-size:12.5px; color:#c0caf5; margin-bottom:14px; line-height:1.45;">
+      Loading this entire file into the editor at once may cause latency on mobile. How would you like to edit?
+    </p>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <button id="btnGuardEditSection" class="settings-row-btn" style="padding:10px 12px; background:rgba(122,162,247,0.12); border:1px solid rgba(122,162,247,0.3); border-radius:10px;">
+        <span style="font-size:16px;">🎯</span>
+        <div style="text-align:left; flex:1;">
+          <div style="font-weight:700; color:var(--accent); font-size:12.5px;" id="guardSectionTitle">Edit Active Section Only</div>
+          <div style="font-size:11px; color:var(--muted);" id="guardSectionDesc">Safely edit only this section (~50 lines)</div>
+        </div>
+      </button>
+      <button id="btnGuardEditChunk" class="settings-row-btn" style="padding:10px 12px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:10px;">
+        <span style="font-size:16px;">📄</span>
+        <div style="text-align:left; flex:1;">
+          <div style="font-weight:700; color:#fff; font-size:12.5px;">Edit Visible Window</div>
+          <div style="font-size:11px; color:var(--muted);" id="guardChunkDesc">Edit ~300 lines around current view</div>
+        </div>
+      </button>
+      <button id="btnGuardEditFull" class="settings-row-btn" style="padding:10px 12px; background:rgba(247,118,142,0.08); border:1px solid rgba(247,118,142,0.25); border-radius:10px;">
+        <span style="font-size:16px;">⚠️</span>
+        <div style="text-align:left; flex:1;">
+          <div style="font-weight:700; color:#f7768e; font-size:12.5px;">Load Entire File Anyway</div>
+          <div style="font-size:11px; color:var(--muted);">Full document editing</div>
+        </div>
+      </button>
+    </div>
+    <div class="pocket-delete-actions" style="margin-top:14px;">
+      <button id="btnGuardCancel" class="pocket-delete-cancel-btn" style="flex:1;">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast element -->
 <div id="toast"></div>
 
@@ -6627,6 +6785,8 @@
   let totalVisible = 0;
 
   // Mode Switcher Elements
+  const modeSwitcher = document.getElementById('modeSwitcher');
+  const modeSelectDropdown = document.getElementById('modeSelectDropdown');
   const modeBasicBtn = document.getElementById('modeBasicBtn');
   const modeOutlineBtn = document.getElementById('modeOutlineBtn');
 
@@ -6653,8 +6813,14 @@
   const docHudPageText = document.getElementById('docHudPageText');
 
   // Bottom Toolbar Groups
+  const bottomBar = document.getElementById('bottomBar');
   const basicBottomGroup = document.getElementById('basicBottomGroup');
   const outlineBottomGroup = document.getElementById('outlineBottomGroup');
+  const checklistBottomGroup = document.getElementById('checklistBottomGroup');
+  const btnChecklistCheckAll = document.getElementById('btnChecklistCheckAll');
+  const btnChecklistUncheckAll = document.getElementById('btnChecklistUncheckAll');
+  const btnChecklistUndo = document.getElementById('btnChecklistUndo');
+  const btnChecklistRedo = document.getElementById('btnChecklistRedo');
   const btnDocTocToggle = document.getElementById('btnDocTocToggle');
   const btnDocDoubleToggle = document.getElementById('btnDocDoubleToggle');
   const btnDocDoubleLabel = document.getElementById('btnDocDoubleLabel');
@@ -6666,17 +6832,30 @@
   // Dual-App Drawer Switcher Elements
   const drawerTabBasic = document.getElementById('drawerTabBasic');
   const drawerTabOutline = document.getElementById('drawerTabOutline');
+  const drawerTabChecklist = document.getElementById('drawerTabChecklist');
   const drawerTargetBadge = document.getElementById('drawerTargetBadge');
   const drawerTargetCurrentDoc = document.getElementById('drawerTargetCurrentDoc');
 
   // Header Actions Groups
   const basicHeaderActions = document.getElementById('basicHeaderActions');
   const outlineHeaderActions = document.getElementById('outlineHeaderActions');
+  const btnOutlineEditNote = document.getElementById('btnOutlineEditNote');
   const btnHeaderBasicSubMode = document.getElementById('btnHeaderBasicSubMode');
   const btnHeaderBasicNew = document.getElementById('btnHeaderBasicNew');
   const btnBasicToggleSearch = document.getElementById('btnBasicToggleSearch');
   const btnHeaderBasicDelete = document.getElementById('btnHeaderBasicDelete');
   const btnHeaderBasicMoveToVault = document.getElementById('btnHeaderBasicMoveToVault');
+
+  // Large Document Edit Guard Elements
+  const outlineEditGuardModal = document.getElementById('outlineEditGuardModal');
+  const guardLineCountText = document.getElementById('guardLineCountText');
+  const btnGuardEditSection = document.getElementById('btnGuardEditSection');
+  const guardSectionTitle = document.getElementById('guardSectionTitle');
+  const guardSectionDesc = document.getElementById('guardSectionDesc');
+  const btnGuardEditChunk = document.getElementById('btnGuardEditChunk');
+  const guardChunkDesc = document.getElementById('guardChunkDesc');
+  const btnGuardEditFull = document.getElementById('btnGuardEditFull');
+  const btnGuardCancel = document.getElementById('btnGuardCancel');
 
   // Basic Editor Elements
   const basicEditorContainer = document.getElementById('basicEditorContainer');
@@ -9070,6 +9249,17 @@
       return;
     }
 
+    let col1 = null, col2 = null;
+    let h1 = 0, h2 = 0;
+    if (pocketLayoutMode !== 'list') {
+      col1 = document.createElement('div');
+      col1.className = 'pocket-grid-col';
+      col2 = document.createElement('div');
+      col2.className = 'pocket-grid-col';
+      pocketNotesGrid.appendChild(col1);
+      pocketNotesGrid.appendChild(col2);
+    }
+
     filtered.forEach(note => {
       const card = document.createElement('div');
       const noteSize = pocketCardSizeOverrides[note.id] || pocketCardSizeMode;
@@ -9226,7 +9416,26 @@
         });
       }
 
-      pocketNotesGrid.appendChild(card);
+      if (pocketLayoutMode === 'list') {
+        pocketNotesGrid.appendChild(card);
+      } else {
+        const linesCount = (note.content || '').split('\n').length;
+        let estH = 110;
+        if (noteSize === 'compact') {
+          estH += 60;
+        } else if (noteSize === 'medium') {
+          estH += Math.min(180, Math.max(60, linesCount * 18));
+        } else {
+          estH += Math.min(800, Math.max(60, linesCount * 20));
+        }
+        if (h1 <= h2) {
+          col1.appendChild(card);
+          h1 += estH + 10;
+        } else {
+          col2.appendChild(card);
+          h2 += estH + 10;
+        }
+      }
     });
 
     if (pocketShelfScroll && prevScroll > 0) {
@@ -9251,6 +9460,11 @@
     if (pocketEditorView) pocketEditorView.style.display = 'none';
     if (pocketShelfView) pocketShelfView.style.display = 'flex';
     if (basicBottomGroup) basicBottomGroup.style.display = 'none';
+    if (bottomBar) bottomBar.style.display = 'none';
+
+    const headerBarEl = document.getElementById('headerBar');
+    if (headerBarEl) headerBarEl.classList.remove('in-editor');
+    if (modeSwitcher) modeSwitcher.style.display = 'flex';
 
     if (btnPocketBackShelf) btnPocketBackShelf.style.display = 'none';
     if (btnHeaderPocketStar) btnHeaderPocketStar.style.display = 'none';
@@ -9297,9 +9511,17 @@
 
     if (pocketShelfView) pocketShelfView.style.display = 'none';
     if (pocketEditorView) pocketEditorView.style.display = 'flex';
-    if (basicBottomGroup) basicBottomGroup.style.display = 'flex';
+    if (basicBottomGroup) basicBottomGroup.style.display = 'none';
+    if (bottomBar) bottomBar.style.display = 'none';
 
-    if (btnPocketBackShelf) btnPocketBackShelf.style.display = 'inline-flex';
+    const headerBarEl = document.getElementById('headerBar');
+    if (headerBarEl) headerBarEl.classList.add('in-editor');
+    if (modeSwitcher) modeSwitcher.style.display = 'none';
+
+    if (btnPocketBackShelf) {
+      btnPocketBackShelf.style.display = 'inline-flex';
+      btnPocketBackShelf.title = 'Back to Notes Shelf';
+    }
     updateHeaderStarPinButtons(note);
     if (pocketNoteColorBtn) {
       pocketNoteColorBtn.style.display = 'inline-block';
@@ -10385,8 +10607,15 @@
   if (docFloatEditBtn) docFloatEditBtn.addEventListener('click', toggleBasicSubMode);
   if (btnNewNoteDrawer) btnNewNoteDrawer.addEventListener('click', createNewBasicDocument);
 
-  // --- Attach PocketMark Event Listeners ---
-  if (btnPocketBackShelf) btnPocketBackShelf.addEventListener('click', openPocketShelf);
+  if (btnPocketBackShelf) {
+    btnPocketBackShelf.addEventListener('click', () => {
+      if (outlineTempEditContext && outlineTempEditContext.active) {
+        finishOutlineTemporaryEdit();
+      } else {
+        openPocketShelf();
+      }
+    });
+  }
   if (pocketFabNew) pocketFabNew.addEventListener('click', createPocketNote);
 
   if (btnPocketCardSizeToggle) {
@@ -11079,8 +11308,14 @@
   }
 
   // --- Unified Dual-App Mode Switcher ---
+  let outlineTempEditContext = null;
+
   function setAppMode(mode) {
-    if (mode !== 'basic' && mode !== 'outline') mode = 'basic';
+    if (outlineTempEditContext && outlineTempEditContext.active) {
+      finishOutlineTemporaryEdit();
+    }
+
+    if (mode !== 'basic' && mode !== 'outline' && mode !== 'checklist') mode = 'basic';
     
     // Save current scroll position before switching
     if (currentAppMode === 'basic') {
@@ -11094,24 +11329,27 @@
         }
       }
       if (docBodyContainer) basicScrollTop = docBodyContainer.scrollTop;
-    } else if (currentAppMode === 'outline' && scroller) {
+    } else if ((currentAppMode === 'outline' || currentAppMode === 'checklist') && scroller) {
       outlineScrollTop = scroller.scrollTop;
     }
 
     currentAppMode = mode;
     localStorage.setItem('mdviewer_app_mode', mode);
 
+    if (modeSelectDropdown) modeSelectDropdown.value = mode;
     if (modeBasicBtn) modeBasicBtn.classList.toggle('active', mode === 'basic');
     if (modeOutlineBtn) modeOutlineBtn.classList.toggle('active', mode === 'outline');
 
     if (documentView) documentView.style.display = (mode === 'basic') ? 'flex' : 'none';
-    if (scroller) scroller.style.display = (mode === 'outline') ? 'block' : 'none';
+    if (scroller) scroller.style.display = (mode === 'basic') ? 'none' : 'block';
 
-    if (basicBottomGroup) basicBottomGroup.style.display = (mode === 'basic' && currentPocketView === 'editor') ? 'flex' : 'none';
+    if (bottomBar) bottomBar.style.display = (mode === 'basic') ? 'none' : 'flex';
+    if (basicBottomGroup) basicBottomGroup.style.display = 'none';
     if (outlineBottomGroup) outlineBottomGroup.style.display = (mode === 'outline') ? 'flex' : 'none';
+    if (checklistBottomGroup) checklistBottomGroup.style.display = (mode === 'checklist') ? 'flex' : 'none';
 
     if (basicHeaderActions) basicHeaderActions.style.display = (mode === 'basic') ? 'inline-flex' : 'none';
-    if (outlineHeaderActions) outlineHeaderActions.style.display = (mode === 'outline') ? 'inline-flex' : 'none';
+    if (outlineHeaderActions) outlineHeaderActions.style.display = (mode === 'basic') ? 'none' : 'inline-flex';
 
     if (basicOptionsGroup) basicOptionsGroup.style.display = (mode === 'basic') ? 'block' : 'none';
     if (outlineOptionsGroup) outlineOptionsGroup.style.display = (mode === 'outline') ? 'block' : 'none';
@@ -11123,13 +11361,20 @@
         openPocketShelf();
       }
     } else {
+      const headerBarEl = document.getElementById('headerBar');
+      if (headerBarEl) headerBarEl.classList.remove('in-editor');
+      if (modeSwitcher) modeSwitcher.style.display = 'flex';
       if (btnPocketBackShelf) btnPocketBackShelf.style.display = 'none';
       if (pocketNoteColorBtn) pocketNoteColorBtn.style.display = 'none';
       if (btnPocketSplitToggle) btnPocketSplitToggle.style.display = 'none';
       if (pocketColorModal) pocketColorModal.classList.remove('open');
       currentDocName = outlineDocName || 'Guide.md';
       docTitle.textContent = outlineDocName || 'Guide.md';
-      docStats.textContent = `${lines.length} lines • ${headings.length} headings • Outline Viewer`;
+      if (mode === 'checklist') {
+        updateChecklistStats();
+      } else {
+        docStats.textContent = `${lines.length} lines • ${headings.length} headings • Outline Viewer`;
+      }
       render();
       if (scroller) scroller.scrollTop = outlineScrollTop || 0;
     }
@@ -11139,22 +11384,376 @@
     }
   }
 
-  if (modeBasicBtn) modeBasicBtn.addEventListener('click', () => setAppMode('basic'));
-  if (modeOutlineBtn) modeOutlineBtn.addEventListener('click', () => setAppMode('outline'));
+  if (modeSelectDropdown) {
+    modeSelectDropdown.addEventListener('change', () => {
+      setAppMode(modeSelectDropdown.value);
+      setDrawerTargetMode(modeSelectDropdown.value);
+    });
+  }
+  if (modeBasicBtn) modeBasicBtn.addEventListener('click', () => {
+    setAppMode('basic');
+    setDrawerTargetMode('basic');
+  });
+  if (modeOutlineBtn) modeOutlineBtn.addEventListener('click', () => {
+    setAppMode('outline');
+    setDrawerTargetMode('outline');
+  });
 
   // --- Dual-App Drawer Mode Switcher ---
   function setDrawerTargetMode(mode) {
     drawerTargetMode = mode;
     if (drawerTabBasic) drawerTabBasic.classList.toggle('active', mode === 'basic');
     if (drawerTabOutline) drawerTabOutline.classList.toggle('active', mode === 'outline');
-    if (drawerTargetBadge) drawerTargetBadge.textContent = (mode === 'basic') ? 'Basic Editor' : 'Outline Viewer';
-    if (drawerTargetCurrentDoc) drawerTargetCurrentDoc.textContent = (mode === 'basic') ? (basicDocName || 'Document.md') : (outlineDocName || 'Outline.md');
+    if (drawerTabChecklist) drawerTabChecklist.classList.toggle('active', mode === 'checklist');
+    if (drawerTargetBadge) {
+      drawerTargetBadge.textContent = (mode === 'basic') ? 'Basic Editor' : (mode === 'checklist' ? 'Checklist Mode' : 'Outline Viewer');
+    }
+    if (drawerTargetCurrentDoc) {
+      drawerTargetCurrentDoc.textContent = (mode === 'basic') ? (basicDocName || 'Document.md') : (outlineDocName || 'Outline.md');
+    }
     if (btnNewNoteDrawer) btnNewNoteDrawer.style.display = (mode === 'basic') ? 'inline-flex' : 'none';
     renderRecentFilesForDrawer();
   }
 
-  if (drawerTabBasic) drawerTabBasic.addEventListener('click', () => setDrawerTargetMode('basic'));
-  if (drawerTabOutline) drawerTabOutline.addEventListener('click', () => setDrawerTargetMode('outline'));
+  if (drawerTabBasic) drawerTabBasic.addEventListener('click', () => {
+    setDrawerTargetMode('basic');
+    setAppMode('basic');
+  });
+  if (drawerTabOutline) drawerTabOutline.addEventListener('click', () => {
+    setDrawerTargetMode('outline');
+    setAppMode('outline');
+  });
+  if (drawerTabChecklist) drawerTabChecklist.addEventListener('click', () => {
+    setDrawerTargetMode('checklist');
+    setAppMode('checklist');
+  });
+
+  // --- Checklist Mode Core Logic ---
+  let checklistHistory = [];
+  let checklistRedoHistory = [];
+  let autoSaveOutlineDebounce = null;
+
+  function scheduleAutoSaveOutline() {
+    clearTimeout(autoSaveOutlineDebounce);
+    autoSaveOutlineDebounce = setTimeout(() => {
+      saveLastOpenedOutline(outlineDocName, outlineDocUri, outlineDocTreeId, rawDocText);
+      if (outlineDocUri && window.AndroidBridge && window.AndroidBridge.writeNativeFile) {
+        try { window.AndroidBridge.writeNativeFile(outlineDocUri, rawDocText); } catch(e) {}
+      } else if (outlineDocTreeId && window.AndroidBridge && window.AndroidBridge.writeTreeFile) {
+        try { window.AndroidBridge.writeTreeFile(outlineDocTreeId, rawDocText); } catch(e) {}
+      }
+    }, 600);
+  }
+
+  function getChecklistStats() {
+    let total = 0;
+    let done = 0;
+    const taskRe = /^\s*[-*+]\s+\[([ xX])\]/;
+    for (let i = 0; i < lines.length; i++) {
+      const m = taskRe.exec(lines[i]);
+      if (m) {
+        total++;
+        if (m[1].toLowerCase() === 'x') done++;
+      }
+    }
+    return { total, done, pct: total > 0 ? Math.round((done / total) * 100) : 0 };
+  }
+
+  function updateChecklistStats() {
+    if (currentAppMode !== 'checklist') return;
+    const s = getChecklistStats();
+    if (docStats) {
+      if (s.total === 0) {
+        docStats.textContent = `${lines.length} lines • No checklist tasks found`;
+      } else {
+        docStats.textContent = `${s.done}/${s.total} completed (${s.pct}%) • Checklist`;
+      }
+    }
+  }
+
+  function pushChecklistHistory(type, changes) {
+    checklistHistory.push({ type, changes, time: Date.now() });
+    if (checklistHistory.length > 50) checklistHistory.shift();
+    checklistRedoHistory = [];
+    updateChecklistUndoRedoButtons();
+  }
+
+  function updateChecklistUndoRedoButtons() {
+    if (btnChecklistUndo) {
+      btnChecklistUndo.style.opacity = (checklistHistory.length > 0) ? '1' : '0.45';
+    }
+    if (btnChecklistRedo) {
+      btnChecklistRedo.style.opacity = (checklistRedoHistory.length > 0) ? '1' : '0.45';
+    }
+  }
+
+  function toggleOutlineTask(lineNo, isChecked) {
+    if (lineNo < 0 || lineNo >= lines.length) return;
+    const oldLine = lines[lineNo];
+    const taskRe = /^(\s*[-*+]\s+\[)[ xX](\]\s*.*)$/;
+    if (!taskRe.test(oldLine)) return;
+    const newLine = oldLine.replace(taskRe, `$1${isChecked ? 'x' : ' '}$2`);
+    if (oldLine === newLine) return;
+    pushChecklistHistory('toggle', [{ lineNo, oldLine, newLine }]);
+    lines[lineNo] = newLine;
+    rawDocText = lines.join('\n');
+    outlineDocText = rawDocText;
+    render();
+    updateChecklistStats();
+    scheduleAutoSaveOutline();
+  }
+
+  if (btnChecklistCheckAll) {
+    btnChecklistCheckAll.addEventListener('click', () => {
+      const taskRe = /^(\s*[-*+]\s+\[) (\]\s*.*)$/;
+      const changes = [];
+      for (let i = 0; i < lines.length; i++) {
+        const oldLine = lines[i];
+        if (taskRe.test(oldLine)) {
+          const newLine = oldLine.replace(taskRe, '$1x$2');
+          changes.push({ lineNo: i, oldLine, newLine });
+          lines[i] = newLine;
+        }
+      }
+      if (changes.length > 0) {
+        pushChecklistHistory('checkAll', changes);
+        rawDocText = lines.join('\n');
+        outlineDocText = rawDocText;
+        render();
+        updateChecklistStats();
+        scheduleAutoSaveOutline();
+        showToast(`Checked all (${changes.length} tasks) ☑️`);
+      } else {
+        showToast('All tasks are already checked');
+      }
+    });
+  }
+
+  if (btnChecklistUncheckAll) {
+    btnChecklistUncheckAll.addEventListener('click', () => {
+      const taskRe = /^(\s*[-*+]\s+\[)[xX](\]\s*.*)$/;
+      const changes = [];
+      for (let i = 0; i < lines.length; i++) {
+        const oldLine = lines[i];
+        if (taskRe.test(oldLine)) {
+          const newLine = oldLine.replace(taskRe, '$1 $2');
+          changes.push({ lineNo: i, oldLine, newLine });
+          lines[i] = newLine;
+        }
+      }
+      if (changes.length > 0) {
+        pushChecklistHistory('uncheckAll', changes);
+        rawDocText = lines.join('\n');
+        outlineDocText = rawDocText;
+        render();
+        updateChecklistStats();
+        scheduleAutoSaveOutline();
+        showToast(`Unchecked all (${changes.length} tasks) ⬜`);
+      } else {
+        showToast('All tasks are already unchecked');
+      }
+    });
+  }
+
+  if (btnChecklistUndo) {
+    btnChecklistUndo.addEventListener('click', () => {
+      if (checklistHistory.length === 0) {
+        showToast('Nothing to undo');
+        return;
+      }
+      const item = checklistHistory.pop();
+      checklistRedoHistory.push(item);
+      item.changes.forEach(c => {
+        lines[c.lineNo] = c.oldLine;
+      });
+      rawDocText = lines.join('\n');
+      outlineDocText = rawDocText;
+      render();
+      updateChecklistStats();
+      scheduleAutoSaveOutline();
+      updateChecklistUndoRedoButtons();
+      showToast('Undo successful ↶');
+    });
+  }
+
+  if (btnChecklistRedo) {
+    btnChecklistRedo.addEventListener('click', () => {
+      if (checklistRedoHistory.length === 0) {
+        showToast('Nothing to redo');
+        return;
+      }
+      const item = checklistRedoHistory.pop();
+      checklistHistory.push(item);
+      item.changes.forEach(c => {
+        lines[c.lineNo] = c.newLine;
+      });
+      rawDocText = lines.join('\n');
+      outlineDocText = rawDocText;
+      render();
+      updateChecklistStats();
+      scheduleAutoSaveOutline();
+      updateChecklistUndoRedoButtons();
+      showToast('Redo successful ↷');
+    });
+  }
+
+  // --- Outline Note Edit Button & Large Document Guard ---
+  function startOutlineTemporaryEdit(scope, startLine, endLine, label) {
+    startLine = Math.max(0, Math.min(lines.length - 1, startLine));
+    endLine = Math.max(startLine, Math.min(lines.length - 1, endLine));
+
+    outlineTempEditContext = {
+      active: true,
+      scope: scope,
+      startLine: startLine,
+      endLine: endLine,
+      label: label,
+      originMode: currentAppMode,
+      originScrollTop: scroller ? scroller.scrollTop : 0
+    };
+
+    const textToEdit = lines.slice(startLine, endLine + 1).join('\n');
+
+    if (scroller) scroller.style.display = 'none';
+    if (documentView) documentView.style.display = 'flex';
+    if (pocketShelfView) pocketShelfView.style.display = 'none';
+    if (pocketEditorView) pocketEditorView.style.display = 'flex';
+    if (basicBottomGroup) basicBottomGroup.style.display = 'none';
+    if (outlineBottomGroup) outlineBottomGroup.style.display = 'none';
+    if (checklistBottomGroup) checklistBottomGroup.style.display = 'none';
+    if (bottomBar) bottomBar.style.display = 'none';
+
+    const headerBarEl = document.getElementById('headerBar');
+    if (headerBarEl) headerBarEl.classList.add('in-editor');
+    if (modeSwitcher) modeSwitcher.style.display = 'none';
+    if (basicHeaderActions) basicHeaderActions.style.display = 'inline-flex';
+    if (outlineHeaderActions) outlineHeaderActions.style.display = 'none';
+
+    if (btnPocketBackShelf) {
+      btnPocketBackShelf.style.display = 'inline-flex';
+      btnPocketBackShelf.title = 'Finish Editing (Return to Document)';
+    }
+
+    if (btnHeaderPocketStar) btnHeaderPocketStar.style.display = 'none';
+    if (btnHeaderPocketPin) btnHeaderPocketPin.style.display = 'none';
+    if (pocketNoteColorBtn) pocketNoteColorBtn.style.display = 'none';
+    if (btnPocketNoteTagHeader) btnPocketNoteTagHeader.style.display = 'none';
+    if (btnHeaderBasicMoveToVault) btnHeaderBasicMoveToVault.style.display = 'none';
+    if (btnPocketSplitToggle) btnPocketSplitToggle.style.display = 'none';
+    if (btnHeaderBasicDelete) btnHeaderBasicDelete.style.display = 'none';
+    if (btnHeaderBasicNew) btnHeaderBasicNew.style.display = 'none';
+
+    if (docTitle) docTitle.textContent = `${outlineDocName || 'Document'} (${label || 'Edit'})`;
+    if (docStats) docStats.textContent = `Editing lines ${startLine + 1}–${endLine + 1} of ${lines.length.toLocaleString()}`;
+
+    if (pocketSplitContainer) pocketSplitContainer.style.display = 'none';
+    if (docLayout) docLayout.style.display = 'flex';
+    setBasicSubMode('edit');
+    if (basicMarkdownEditor) {
+      basicMarkdownEditor.value = textToEdit;
+      updateEditorStats();
+      basicMarkdownEditor.focus();
+    }
+
+    showToast(`Editing ${label}. Tap ‹ Back when done ✓`);
+  }
+
+  function finishOutlineTemporaryEdit() {
+    if (!outlineTempEditContext || !outlineTempEditContext.active) return;
+
+    if (basicMarkdownEditor) {
+      const updatedText = basicMarkdownEditor.value;
+      const updatedLines = updatedText.split(/\r\n|\r|\n/);
+      const startLine = outlineTempEditContext.startLine;
+      const count = outlineTempEditContext.endLine - startLine + 1;
+      
+      lines.splice(startLine, count, ...updatedLines);
+      rawDocText = lines.join('\n');
+      outlineDocText = rawDocText;
+      parse(rawDocText);
+      scheduleAutoSaveOutline();
+    }
+
+    const returnMode = outlineTempEditContext.originMode || 'outline';
+    const returnScroll = outlineTempEditContext.originScrollTop || 0;
+    outlineTempEditContext = null;
+
+    setAppMode(returnMode);
+    if (scroller && returnScroll > 0) {
+      scroller.scrollTop = returnScroll;
+    }
+    showToast('Changes saved to document ✓');
+  }
+
+  if (btnOutlineEditNote) {
+    btnOutlineEditNote.addEventListener('click', () => {
+      if (!lines || lines.length === 0) {
+        showToast('No document content to edit');
+        return;
+      }
+      
+      const threshold = 5000;
+      if (lines.length > threshold) {
+        const scrollTop = scroller ? scroller.scrollTop : 0;
+        const visibleLine = Math.max(0, Math.floor(scrollTop / LINE_H));
+        
+        let activeH = null;
+        if (activeHeadingIdx >= 0 && activeHeadingIdx < headings.length) {
+          activeH = headings[activeHeadingIdx];
+        } else {
+          for (let i = headings.length - 1; i >= 0; i--) {
+            if (headings[i].line <= visibleLine) {
+              activeH = headings[i];
+              break;
+            }
+          }
+        }
+        
+        let secStart = 0;
+        let secEnd = Math.min(lines.length - 1, 300);
+        let secTitle = 'Current Section';
+        if (activeH) {
+          secStart = activeH.line;
+          secEnd = Math.min(lines.length - 1, activeH.end || (activeH.line + 200));
+          secTitle = activeH.text;
+        } else {
+          secStart = Math.max(0, visibleLine - 20);
+          secEnd = Math.min(lines.length - 1, visibleLine + 100);
+        }
+        
+        const chunkStart = Math.max(0, visibleLine - 50);
+        const chunkEnd = Math.min(lines.length - 1, visibleLine + 250);
+        
+        if (guardLineCountText) guardLineCountText.textContent = `${lines.length.toLocaleString()} lines total`;
+        if (guardSectionTitle) guardSectionTitle.textContent = `Edit "${secTitle}"`;
+        if (guardSectionDesc) guardSectionDesc.textContent = `Lines ${secStart + 1}–${secEnd + 1} (~${secEnd - secStart + 1} lines)`;
+        if (guardChunkDesc) guardChunkDesc.textContent = `Lines ${chunkStart + 1}–${chunkEnd + 1} (~${chunkEnd - chunkStart + 1} lines)`;
+        
+        btnGuardEditSection.onclick = () => {
+          outlineEditGuardModal.style.display = 'none';
+          startOutlineTemporaryEdit('section', secStart, secEnd, secTitle);
+        };
+        btnGuardEditChunk.onclick = () => {
+          outlineEditGuardModal.style.display = 'none';
+          startOutlineTemporaryEdit('chunk', chunkStart, chunkEnd, 'Visible Window');
+        };
+        btnGuardEditFull.onclick = () => {
+          outlineEditGuardModal.style.display = 'none';
+          startOutlineTemporaryEdit('full', 0, lines.length - 1, 'Full File');
+        };
+        
+        outlineEditGuardModal.style.display = 'flex';
+      } else {
+        startOutlineTemporaryEdit('full', 0, lines.length - 1, 'Full Document');
+      }
+    });
+  }
+
+  if (btnGuardCancel) {
+    btnGuardCancel.addEventListener('click', () => {
+      if (outlineEditGuardModal) outlineEditGuardModal.style.display = 'none';
+    });
+  }
 
   // --- Parser Core (Same high-performance logic as desktop) ---
   const HRE = /^(#{1,6})\s+(.*)$/;
@@ -11272,13 +11871,21 @@
     return t;
   }
 
-  function renderPlainLine(rawText) {
+  function renderPlainLine(rawText, lineNo) {
     if (/^\s*([-*_])\1\1[\1\-*_\s]*$/.test(rawText) && rawText.trim().length >= 3) {
       return '<span class="md-hr">────────────────────────</span>';
     }
     const bq = /^(\s*)>\s?(.*)$/.exec(rawText);
     if (bq) {
       return `<span class="md-quote">▏ ${mdInline(escapeHtml(bq[2]))}</span>`;
+    }
+    const taskMatch = /^(\s*)([-*+])\s+\[([ xX])\]\s*(.*)$/.exec(rawText);
+    if (taskMatch) {
+      const indent = escapeHtml(taskMatch[1]);
+      const isChecked = taskMatch[3].toLowerCase() === 'x';
+      const textPart = mdInline(escapeHtml(taskMatch[4]));
+      const lNoAttr = (lineNo !== undefined && lineNo !== null) ? `data-line="${lineNo}"` : '';
+      return `${indent}<label class="outline-task-label" onclick="event.stopPropagation()"><input type="checkbox" class="outline-task-cb" ${lNoAttr} ${isChecked ? 'checked' : ''}><span class="outline-task-text ${isChecked ? 'task-done' : ''}">${textPart}</span></label>`;
     }
     const li = /^(\s*)([-*+])\s+(.*)$/.exec(rawText);
     if (li) {
@@ -11325,7 +11932,7 @@
         `<span class="txt">${txtHtml}</span></div>`;
     }
 
-    let txtHtml = renderPlainLine(text);
+    let txtHtml = renderPlainLine(text, lineNo);
     if (searchQuery && searchScope === 'file') {
       txtHtml = highlightInHtml(txtHtml, searchQuery, isTarget);
     }
@@ -11368,6 +11975,14 @@
     render();
   }, { passive: true });
 
+  scroller.addEventListener('change', (e) => {
+    const cb = e.target.closest('.outline-task-cb');
+    if (!cb) return;
+    const lineNo = parseInt(cb.dataset.line, 10);
+    if (isNaN(lineNo) || lineNo < 0 || lineNo >= lines.length) return;
+    toggleOutlineTask(lineNo, cb.checked);
+  });
+
   window.addEventListener('resize', render);
 
   function handleAppResume() {
@@ -11404,6 +12019,7 @@
 
   rowsEl.addEventListener('click', (e) => {
     if (isScrolling || justDeselected) return;
+    if (e.target.closest('.outline-task-label')) return;
 
     // Do not intercept or clear text selection when user selects words/sentences
     const sel = window.getSelection();
@@ -13650,9 +14266,10 @@
         parse(text);
         saveLastOpenedOutline(outlineDocName, uri, null, text);
         saveRecentFileForMode('outline', outlineDocName, text, uri, null);
-        setAppMode('outline');
+        const modeToSet = (targetMode === 'checklist') ? 'checklist' : 'outline';
+        setAppMode(modeToSet);
         scroller.scrollTop = 0;
-        showToast(`Loaded ${outlineDocName} into Outline App`);
+        showToast(`Loaded ${outlineDocName} into ${modeToSet === 'checklist' ? 'Checklist' : 'Outline'} App`);
       }
       closeDrawer();
     }
@@ -13750,9 +14367,10 @@
         parse(text);
         saveLastOpenedOutline(outlineDocName, null, docId, text);
         saveRecentFileForMode('outline', outlineDocName, text, null, docId);
-        setAppMode('outline');
+        const modeToSet = (targetMode === 'checklist') ? 'checklist' : 'outline';
+        setAppMode(modeToSet);
         scroller.scrollTop = 0;
-        showToast(`Loaded ${outlineDocName} into Outline App`);
+        showToast(`Loaded ${outlineDocName} into ${modeToSet === 'checklist' ? 'Checklist' : 'Outline'} App`);
       }
       closeDrawer();
     }
@@ -13839,13 +14457,14 @@
       parse(text);
       saveLastOpenedOutline(name, null, null, text);
       saveRecentFileForMode('outline', name, text, null, null);
-      if (currentAppMode === 'outline') {
-        docTitle.textContent = name;
-        scroller.scrollTop = 0;
-        render();
-      }
+      const modeToSet = (targetMode === 'checklist') ? 'checklist' : 'outline';
+      setAppMode(modeToSet);
+      docTitle.textContent = name;
+      scroller.scrollTop = 0;
+      render();
     }
-    showToast(`Loaded ${name} into ${targetMode === 'basic' ? 'Basic' : 'Outline'} App`);
+    const modeDesc = (targetMode === 'basic') ? 'Basic' : (targetMode === 'checklist' ? 'Checklist' : 'Outline');
+    showToast(`Loaded ${name} into ${modeDesc} App`);
     closeDrawer();
   }
 
@@ -15151,14 +15770,15 @@
 
     recentFileList.innerHTML = '';
     if (!targetList || targetList.length === 0) {
-      recentFileList.innerHTML = `<div style="font-size:11.5px;color:var(--muted);padding:6px 0;">No recent files in ${targetMode === 'basic' ? 'Basic App' : 'Outline App'} yet.</div>`;
+      const modeName = (targetMode === 'basic') ? 'Basic App' : (targetMode === 'checklist' ? 'Checklist Mode' : 'Outline App');
+      recentFileList.innerHTML = `<div style="font-size:11.5px;color:var(--muted);padding:6px 0;">No recent files in ${modeName} yet.</div>`;
       return;
     }
 
     for (const item of targetList) {
       const el = document.createElement('div');
       el.className = 'file-item';
-      const icon = (targetMode === 'basic') ? '📖' : '📑';
+      const icon = (targetMode === 'basic') ? '📖' : (targetMode === 'checklist' ? '☑️' : '📑');
       el.innerHTML = `
         <span class="f-icon">${icon}</span>
         <div class="f-meta">
@@ -15258,6 +15878,14 @@
 
   // --- Android Hardware Back Button Handling ---
   window.handleBackPressed = function() {
+    if (outlineEditGuardModal && outlineEditGuardModal.style.display === 'flex') {
+      outlineEditGuardModal.style.display = 'none';
+      return true;
+    }
+    if (outlineTempEditContext && outlineTempEditContext.active) {
+      finishOutlineTemporaryEdit();
+      return true;
+    }
     const sel = window.getSelection();
     if (sel && !sel.isCollapsed && sel.toString().trim().length > 0) {
       sel.removeAllRanges();
