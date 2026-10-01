@@ -17,7 +17,7 @@ MD Viewer provides two dedicated modes tailored for different writing and readin
   - Obsidian-style tree explorer with hierarchical folder guides and deep workspace search.
 
 > [!TIP]
-> **Switching Modes**: Tap the mode pills in the top action bar (**✍️ Basic** / **📑 Outline**) or select the target app mode inside the left File Manager drawer.
+> **Switching Modes**: Tap the mode pills in the top action bar (**✍️ Notes** / **📑 Outline**) or select the target app mode inside the left File Manager drawer.
 
 ---
 
@@ -26,13 +26,13 @@ MD Viewer provides two dedicated modes tailored for different writing and readin
 Your personal idea board and notebook shelf on Android:
 
 - **Card Size Preview Controls**:
-  - Tap `↕️ Full / Compact / Medium` on the top shelf toolbar to cycle global card preview sizes.
-  - **Dual Compact / Expand Buttons**: Long cards feature toggle buttons at **both the top and bottom** (`▲ Collapse` / `▼ Expand`). You can collapse a long note from the bottom without scrolling all the way back up!
+  - Tap **`↕️`** on the top shelf toolbar to cycle global card preview sizes (Full, Compact, Medium).
+  - **Dual Compact / Expand Buttons**: Long cards feature toggle buttons at **both the top and bottom** (`▲` / `▼`). You can collapse a long note from the bottom (`▲`) without scrolling all the way back up, or expand (`▼`) when previewing!
 - **Color Categorization**:
   - Assign notes to 6 Tokyo Night pastel tones (Slate, Teal, Purple, Coral, Amber, Green).
   - Tap color swatches on the shelf filter row to isolate notes of that category.
 - **Tag Organization (`#tags`)**:
-  - Add tags like `#work`, `#study`, `#todo` to your notes.
+  - Add tags like `#work`, `#study`, `#todo` to your notes via **`🏷️`**.
   - Tap any tag chip on the shelf bar to instantly filter cards by topic.
 - **Interactive Checklist Tasks**:
   - Toggle checklist items (`- [x]`) directly on cards without entering edit mode.
@@ -46,10 +46,10 @@ Your personal idea board and notebook shelf on Android:
 Easily graduate quick notes into your permanent file vaults:
 
 1. **Open Move Dialog**:
-   - Tap **`📁 To Vault`** in the top action bar when viewing or editing a note.
-   - Tap **`📁 Vault`** in the Markdown Editor formatting toolbar.
+   - Tap **`📁`** in the top action bar when viewing or editing a note.
+   - Tap **`📁`** in the Markdown Editor formatting toolbar.
    - Tap the **`📁`** quick action button on any note card footer on the shelf.
-   - Tap **`📁 To Vault`** on the reading mode floating bar.
+   - Tap **`📁`** on the reading mode floating bar.
 2. **Choose Destination Vault**:
    - Pick your currently **Active Vault**, any saved vault in **Recent Vaults History**, or **`➕ Choose Another Folder / Vault...`** to pick any directory on your device via Android Storage Access Framework (SAF).
 3. **Select Destination Subfolder**:
@@ -64,20 +64,33 @@ Easily graduate quick notes into your permanent file vaults:
 
 ## ✍️ 4. Markdown Editor & Formatting Toolbar
 
-The editor toolbar provides quick one-tap shortcuts for standard and extended Markdown syntax:
+The editor toolbar and interface are streamlined with space-optimized, icon-only buttons designed specifically for mobile screens:
 
-- **Headings & Text Styles**: `H1`, `H2`, `H3`, Bold (`**`), Italic (`*`), Strikethrough (`~~`), Inline code (`` `code` ``).
-- **Lists & Elements**: Task lists (`☑ Task`), Bullet list (`•`), Numbered list (`1.`), Quote (`>`), Divider (`---`), Table (`▦ Table`).
-- **Obsidian Extensions**:
-  - Wikilinks: `[[Note Title]]`
-  - Callouts: `> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`
+- **Compact Formatting Toolbar Icons**:
+  - **Headings & Text Styles**: `H1`, `H2`, `H3`, `B` (Bold `**`), `I` (Italic `*`), `S` (Strikethrough `~~`), `` `code` `` (Inline code).
+  - **Lists & Elements**: `☑` (Task checklist), `•` (Bullet list), `1.` (Numbered list), `>` (Blockquote), `</>` (Fenced code block), `▦` (ASCII diagram), `⊞` (Markdown table), `―` (Horizontal divider).
+  - **Obsidian Extensions**:
+    - Wikilinks: `[[ ]]` inserts `[[Note Title]]`.
+    - Callouts: `[!]` inserts Obsidian callout blocks (`> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`).
+  - **Editor Actions**:
+    - `⇄`: Toggle between soft line wrap and horizontal scrolling monospace diagram grid.
+    - `📁`: Move current note into an Outline Vault directory.
+    - `↶` / `↷`: Instant Undo and Redo.
+- **Top Header Actions (Icon-Only)**:
+  - `‹`: Return to Pocket Notes shelf.
+  - `🏷️`: Manage note tags.
+  - `📁`: Move note to Outline Vault.
+  - `◫`: Toggle Split Screen mode.
+  - `✍️` / `👁️`: Toggle between Markdown Editor and Formatted Prose Reader.
+  - `🔍`: Search within the note.
+  - `🗑️`: Delete note with confirmation.
+- **Split Screen Mode (`◫`)**:
+  - Preview formatted HTML alongside the raw markdown editor, or compare and edit two notes side-by-side.
+  - Pane headers use compact `👁️` (Preview) and `✍️` (Edit) toggles to conserve horizontal space.
 - **ASCII Box Diagrams & Grid Alignment**:
-  - Tap **`▦ ASCII`** to insert structured box-drawing templates.
+  - Tap **`▦`** to insert structured box-drawing templates.
   - Monospace character alignment is enforced with ligatures disabled (`liga 0`, `calt 0`) so box borders (`┌─┐`, `+---+`, `│`) align vertically.
-  - Tap **`⇄ Wrap`** to toggle between soft line wrap and horizontal scrolling monospace grid.
-- **Split Screen Mode (`◫ Split`)**:
-  - Preview formatted HTML alongside the raw markdown editor.
-  - Or compare and edit two different pocket notes side-by-side simultaneously.
+  - Tap **`⇄`** to toggle soft wrap off for a wide ASCII grid.
 - **High-Performance Large Text Paste**:
   - Zero-allocation word and line counting algorithms process large text pastes (240k+ characters in 16ms) without locking the UI thread.
 
@@ -138,7 +151,12 @@ Turn any markdown document or note into interactive study flashcards:
   - Closes floating preview panels.
   - Exits search results.
   - Closes the drawer.
-- **Double-Page Book Mode**: In Basic reading mode, tap `📖 2-Page` to read prose like an eBook in two-column landscape view.
+- **Reading Mode Floating Bar**: When reading formatted notes, a quick floating bar provides compact icon actions:
+  - `✍️`: Switch to Markdown editor mode.
+  - `📁`: Move or save note to Outline Vault.
+  - `📑`: Open Table of Contents sidebar.
+  - `📖`: Toggle 2-Page Book Mode (two-column landscape eBook view).
+  - `↔`: Toggle Wide Edge-to-Edge layout.
 
 ---
 

@@ -18,7 +18,7 @@ An ultra-fast, lightweight, and 100% offline Markdown workspace and outline read
 - **📑 Outline Viewer Mode**:
   - Designed for large-scale documentation, books, research, and full Obsidian vaults.
   - Custom virtualized scroller that keeps only ~40 DOM elements in memory, scrolling smoothly at 60 FPS even on 1,000,000-line files.
-  - Seamlessly switch modes anytime via the top header pills (`✍️ Basic` / `📑 Outline`) or the left File Manager drawer.
+  - Seamlessly switch modes anytime via the top header pills (`✍️ Notes` / `📑 Outline`) or the left File Manager drawer.
 
 ---
 
@@ -26,7 +26,7 @@ An ultra-fast, lightweight, and 100% offline Markdown workspace and outline read
 - **Full / Compact / Medium Card Previews**:
   - Cycle global preview sizes with the `↕️` shelf button.
 - **Dual Compact / Expand Buttons**:
-  - Toggle buttons located at **both the top and bottom** of cards (`▲ Collapse` / `▼ Expand`). You can collapse long notes directly from the bottom without scrolling all the way back up.
+  - Toggle buttons located at **both the top and bottom** of cards (`▲` / `▼`). You can collapse long notes directly from the bottom (`▲`) without scrolling all the way back up, or expand them (`▼`) with one tap.
 - **Color Categorization**:
   - Assign notes to 6 Tokyo Night pastel tones (Slate, Teal, Purple, Coral, Amber, Green). Filter notes by color with a single tap.
 - **Tag Organization (`#tags`)**:
@@ -42,7 +42,7 @@ An ultra-fast, lightweight, and 100% offline Markdown workspace and outline read
 - **Seamless Note Transfer**:
   - Move notes from your Pocket Notes shelf directly into any Outline Viewer Vault on your device storage.
 - **Convenient Entry Points**:
-  - Accessible via header button (`📁 To Vault`), editor toolbar (`📁 Vault`), shelf card footer (`📁`), and reading mode floating bar.
+  - Accessible via header button (`📁`), editor toolbar (`📁`), shelf card footer (`📁`), and reading mode floating bar (`📁`).
 - **Vault & Subfolder Picker**:
   - Choose destination vault from the active vault, recent vaults history, or pick any directory on your device via Android Storage Access Framework (SAF).
   - Subfolder dropdown automatically scans and lists all directories within the target vault (e.g., `/`, `/Notes`, `/Daily`, `/Work/Projects`).
@@ -54,14 +54,18 @@ An ultra-fast, lightweight, and 100% offline Markdown workspace and outline read
 ---
 
 ### 4. ✍️ Markdown Editor & Formatting Toolbar
-- **Rich Formatting Tools**:
-  - One-tap buttons for Headings (H1-H3), Bold (`**`), Italic (`*`), Strikethrough (`~~`), Inline code (`` `code` ``), Task lists (`- [ ]`), Lists, Quotes, Tables, Obsidian Wikilinks (`[[ ]]`), and Callouts (`[!NOTE]`).
+- **Compact Icon-Only Toolbar (Optimized for Mobile)**:
+  - Text labels removed across toolbars and headers to eliminate horizontal clutter.
+  - Headings & Styles: `H1`, `H2`, `H3`, `B` (Bold `**`), `I` (Italic `*`), `S` (Strikethrough `~~`), `` `code` `` (Inline code).
+  - Lists & Elements: `☑` (Task checklists), `•` (Bullet list), `1.` (Numbered list), `>` (Quote block), `</>` (Code block), `▦` (ASCII diagram), `⊞` (Markdown table), `―` (Divider).
+  - Links & Obsidian: `[[ ]]` (Wikilink), `🔗` (Markdown link), `[!]` (Obsidian Callout).
+  - Controls: `⇄` (Toggle line wrap / monospace grid), `📁` (Move to vault), `↶` / `↷` (Undo / Redo).
 - **ASCII Box Diagrams & Grid Alignment**:
-  - Tap `▦ ASCII` to insert structured box-drawing templates.
+  - Tap `▦` to insert structured box-drawing templates.
   - Pixel-perfect monospace alignment without ligature collapsing (`font-feature-settings: "liga" 0, "calt" 0`).
-  - Tap `⇄ Wrap` to toggle between soft line wrap and horizontal scrolling monospace grid.
-- **Split Screen Mode (`◫ Split`)**:
-  - Preview formatted HTML alongside raw markdown editor, or compare and edit two notes side-by-side.
+  - Tap `⇄` to toggle between soft line wrap and horizontal scrolling monospace grid.
+- **Split Screen Mode (`◫`)**:
+  - Preview formatted HTML alongside raw markdown editor, or compare and edit two notes side-by-side with compact pane headers `👁️` (Preview) and `✍️` (Edit).
 - **High-Performance Large Text Paste**:
   - Zero-allocation word and line counting algorithms process large text pastes (240k+ characters in 16ms) without locking the UI.
 
