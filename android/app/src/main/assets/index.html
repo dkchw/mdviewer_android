@@ -7393,7 +7393,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v2.4.5</span>
+          <span class="settings-row-badge" id="appVersionSub">v2.4.6</span>
         </button>
         <div class="settings-row-config">
           <div class="settings-config-label">
@@ -7714,7 +7714,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '2.4.5';
+      window.AndroidBridge.getAppVersion() : '2.4.6';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -17431,13 +17431,32 @@ ${cp.rawDocText || ''}
     updateCurrentVersion.textContent = `Current: v${activeVer}`;
     updateChangelog.textContent = releaseData.body || 'No release notes provided.';
 
-    if (btnInstallUpdate) {
-      btnInstallUpdate.textContent = '🚀 Download & Install';
-      btnInstallUpdate.className = 'upd-btn-primary';
-      btnInstallUpdate.disabled = false;
-    }
-    if (updateStatusMsg) {
-      updateStatusMsg.style.display = 'none';
+    const cleanVer = (releaseData.tag_name || '').replace(/^v/, '').trim();
+    const isReady = (window.AndroidBridge && window.AndroidBridge.isUpdateReadyForVersion) ?
+        window.AndroidBridge.isUpdateReadyForVersion(cleanVer) :
+        ((window.AndroidBridge && window.AndroidBridge.isUpdateReadyToInstall) ? window.AndroidBridge.isUpdateReadyToInstall() : false);
+
+    if (isReady) {
+      updateState = 'downloaded';
+      if (btnInstallUpdate) {
+        btnInstallUpdate.textContent = '🚀 Install Now';
+        btnInstallUpdate.className = 'upd-btn-primary upd-btn-install';
+        btnInstallUpdate.disabled = false;
+      }
+      if (updateStatusMsg) {
+        updateStatusMsg.style.display = 'block';
+        updateStatusMsg.innerHTML = '✅ Update package is ready. Tap to install.';
+      }
+    } else {
+      updateState = 'initial';
+      if (btnInstallUpdate) {
+        btnInstallUpdate.textContent = '⬇️ Download & Install';
+        btnInstallUpdate.className = 'upd-btn-primary';
+        btnInstallUpdate.disabled = false;
+      }
+      if (updateStatusMsg) {
+        updateStatusMsg.style.display = 'none';
+      }
     }
 
     updateModal.style.display = 'flex';
@@ -17452,22 +17471,52 @@ ${cp.rawDocText || ''}
   function handleUpdateAction() {
     if (!pendingReleaseData) return;
 
+    if (updateState === 'downloaded') {
+      const cleanVer = (pendingReleaseData.tag_name || '').replace(/^v/, '').trim();
+      if (window.AndroidBridge && window.AndroidBridge.installDownloadedUpdate) {
+        window.AndroidBridge.installDownloadedUpdate(cleanVer);
+      } else {
+        showToast('Please check notification bar or downloads to install.');
+      }
+      hideUpdateDialog();
+      return;
+    }
+
+    const isDebugKey = (window.AndroidBridge && window.AndroidBridge.isSignedWithDebugKey) ?
+        window.AndroidBridge.isSignedWithDebugKey() : false;
+
     let apkAsset = null;
     if (pendingReleaseData.assets && pendingReleaseData.assets.length) {
-      apkAsset = pendingReleaseData.assets.find(a => a.name && a.name.endsWith('.apk') && !a.name.includes('debugkey'));
+      if (isDebugKey) {
+        apkAsset = pendingReleaseData.assets.find(a => a.name && a.name.endsWith('.apk') && a.name.includes('debugkey'));
+      } else {
+        apkAsset = pendingReleaseData.assets.find(a => a.name && a.name.endsWith('.apk') && !a.name.includes('debugkey'));
+      }
       if (!apkAsset) {
         apkAsset = pendingReleaseData.assets.find(a => a.name && a.name.endsWith('.apk'));
       }
     }
 
     const apkUrl = apkAsset ? apkAsset.browser_download_url : pendingReleaseData.html_url;
-    showToast('Opening update download in browser...');
-    if (window.AndroidBridge && window.AndroidBridge.openExternalUrl) {
-      window.AndroidBridge.openExternalUrl(apkUrl);
+    const vName = pendingReleaseData.tag_name ? pendingReleaseData.tag_name.replace(/^v/, '').trim() : '';
+
+    if (btnInstallUpdate) {
+      btnInstallUpdate.textContent = '⏳ Downloading via System...';
+      btnInstallUpdate.disabled = true;
+    }
+    if (updateStatusMsg) {
+      updateStatusMsg.style.display = 'block';
+      updateStatusMsg.innerHTML = '<span class="update-spinner"></span> Downloading update in background using Android system... It will automatically prompt to install when ready.';
+    }
+
+    if (window.AndroidBridge && window.AndroidBridge.downloadAndInstall) {
+      window.AndroidBridge.downloadAndInstall(apkUrl, vName);
+    } else if (window.AndroidBridge && window.AndroidBridge.downloadUpdateOnly) {
+      window.AndroidBridge.downloadUpdateOnly(apkUrl, vName);
     } else {
       window.open(apkUrl, '_blank');
+      hideUpdateDialog();
     }
-    hideUpdateDialog();
   }
 
   // Global callback from Android Bridge when download finishes

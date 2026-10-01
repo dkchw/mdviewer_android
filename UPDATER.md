@@ -207,26 +207,26 @@ private fun executeInstall(file: File) {
 
 ---
 
-## 🛡️ 4. Google Play Protect Security Best Practices
+## 🛡️ 4. Google Play Protect & Android Installation Security Best Practices
  
-Google Play Protect uses machine learning, heuristic analysis, and static bytecode scanning to protect Android users from malicious droppers. When building an update delivery mechanism for an open-source Android app outside Google Play, the following principles are mandatory:
+Google Play Protect uses machine learning, heuristic analysis, and static bytecode scanning to protect Android users. In MD Viewer v2.4.6, the in-app updater is fully restored with industry-standard security safeguards:
  
-| Security Area | Risk / Heuristic Trigger | Play Protect Compliant Architecture |
+| Security Area | Implementation & Architecture | Protection Mechanism |
 | :--- | :--- | :--- |
-| **`REQUEST_INSTALL_PACKAGES`** | Sideloaded utility apps declaring `REQUEST_INSTALL_PACKAGES` are automatically flagged or blocked as **Potentially Harmful Applications (PHA: Droppers)** by Play Protect, unless recognized as authorized package managers. | **Never request `REQUEST_INSTALL_PACKAGES`.** Keep app permissions restricted to `android.permission.INTERNET`. |
-| **Package Installer Handoff** | In-app invocation of `ACTION_VIEW` targeting `application/vnd.android.package-archive` combined with ContentProviders triggers dropper heuristics. | **Hand off APK downloads to the user's default browser or Android system.** The browser or system installer manages user consent natively with zero dropper flags against the host app. |
-| **ContentProvider for APKs** | ContentProviders serving package archives (`ApkProvider.kt`) can be flagged by static scanners looking for local APK drop targets. | **Removed.** No internal provider is registered for package archives. |
-| **Signing Keystore** | Builds signed with `androiddebugkey` and password `android` are marked as untrusted development builds, triggering Play Protect warnings. | Releases are signed with a dedicated **Release Keystore** (`CN=MD Viewer, OU=Mobile, O=MD Viewer Open Source, L=San Francisco, ST=California, C=US`, RSA 2048, SHA256withRSA, valid for 28+ years) enabling both **v2** and **v3** signature schemes. |
-| **Package Visibility (`<queries>`)** | On Android 11+ (API 30+), querying package installers without need triggers scanner warnings. | Restrict `<queries>` strictly to browsable HTTPS intents for external link handling. |
-| **Dex Optimization** | Debug metadata in dex files indicates unverified test binaries. | Compiled using Android D8 in release mode (`--release --min-api 24`) for optimal bytecode density and verification. |
-| **Application Debuggable** | `android:debuggable="true"` in production builds triggers high-risk security warnings. | Explicitly configured as `android:debuggable="false"` in `AndroidManifest.xml`. |
+| **`REQUEST_INSTALL_PACKAGES`** | Declared in `AndroidManifest.xml` alongside standard package visibility `<queries>` for `application/vnd.android.package-archive`. | Standard Android permission for self-updating open-source applications (e.g. F-Droid, Obsidian, NewPipe). On Android 8.0+, user is directed to the system's "Install unknown apps" toggle. |
+| **Package Installer Handoff** | Dispatches standard `Intent.ACTION_VIEW` targeting `application/vnd.android.package-archive` with temporary read permission flags (`FLAG_GRANT_READ_URI_PERMISSION`). | Safe handoff to the native Android PackageInstaller. Fallback to `ACTION_INSTALL_PACKAGE` ensures broad Android OS compatibility. |
+| **Sandboxed `ApkProvider`** | Custom secure `ContentProvider` strictly isolated to app-scoped directories (`getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)` and `cacheDir`). | Enforces canonical file path validation to prevent directory traversal attacks (e.g. `../../../`). |
+| **Signing Keystore & Dual Asset Matching** | Releases are signed with dedicated **Release Keystore** (`CN=MD Viewer, OU=Mobile, O=MD Viewer Open Source`, RSA 2048, SHA256withRSA) with **v2** and **v3** signature schemes enabled, plus legacy debug-key build publishing. | The updater dynamically detects the active signing certificate SHA-256 fingerprint at runtime (`isAppSignedWithDebugKey()`) and downloads the exact matching release asset (`mdviewer-vX.Y.Z.apk` vs `mdviewer-vX.Y.Z-debugkey.apk`), eliminating signature collision errors. |
+| **Dex Optimization** | Bytecode compiled using Android D8 in release mode (`--release --min-api 24`). | Produces clean, optimized release dex bytecode without unverified test metadata. |
+| **Application Debuggable** | Explicitly configured as `android:debuggable="false"` in `AndroidManifest.xml`. | Eliminates debug flag security warnings. |
 
 ---
 
 ## 📋 5. Summary of Architecture Files
 
-- [`AndroidManifest.xml`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/AndroidManifest.xml): Declares zero sensitive permissions (only `INTERNET`), sets `debuggable="false"`, and specifies `<queries>` for HTTPS browsing.
-- [`MainActivity.kt`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/java/com/mdviewer/app/MainActivity.kt): Implements lightweight GitHub Releases API checking and browser handoff (`openWebUrl`).
-- [`AndroidBridge.kt`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/java/com/mdviewer/app/AndroidBridge.kt): Bridges JavaScript web frontend to Android native methods with synchronous, zero-CORS bridge communication.
-- [`index.html`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/assets/index.html): UI controls, SemVer comparisons, offscreen DOM virtualization, and high-performance swipe/sliding.
-- [`build_apk.sh`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/build_apk.sh): Automated pipeline using local Android SDK tools, D8 release dexing, and dual-keystore signing (official `release.keystore` + legacy `debug.keystore`).
+- [`AndroidManifest.xml`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/AndroidManifest.xml): Declares `INTERNET` and `REQUEST_INSTALL_PACKAGES`, registers `ApkProvider`, configures package queries, and sets `debuggable="false"`.
+- [`ApkProvider.kt`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/java/com/mdviewer/app/ApkProvider.kt): Standalone sandboxed content provider with canonical path validation serving update packages securely.
+- [`MainActivity.kt`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/java/com/mdviewer/app/MainActivity.kt): Implements native `DownloadManager` enqueuing, download completion receiver, Unknown App Sources permission handling, and package installer handoff.
+- [`AndroidBridge.kt`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/java/com/mdviewer/app/AndroidBridge.kt): JavaScript bridge exposing `downloadAndInstall`, `installDownloadedUpdate`, `isUpdateReadyToInstall`, and `isSignedWithDebugKey`.
+- [`index.html`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/assets/index.html): UI dialog with real-time download status, intelligent debugkey/release asset selection, and 1-tap install if already downloaded.
+- [`build_apk.sh`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/build_apk.sh): Automated build script compiling resources (aapt2), Kotlin sources (kotlinc), D8 release dexing, zipalign, and dual-keystore v1/v2/v3 signing.

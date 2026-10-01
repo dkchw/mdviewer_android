@@ -2,15 +2,21 @@ package com.mdviewer.app
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.DownloadManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.OpenableColumns
+import android.provider.Settings
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
@@ -32,6 +38,7 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
 import java.util.Collections
 import java.util.Comparator
 import java.util.HashSet
@@ -46,6 +53,7 @@ class MainActivity : Activity() {
         private const val REQUEST_CODE_FOLDER_CHOOSER = 1002
         private const val REQUEST_CODE_CREATE_FILE = 1003
         private const val REQUEST_CODE_DEFAULT_SAVE_FOLDER = 1004
+        private const val REQUEST_CODE_UNKNOWN_APP_SOURCES = 1005
     }
 
     private var mWebView: WebView? = null
@@ -55,6 +63,11 @@ class MainActivity : Activity() {
     private var mPendingCreateContent: String? = null
     private var mCurrentTreeUri: Uri? = null
     private lateinit var mPrefs: SharedPreferences
+
+    private var downloadReceiver: BroadcastReceiver? = null
+    private var activeDownloadId: Long = -1L
+    private var pendingInstallFile: File? = null
+    private var lastDownloadedApkFile: File? = null
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -1172,22 +1185,255 @@ class MainActivity : Activity() {
         }
     }
 
+    fun isAppSignedWithDebugKey(): Boolean {
+        return try {
+            val signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val signingInfo = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNING_CERTIFICATES).signingInfo
+                if (signingInfo != null) {
+                    if (signingInfo.hasMultipleSigners()) signingInfo.apkContentsSigners else signingInfo.signingCertificateHistory
+                } else null
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES).signatures
+            }
+            if (signatures != null && signatures.isNotEmpty()) {
+                val certBytes = signatures[0].toByteArray()
+                val md = MessageDigest.getInstance("SHA-256")
+                val digest = md.digest(certBytes)
+                val hexString = digest.joinToString("") { "%02X".format(it) }
+                // Debug key SHA256: E20F8FA6BB86DF3505C8E93B02B6CAA9944A69F04775BA4B6C7B6775922916CC
+                hexString.equals("E20F8FA6BB86DF3505C8E93B02B6CAA9944A69F04775BA4B6C7B6775922916CC", ignoreCase = true)
+            } else {
+                false
+            }
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     fun downloadUpdateOnly(apkUrl: String, versionName: String) {
-        val targetUrl = if (apkUrl.isNotBlank()) apkUrl else "https://github.com/dkchw/mdviewer_android/releases/latest"
-        openWebUrl(targetUrl)
+        downloadViaDownloadManager(apkUrl, versionName)
     }
 
     fun downloadAndInstallApk(apkUrl: String, versionName: String) {
-        val targetUrl = if (apkUrl.isNotBlank()) apkUrl else "https://github.com/dkchw/mdviewer_android/releases/latest"
-        openWebUrl(targetUrl)
+        downloadViaDownloadManager(apkUrl, versionName)
+    }
+
+    private fun downloadViaDownloadManager(apkUrl: String, versionName: String) {
+        runOnUiThread {
+            try {
+                if (apkUrl.isBlank()) {
+                    Toast.makeText(this, "Invalid update URL", Toast.LENGTH_SHORT).show()
+                    return@runOnUiThread
+                }
+
+                val dm = getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager
+                if (dm == null) {
+                    Toast.makeText(this, "Android DownloadManager not available, opening browser...", Toast.LENGTH_SHORT).show()
+                    openWebUrl(apkUrl)
+                    return@runOnUiThread
+                }
+
+                val downloadUri = Uri.parse(apkUrl)
+                val cleanVersion = versionName.replace("^v".toRegex(), "").trim()
+                val fileName = if (apkUrl.contains("/")) {
+                    val seg = apkUrl.substringAfterLast("/")
+                    if (seg.endsWith(".apk")) seg else "mdviewer-v$cleanVersion.apk"
+                } else {
+                    "mdviewer-v$cleanVersion.apk"
+                }
+
+                val extDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+                if (extDir != null) {
+                    val existingFile = File(extDir, fileName)
+                    if (existingFile.exists()) {
+                        existingFile.delete()
+                    }
+                }
+
+                val request = DownloadManager.Request(downloadUri).apply {
+                    setTitle("MD Viewer v$cleanVersion")
+                    setDescription("Downloading MD Viewer update package...")
+                    setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                    setMimeType("application/vnd.android.package-archive")
+                    setDestinationInExternalFilesDir(this@MainActivity, Environment.DIRECTORY_DOWNLOADS, fileName)
+                }
+
+                val downloadId = dm.enqueue(request)
+                activeDownloadId = downloadId
+                Toast.makeText(this, "Downloading MD Viewer update via Android system...", Toast.LENGTH_SHORT).show()
+
+                if (downloadReceiver != null) {
+                    try { unregisterReceiver(downloadReceiver) } catch (ignored: Exception) {}
+                    downloadReceiver = null
+                }
+
+                val receiver = object : BroadcastReceiver() {
+                    override fun onReceive(context: Context?, intent: Intent?) {
+                        val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1L) ?: -1L
+                        if (id == activeDownloadId && id != -1L) {
+                            try { unregisterReceiver(this) } catch (ignored: Exception) {}
+                            if (downloadReceiver == this) downloadReceiver = null
+
+                            val query = DownloadManager.Query().setFilterById(id)
+                            val cursor = dm.query(query)
+                            var success = false
+                            if (cursor != null && cursor.moveToFirst()) {
+                                val statusIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
+                                if (statusIndex >= 0) {
+                                    val status = cursor.getInt(statusIndex)
+                                    success = (status == DownloadManager.STATUS_SUCCESSFUL)
+                                }
+                                cursor.close()
+                            }
+
+                            if (success) {
+                                val targetFile = File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName)
+                                if (targetFile.exists() && targetFile.length() > 50000L) {
+                                    lastDownloadedApkFile = targetFile
+                                    runOnUiThread {
+                                        Toast.makeText(this@MainActivity, "Download complete! Prompting installer...", Toast.LENGTH_SHORT).show()
+                                        mWebView?.evaluateJavascript(
+                                            "if (typeof window.onUpdateDownloadComplete === 'function') { window.onUpdateDownloadComplete('$cleanVersion'); }",
+                                            null
+                                        )
+                                        promptInstallApk(targetFile)
+                                    }
+                                } else {
+                                    Log.w(TAG, "Downloaded update file not found: ${targetFile.absolutePath}")
+                                }
+                            } else {
+                                runOnUiThread {
+                                    Toast.makeText(this@MainActivity, "Update download failed or was cancelled.", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+                    }
+                }
+
+                downloadReceiver = receiver
+                val filter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+                if (Build.VERSION.SDK_INT >= 33) {
+                    registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
+                } else {
+                    registerReceiver(receiver, filter)
+                }
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to start DownloadManager", e)
+                Toast.makeText(this, "Could not start download: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     fun isUpdateDownloaded(versionName: String? = null): Boolean {
-        return false
+        val extDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) ?: return false
+        if (!versionName.isNullOrBlank()) {
+            val cleanVersion = versionName.replace("^v".toRegex(), "").trim()
+            val files = extDir.listFiles()
+            if (files != null) {
+                for (f in files) {
+                    if (f.name.startsWith("mdviewer") && f.name.contains(cleanVersion) && f.name.endsWith(".apk") && f.length() > 50000L) {
+                        return true
+                    }
+                }
+            }
+        }
+        if (lastDownloadedApkFile != null && lastDownloadedApkFile!!.exists() && lastDownloadedApkFile!!.length() > 50000L) {
+            return true
+        }
+        val files = extDir.listFiles() ?: return false
+        return files.any { it.name.startsWith("mdviewer") && it.name.endsWith(".apk") && it.length() > 50000L }
     }
 
     fun installDownloadedApk(versionName: String? = null) {
-        openWebUrl("https://github.com/dkchw/mdviewer_android/releases/latest")
+        runOnUiThread {
+            val extDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+            var file: File? = null
+            if (!versionName.isNullOrBlank() && extDir != null) {
+                val cleanVersion = versionName.replace("^v".toRegex(), "").trim()
+                val files = extDir.listFiles()
+                if (files != null) {
+                    file = files.firstOrNull { it.name.startsWith("mdviewer") && it.name.contains(cleanVersion) && it.name.endsWith(".apk") && it.length() > 50000L }
+                }
+            }
+            if (file == null) {
+                file = lastDownloadedApkFile
+            }
+            if (file == null && extDir != null) {
+                val files = extDir.listFiles()
+                if (files != null) {
+                    file = files.filter { it.name.startsWith("mdviewer") && it.name.endsWith(".apk") && it.length() > 50000L }
+                        .maxByOrNull { it.lastModified() }
+                }
+            }
+
+            if (file != null && file.exists() && file.length() > 50000L) {
+                promptInstallApk(file)
+            } else {
+                Toast.makeText(this, "Please download the update package first.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun promptInstallApk(file: File) {
+        runOnUiThread {
+            if (!file.exists() || file.length() < 10000L) {
+                Toast.makeText(this, "Update file is invalid or missing.", Toast.LENGTH_SHORT).show()
+                return@runOnUiThread
+            }
+
+            pendingInstallFile = file
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!packageManager.canRequestPackageInstalls()) {
+                    Toast.makeText(this, "Please allow 'Install unknown apps' for MD Viewer to update directly", Toast.LENGTH_LONG).show()
+                    val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                        data = Uri.parse("package:$packageName")
+                    }
+                    startActivityForResult(intent, REQUEST_CODE_UNKNOWN_APP_SOURCES)
+                    return@runOnUiThread
+                }
+            }
+
+            executeInstall(file)
+        }
+    }
+
+    private fun executeInstall(file: File) {
+        runOnUiThread {
+            try {
+                val contentUri = Uri.parse("content://$packageName.apkprovider/${file.name}")
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(contentUri, "application/vnd.android.package-archive")
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+
+                val activities = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
+                for (info in activities) {
+                    grantUriPermission(info.activityInfo.packageName, contentUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+
+                startActivity(intent)
+            } catch (e: Exception) {
+                Log.e(TAG, "Cannot launch package installer with provider URI", e)
+                try {
+                    val contentUri = Uri.parse("content://$packageName.apkprovider/${file.name}")
+                    @Suppress("DEPRECATION")
+                    val fallbackIntent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
+                        data = contentUri
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
+                    }
+                    startActivity(fallbackIntent)
+                } catch (e2: Exception) {
+                    Log.e(TAG, "Fallback install intent failed", e2)
+                    Toast.makeText(this, "Cannot prompt package installer: ${e2.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
     fun openWebUrl(url: String) {
@@ -1411,6 +1657,15 @@ class MainActivity : Activity() {
                 }
             }
             return
+        } else if (requestCode == REQUEST_CODE_UNKNOWN_APP_SOURCES) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && packageManager.canRequestPackageInstalls()) {
+                val file = pendingInstallFile
+                if (file != null && file.exists()) {
+                    pendingInstallFile = null
+                    executeInstall(file)
+                }
+            }
+            return
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
@@ -1445,9 +1700,24 @@ class MainActivity : Activity() {
         } catch (e: Exception) {
             Log.w(TAG, "Error resuming WebView: ${e.message}")
         }
+
+        // Prompt install if user just enabled "Install unknown apps"
+        val file = pendingInstallFile
+        if (file != null && file.exists()) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || packageManager.canRequestPackageInstalls()) {
+                pendingInstallFile = null
+                executeInstall(file)
+            }
+        }
     }
 
     override fun onDestroy() {
+        if (downloadReceiver != null) {
+            try {
+                unregisterReceiver(downloadReceiver)
+            } catch (ignored: Exception) {}
+            downloadReceiver = null
+        }
         mWebView?.destroy()
         mWebView = null
         super.onDestroy()

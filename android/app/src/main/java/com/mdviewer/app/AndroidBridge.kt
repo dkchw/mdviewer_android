@@ -195,7 +195,12 @@ class AndroidBridge(
 
     @JavascriptInterface
     fun isUpdateReadyToInstall(): Boolean {
-        return false
+        return activity.isUpdateDownloaded(null)
+    }
+
+    @JavascriptInterface
+    fun isSignedWithDebugKey(): Boolean {
+        return activity.isAppSignedWithDebugKey()
     }
 
     @JavascriptInterface
@@ -222,9 +227,9 @@ class AndroidBridge(
     fun getAppVersion(): String {
         return try {
             val pInfo = activity.packageManager.getPackageInfo(activity.packageName, 0)
-            pInfo.versionName ?: "2.4.5"
+            pInfo.versionName ?: "2.4.6"
         } catch (e: Exception) {
-            "2.4.5"
+            "2.4.6"
         }
     }
 

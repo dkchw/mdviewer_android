@@ -287,4 +287,15 @@ Turn any markdown document or note into interactive study flashcards:
 
 ---
 
+## 🚀 14. What's New in v2.4.6
+
+- **⚡ Restored High-Performance Native In-App Updater**:
+  - **System DownloadManager Integration**: Restored background updates via Android's native `DownloadManager` with notification drawer progress, zero background interruption, and network drop recovery.
+  - **Sandboxed `ApkProvider`**: Re-enabled custom secure ContentProvider to hand off downloaded APK packages directly to the Android System `PackageInstaller`.
+  - **Direct Installer Prompt & Fast Re-Install**: Tapping "Download & Install" downloads seamlessly in the background and prompts the installer immediately upon completion. If already downloaded, the button instantly switches to "🚀 Install Now".
+  - **Intelligent Signature Matching**: Automatically detects whether current installation uses the official release key or debug key, downloading the exact matching release asset so update never fails with signature conflict.
+  - **Seamless Unknown App Sources Flow (Android 8.0+)**: Directs user to grant permission when needed and automatically resumes installation as soon as the user returns.
+
+---
+
 *MD Viewer — Fast, Offline, Private Markdown Reading & Writing on Android.*
