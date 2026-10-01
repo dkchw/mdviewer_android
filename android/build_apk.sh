@@ -72,42 +72,72 @@ cd "$BASE_DIR"
 echo "6. Aligning APK with zipalign..."
 "$BT/zipalign" -p -f -v 4 "$BUILD_DIR/unaligned.apk" "$BUILD_DIR/aligned.apk"
 
-# Generate debug keystore if not exists
-KEYSTORE="$BASE_DIR/debug.keystore"
-if [ ! -f "$KEYSTORE" ]; then
+# Keystore configuration
+RELEASE_KEYSTORE="$BASE_DIR/release.keystore"
+DEBUG_KEYSTORE="$BASE_DIR/debug.keystore"
+
+if [ ! -f "$RELEASE_KEYSTORE" ]; then
+    echo "Creating release keystore..."
+    keytool -genkeypair -validity 10000 \
+        -dname "CN=MD Viewer, OU=Mobile, O=MD Viewer Open Source, L=San Francisco, ST=California, C=US" \
+        -keystore "$RELEASE_KEYSTORE" -storepass mdviewer2026 -keypass mdviewer2026 \
+        -alias mdviewer -keyalg RSA -keysize 2048
+fi
+
+if [ ! -f "$DEBUG_KEYSTORE" ]; then
     echo "Creating debug keystore..."
     keytool -genkeypair -validity 10000 -dname "CN=MDViewer,O=MDViewer,C=US" \
-        -keystore "$KEYSTORE" -storepass android -keypass android \
+        -keystore "$DEBUG_KEYSTORE" -storepass android -keypass android \
         -alias androiddebugkey -keyalg RSA -keysize 2048
 fi
 
 VERSION_NAME=$(grep -o 'android:versionName="[^"]*"' "$SRC_DIR/AndroidManifest.xml" | cut -d'"' -f2)
 FINAL_APK="$OUT_DIR/mdviewer.apk"
 VERSIONED_APK="$OUT_DIR/mdviewer-v${VERSION_NAME}.apk"
+DEBUGKEY_APK="$OUT_DIR/mdviewer-v${VERSION_NAME}-debugkey.apk"
 
-echo "7. Signing APK with apksigner (v1, v2, v3)..."
+echo "7. Signing Official Release APK with release.keystore (v1, v2, v3)..."
 "$BT/apksigner" sign \
     --min-sdk-version 24 \
     --v1-signing-enabled true \
     --v2-signing-enabled true \
     --v3-signing-enabled true \
-    --ks "$KEYSTORE" \
-    --ks-pass pass:android \
-    --ks-key-alias androiddebugkey \
-    --key-pass pass:android \
+    --ks "$RELEASE_KEYSTORE" \
+    --ks-pass pass:mdviewer2026 \
+    --ks-key-alias mdviewer \
+    --key-pass pass:mdviewer2026 \
     --out "$FINAL_APK" \
     "$BUILD_DIR/aligned.apk"
 
-echo "8. Verifying APK signature..."
-"$BT/apksigner" verify "$FINAL_APK"
+echo "8. Signing Legacy Debug-Key APK (for upgrading existing debug installs)..."
+"$BT/apksigner" sign \
+    --min-sdk-version 24 \
+    --v1-signing-enabled true \
+    --v2-signing-enabled true \
+    --v3-signing-enabled true \
+    --ks "$DEBUG_KEYSTORE" \
+    --ks-pass pass:android \
+    --ks-key-alias androiddebugkey \
+    --key-pass pass:android \
+    --out "$DEBUGKEY_APK" \
+    "$BUILD_DIR/aligned.apk"
+
+echo "9. Verifying APK signatures..."
+echo "--- Official Release APK ---"
+"$BT/apksigner" verify --verbose "$FINAL_APK"
+echo "--- Debug-Key APK ---"
+"$BT/apksigner" verify --verbose "$DEBUGKEY_APK"
 
 cp -f "$FINAL_APK" "$VERSIONED_APK"
 mkdir -p "$BASE_DIR/../dist"
 cp -f "$FINAL_APK" "$BASE_DIR/../dist/mdviewer.apk"
 cp -f "$VERSIONED_APK" "$BASE_DIR/../dist/mdviewer-v${VERSION_NAME}.apk"
+cp -f "$DEBUGKEY_APK" "$BASE_DIR/../dist/mdviewer-v${VERSION_NAME}-debugkey.apk"
+cp -f "$DEBUGKEY_APK" "$BASE_DIR/../dist/mdviewer-debugkey.apk"
 
 echo ""
 echo "=== BUILD SUCCESSFUL ==="
-echo "APK location: $FINAL_APK"
-echo "Versioned APK: $VERSIONED_APK"
-ls -lh "$FINAL_APK" "$VERSIONED_APK"
+echo "Official Release APK: $FINAL_APK"
+echo "Versioned Release APK: $VERSIONED_APK"
+echo "Legacy Debug-Key APK: $DEBUGKEY_APK"
+ls -lh "$FINAL_APK" "$VERSIONED_APK" "$DEBUGKEY_APK"

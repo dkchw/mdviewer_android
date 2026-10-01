@@ -208,23 +208,25 @@ private fun executeInstall(file: File) {
 ---
 
 ## 🛡️ 4. Google Play Protect Security Best Practices
-
-Google Play Protect uses machine learning and static bytecode analysis to detect malicious apps and "droppers". When building an in-app updater, following these rules is critical:
-
-| Antipattern / Trigger | Problem | Correct Implementation |
+ 
+Google Play Protect uses machine learning, heuristic analysis, and static bytecode scanning to protect Android users from malicious droppers. When building an update delivery mechanism for an open-source Android app outside Google Play, the following principles are mandatory:
+ 
+| Security Area | Risk / Heuristic Trigger | Play Protect Compliant Architecture |
 | :--- | :--- | :--- |
-| **`EXTRA_NOT_UNKNOWN_SOURCE`** | Passing `putExtra("android.intent.extra.NOT_UNKNOWN_SOURCE", true)` is a restricted system extra. Non-system apps using it are automatically flagged as **Trojan/Droppers** trying to bypass user consent. | **Never use this extra.** Always let Android present the standard "Install unknown apps" consent prompt via `Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES`. |
-| **Debug Keystore Signing** | APKs signed with `androiddebugkey` and password `android` are marked as untrusted development builds, triggering "Blocked by Play Protect" when combined with `REQUEST_INSTALL_PACKAGES`. | Sign releases with a dedicated **Release Keystore** (`RSA 2048/4096`, `SHA256withRSA`, valid for 25+ years) and enable v2 + v3 APK Signature Schemes. |
-| **Missing `<queries>` Tag** | On Android 11+ (API 30+), package visibility restrictions hide system installer intents unless declared in `<queries>`. | Add `<queries><intent><action android:name="android.intent.action.VIEW"/><data android:mimeType="application/vnd.android.package-archive"/></intent></queries>` to `AndroidManifest.xml`. |
-| **Debug Dex Compilation** | D8 compiling classes in debug mode leaves debug symbols and metadata. | Pass `--release --min-api 24` to `d8` to optimize bytecode and emit release compilation metadata. |
-| **`android:debuggable="true"`** | Allowing app debugging in a build with package install capabilities triggers high-severity Play Protect warnings. | Explicitly set `android:debuggable="false"` in `<application>`. |
+| **`REQUEST_INSTALL_PACKAGES`** | Sideloaded utility apps declaring `REQUEST_INSTALL_PACKAGES` are automatically flagged or blocked as **Potentially Harmful Applications (PHA: Droppers)** by Play Protect, unless recognized as authorized package managers. | **Never request `REQUEST_INSTALL_PACKAGES`.** Keep app permissions restricted to `android.permission.INTERNET`. |
+| **Package Installer Handoff** | In-app invocation of `ACTION_VIEW` targeting `application/vnd.android.package-archive` combined with ContentProviders triggers dropper heuristics. | **Hand off APK downloads to the user's default browser or Android system.** The browser or system installer manages user consent natively with zero dropper flags against the host app. |
+| **ContentProvider for APKs** | ContentProviders serving package archives (`ApkProvider.kt`) can be flagged by static scanners looking for local APK drop targets. | **Removed.** No internal provider is registered for package archives. |
+| **Signing Keystore** | Builds signed with `androiddebugkey` and password `android` are marked as untrusted development builds, triggering Play Protect warnings. | Releases are signed with a dedicated **Release Keystore** (`CN=MD Viewer, OU=Mobile, O=MD Viewer Open Source, L=San Francisco, ST=California, C=US`, RSA 2048, SHA256withRSA, valid for 28+ years) enabling both **v2** and **v3** signature schemes. |
+| **Package Visibility (`<queries>`)** | On Android 11+ (API 30+), querying package installers without need triggers scanner warnings. | Restrict `<queries>` strictly to browsable HTTPS intents for external link handling. |
+| **Dex Optimization** | Debug metadata in dex files indicates unverified test binaries. | Compiled using Android D8 in release mode (`--release --min-api 24`) for optimal bytecode density and verification. |
+| **Application Debuggable** | `android:debuggable="true"` in production builds triggers high-risk security warnings. | Explicitly configured as `android:debuggable="false"` in `AndroidManifest.xml`. |
 
 ---
 
-## 📋 5. Summary of Key Files
+## 📋 5. Summary of Architecture Files
 
-- [`AndroidManifest.xml`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/AndroidManifest.xml): Declares permissions, `<queries>`, and `<provider android:name=".ApkProvider">`.
-- [`MainActivity.kt`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/java/com/mdviewer/app/MainActivity.kt): Implements `downloadViaDownloadManager` and `promptInstallApk`.
-- [`ApkProvider.kt`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/java/com/mdviewer/app/ApkProvider.kt): Standalone content provider serving downloaded APKs safely.
-- [`AndroidBridge.kt`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/java/com/mdviewer/app/AndroidBridge.kt): Bridges JavaScript web frontend to Android native methods.
-- [`index.html`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/assets/index.html): UI controls, SemVer comparisons, and auto-download options.
+- [`AndroidManifest.xml`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/AndroidManifest.xml): Declares zero sensitive permissions (only `INTERNET`), sets `debuggable="false"`, and specifies `<queries>` for HTTPS browsing.
+- [`MainActivity.kt`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/java/com/mdviewer/app/MainActivity.kt): Implements lightweight GitHub Releases API checking and browser handoff (`openWebUrl`).
+- [`AndroidBridge.kt`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/java/com/mdviewer/app/AndroidBridge.kt): Bridges JavaScript web frontend to Android native methods with synchronous, zero-CORS bridge communication.
+- [`index.html`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/assets/index.html): UI controls, SemVer comparisons, offscreen DOM virtualization, and high-performance swipe/sliding.
+- [`build_apk.sh`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/build_apk.sh): Automated pipeline using local Android SDK tools, D8 release dexing, and dual-keystore signing (official `release.keystore` + legacy `debug.keystore`).
