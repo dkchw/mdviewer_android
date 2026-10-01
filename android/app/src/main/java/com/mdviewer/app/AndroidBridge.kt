@@ -158,13 +158,23 @@ class AndroidBridge(
     }
 
     @JavascriptInterface
+    fun installDownloadedUpdate(versionName: String?) {
+        activity.installDownloadedApk(versionName)
+    }
+
+    @JavascriptInterface
     fun installDownloadedUpdate() {
-        activity.installDownloadedApk()
+        activity.installDownloadedApk(null)
+    }
+
+    @JavascriptInterface
+    fun isUpdateReadyForVersion(versionName: String?): Boolean {
+        return activity.isUpdateDownloaded(versionName)
     }
 
     @JavascriptInterface
     fun isUpdateReadyToInstall(): Boolean {
-        return activity.isUpdateDownloaded()
+        return false
     }
 
     @JavascriptInterface

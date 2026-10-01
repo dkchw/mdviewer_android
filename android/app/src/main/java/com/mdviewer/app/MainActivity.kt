@@ -69,6 +69,7 @@ class MainActivity : Activity() {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        cleanupOldUpdateFiles()
 
         mPrefs = getSharedPreferences("mdviewer_prefs", Context.MODE_PRIVATE)
         val savedTree = mPrefs.getString("last_folder_tree_uri", null)
@@ -1070,29 +1071,53 @@ class MainActivity : Activity() {
         }
     }
 
-    fun isUpdateDownloaded(): Boolean {
+    fun isUpdateDownloaded(versionName: String? = null): Boolean {
+        val extDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) ?: return false
+        if (!versionName.isNullOrBlank()) {
+            val cleanVersion = versionName.replace("^v".toRegex(), "").trim()
+            val expectedFile = File(extDir, "mdviewer-v$cleanVersion.apk")
+            return expectedFile.exists() && expectedFile.length() > 50000L
+        }
         if (lastDownloadedApkFile != null && lastDownloadedApkFile!!.exists() && lastDownloadedApkFile!!.length() > 50000L) {
             return true
         }
-        val extDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-        val files = extDir?.listFiles()
-        return files?.any { it.name.endsWith(".apk") && it.length() > 50000L } == true
+        return false
     }
 
-    fun installDownloadedApk() {
+    fun installDownloadedApk(versionName: String? = null) {
         runOnUiThread {
-            var file = lastDownloadedApkFile
-            if (file == null || !file.exists() || file.length() < 50000L) {
-                val extDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-                file = extDir?.listFiles()?.filter { it.name.endsWith(".apk") && it.length() > 50000L }
-                    ?.maxByOrNull { it.lastModified() }
+            val extDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+            var file: File? = null
+            if (!versionName.isNullOrBlank() && extDir != null) {
+                val cleanVersion = versionName.replace("^v".toRegex(), "").trim()
+                val target = File(extDir, "mdviewer-v$cleanVersion.apk")
+                if (target.exists() && target.length() > 50000L) {
+                    file = target
+                }
+            }
+            if (file == null) {
+                file = lastDownloadedApkFile
             }
 
-            if (file != null && file.exists()) {
+            if (file != null && file.exists() && file.length() > 50000L) {
                 promptInstallApk(file)
             } else {
-                Toast.makeText(this, "No downloaded update package found. Please tap Download.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please download the update package first.", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    private fun cleanupOldUpdateFiles() {
+        try {
+            val extDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) ?: return
+            val files = extDir.listFiles() ?: return
+            for (f in files) {
+                if (f.name.endsWith(".apk")) {
+                    f.delete()
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to cleanup old update files", e)
         }
     }
 
