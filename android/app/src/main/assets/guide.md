@@ -28,9 +28,18 @@ Your personal idea board and notebook shelf on Android:
 - **Card Size Preview Controls**:
   - Tap **`↕️`** on the top shelf toolbar to cycle global card preview sizes (Full, Compact, Medium).
   - **Dual Compact / Expand Buttons**: Long cards feature toggle buttons at **both the top and bottom** (`▲` / `▼`). You can collapse a long note from the bottom (`▲`) without scrolling all the way back up, or expand (`▼`) when previewing!
-- **Color Categorization**:
-  - Assign notes to 6 Tokyo Night pastel tones (Slate, Teal, Purple, Coral, Amber, Green).
-  - Tap color swatches on the shelf filter row to isolate notes of that category.
+- **Star (⭐) & Pin (📌) Notes**:
+  - **Pin to Top**: Tap **`📌`** / **`📍`** on any card or the editor top header to pin critical notes. Pinned notes feature a luminous accent badge and always float to the top of the shelf.
+  - **Star Notes**: Tap **`⭐`** / **`☆`** on any card or editor header to mark favorites.
+  - **Quick Filter Chips**: When pinned or starred notes exist, dedicated **`📌 Pinned`** and **`⭐ Starred`** chips appear in the filter row for one-tap filtering.
+- **Color Palettes & Dynamic Themes**:
+  - **Change Note Color**: Tap the interactive color dot on any card or the color circle in the editor header / tag bar to open the color picker popover.
+  - **5 Curated Preset Palettes**: Tokyo Night, Pastel Dream, Vibrant Pop, Nord Frost, and Earthy Forest.
+  - **Custom Palette Designer**: Tap **`＋ Create Custom Palette`** in Settings (or shortcut **`🎨 Palettes`** in the color picker) to define your own named palettes with custom colors via interactive hex/native pickers.
+  - **Custom Hex Input**: Enter or pick any freeform hex color (`#rrggbb`) for any note.
+  - **Random Color Assignment**:
+    - Tap **`🎲 Random`** in the color popover to randomize a note's color on the fly.
+    - Toggle **"Randomize New Note Color"** in Settings (ON by default) to automatically assign fresh random colors from the active palette whenever you create notes.
 - **Tag Organization (`#tags`)**:
   - Add tags like `#work`, `#study`, `#todo` to your notes via **`🏷️`**.
   - Tap any tag chip on the shelf bar to instantly filter cards by topic.

@@ -3581,12 +3581,25 @@
 
   .pocket-card-header {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
-    gap: 6px;
+    gap: 4px;
+    min-width: 0;
+  }
+  .pocket-card-title-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    flex: 1;
+  }
+  .pocket-card-pin-badge {
+    font-size: 11px;
+    flex-shrink: 0;
+    line-height: 1;
   }
   .pocket-card-title {
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 700;
     color: #fff;
     line-height: 1.35;
@@ -3595,15 +3608,21 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    min-width: 0;
   }
   .pocket-card-dot {
-    width: 10px;
-    height: 10px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     background: var(--card-color, #7aa2f7);
     flex-shrink: 0;
-    margin-top: 2px;
-    box-shadow: 0 0 6px var(--card-color);
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    box-sizing: border-box;
+    transition: transform 0.12s ease;
+  }
+  .pocket-card-dot:active {
+    transform: scale(1.25);
   }
 
   /* Tag Badges on Cards */
@@ -3714,7 +3733,7 @@
   .pocket-card-header-actions {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 3px;
     flex-shrink: 0;
   }
   .pocket-card-body pre {
@@ -3906,6 +3925,46 @@
     border-color: #7aa2f7;
     color: #fff;
     transform: scale(1.05);
+  }
+  .pocket-card-star-btn,
+  .pocket-card-pin-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    font-size: 11px;
+    width: 22px;
+    height: 20px;
+    padding: 0;
+    color: var(--muted);
+    opacity: 0.75;
+    transition: all 0.12s ease;
+    border-radius: 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
+  }
+  .pocket-card-star-btn:active,
+  .pocket-card-pin-btn:active {
+    transform: scale(1.15);
+  }
+  .pocket-card-star-btn.active {
+    opacity: 1;
+    color: #e0af68;
+    background: rgba(224, 175, 104, 0.2);
+    border-color: rgba(224, 175, 104, 0.45);
+  }
+  .pocket-card-pin-btn.active {
+    opacity: 1;
+    color: #7dcfff;
+    background: rgba(125, 207, 255, 0.2);
+    border-color: rgba(125, 207, 255, 0.45);
+  }
+  .pocket-card.is-pinned {
+    border-width: 2px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.45), 0 0 10px rgba(125, 207, 255, 0.25);
   }
 
   /* Vault Move Success Banner Notification */
@@ -4224,7 +4283,18 @@
     box-shadow: 0 0 10px rgba(122, 162, 247, 0.25);
   }
 
-  /* Color Palette Dropdown Modal */
+  /* Color Palette Dropdown Modal & Backdrop */
+  #pocketColorBackdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1190;
+    background: rgba(0, 0, 0, 0.35);
+    -webkit-tap-highlight-color: transparent;
+  }
+  #pocketColorBackdrop.open {
+    display: block;
+  }
   #pocketColorModal {
     position: fixed;
     top: 54px;
@@ -4232,16 +4302,50 @@
     background: #1f2335;
     border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 10px 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    padding: 12px 14px;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.7);
     display: none;
     flex-direction: column;
-    gap: 8px;
-    z-index: 120;
+    gap: 10px;
+    z-index: 1200;
+    width: 220px;
+    box-sizing: border-box;
+  }
+  #pocketColorModal.open {
+    display: flex;
+  }
+  .pocket-color-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .pocket-color-modal-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .pocket-color-random-btn {
+    background: rgba(187, 154, 247, 0.15);
+    border: 1px solid rgba(187, 154, 247, 0.3);
+    color: #bb9af7;
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .pocket-color-random-btn:active {
+    transform: scale(1.05);
   }
   .pocket-color-swatches {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
   }
   .pocket-color-swatch {
     width: 24px;
@@ -4250,9 +4354,64 @@
     cursor: pointer;
     border: 2px solid transparent;
     transition: transform 0.12s ease;
+    box-sizing: border-box;
   }
-  .pocket-color-swatch:active { transform: scale(1.15); }
-  .pocket-color-swatch.active { border-color: #fff; transform: scale(1.1); }
+  .pocket-color-swatch:active {
+    transform: scale(1.2);
+  }
+  .pocket-color-swatch.active {
+    border-color: #fff;
+    transform: scale(1.12);
+    box-shadow: 0 0 8px rgba(255,255,255,0.4);
+  }
+  .pocket-color-modal-custom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 8px;
+  }
+  .pocket-color-custom-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--fg);
+    cursor: pointer;
+  }
+  .pocket-color-native-input {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.2);
+    cursor: pointer;
+    background: none;
+    padding: 0;
+  }
+  .pocket-color-palette-link {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 2px 4px;
+  }
+  .custom-palette-color-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .custom-palette-color-picker {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    background: none;
+    padding: 0;
+    flex-shrink: 0;
+  }
 
   /* Pocket Note Tag & Metadata Bar (Basic Note Editor) */
   .pocket-note-tag-bar {
@@ -4957,6 +5116,8 @@
     </div>
     <!-- Basic / Pocket Notes Header Actions -->
     <div id="basicHeaderActions" class="header-actions-group">
+      <button id="btnHeaderPocketStar" class="header-btn pill-btn" style="display:none;" title="Star Note">☆</button>
+      <button id="btnHeaderPocketPin" class="header-btn pill-btn" style="display:none;" title="Pin Note to Top">📍</button>
       <button id="pocketNoteColorBtn" class="pocket-note-color-btn" style="display:none;" title="Change Note Color"></button>
       <button id="btnPocketNoteTagHeader" class="header-btn pill-btn" style="display:none;" title="Manage Tags">🏷️</button>
       <button id="btnHeaderBasicMoveToVault" class="header-btn pill-btn" style="display:none;" title="Move or Save this Note to Outline Vault">📁</button>
@@ -4973,17 +5134,20 @@
     </div>
   </header>
 
-  <!-- Pocket Color Palette Modal -->
+  <!-- Pocket Color Palette Modal & Backdrop -->
+  <div id="pocketColorBackdrop"></div>
   <div id="pocketColorModal">
-    <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;">Note Card Color</div>
-    <div class="pocket-color-swatches" id="pocketColorSwatches">
-      <div class="pocket-color-swatch" data-color="orange" style="background:#ff9e64;" title="Orange"></div>
-      <div class="pocket-color-swatch" data-color="yellow" style="background:#e0af68;" title="Yellow"></div>
-      <div class="pocket-color-swatch" data-color="purple" style="background:#bb9af7;" title="Purple"></div>
-      <div class="pocket-color-swatch" data-color="blue" style="background:#7aa2f7;" title="Blue"></div>
-      <div class="pocket-color-swatch" data-color="green" style="background:#73daca;" title="Green"></div>
-      <div class="pocket-color-swatch" data-color="red" style="background:#f7768e;" title="Red"></div>
-      <div class="pocket-color-swatch" data-color="cyan" style="background:#7dcfff;" title="Cyan"></div>
+    <div class="pocket-color-modal-header">
+      <span class="pocket-color-modal-title">Note Color</span>
+      <button id="btnPocketColorRandom" class="pocket-color-random-btn" title="Assign Random Color">🎲 Random</button>
+    </div>
+    <div class="pocket-color-swatches" id="pocketColorSwatches"></div>
+    <div class="pocket-color-modal-custom">
+      <label class="pocket-color-custom-label">
+        <input type="color" id="pocketCustomColorInput" class="pocket-color-native-input" value="#7aa2f7" title="Pick any custom color">
+        <span>Custom Hex</span>
+      </label>
+      <button id="btnOpenPaletteSettings" class="pocket-color-palette-link" title="Open Palette Manager in Settings">🎨 Palettes</button>
     </div>
   </div>
 
@@ -5996,6 +6160,44 @@
       </div>
     </div>
 
+    <!-- Pocket Notes & Color Palettes -->
+    <div class="settings-group">
+      <div class="settings-group-title">Pocket Notes &amp; Color Palettes</div>
+      <div class="settings-card">
+        <!-- Active Palette Selector -->
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Active Color Palette</span>
+            <span class="settings-config-desc">Theme colors for note cards, accents and tags</span>
+          </div>
+          <select id="cfgActivePalette" class="cfg-select" style="max-width:150px;"></select>
+        </div>
+
+        <!-- Palette Preview Swatches -->
+        <div id="cfgPalettePreviewRow" style="display:flex; gap:6px; flex-wrap:wrap; padding:4px 0 10px;"></div>
+
+        <!-- Randomize Color Toggle -->
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Randomize New Note Color</span>
+            <span class="settings-config-desc">Assign random color from active palette on note creation</span>
+          </div>
+          <input type="checkbox" id="cfgRandomizeColor" class="cfg-toggle" checked>
+        </div>
+
+        <!-- Custom Palette Actions -->
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <button class="settings-row-btn" id="btnCreatePaletteModal" style="flex:1; justify-content:center; padding:9px 12px; background:rgba(122,162,247,0.12); border:1px solid rgba(122,162,247,0.3); border-radius:10px;">
+            <span class="settings-row-icon">🎨</span>
+            <span style="font-size:12.5px; font-weight:600; color:var(--accent);">＋ Create Custom Palette</span>
+          </button>
+          <button class="settings-row-btn" id="btnDeleteCustomPalette" style="display:none; padding:9px 12px; background:rgba(247,118,142,0.12); border:1px solid rgba(247,118,142,0.3); border-radius:10px;" title="Delete this custom palette">
+            <span class="settings-row-icon">🗑️</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Storage / History -->
     <div class="settings-group">
       <div class="settings-group-title">File History</div>
@@ -6096,7 +6298,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v2.1.0</span>
+          <span class="settings-row-badge" id="appVersionSub">v2.2.0</span>
         </button>
         <div class="settings-row-config">
           <div class="settings-config-label">
@@ -6293,6 +6495,39 @@
   </div>
 </div>
 
+<!-- Create Custom Color Palette Modal -->
+<div id="paletteCreateModal" class="pocket-delete-modal" style="display:none; z-index: 1070;">
+  <div class="pocket-delete-card" style="max-width: 360px; text-align: left;">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+      <div class="pocket-delete-icon" style="background: rgba(187,154,247,0.15); color: #bb9af7; margin:0;">🎨</div>
+      <div>
+        <div class="pocket-delete-title" style="text-align: left; margin:0; font-size:16px;">Create Custom Palette</div>
+        <div style="font-size:11px; color:var(--muted);">Define your own colors for Pocket Notes</div>
+      </div>
+    </div>
+
+    <!-- Palette Name -->
+    <div style="margin-bottom: 12px;">
+      <label style="font-size: 11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:4px; display:block;">Palette Name</label>
+      <input type="text" id="inputCustomPaletteName" class="rename-vault-input" placeholder="e.g. Cyberpunk Neon, Sunset Glow" maxlength="30">
+    </div>
+
+    <!-- Colors Grid -->
+    <div style="margin-bottom: 14px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+        <label style="font-size: 11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin:0;">Palette Colors</label>
+        <button id="btnPaletteAddColor" class="pocket-shelf-tool-btn" style="height:26px; padding:0 8px; font-size:11px; color:var(--accent);">＋ Add Color</button>
+      </div>
+      <div id="customPaletteColorsList" style="display:flex; flex-direction:column; gap:6px; max-height:180px; overflow-y:auto; padding:2px;"></div>
+    </div>
+
+    <div class="pocket-delete-actions" style="margin-top: 14px;">
+      <button id="btnCancelCustomPalette" class="pocket-delete-cancel-btn" style="flex:1;">Cancel</button>
+      <button id="btnSaveCustomPalette" class="pocket-delete-confirm-btn" style="flex:1; background:#7aa2f7;">Save Palette</button>
+    </div>
+  </div>
+</div>
+
 <!-- Interactive User Guide & Helper Modal -->
 <div id="guideBackdrop"></div>
 <div id="guideModal">
@@ -6342,7 +6577,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '2.1.0';
+      window.AndroidBridge.getAppVersion() : '2.2.0';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -6476,11 +6711,32 @@
 
   // --- PocketMark Pocket Notes DOM Elements ---
   const btnPocketBackShelf = document.getElementById('btnPocketBackShelf');
+  const btnHeaderPocketStar = document.getElementById('btnHeaderPocketStar');
+  const btnHeaderPocketPin = document.getElementById('btnHeaderPocketPin');
   const pocketNoteColorBtn = document.getElementById('pocketNoteColorBtn');
   const btnPocketNoteTagHeader = document.getElementById('btnPocketNoteTagHeader');
   const btnPocketSplitToggle = document.getElementById('btnPocketSplitToggle');
+  const pocketColorBackdrop = document.getElementById('pocketColorBackdrop');
   const pocketColorModal = document.getElementById('pocketColorModal');
   const pocketColorSwatches = document.getElementById('pocketColorSwatches');
+  const btnPocketColorRandom = document.getElementById('btnPocketColorRandom');
+  const pocketCustomColorInput = document.getElementById('pocketCustomColorInput');
+  const btnOpenPaletteSettings = document.getElementById('btnOpenPaletteSettings');
+
+  // Palette Settings Elements
+  const cfgActivePalette = document.getElementById('cfgActivePalette');
+  const cfgPalettePreviewRow = document.getElementById('cfgPalettePreviewRow');
+  const cfgRandomizeColor = document.getElementById('cfgRandomizeColor');
+  const btnCreatePaletteModal = document.getElementById('btnCreatePaletteModal');
+  const btnDeleteCustomPalette = document.getElementById('btnDeleteCustomPalette');
+
+  // Custom Palette Modal Elements
+  const paletteCreateModal = document.getElementById('paletteCreateModal');
+  const inputCustomPaletteName = document.getElementById('inputCustomPaletteName');
+  const customPaletteColorsList = document.getElementById('customPaletteColorsList');
+  const btnPaletteAddColor = document.getElementById('btnPaletteAddColor');
+  const btnCancelCustomPalette = document.getElementById('btnCancelCustomPalette');
+  const btnSaveCustomPalette = document.getElementById('btnSaveCustomPalette');
 
   const pocketShelfView = document.getElementById('pocketShelfView');
   const pocketSearchInput = document.getElementById('pocketSearchInput');
@@ -8172,16 +8428,128 @@
   // Dynamic 2-Col Grid Shelf, Tab Switcher, Color Tagging & Split View
   // ==========================================
 
-  const POCKET_COLORS = {
-    orange: '#ff9e64',
-    yellow: '#e0af68',
-    purple: '#bb9af7',
-    blue: '#7aa2f7',
-    green: '#73daca',
-    red: '#f7768e',
-    cyan: '#7dcfff',
-    default: '#9aa5ce'
+  const PRESET_PALETTES = {
+    tokyo: {
+      id: 'tokyo',
+      name: 'Tokyo Night (Default)',
+      colors: {
+        orange: '#ff9e64',
+        yellow: '#e0af68',
+        purple: '#bb9af7',
+        blue: '#7aa2f7',
+        green: '#73daca',
+        red: '#f7768e',
+        cyan: '#7dcfff'
+      }
+    },
+    pastel: {
+      id: 'pastel',
+      name: 'Pastel Dream',
+      colors: {
+        peach: '#fbc4ab',
+        butter: '#fbf8cc',
+        lavender: '#cdb4db',
+        sky: '#bde0fe',
+        mint: '#c7f9cc',
+        rose: '#ffc6ff',
+        sage: '#a3c4bc'
+      }
+    },
+    vibrant: {
+      id: 'vibrant',
+      name: 'Vibrant Pop',
+      colors: {
+        amber: '#f59e0b',
+        lime: '#84cc16',
+        emerald: '#10b981',
+        violet: '#8b5cf6',
+        fuchsia: '#d946ef',
+        rose: '#f43f5e',
+        indigo: '#6366f1'
+      }
+    },
+    nord: {
+      id: 'nord',
+      name: 'Nord Frost',
+      colors: {
+        frost: '#88c0d0',
+        deepblue: '#81a1c1',
+        aurora_red: '#bf616a',
+        aurora_orange: '#d08770',
+        aurora_yellow: '#ebcb8b',
+        aurora_green: '#a3be8c',
+        aurora_purple: '#b48ead'
+      }
+    },
+    forest: {
+      id: 'forest',
+      name: 'Earthy Forest',
+      colors: {
+        moss: '#606c38',
+        olive: '#588157',
+        gold: '#dda15e',
+        terracotta: '#bc6c25',
+        sage: '#84a59d',
+        rust: '#c85a17',
+        clay: '#d4a373'
+      }
+    }
   };
+
+  let customPalettes = [];
+  function loadCustomPalettes() {
+    try {
+      const raw = localStorage.getItem('mdviewer_custom_palettes');
+      if (raw) customPalettes = JSON.parse(raw);
+    } catch(e) { customPalettes = []; }
+  }
+  function saveCustomPalettes() {
+    try {
+      localStorage.setItem('mdviewer_custom_palettes', JSON.stringify(customPalettes));
+    } catch(e) {}
+  }
+  loadCustomPalettes();
+
+  let activePaletteId = localStorage.getItem('mdviewer_active_palette_id') || 'tokyo';
+
+  function getActivePalette() {
+    if (PRESET_PALETTES[activePaletteId]) return PRESET_PALETTES[activePaletteId];
+    const cp = customPalettes.find(p => p.id === activePaletteId);
+    if (cp) return cp;
+    return PRESET_PALETTES.tokyo;
+  }
+
+  function getPocketColorHex(color) {
+    if (!color) return '#7aa2f7';
+    if (color.startsWith('#')) return color;
+    const pal = getActivePalette();
+    if (pal.colors && pal.colors[color]) return pal.colors[color];
+    for (let k in PRESET_PALETTES) {
+      if (PRESET_PALETTES[k].colors && PRESET_PALETTES[k].colors[color]) return PRESET_PALETTES[k].colors[color];
+    }
+    for (let cp of customPalettes) {
+      if (cp.colors && cp.colors[color]) return cp.colors[color];
+    }
+    return '#7aa2f7';
+  }
+
+  function getNextNoteColor() {
+    const pal = getActivePalette();
+    const keys = Object.keys(pal.colors);
+    if (keys.length === 0) return '#7aa2f7';
+    const isRandom = localStorage.getItem('mdviewer_randomize_color') !== 'false';
+    if (isRandom) {
+      return keys[Math.floor(Math.random() * keys.length)];
+    }
+    return keys[pocketNotes.length % keys.length];
+  }
+
+  const POCKET_COLORS = new Proxy({}, {
+    get(target, prop) {
+      if (prop === 'default') return '#9aa5ce';
+      return getPocketColorHex(prop);
+    }
+  });
 
   const SAMPLE_POCKET_NOTES = [
     {
@@ -8190,6 +8558,8 @@
       content: '# Welcome to PocketMark 📝\n\nA lightweight, beautiful Markdown note taking experience.\n\n### Features\n- **Dynamic Card Shelf**: Organized in a dynamic 2-column card grid or 1-column list.\n- **Quick Switcher Tabs**: Effortlessly switch between multiple notes without losing your place.\n- **Color & Text Tagging**: Tag your notes with custom tags and vibrant accent palettes.\n- **Full-Length Previews**: Read your notes and checklists straight from the home shelf.\n- **Split Screen**: View or edit two notes simultaneously side-by-side.\n',
       color: 'orange',
       tags: ['welcome', 'guide'],
+      pinned: true,
+      starred: true,
       updatedAt: Date.now() - 3600000,
       uri: null,
       docId: null
@@ -8200,6 +8570,8 @@
       content: '# School project ToDo list 📋\n\n- [x] Research target users and existing market solutions\n- [x] Design 2-column card grid layout\n- [ ] Implement split screen note comparison\n- [ ] Review markdown parsing performance\n- [ ] Submit final project report\n',
       color: 'yellow',
       tags: ['todo', 'school'],
+      pinned: false,
+      starred: true,
       updatedAt: Date.now() - 7200000,
       uri: null,
       docId: null
@@ -8210,6 +8582,8 @@
       content: '# Programming Notes 💻\n\n### Useful Regex Patterns\n- Heading detector: `/^(#{1,6})\\s+(.*)$/`\n- Markdown links: `/\\[([^\\]]+)\\]\\(([^)]+)\\)/`\n\n### Performance Tips\n- Use virtual scrolling for massive documents (100k+ lines)\n- Debounce localStorage autosave to avoid UI thread stutters\n',
       color: 'purple',
       tags: ['coding', 'regex'],
+      pinned: false,
+      starred: false,
       updatedAt: Date.now() - 86400000,
       uri: null,
       docId: null
@@ -8220,6 +8594,8 @@
       content: '# Quick Ideas & Inspiration 💡\n\n- Create a customizable theme palette\n- Add support for LaTeX math formulas in markdown\n- Obsidian wikilinks `[[Note Title]]` navigation\n- Offline-first encrypted notes vault\n',
       color: 'green',
       tags: ['ideas'],
+      pinned: false,
+      starred: false,
       updatedAt: Date.now() - 172800000,
       uri: null,
       docId: null
@@ -8235,6 +8611,7 @@
   let pocketCardSizeOverrides = {}; // per-note overrides { [noteId]: 'full' | 'compact' }
   let pocketFilterColor = 'all';
   let pocketFilterTag = 'all';
+  let pocketFilterSpecial = 'all'; // 'all' | 'pinned' | 'starred'
   let pocketSearchQuery = '';
 
   let pocketSplitActive = false;
@@ -8242,10 +8619,6 @@
   let pocketSplitNoteId2 = null;
   let pocketSplitSubMode1 = 'edit';
   let pocketSplitSubMode2 = 'read';
-
-  function getPocketColorHex(color) {
-    return POCKET_COLORS[color] || POCKET_COLORS.default;
-  }
 
   function extractPocketTitle(content) {
     if (!content) return 'Untitled Note';
@@ -8444,21 +8817,36 @@
   function renderPocketChipsRow() {
     if (!pocketChipsRow) return;
     const allTags = getAllPocketTags();
-    const isAllActive = (pocketFilterColor === 'all' && pocketFilterTag === 'all');
+    const isAllActive = (pocketFilterColor === 'all' && pocketFilterTag === 'all' && pocketFilterSpecial === 'all');
     let html = `<button class="pocket-chip ${isAllActive ? 'active' : ''}" data-type="all">All</button>`;
 
+    const hasPinned = pocketNotes.some(n => n.pinned);
+    const hasStarred = pocketNotes.some(n => n.starred);
+
+    if (hasPinned) {
+      const isPinnedActive = (pocketFilterSpecial === 'pinned');
+      html += `<button class="pocket-chip ${isPinnedActive ? 'active' : ''}" data-type="pinned" style="--chip-color:#7dcfff;"><span class="pocket-chip-dot" style="background:#7dcfff;"></span>📌 Pinned</button>`;
+    }
+    if (hasStarred) {
+      const isStarredActive = (pocketFilterSpecial === 'starred');
+      html += `<button class="pocket-chip ${isStarredActive ? 'active' : ''}" data-type="starred" style="--chip-color:#e0af68;"><span class="pocket-chip-dot" style="background:#e0af68;"></span>⭐ Starred</button>`;
+    }
+
     allTags.forEach(tag => {
-      const isActive = (pocketFilterTag === tag);
+      const isActive = (pocketFilterTag === tag && pocketFilterSpecial === 'all');
       html += `<button class="pocket-chip tag-chip ${isActive ? 'active' : ''}" data-type="tag" data-tag="${escapeHtml(tag)}">#${escapeHtml(tag)}</button>`;
     });
 
-    const colors = ['orange', 'yellow', 'purple', 'blue', 'green', 'red', 'cyan'];
-    colors.forEach(col => {
-      const isActive = (pocketFilterColor === col && pocketFilterTag === 'all');
-      const hex = POCKET_COLORS[col] || '#7aa2f7';
-      const label = col.charAt(0).toUpperCase() + col.slice(1);
+    const pal = getActivePalette();
+    for (let col in pal.colors) {
+      const hex = pal.colors[col];
+      const isActive = (pocketFilterColor === col && pocketFilterTag === 'all' && pocketFilterSpecial === 'all');
+      let label = col.charAt(0).toUpperCase() + col.slice(1).replace(/_/g, ' ');
+      if (col.startsWith('c') && !isNaN(col.slice(1))) {
+        label = `Color ${parseInt(col.slice(1), 10) + 1}`;
+      }
       html += `<button class="pocket-chip ${isActive ? 'active' : ''}" data-type="color" data-color="${col}" style="--chip-color:${hex};"><span class="pocket-chip-dot" style="background:${hex};"></span>${label}</button>`;
-    });
+    }
 
     pocketChipsRow.innerHTML = html;
   }
@@ -8507,8 +8895,10 @@
           id: 'pnote_' + Date.now(),
           title: extractPocketTitle(basicDocText),
           content: basicDocText,
-          color: 'blue',
+          color: getNextNoteColor(),
           tags: [],
+          pinned: false,
+          starred: false,
           updatedAt: Date.now(),
           uri: basicDocUri || null,
           docId: basicDocTreeId || null
@@ -8518,7 +8908,9 @@
     } else {
       pocketNotes = pocketNotes.map(n => ({
         ...n,
-        tags: Array.isArray(n.tags) ? n.tags : []
+        tags: Array.isArray(n.tags) ? n.tags : [],
+        pinned: Boolean(n.pinned),
+        starred: Boolean(n.starred)
       }));
     }
 
@@ -8631,6 +9023,8 @@
     const cleanQuery = query.replace(/^#/, '');
 
     const filtered = pocketNotes.filter(note => {
+      if (pocketFilterSpecial === 'pinned' && !note.pinned) return false;
+      if (pocketFilterSpecial === 'starred' && !note.starred) return false;
       if (pocketFilterColor !== 'all' && note.color !== pocketFilterColor) {
         return false;
       }
@@ -8647,8 +9041,18 @@
       return true;
     });
 
+    // Pinned notes always rise to top, then newest updated first
+    filtered.sort((a, b) => {
+      const aPinned = Boolean(a.pinned);
+      const bPinned = Boolean(b.pinned);
+      if (aPinned !== bPinned) {
+        return aPinned ? -1 : 1;
+      }
+      return (b.updatedAt || 0) - (a.updatedAt || 0);
+    });
+
     if (pocketSearchCount) {
-      if (query || pocketFilterColor !== 'all' || pocketFilterTag !== 'all') {
+      if (query || pocketFilterColor !== 'all' || pocketFilterTag !== 'all' || pocketFilterSpecial !== 'all') {
         pocketSearchCount.textContent = `${filtered.length} found`;
       } else {
         pocketSearchCount.textContent = `${pocketNotes.length} notes`;
@@ -8669,7 +9073,7 @@
     filtered.forEach(note => {
       const card = document.createElement('div');
       const noteSize = pocketCardSizeOverrides[note.id] || pocketCardSizeMode;
-      card.className = `pocket-card card-size-${noteSize}`;
+      card.className = `pocket-card card-size-${noteSize} ${note.pinned ? 'is-pinned' : ''}`;
       const colorHex = getPocketColorHex(note.color);
       card.style.setProperty('--card-color', colorHex);
       card.dataset.id = note.id;
@@ -8689,10 +9093,15 @@
 
       card.innerHTML = `
         <div class="pocket-card-header">
-          <div class="pocket-card-title">${escapeHtml(note.title || 'Untitled')}</div>
+          <div class="pocket-card-title-group">
+            ${note.pinned ? '<span class="pocket-card-pin-badge" title="Pinned Note">📌</span>' : ''}
+            <div class="pocket-card-title" title="${escapeHtml(note.title || 'Untitled')}">${escapeHtml(note.title || 'Untitled')}</div>
+          </div>
           <div class="pocket-card-header-actions">
+            <button class="pocket-card-star-btn ${note.starred ? 'active' : ''}" data-id="${note.id}" title="${note.starred ? 'Starred note (Click to unstar)' : 'Star note'}">${note.starred ? '⭐' : '☆'}</button>
+            <button class="pocket-card-pin-btn ${note.pinned ? 'active' : ''}" data-id="${note.id}" title="${note.pinned ? 'Pinned note (Click to unpin)' : 'Pin to top'}">${note.pinned ? '📌' : '📍'}</button>
             <button class="pocket-card-size-btn top" data-id="${note.id}" title="${noteSize === 'full' ? 'Collapse note' : 'Expand note'}">${noteSize === 'full' ? '▲' : '▼'}</button>
-            <span class="pocket-card-dot" style="background:${colorHex};" title="${note.color}"></span>
+            <span class="pocket-card-dot" data-id="${note.id}" style="background:${colorHex};" title="Color: ${note.color} (Click to change)"></span>
           </div>
         </div>
         ${tagsHtml}
@@ -8711,6 +9120,38 @@
       `;
 
       card.addEventListener('click', (e) => {
+        // Star button clicked on card
+        const starBtn = e.target.closest('.pocket-card-star-btn');
+        if (starBtn) {
+          e.stopPropagation();
+          note.starred = !note.starred;
+          savePocketNotes();
+          renderPocketShelf();
+          if (currentPocketNoteId === note.id) updateHeaderStarPinButtons(note);
+          showToast(note.starred ? 'Note starred ⭐' : 'Star removed');
+          return;
+        }
+
+        // Pin button clicked on card
+        const pinBtn = e.target.closest('.pocket-card-pin-btn');
+        if (pinBtn) {
+          e.stopPropagation();
+          note.pinned = !note.pinned;
+          savePocketNotes();
+          renderPocketShelf();
+          if (currentPocketNoteId === note.id) updateHeaderStarPinButtons(note);
+          showToast(note.pinned ? 'Note pinned to top 📌' : 'Note unpinned');
+          return;
+        }
+
+        // Color dot clicked on card -> open color picker popover
+        const colorDot = e.target.closest('.pocket-card-dot');
+        if (colorDot) {
+          e.stopPropagation();
+          openColorPickerForNote(note.id, colorDot);
+          return;
+        }
+
         // Tag clicked on card -> filter shelf
         const tagBadge = e.target.closest('.pocket-card-tag');
         if (tagBadge) {
@@ -8719,6 +9160,7 @@
           if (tag) {
             pocketFilterTag = tag;
             pocketFilterColor = 'all';
+            pocketFilterSpecial = 'all';
             renderPocketChipsRow();
             renderPocketShelf();
             showToast(`Filtered by #${tag}`);
@@ -8811,6 +9253,8 @@
     if (basicBottomGroup) basicBottomGroup.style.display = 'none';
 
     if (btnPocketBackShelf) btnPocketBackShelf.style.display = 'none';
+    if (btnHeaderPocketStar) btnHeaderPocketStar.style.display = 'none';
+    if (btnHeaderPocketPin) btnHeaderPocketPin.style.display = 'none';
     if (pocketNoteColorBtn) pocketNoteColorBtn.style.display = 'none';
     if (btnPocketNoteTagHeader) btnPocketNoteTagHeader.style.display = 'none';
     if (btnPocketSplitToggle) btnPocketSplitToggle.style.display = 'none';
@@ -8818,7 +9262,7 @@
     if (btnHeaderBasicNew) btnHeaderBasicNew.style.display = 'inline-flex';
     if (btnHeaderBasicDelete) btnHeaderBasicDelete.style.display = 'none';
     if (btnHeaderBasicMoveToVault) btnHeaderBasicMoveToVault.style.display = 'none';
-    if (pocketColorModal) pocketColorModal.classList.remove('open');
+    closeColorPicker();
 
     if (docTitle) docTitle.textContent = 'Pocket Notes';
     if (docStats) docStats.textContent = `${pocketNotes.length} notes • Tap ＋ to create`;
@@ -8856,6 +9300,7 @@
     if (basicBottomGroup) basicBottomGroup.style.display = 'flex';
 
     if (btnPocketBackShelf) btnPocketBackShelf.style.display = 'inline-flex';
+    updateHeaderStarPinButtons(note);
     if (pocketNoteColorBtn) {
       pocketNoteColorBtn.style.display = 'inline-block';
       pocketNoteColorBtn.style.background = getPocketColorHex(note.color);
@@ -8974,8 +9419,7 @@
       }
     }
 
-    const colorKeys = Object.keys(POCKET_COLORS).filter(k => k !== 'default');
-    const color = colorKeys[pocketNotes.length % colorKeys.length];
+    const color = getNextNoteColor();
     const newId = 'pnote_' + Date.now();
     const newNote = {
       id: newId,
@@ -8983,6 +9427,8 @@
       content: '# New Note\n\n',
       color: color,
       tags: [],
+      pinned: false,
+      starred: false,
       updatedAt: Date.now(),
       uri: null,
       docId: null,
@@ -9986,7 +10432,25 @@
       if (type === 'all') {
         pocketFilterColor = 'all';
         pocketFilterTag = 'all';
+        pocketFilterSpecial = 'all';
+      } else if (type === 'pinned') {
+        if (pocketFilterSpecial === 'pinned') {
+          pocketFilterSpecial = 'all';
+        } else {
+          pocketFilterSpecial = 'pinned';
+          pocketFilterColor = 'all';
+          pocketFilterTag = 'all';
+        }
+      } else if (type === 'starred') {
+        if (pocketFilterSpecial === 'starred') {
+          pocketFilterSpecial = 'all';
+        } else {
+          pocketFilterSpecial = 'starred';
+          pocketFilterColor = 'all';
+          pocketFilterTag = 'all';
+        }
       } else if (type === 'tag') {
+        pocketFilterSpecial = 'all';
         const tag = chip.dataset.tag;
         if (pocketFilterTag === tag) {
           pocketFilterTag = 'all';
@@ -9995,6 +10459,7 @@
           pocketFilterColor = 'all';
         }
       } else if (type === 'color') {
+        pocketFilterSpecial = 'all';
         const color = chip.dataset.color;
         if (pocketFilterColor === color) {
           pocketFilterColor = 'all';
@@ -10028,13 +10493,6 @@
         e.preventDefault();
         handleAddTagFromEditor();
       }
-    });
-  }
-
-  if (pocketTagBarColorBtn) {
-    pocketTagBarColorBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (pocketColorModal) pocketColorModal.classList.toggle('open');
     });
   }
 
@@ -10075,10 +10533,173 @@
     btnCloseTagModal.addEventListener('click', closePocketTagModal);
   }
 
+  // --- Header Pocket Star & Pin Action Buttons ---
+  function updateHeaderStarPinButtons(note) {
+    if (!note) return;
+    if (btnHeaderPocketStar) {
+      btnHeaderPocketStar.style.display = (currentPocketView === 'editor') ? 'inline-flex' : 'none';
+      btnHeaderPocketStar.textContent = note.starred ? '⭐' : '☆';
+      btnHeaderPocketStar.title = note.starred ? 'Starred Note (Click to unstar)' : 'Star Note';
+      btnHeaderPocketStar.classList.toggle('active', Boolean(note.starred));
+    }
+    if (btnHeaderPocketPin) {
+      btnHeaderPocketPin.style.display = (currentPocketView === 'editor') ? 'inline-flex' : 'none';
+      btnHeaderPocketPin.textContent = note.pinned ? '📌' : '📍';
+      btnHeaderPocketPin.title = note.pinned ? 'Pinned Note (Click to unpin)' : 'Pin Note to Top';
+      btnHeaderPocketPin.classList.toggle('active', Boolean(note.pinned));
+    }
+  }
+
+  if (btnHeaderPocketStar) {
+    btnHeaderPocketStar.addEventListener('click', () => {
+      if (!currentPocketNoteId) return;
+      const note = pocketNotes.find(n => n.id === currentPocketNoteId);
+      if (!note) return;
+      note.starred = !note.starred;
+      savePocketNotes();
+      updateHeaderStarPinButtons(note);
+      showToast(note.starred ? 'Note starred ⭐' : 'Star removed');
+    });
+  }
+
+  if (btnHeaderPocketPin) {
+    btnHeaderPocketPin.addEventListener('click', () => {
+      if (!currentPocketNoteId) return;
+      const note = pocketNotes.find(n => n.id === currentPocketNoteId);
+      if (!note) return;
+      note.pinned = !note.pinned;
+      savePocketNotes();
+      updateHeaderStarPinButtons(note);
+      showToast(note.pinned ? 'Note pinned to top 📌' : 'Note unpinned');
+    });
+  }
+
+  // --- Dynamic Color Picker Modal & Palette Integration ---
+  let activeColorPickerNoteId = null;
+
+  function openColorPickerForNote(noteId, anchorEl = null) {
+    const note = pocketNotes.find(n => n.id === noteId);
+    if (!note) return;
+    activeColorPickerNoteId = noteId;
+
+    renderColorPickerSwatches(note);
+
+    if (pocketColorModal) {
+      if (anchorEl) {
+        const rect = anchorEl.getBoundingClientRect();
+        const modalWidth = 220;
+        let left = rect.left + (rect.width / 2) - (modalWidth / 2);
+        if (left < 10) left = 10;
+        if (left + modalWidth > window.innerWidth - 10) {
+          left = window.innerWidth - modalWidth - 10;
+        }
+        let top = rect.bottom + 8;
+        if (top + 280 > window.innerHeight) {
+          top = Math.max(10, rect.top - 280);
+        }
+        pocketColorModal.style.top = `${top}px`;
+        pocketColorModal.style.left = `${left}px`;
+        pocketColorModal.style.right = 'auto';
+      } else {
+        pocketColorModal.style.top = '54px';
+        pocketColorModal.style.right = '50px';
+        pocketColorModal.style.left = 'auto';
+      }
+
+      pocketColorModal.classList.add('open');
+      if (pocketColorBackdrop) pocketColorBackdrop.classList.add('open');
+    }
+  }
+
+  function closeColorPicker() {
+    activeColorPickerNoteId = null;
+    if (pocketColorModal) pocketColorModal.classList.remove('open');
+    if (pocketColorBackdrop) pocketColorBackdrop.classList.remove('open');
+  }
+
+  function renderColorPickerSwatches(targetNote = null) {
+    if (!pocketColorSwatches) return;
+    pocketColorSwatches.innerHTML = '';
+    const pal = getActivePalette();
+    const curColor = targetNote ? targetNote.color : (currentPocketNoteId ? pocketNotes.find(n => n.id === currentPocketNoteId)?.color : null);
+    const curHex = getPocketColorHex(curColor);
+
+    for (let key in pal.colors) {
+      const hex = pal.colors[key];
+      const swatch = document.createElement('div');
+      swatch.className = 'pocket-color-swatch' + ((curColor === key || curColor === hex) ? ' active' : '');
+      swatch.dataset.color = key;
+      swatch.style.background = hex;
+      let label = key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ');
+      if (key.startsWith('c') && !isNaN(key.slice(1))) {
+        label = `Color ${parseInt(key.slice(1), 10) + 1}`;
+      }
+      swatch.title = `${label} (${hex})`;
+      pocketColorSwatches.appendChild(swatch);
+    }
+
+    if (pocketCustomColorInput) {
+      pocketCustomColorInput.value = curHex.startsWith('#') && curHex.length === 7 ? curHex : '#7aa2f7';
+    }
+  }
+
+  function applyColorToNote(noteId, color) {
+    const note = pocketNotes.find(n => n.id === noteId);
+    if (!note) return;
+    note.color = color;
+    savePocketNotes();
+
+    const colorHex = getPocketColorHex(color);
+
+    if (currentPocketView === 'editor' && currentPocketNoteId === noteId) {
+      if (pocketNoteColorBtn) {
+        pocketNoteColorBtn.style.background = colorHex;
+        pocketNoteColorBtn.title = `Color: ${color}`;
+      }
+      if (pocketTagBarColorBtn) {
+        pocketTagBarColorBtn.style.background = colorHex;
+        pocketTagBarColorBtn.title = `Color: ${color}`;
+      }
+      renderPocketTabs();
+    }
+
+    if (pocketNotesGrid) {
+      const cardEl = pocketNotesGrid.querySelector(`.pocket-card[data-id="${noteId}"]`);
+      if (cardEl) {
+        cardEl.style.setProperty('--card-color', colorHex);
+        const dotEl = cardEl.querySelector('.pocket-card-dot');
+        if (dotEl) {
+          dotEl.style.background = colorHex;
+          dotEl.title = `Color: ${color} (Click to change)`;
+        }
+      } else if (currentPocketView === 'shelf') {
+        renderPocketShelf();
+      }
+    }
+
+    closeColorPicker();
+    showToast('Note color updated ✓');
+  }
+
   if (pocketNoteColorBtn) {
     pocketNoteColorBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (pocketColorModal) pocketColorModal.classList.toggle('open');
+      if (pocketColorModal && pocketColorModal.classList.contains('open')) {
+        closeColorPicker();
+      } else if (currentPocketNoteId) {
+        openColorPickerForNote(currentPocketNoteId, pocketNoteColorBtn);
+      }
+    });
+  }
+
+  if (pocketTagBarColorBtn) {
+    pocketTagBarColorBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (pocketColorModal && pocketColorModal.classList.contains('open')) {
+        closeColorPicker();
+      } else if (currentPocketNoteId) {
+        openColorPickerForNote(currentPocketNoteId, pocketTagBarColorBtn);
+      }
     });
   }
 
@@ -10087,34 +10708,288 @@
       const swatch = e.target.closest('.pocket-color-swatch');
       if (!swatch) return;
       const color = swatch.dataset.color;
-      if (color && currentPocketNoteId) {
-        const note = pocketNotes.find(n => n.id === currentPocketNoteId);
-        if (note) {
-          note.color = color;
-          savePocketNotes();
-          if (pocketNoteColorBtn) {
-            pocketNoteColorBtn.style.background = getPocketColorHex(color);
-            pocketNoteColorBtn.title = `Color: ${color}`;
-          }
-          if (pocketTagBarColorBtn) {
-            pocketTagBarColorBtn.style.background = getPocketColorHex(color);
-            pocketTagBarColorBtn.title = `Color: ${color}`;
-          }
-          renderPocketTabs();
-          if (pocketColorModal) pocketColorModal.classList.remove('open');
-          showToast(`Note color set to ${color}`);
-        }
+      const targetId = activeColorPickerNoteId || currentPocketNoteId;
+      if (color && targetId) {
+        applyColorToNote(targetId, color);
       }
     });
   }
 
+  if (btnPocketColorRandom) {
+    btnPocketColorRandom.addEventListener('click', () => {
+      const pal = getActivePalette();
+      const keys = Object.keys(pal.colors);
+      if (keys.length === 0) return;
+      const randomKey = keys[Math.floor(Math.random() * keys.length)];
+      const targetId = activeColorPickerNoteId || currentPocketNoteId;
+      if (targetId) {
+        applyColorToNote(targetId, randomKey);
+      }
+    });
+  }
+
+  if (pocketCustomColorInput) {
+    pocketCustomColorInput.addEventListener('input', (e) => {
+      const hex = e.target.value;
+      const targetId = activeColorPickerNoteId || currentPocketNoteId;
+      if (targetId && hex) {
+        applyColorToNote(targetId, hex);
+      }
+    });
+  }
+
+  if (btnOpenPaletteSettings) {
+    btnOpenPaletteSettings.addEventListener('click', () => {
+      closeColorPicker();
+      openSettings('pocketPalettes');
+    });
+  }
+
+  if (pocketColorBackdrop) {
+    pocketColorBackdrop.addEventListener('click', closeColorPicker);
+  }
+
   document.addEventListener('click', (e) => {
     if (pocketColorModal && pocketColorModal.classList.contains('open')) {
-      if (!pocketColorModal.contains(e.target) && e.target !== pocketNoteColorBtn && e.target !== pocketTagBarColorBtn) {
-        pocketColorModal.classList.remove('open');
+      if (!pocketColorModal.contains(e.target) &&
+          e.target !== pocketNoteColorBtn &&
+          e.target !== pocketTagBarColorBtn &&
+          !e.target.closest('.pocket-card-dot')) {
+        closeColorPicker();
       }
     }
   });
+
+  // --- Palette Management (Settings & Custom Creation) ---
+  function populateSettingsPaletteDropdown() {
+    if (!cfgActivePalette) return;
+    cfgActivePalette.innerHTML = '';
+
+    const presetGroup = document.createElement('optgroup');
+    presetGroup.label = 'Preset Palettes';
+    for (const key in PRESET_PALETTES) {
+      const p = PRESET_PALETTES[key];
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.name;
+      if (p.id === activePaletteId) opt.selected = true;
+      presetGroup.appendChild(opt);
+    }
+    cfgActivePalette.appendChild(presetGroup);
+
+    if (customPalettes.length > 0) {
+      const customGroup = document.createElement('optgroup');
+      customGroup.label = 'Custom Palettes';
+      customPalettes.forEach(cp => {
+        const opt = document.createElement('option');
+        opt.value = cp.id;
+        opt.textContent = `🎨 ${cp.name}`;
+        if (cp.id === activePaletteId) opt.selected = true;
+        customGroup.appendChild(opt);
+      });
+      cfgActivePalette.appendChild(customGroup);
+    }
+
+    if (btnDeleteCustomPalette) {
+      const isCustom = customPalettes.some(cp => cp.id === activePaletteId);
+      btnDeleteCustomPalette.style.display = isCustom ? 'inline-flex' : 'none';
+    }
+  }
+
+  function updatePalettePreviewRow() {
+    if (!cfgPalettePreviewRow) return;
+    cfgPalettePreviewRow.innerHTML = '';
+    const pal = getActivePalette();
+    if (!pal || !pal.colors) return;
+    for (let col in pal.colors) {
+      const hex = pal.colors[col];
+      const dot = document.createElement('span');
+      dot.style.display = 'inline-block';
+      dot.style.width = '20px';
+      dot.style.height = '20px';
+      dot.style.borderRadius = '50%';
+      dot.style.background = hex;
+      dot.style.border = '1px solid rgba(255,255,255,0.2)';
+      dot.title = `${col}: ${hex}`;
+      cfgPalettePreviewRow.appendChild(dot);
+    }
+  }
+
+  function setActivePalette(paletteId) {
+    activePaletteId = paletteId;
+    localStorage.setItem('mdviewer_active_palette_id', paletteId);
+    populateSettingsPaletteDropdown();
+    updatePalettePreviewRow();
+    renderPocketChipsRow();
+    if (currentPocketView === 'shelf') {
+      renderPocketShelf();
+    } else if (currentPocketNoteId) {
+      const cur = pocketNotes.find(n => n.id === currentPocketNoteId);
+      if (cur) {
+        if (pocketNoteColorBtn) pocketNoteColorBtn.style.background = getPocketColorHex(cur.color);
+        if (pocketTagBarColorBtn) pocketTagBarColorBtn.style.background = getPocketColorHex(cur.color);
+      }
+    }
+  }
+
+  let customPaletteEditingColors = ['#7aa2f7', '#bb9af7', '#9ece6a', '#f7768e', '#e0af68', '#7dcfff'];
+
+  function openCreatePaletteModal() {
+    if (!paletteCreateModal) return;
+    if (inputCustomPaletteName) inputCustomPaletteName.value = '';
+    customPaletteEditingColors = ['#7aa2f7', '#bb9af7', '#9ece6a', '#f7768e', '#e0af68', '#7dcfff'];
+    renderCustomPaletteColorsList();
+    paletteCreateModal.style.display = 'flex';
+    if (inputCustomPaletteName) setTimeout(() => inputCustomPaletteName.focus(), 50);
+  }
+
+  function closeCreatePaletteModal() {
+    if (paletteCreateModal) paletteCreateModal.style.display = 'none';
+  }
+
+  function renderCustomPaletteColorsList() {
+    if (!customPaletteColorsList) return;
+    customPaletteColorsList.innerHTML = '';
+    customPaletteEditingColors.forEach((hex, idx) => {
+      const row = document.createElement('div');
+      row.className = 'custom-palette-color-row';
+
+      const picker = document.createElement('input');
+      picker.type = 'color';
+      picker.className = 'custom-palette-color-picker';
+      picker.value = hex.startsWith('#') && hex.length === 7 ? hex : '#7aa2f7';
+
+      const textInput = document.createElement('input');
+      textInput.type = 'text';
+      textInput.className = 'rename-vault-input custom-color-hex';
+      textInput.value = hex;
+      textInput.style.fontFamily = 'monospace';
+      textInput.style.width = '90px';
+      textInput.maxLength = 9;
+
+      picker.addEventListener('input', () => {
+        textInput.value = picker.value;
+        customPaletteEditingColors[idx] = picker.value;
+      });
+
+      textInput.addEventListener('input', () => {
+        const val = textInput.value.trim();
+        if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+          picker.value = val;
+          customPaletteEditingColors[idx] = val;
+        }
+      });
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'pocket-shelf-tool-btn';
+      delBtn.innerHTML = '✕';
+      delBtn.title = 'Remove Color';
+      delBtn.style.padding = '0 8px';
+      delBtn.style.height = '28px';
+      if (customPaletteEditingColors.length <= 2) {
+        delBtn.disabled = true;
+        delBtn.style.opacity = '0.4';
+      }
+      delBtn.addEventListener('click', () => {
+        if (customPaletteEditingColors.length > 2) {
+          customPaletteEditingColors.splice(idx, 1);
+          renderCustomPaletteColorsList();
+        } else {
+          showToast('Palette must have at least 2 colors');
+        }
+      });
+
+      row.appendChild(picker);
+      row.appendChild(textInput);
+      row.appendChild(delBtn);
+      customPaletteColorsList.appendChild(row);
+    });
+  }
+
+  function saveCustomPaletteFromModal() {
+    const name = (inputCustomPaletteName ? inputCustomPaletteName.value : '').trim();
+    if (!name) {
+      showToast('Please enter a palette name');
+      if (inputCustomPaletteName) inputCustomPaletteName.focus();
+      return;
+    }
+    if (customPaletteEditingColors.length < 2) {
+      showToast('Palette must have at least 2 colors');
+      return;
+    }
+
+    const id = 'custom_' + Date.now();
+    const colorsObj = {};
+    customPaletteEditingColors.forEach((hex, i) => {
+      colorsObj[`c${i}`] = hex;
+    });
+
+    const newPal = {
+      id: id,
+      name: name,
+      isCustom: true,
+      colors: colorsObj
+    };
+
+    customPalettes.push(newPal);
+    saveCustomPalettes();
+    closeCreatePaletteModal();
+    setActivePalette(id);
+    showToast(`Palette "${name}" created ✓`);
+  }
+
+  if (cfgActivePalette) {
+    cfgActivePalette.addEventListener('change', () => {
+      setActivePalette(cfgActivePalette.value);
+    });
+  }
+
+  if (cfgRandomizeColor) {
+    const savedRand = localStorage.getItem('mdviewer_randomize_color');
+    cfgRandomizeColor.checked = (savedRand !== 'false');
+    cfgRandomizeColor.addEventListener('change', () => {
+      localStorage.setItem('mdviewer_randomize_color', cfgRandomizeColor.checked ? 'true' : 'false');
+      showToast(cfgRandomizeColor.checked ? 'Random color assignment enabled' : 'Sequential color assignment enabled');
+    });
+  }
+
+  if (btnDeleteCustomPalette) {
+    btnDeleteCustomPalette.addEventListener('click', () => {
+      const pal = customPalettes.find(p => p.id === activePaletteId);
+      if (!pal) return;
+      if (confirm(`Delete custom palette "${pal.name}"?`)) {
+        customPalettes = customPalettes.filter(p => p.id !== activePaletteId);
+        saveCustomPalettes();
+        setActivePalette('tokyo');
+        showToast(`Deleted palette "${pal.name}"`);
+      }
+    });
+  }
+
+  if (btnCreatePaletteModal) {
+    btnCreatePaletteModal.addEventListener('click', openCreatePaletteModal);
+  }
+  if (btnCancelCustomPalette) {
+    btnCancelCustomPalette.addEventListener('click', closeCreatePaletteModal);
+  }
+  if (btnSaveCustomPalette) {
+    btnSaveCustomPalette.addEventListener('click', saveCustomPaletteFromModal);
+  }
+  if (btnPaletteAddColor) {
+    btnPaletteAddColor.addEventListener('click', () => {
+      if (customPaletteEditingColors.length >= 12) {
+        showToast('Maximum 12 colors per palette');
+        return;
+      }
+      const defaultHexes = ['#7aa2f7', '#bb9af7', '#9ece6a', '#f7768e', '#e0af68', '#7dcfff', '#fbc4ab', '#c7f9cc'];
+      const nextHex = defaultHexes[customPaletteEditingColors.length % defaultHexes.length];
+      customPaletteEditingColors.push(nextHex);
+      renderCustomPaletteColorsList();
+    });
+  }
+
+  populateSettingsPaletteDropdown();
+  updatePalettePreviewRow();
 
   if (btnPocketSplitToggle) btnPocketSplitToggle.addEventListener('click', togglePocketSplit);
   if (btnSplitClose) btnSplitClose.addEventListener('click', togglePocketSplit);
@@ -12672,11 +13547,18 @@
   drawerBackdrop.addEventListener('click', closeDrawer);
 
   // --- Settings Modal Logic ---
-  function openSettings() {
+  function openSettings(targetSection = null) {
     syncControlsSettingsUI();
     updateDefaultBasicSaveFolderUI();
+    populateSettingsPaletteDropdown();
+    updatePalettePreviewRow();
     settingsBackdrop.style.display = 'block';
     settingsModal.style.display = 'flex';
+    if (targetSection === 'pocketPalettes' && cfgActivePalette) {
+      setTimeout(() => {
+        cfgActivePalette.closest('.settings-group')?.scrollIntoView({ behavior: 'smooth' });
+      }, 50);
+    }
   }
   function closeSettings() {
     settingsBackdrop.style.display = 'none';
