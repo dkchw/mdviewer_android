@@ -309,4 +309,24 @@ Turn any markdown document or note into interactive study flashcards:
 
 ---
 
+## 🚀 16. What's New in v2.4.8
+
+- **🛡️ Google Play Protect Clearance (Bibliotheca Alignment)**:
+  - Aligned permissions strictly with the trusted Bibliotheca architecture (`INTERNET`, `ACCESS_NETWORK_STATE`, `REQUEST_INSTALL_PACKAGES`).
+  - Completely purged `UPDATE_PACKAGES_WITHOUT_USER_ACTION` and background status broadcast receivers, which trigger Play Protect heuristic flags against sideloaded applications.
+  - Restored verified, 100% compliant `Intent.ACTION_VIEW` package installation with secure `ApkProvider` URI sharing and system unknown app source management.
+- **✨ Fixed Checklist Mode Button & Visual Integrity**:
+  - Replaced corrupted/unrendered `☑️` Unicode emoji glyphs with sharp, resolution-independent vector SVG check icons across the header mode pill, dropdown menu, drawer tabs, and batch action popovers.
+  - Added dedicated **Checklist Mode Toggle Button** (`☑ Checklist` / `📑 Outline`) directly in the header action bar for instant one-tap switching without opening dropdown menus.
+  - Cleaned up conflicting checkbox CSS rules, ensuring custom animated squircle checkboxes render with fluid transitions and spring animations.
+- **🚩 Comprehensive Checkpoint & Multi-Run Management**:
+  - Checkpoint manager is universally available across Checklist, Outline, and Notes modes.
+  - Save current run state with custom title (e.g. `Bike 1: Trek FX`) and personal reminder notes.
+  - One-tap `▶️ Restore / Switch` restores checkbox state and shows active run banner.
+  - One-tap `📋 Copy` copies full run summary report to clipboard for quick sharing.
+  - Full support for editing reminder notes (`✏️ Note`) and deleting checkpoints (`🗑️`) from both local device storage and hidden vault `.checkpoints/`.
+  - Fast reset (`🔄 Start New Run`) unchecks all tasks for the next bike/run with a single tap.
+
+---
+
 *MD Viewer — Fast, Offline, Private Markdown Reading & Writing on Android.*

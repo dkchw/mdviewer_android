@@ -9,7 +9,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.SharedPreferences
-import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
@@ -1009,8 +1008,58 @@ class MainActivity : Activity() {
         }
 
         return try {
-            val docUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, checkpointDocId)
-            val deleted = DocumentsContract.deleteDocument(contentResolver, docUri)
+            var deleted = false
+            try {
+                val docUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, checkpointDocId)
+                deleted = DocumentsContract.deleteDocument(contentResolver, docUri)
+            } catch (ignored: Exception) {}
+
+            if (!deleted) {
+                // Fallback: search .checkpoints folder for matching filename or checkpoint ID
+                val rootDocId = getRootDocumentId(treeUri)
+                val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, rootDocId)
+                var dirDocId: String? = null
+                contentResolver.query(
+                    childrenUri,
+                    arrayOf(DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_DISPLAY_NAME, DocumentsContract.Document.COLUMN_MIME_TYPE),
+                    null, null, null
+                )?.use { cursor ->
+                    val idCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
+                    val nameCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
+                    val mimeCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE)
+                    while (cursor.moveToNext()) {
+                        val id = if (idCol >= 0) cursor.getString(idCol) else null
+                        val name = if (nameCol >= 0) cursor.getString(nameCol) else null
+                        val mime = if (mimeCol >= 0) cursor.getString(mimeCol) else null
+                        if (name == ".checkpoints" && mime == DocumentsContract.Document.MIME_TYPE_DIR && id != null) {
+                            dirDocId = id
+                            break
+                        }
+                    }
+                }
+
+                if (dirDocId != null) {
+                    val cpChildrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, dirDocId)
+                    contentResolver.query(
+                        cpChildrenUri,
+                        arrayOf(DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_DISPLAY_NAME),
+                        null, null, null
+                    )?.use { cursor ->
+                        val idCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
+                        val nameCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
+                        while (cursor.moveToNext()) {
+                            val id = if (idCol >= 0) cursor.getString(idCol) else null
+                            val name = if (nameCol >= 0) cursor.getString(nameCol) else null
+                            if (id != null && (id == checkpointDocId || (name != null && (name == checkpointDocId || name.contains(checkpointDocId))))) {
+                                val docUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, id)
+                                deleted = DocumentsContract.deleteDocument(contentResolver, docUri)
+                                if (deleted) break
+                            }
+                        }
+                    }
+                }
+            }
+
             response.put("status", if (deleted) "ok" else "error")
             response.toString()
         } catch (e: Exception) {
@@ -1404,103 +1453,38 @@ class MainActivity : Activity() {
 
     private fun executeInstall(file: File) {
         runOnUiThread {
-            // Priority 1: Use modern Android PackageInstaller session API (Android 13+ / 12+)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                if (installViaPackageInstaller(file)) {
-                    Log.i(TAG, "PackageInstaller session created and committed successfully")
-                    return@runOnUiThread
-                }
-                Log.w(TAG, "PackageInstaller session failed, attempting fallback to Intent.ACTION_VIEW")
-            }
-
-            // Priority 2: Standard Intent.ACTION_VIEW with sandboxed ApkProvider
-            executeInstallViaIntent(file)
-        }
-    }
-
-    private fun installViaPackageInstaller(file: File): Boolean {
-        var sessionId = -1
-        return try {
-            val packageInstaller = packageManager.packageInstaller
-            val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL).apply {
-                setAppPackageName(packageName)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED)
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    setPackageSource(PackageInstaller.PACKAGE_SOURCE_DOWNLOADED_FILE)
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    setRequestUpdateOwnership(true)
-                }
-            }
-
-            sessionId = packageInstaller.createSession(params)
-            packageInstaller.openSession(sessionId).use { session ->
-                FileInputStream(file).use { input ->
-                    session.openWrite("base.apk", 0, file.length()).use { output ->
-                        val buffer = ByteArray(65536)
-                        var bytesRead: Int
-                        while (input.read(buffer).also { bytesRead = it } != -1) {
-                            output.write(buffer, 0, bytesRead)
-                        }
-                        session.fsync(output)
-                    }
-                }
-
-                val intent = Intent(this, InstallStatusReceiver::class.java).apply {
-                    action = InstallStatusReceiver.ACTION_INSTALL_STATUS
-                }
-                val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-                } else {
-                    PendingIntent.FLAG_UPDATE_CURRENT
-                }
-                val pendingIntent = PendingIntent.getBroadcast(this, sessionId, intent, flags)
-                session.commit(pendingIntent.intentSender)
-            }
-            true
-        } catch (e: Exception) {
-            Log.e(TAG, "Error installing via PackageInstaller session", e)
-            if (sessionId != -1) {
-                try {
-                    packageManager.packageInstaller.abandonSession(sessionId)
-                } catch (ignored: Exception) {}
-            }
-            false
-        }
-    }
-
-    private fun executeInstallViaIntent(file: File) {
-        try {
-            val contentUri = Uri.parse("content://$packageName.apkprovider/${file.name}")
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(contentUri, "application/vnd.android.package-archive")
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
-
-            val activities = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
-            for (info in activities) {
-                grantUriPermission(info.activityInfo.packageName, contentUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
-
-            startActivity(intent)
-        } catch (e: Exception) {
-            Log.e(TAG, "Cannot launch package installer with provider URI", e)
             try {
                 val contentUri = Uri.parse("content://$packageName.apkprovider/${file.name}")
-                @Suppress("DEPRECATION")
-                val fallbackIntent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
-                    data = contentUri
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(contentUri, "application/vnd.android.package-archive")
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 }
-                startActivity(fallbackIntent)
-            } catch (e2: Exception) {
-                Log.e(TAG, "Fallback install intent failed", e2)
-                Toast.makeText(this, "Cannot prompt package installer: ${e2.message}", Toast.LENGTH_LONG).show()
+
+                val activities = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
+                for (info in activities) {
+                    grantUriPermission(info.activityInfo.packageName, contentUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+
+                Toast.makeText(this, "Opening Android Package Installer...", Toast.LENGTH_SHORT).show()
+                startActivity(intent)
+            } catch (e: Exception) {
+                Log.e(TAG, "Cannot launch package installer with provider URI", e)
+                try {
+                    val contentUri = Uri.parse("content://$packageName.apkprovider/${file.name}")
+                    @Suppress("DEPRECATION")
+                    val fallbackIntent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
+                        data = contentUri
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
+                    }
+                    startActivity(fallbackIntent)
+                } catch (e2: Exception) {
+                    Log.e(TAG, "Fallback install intent failed", e2)
+                    Toast.makeText(this, "Cannot prompt package installer: ${e2.message}", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }

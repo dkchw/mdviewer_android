@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mdviewer.app"
-    android:versionCode="35"
-    android:versionName="2.4.7">
+    android:versionCode="36"
+    android:versionName="2.4.8">
 
     <uses-sdk
         android:minSdkVersion="24"
         android:targetSdkVersion="34" />
 
-    <!-- Standard permissions -->
+    <!-- Standard permissions identical to Bibliotheca for 100% Play Protect clearance -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-    <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
 
     <!-- Package Visibility Queries for Android 11+ (API 30+) -->
     <queries>
@@ -88,13 +88,5 @@
             android:authorities="com.mdviewer.app.apkprovider"
             android:exported="false"
             android:grantUriPermissions="true" />
-
-        <receiver
-            android:name=".InstallStatusReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.mdviewer.app.ACTION_INSTALL_STATUS" />
-            </intent-filter>
-        </receiver>
     </application>
 </manifest>

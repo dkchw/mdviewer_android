@@ -4423,14 +4423,6 @@
     user-select: none;
     -webkit-tap-highlight-color: transparent;
   }
-  .outline-task-cb {
-    width: 16px;
-    height: 16px;
-    accent-color: var(--accent);
-    margin: 0;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
   .outline-task-text.task-done {
     text-decoration: line-through;
     opacity: 0.52;
@@ -6013,7 +6005,7 @@
               <span class="mode-item-check">✓</span>
             </button>
             <button class="mode-dropdown-item" data-mode="checklist" type="button" role="menuitem">
-              <span class="mode-item-left"><span class="mode-icon">☑️</span> <span>Checklist</span></span>
+              <span class="mode-item-left"><span class="mode-icon"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg></span> <span>Checklist</span></span>
               <span class="mode-item-check">✓</span>
             </button>
           </div>
@@ -6046,6 +6038,7 @@
         <button id="pocketNoteColorBtn" class="pocket-note-color-btn" style="display:none;" title="Change Note Color"></button>
         <button id="btnPocketNoteTagHeader" class="header-btn pill-btn" style="display:none;" title="Manage Tags">🏷️ Tags</button>
         <button id="btnHeaderBasicMoveToVault" class="header-btn pill-btn" style="display:none;" title="Move or Save this Note to Outline Vault">📁 Vault</button>
+        <button id="btnHeaderBasicCheckpoints" class="header-btn pill-btn" style="display:none;" title="Checkpoints: Save, Resume &amp; Notes">🚩 Checkpoints</button>
         <button id="btnPocketSplitToggle" class="pocket-split-header-btn" style="display:none;" title="Toggle Split Screen">◫ Split</button>
         <button id="btnBasicToggleSearch" class="header-btn pill-btn" title="Search in Document">🔍 Search</button>
         <button id="btnHeaderBasicDelete" class="header-btn pocket-delete-header-btn" style="display:none;" title="Delete this Note">🗑️ Delete</button>
@@ -6053,6 +6046,10 @@
       <!-- Outline & Checklist Viewer Header Actions -->
       <div id="outlineHeaderActions" class="header-actions-group" style="display:none;">
         <button id="btnOutlineEditNote" class="header-btn pill-btn" title="Edit Note / Fix Typo">✏️ Edit</button>
+        <button id="btnHeaderChecklistToggle" class="header-btn pill-btn checklist-toggle-btn" title="Toggle Interactive Checklist Mode">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+          <span id="btnHeaderChecklistToggleLabel">Checklist</span>
+        </button>
         <button id="btnToggleOptions" class="header-btn pill-btn" title="Typography, Text Zoom &amp; Headings">Aa View</button>
         <button id="btnHeaderCheckpoints" class="header-btn pill-btn" title="Checkpoints: Save, Resume &amp; Notes">🚩 Checkpoints</button>
         <button id="btnToggleFlashcard" class="header-btn pill-btn" title="Study as Flashcards">🗂 Cards</button>
@@ -6162,7 +6159,7 @@
       </div>
       <div class="opt-group-label" style="margin-top:8px;">Batch Checklist Actions</div>
       <div class="layout-toggle-row">
-        <button id="btnOptCheckAll" class="layout-opt-btn">☑️ Check All</button>
+        <button id="btnOptCheckAll" class="layout-opt-btn"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;margin-right:4px;"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg> Check All</button>
         <button id="btnOptUncheckAll" class="layout-opt-btn">⬜ Uncheck All</button>
       </div>
       <div class="layout-toggle-row" style="margin-top:6px;">
@@ -6733,7 +6730,7 @@
           <span>📑</span> Outline
         </button>
         <button id="drawerTabChecklist" class="drawer-tab-btn checklist-tab" title="Manage Files for Checklist Mode">
-          <span>☑️</span> Checklist
+          <span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg></span> Checklist
         </button>
       </div>
       <div class="drawer-target-status" id="drawerTargetStatus">
@@ -7714,7 +7711,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '2.4.7';
+      window.AndroidBridge.getAppVersion() : '2.4.8';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -7824,6 +7821,8 @@
   const btnBasicToggleSearch = document.getElementById('btnBasicToggleSearch');
   const btnHeaderBasicDelete = document.getElementById('btnHeaderBasicDelete');
   const btnHeaderBasicMoveToVault = document.getElementById('btnHeaderBasicMoveToVault');
+  const btnHeaderBasicCheckpoints = document.getElementById('btnHeaderBasicCheckpoints');
+  const btnHeaderChecklistToggle = document.getElementById('btnHeaderChecklistToggle');
 
   // Large Document Edit Guard Elements
   const outlineEditGuardModal = document.getElementById('outlineEditGuardModal');
@@ -12519,13 +12518,13 @@
     if (modeSelectDropdown) modeSelectDropdown.value = mode;
     if (modeDropdownIcon && modeDropdownLabel) {
       if (mode === 'basic') {
-        modeDropdownIcon.textContent = '✍️';
+        modeDropdownIcon.innerHTML = '✍️';
         modeDropdownLabel.textContent = 'Notes';
       } else if (mode === 'checklist') {
-        modeDropdownIcon.textContent = '☑️';
+        modeDropdownIcon.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1 2-2h11"></path></svg>';
         modeDropdownLabel.textContent = 'Checklist';
       } else {
-        modeDropdownIcon.textContent = '📑';
+        modeDropdownIcon.innerHTML = '📑';
         modeDropdownLabel.textContent = 'Outline';
       }
     }
@@ -12537,6 +12536,23 @@
     }
     if (modeBasicBtn) modeBasicBtn.classList.toggle('active', mode === 'basic');
     if (modeOutlineBtn) modeOutlineBtn.classList.toggle('active', mode === 'outline');
+
+    if (btnHeaderChecklistToggle) {
+      if (mode === 'checklist') {
+        btnHeaderChecklistToggle.innerHTML = '📑 Outline';
+        btnHeaderChecklistToggle.title = 'Switch to Outline Tree Reader';
+        btnHeaderChecklistToggle.classList.add('active');
+      } else {
+        btnHeaderChecklistToggle.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;margin-right:3px;"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg> Checklist';
+        btnHeaderChecklistToggle.title = 'Switch to Interactive Checklist Mode';
+        btnHeaderChecklistToggle.classList.remove('active');
+      }
+    }
+
+    if (btnHeaderBasicCheckpoints) {
+      const hasTasks = Boolean(basicDocText && /^(\s*[-*+]\s+\[[ xX]\])/m.test(basicDocText));
+      btnHeaderBasicCheckpoints.style.display = (mode === 'basic' && hasTasks && currentPocketView === 'editor') ? 'inline-flex' : 'none';
+    }
 
     if (documentView) documentView.style.display = (mode === 'basic') ? 'flex' : 'none';
     if (scroller) scroller.style.display = (mode === 'basic') ? 'none' : 'block';
@@ -12692,6 +12708,25 @@
     setDrawerTargetMode('outline');
   });
 
+  if (btnHeaderChecklistToggle) {
+    btnHeaderChecklistToggle.addEventListener('click', () => {
+      if (window.navigator && window.navigator.vibrate) {
+        try { window.navigator.vibrate(10); } catch (_) {}
+      }
+      if (currentAppMode === 'checklist') {
+        setAppMode('outline');
+        setDrawerTargetMode('outline');
+      } else {
+        setAppMode('checklist');
+        setDrawerTargetMode('checklist');
+      }
+    });
+  }
+
+  if (btnHeaderBasicCheckpoints) {
+    btnHeaderBasicCheckpoints.addEventListener('click', openCheckpointModal);
+  }
+
   // --- Dual-App Drawer Mode Switcher ---
   function setDrawerTargetMode(mode) {
     drawerTargetMode = mode;
@@ -12742,8 +12777,10 @@
     let total = 0;
     let done = 0;
     const taskRe = /^\s*[-*+]\s+\[([ xX])\]/;
-    for (let i = 0; i < lines.length; i++) {
-      const m = taskRe.exec(lines[i]);
+    const sourceLines = (currentAppMode === 'basic' && basicMarkdownEditor) ? 
+      basicMarkdownEditor.value.split(/\r?\n/) : lines;
+    for (let i = 0; i < sourceLines.length; i++) {
+      const m = taskRe.exec(sourceLines[i]);
       if (m) {
         total++;
         if (m[1].toLowerCase() === 'x') done++;
@@ -12945,7 +12982,24 @@
   const btnBannerCpDismiss = document.getElementById('btnBannerCpDismiss');
 
   function getActiveDocIdentifier() {
+    if (currentAppMode === 'basic') {
+      const activeNote = (typeof pocketNotes !== 'undefined' && pocketNotes.find) ? pocketNotes.find(n => n.id === currentPocketNoteId) : null;
+      return (activeNote && activeNote.title) ? (activeNote.title + '.md') : (basicDocName || 'PocketNote.md');
+    }
     return currentDocName || outlineDocName || 'Document.md';
+  }
+
+  function copyCheckpointSummary(cp) {
+    const summary = `🚩 Checkpoint: ${cp.title}\n📄 Document: ${cp.docName}\n⏱️ Time: ${cp.dateStr || ''}\n✅ Progress: ${cp.checkedTasks}/${cp.totalTasks} completed (${cp.pct}%)\n${cp.note ? `💬 Note: ${cp.note}\n` : ''}`;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(summary).then(() => {
+        showToast('Checkpoint summary copied to clipboard 📋');
+      }).catch(() => {
+        showToast('Summary: ' + cp.title);
+      });
+    } else {
+      showToast('Summary: ' + cp.title);
+    }
   }
 
   function getCheckpointStorageKey(docName) {
@@ -13130,8 +13184,19 @@
         confirmDeleteCheckpoint(cp);
       });
 
+      const btnShare = document.createElement('button');
+      btnShare.className = 'cp-btn-card cp-btn-share';
+      btnShare.type = 'button';
+      btnShare.innerHTML = '📋 Copy';
+      btnShare.title = 'Copy checkpoint summary report to clipboard';
+      btnShare.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        copyCheckpointSummary(cp);
+      });
+
       actionsRow.appendChild(btnDelete);
       actionsRow.appendChild(btnEditNote);
+      actionsRow.appendChild(btnShare);
       actionsRow.appendChild(btnRestore);
       card.appendChild(actionsRow);
 
@@ -13155,7 +13220,13 @@
     const finalTitle = (titleInput && titleInput.trim()) ? titleInput.trim() : `Run #${runNumber} • ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
     const finalNote = (noteInput && noteInput.trim()) ? noteInput.trim() : '';
 
-    const currentLines = (lines && lines.length > 0) ? lines.slice() : (rawDocText ? rawDocText.split(/\r?\n/) : []);
+    let currentLines = [];
+    if (currentAppMode === 'basic') {
+      const activeText = (basicMarkdownEditor && basicMarkdownEditor.value) || basicDocText || '';
+      currentLines = activeText.split(/\r?\n/);
+    } else {
+      currentLines = (lines && lines.length > 0) ? lines.slice() : (rawDocText ? rawDocText.split(/\r?\n/) : []);
+    }
     const docText = currentLines.join('\n');
 
     const cp = {
@@ -13240,21 +13311,36 @@ ${docText}
   function restoreCheckpoint(cp) {
     if (!cp) return;
 
-    if (cp.lines && cp.lines.length > 0) {
-      lines = cp.lines.slice();
-      rawDocText = lines.join('\n');
-    } else if (cp.rawDocText) {
-      rawDocText = cp.rawDocText;
-      lines = rawDocText.split(/\r?\n/);
+    if (currentAppMode === 'basic') {
+      const text = (cp.lines && cp.lines.length > 0) ? cp.lines.join('\n') : (cp.rawDocText || '');
+      if (basicMarkdownEditor) {
+        basicMarkdownEditor.value = text;
+        updateEditorStats();
+      }
+      basicDocText = text;
+      const cur = pocketNotes.find(n => n.id === currentPocketNoteId);
+      if (cur) {
+        cur.content = text;
+        cur.updatedAt = Date.now();
+        savePocketNotes();
+      }
     } else {
-      showToast('Checkpoint content unavailable');
-      return;
-    }
+      if (cp.lines && cp.lines.length > 0) {
+        lines = cp.lines.slice();
+        rawDocText = lines.join('\n');
+      } else if (cp.rawDocText) {
+        rawDocText = cp.rawDocText;
+        lines = rawDocText.split(/\r?\n/);
+      } else {
+        showToast('Checkpoint content unavailable');
+        return;
+      }
 
-    outlineDocText = rawDocText;
-    render();
-    updateChecklistStats();
-    scheduleAutoSaveOutline();
+      outlineDocText = rawDocText;
+      render();
+      updateChecklistStats();
+      scheduleAutoSaveOutline();
+    }
 
     activeCheckpoint = cp;
     updateActiveCheckpointBanner();
@@ -13269,7 +13355,7 @@ ${docText}
 
   function updateActiveCheckpointBanner() {
     if (!checkpointActiveBanner) return;
-    if (activeCheckpoint && currentAppMode === 'checklist') {
+    if (activeCheckpoint && (currentAppMode === 'checklist' || currentAppMode === 'basic')) {
       if (cpBannerTitle) cpBannerTitle.textContent = activeCheckpoint.title;
       if (cpBannerNote) {
         if (activeCheckpoint.note) {
@@ -13295,25 +13381,47 @@ ${docText}
     }
 
     const taskRe = /^(\s*[-*+]\s+\[)[xX](\]\s*.*)$/;
-    const changes = [];
-    for (let i = 0; i < lines.length; i++) {
-      const oldLine = lines[i];
-      if (taskRe.test(oldLine)) {
-        const newLine = oldLine.replace(taskRe, '$1 $2');
-        changes.push({ lineNo: i, oldLine, newLine });
-        lines[i] = newLine;
+
+    if (currentAppMode === 'basic') {
+      if (basicMarkdownEditor) {
+        const text = basicMarkdownEditor.value;
+        const curLines = text.split(/\r?\n/);
+        for (let i = 0; i < curLines.length; i++) {
+          if (taskRe.test(curLines[i])) {
+            curLines[i] = curLines[i].replace(taskRe, '$1 $2');
+          }
+        }
+        const updated = curLines.join('\n');
+        basicMarkdownEditor.value = updated;
+        basicDocText = updated;
+        const cur = pocketNotes.find(n => n.id === currentPocketNoteId);
+        if (cur) {
+          cur.content = updated;
+          cur.updatedAt = Date.now();
+          savePocketNotes();
+        }
       }
-    }
+    } else {
+      const changes = [];
+      for (let i = 0; i < lines.length; i++) {
+        const oldLine = lines[i];
+        if (taskRe.test(oldLine)) {
+          const newLine = oldLine.replace(taskRe, '$1 $2');
+          changes.push({ lineNo: i, oldLine, newLine });
+          lines[i] = newLine;
+        }
+      }
 
-    if (changes.length > 0) {
-      pushChecklistHistory('uncheckAll', changes);
-    }
+      if (changes.length > 0) {
+        pushChecklistHistory('uncheckAll', changes);
+      }
 
-    rawDocText = lines.join('\n');
-    outlineDocText = rawDocText;
-    render();
-    updateChecklistStats();
-    scheduleAutoSaveOutline();
+      rawDocText = lines.join('\n');
+      outlineDocText = rawDocText;
+      render();
+      updateChecklistStats();
+      scheduleAutoSaveOutline();
+    }
 
     activeCheckpoint = null;
     updateActiveCheckpointBanner();
@@ -13382,8 +13490,8 @@ ${cp.rawDocText || ''}
     const localList = loadLocalCheckpoints(docName).filter(x => x.id !== cp.id);
     saveLocalCheckpoints(docName, localList);
 
-    if (cp.vaultDocId && window.AndroidBridge && window.AndroidBridge.deleteCheckpointFromVault) {
-      try { window.AndroidBridge.deleteCheckpointFromVault(cp.vaultDocId); } catch (e) {}
+    if (window.AndroidBridge && window.AndroidBridge.deleteCheckpointFromVault) {
+      try { window.AndroidBridge.deleteCheckpointFromVault(cp.vaultDocId || cp.id); } catch (e) {}
     }
 
     if (activeCheckpoint && activeCheckpoint.id === cp.id) {
