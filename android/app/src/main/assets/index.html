@@ -2759,6 +2759,25 @@
     border: 1px solid rgba(158,206,106,0.25);
     font-size: 10px;
   }
+  @media (max-width: 480px) {
+    .doc-floating-bar {
+      padding: 4px 8px;
+    }
+    .doc-floating-left {
+      gap: 4px;
+    }
+    .doc-floating-right {
+      gap: 4px;
+    }
+    .doc-stat-pill.speed {
+      display: none;
+    }
+  }
+  @media (max-width: 360px) {
+    #docReadingTime {
+      display: none;
+    }
+  }
 
   /* Document Body Container */
   .doc-body-container {
@@ -3770,34 +3789,83 @@
     align-items: center;
     justify-content: space-between;
     margin-top: auto;
-    padding-top: 4px;
+    padding-top: 6px;
     font-size: 10px;
     color: var(--muted);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    flex-wrap: wrap;
+    row-gap: 6px;
+    column-gap: 6px;
   }
   .pocket-card-meta {
     display: flex;
     align-items: center;
     gap: 6px;
     min-width: 0;
-    overflow: hidden;
+    flex-shrink: 1;
   }
   .pocket-card-date {
     white-space: nowrap;
+    font-size: 10px;
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
   }
   .pocket-card-words {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 1px 6px;
     border-radius: 8px;
     color: var(--fg);
     font-weight: 600;
     white-space: nowrap;
+    font-size: 10px;
+    line-height: 1.35;
+    flex-shrink: 0;
   }
   .pocket-card-actions {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
+    margin-left: auto;
     flex-shrink: 0;
+  }
+  /* In 2-col grid mode, stack meta above action buttons so the compact fold button
+     and word count badge never crowd or overlap each other */
+  .pocket-notes-grid:not(.list-mode) .pocket-card-footer {
+    flex-direction: column;
+    align-items: stretch;
+    row-gap: 6px;
+  }
+  .pocket-notes-grid:not(.list-mode) .pocket-card-meta {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .pocket-notes-grid:not(.list-mode) .pocket-card-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .pocket-notes-grid.list-mode .pocket-card-footer {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .pocket-notes-grid.list-mode .pocket-card-meta {
+    width: auto;
+    justify-content: flex-start;
+  }
+  .pocket-notes-grid.list-mode .pocket-card-actions {
+    width: auto;
+  }
+  @media (max-width: 380px) {
+    .pocket-card-words {
+      padding: 1px 4px;
+      font-size: 9.5px;
+    }
+    .pocket-card-actions {
+      gap: 4px;
+    }
   }
   .pocket-card-size-btn,
   .pocket-card-del-btn,
