@@ -3,11 +3,13 @@ package com.mdviewer.app
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DownloadManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.SharedPreferences
+import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
@@ -1402,36 +1404,103 @@ class MainActivity : Activity() {
 
     private fun executeInstall(file: File) {
         runOnUiThread {
+            // Priority 1: Use modern Android PackageInstaller session API (Android 13+ / 12+)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                if (installViaPackageInstaller(file)) {
+                    Log.i(TAG, "PackageInstaller session created and committed successfully")
+                    return@runOnUiThread
+                }
+                Log.w(TAG, "PackageInstaller session failed, attempting fallback to Intent.ACTION_VIEW")
+            }
+
+            // Priority 2: Standard Intent.ACTION_VIEW with sandboxed ApkProvider
+            executeInstallViaIntent(file)
+        }
+    }
+
+    private fun installViaPackageInstaller(file: File): Boolean {
+        var sessionId = -1
+        return try {
+            val packageInstaller = packageManager.packageInstaller
+            val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL).apply {
+                setAppPackageName(packageName)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED)
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    setPackageSource(PackageInstaller.PACKAGE_SOURCE_DOWNLOADED_FILE)
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    setRequestUpdateOwnership(true)
+                }
+            }
+
+            sessionId = packageInstaller.createSession(params)
+            packageInstaller.openSession(sessionId).use { session ->
+                FileInputStream(file).use { input ->
+                    session.openWrite("base.apk", 0, file.length()).use { output ->
+                        val buffer = ByteArray(65536)
+                        var bytesRead: Int
+                        while (input.read(buffer).also { bytesRead = it } != -1) {
+                            output.write(buffer, 0, bytesRead)
+                        }
+                        session.fsync(output)
+                    }
+                }
+
+                val intent = Intent(this, InstallStatusReceiver::class.java).apply {
+                    action = InstallStatusReceiver.ACTION_INSTALL_STATUS
+                }
+                val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                } else {
+                    PendingIntent.FLAG_UPDATE_CURRENT
+                }
+                val pendingIntent = PendingIntent.getBroadcast(this, sessionId, intent, flags)
+                session.commit(pendingIntent.intentSender)
+            }
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "Error installing via PackageInstaller session", e)
+            if (sessionId != -1) {
+                try {
+                    packageManager.packageInstaller.abandonSession(sessionId)
+                } catch (ignored: Exception) {}
+            }
+            false
+        }
+    }
+
+    private fun executeInstallViaIntent(file: File) {
+        try {
+            val contentUri = Uri.parse("content://$packageName.apkprovider/${file.name}")
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(contentUri, "application/vnd.android.package-archive")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+
+            val activities = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
+            for (info in activities) {
+                grantUriPermission(info.activityInfo.packageName, contentUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+
+            startActivity(intent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Cannot launch package installer with provider URI", e)
             try {
                 val contentUri = Uri.parse("content://$packageName.apkprovider/${file.name}")
-                val intent = Intent(Intent.ACTION_VIEW).apply {
-                    setDataAndType(contentUri, "application/vnd.android.package-archive")
+                @Suppress("DEPRECATION")
+                val fallbackIntent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
+                    data = contentUri
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
                 }
-
-                val activities = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
-                for (info in activities) {
-                    grantUriPermission(info.activityInfo.packageName, contentUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                }
-
-                startActivity(intent)
-            } catch (e: Exception) {
-                Log.e(TAG, "Cannot launch package installer with provider URI", e)
-                try {
-                    val contentUri = Uri.parse("content://$packageName.apkprovider/${file.name}")
-                    @Suppress("DEPRECATION")
-                    val fallbackIntent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
-                        data = contentUri
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
-                    }
-                    startActivity(fallbackIntent)
-                } catch (e2: Exception) {
-                    Log.e(TAG, "Fallback install intent failed", e2)
-                    Toast.makeText(this, "Cannot prompt package installer: ${e2.message}", Toast.LENGTH_LONG).show()
-                }
+                startActivity(fallbackIntent)
+            } catch (e2: Exception) {
+                Log.e(TAG, "Fallback install intent failed", e2)
+                Toast.makeText(this, "Cannot prompt package installer: ${e2.message}", Toast.LENGTH_LONG).show()
             }
         }
     }

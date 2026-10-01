@@ -298,4 +298,15 @@ Turn any markdown document or note into interactive study flashcards:
 
 ---
 
+## 🚀 15. What's New in v2.4.7
+
+- **🛡️ Android 13+ PackageInstaller Session Pipeline**:
+  - **Modern Session-Based Installation**: Implemented modern `android.content.pm.PackageInstaller.Session` API for Android 13+ and Android 12+, streaming APK bytes directly into system install sessions without exposing world-accessible files.
+  - **`PACKAGE_SOURCE_DOWNLOADED_FILE` (API 33+)**: Configures `PackageInstaller.SessionParams.setPackageSource(PACKAGE_SOURCE_DOWNLOADED_FILE)` to correctly attribute the installation source to a user-downloaded package file on Android 13+.
+  - **`USER_ACTION_NOT_REQUIRED` & Update Ownership (API 31+ & 34+)**: Configured `UPDATE_PACKAGES_WITHOUT_USER_ACTION` permission with `setRequireUserAction(USER_ACTION_NOT_REQUIRED)` and `setRequestUpdateOwnership(true)` for fluid, frictionless in-place updates.
+  - **Asynchronous Status Callback Receiver**: Added dedicated `InstallStatusReceiver` to cleanly handle lifecycle states (`STATUS_PENDING_USER_ACTION`, `STATUS_SUCCESS`, and error diagnostics) with automatic user action dispatch.
+  - **Dual-Engine Architecture**: Automatically attempts modern `PackageInstaller` sessions first, with instant seamless fallback to `Intent.ACTION_VIEW` via sandboxed `ApkProvider` for legacy Android environments.
+
+---
+
 *MD Viewer — Fast, Offline, Private Markdown Reading & Writing on Android.*
