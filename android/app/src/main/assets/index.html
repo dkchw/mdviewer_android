@@ -96,17 +96,18 @@
   .header-toolbar-row {
     display: flex;
     align-items: center;
-    height: 38px;
-    padding: 0 8px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0 10px;
     background: #171824;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
     box-sizing: border-box;
     width: 100%;
-    gap: 6px;
+    gap: 8px;
   }
   .header-toolbar-row::-webkit-scrollbar { display: none; }
 
@@ -139,18 +140,27 @@
   }
 
   .header-btn.pill-btn {
-    border-radius: 7px;
-    height: 28px;
-    padding: 0 10px;
-    font-size: 12px;
+    border-radius: 999px;
+    height: 32px;
+    min-height: 32px;
+    width: auto;
+    min-width: unset;
+    flex: 0 0 auto;
+    padding: 0 12px;
+    font-size: 12.5px;
     font-weight: 600;
     background: #1f2335;
     border: 1px solid var(--border);
     color: var(--fg);
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    justify-content: center;
+    gap: 6px;
     letter-spacing: 0.1px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
   }
   .header-btn.pill-btn:hover {
     background: #272c42;
@@ -158,12 +168,15 @@
   }
   .header-btn.pill-btn:active {
     background: rgba(122, 162, 247, 0.25);
+    border-color: var(--accent);
+    color: var(--accent);
     transform: scale(0.96);
   }
   .header-btn.pill-btn.active {
     background: rgba(122, 162, 247, 0.2);
     border-color: var(--accent);
     color: var(--accent);
+    box-shadow: 0 0 8px rgba(122, 162, 247, 0.25);
   }
 
   #docInfo {
@@ -409,12 +422,13 @@
     display: none;
     align-items: stretch;
     justify-content: space-around;
-    height: calc(54px + env(safe-area-inset-bottom, 0px));
-    min-height: 54px;
+    height: calc(64px + env(safe-area-inset-bottom, 0px));
+    min-height: 64px;
     background: var(--bg2);
     border-top: 1px solid var(--border);
     flex: 0 0 auto;
     z-index: 100;
+    padding: 0 4px;
     padding-bottom: env(safe-area-inset-bottom, 0px);
     width: 100%;
     overflow: hidden;
@@ -428,6 +442,8 @@
   .bar-btn {
     flex: 1 1 0;
     min-width: 0;
+    height: 54px;
+    min-height: 48px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -437,13 +453,13 @@
     border: none;
     color: var(--fg);
     cursor: pointer;
-    padding: 2px 2px;
-    gap: 2px;
+    padding: 4px 2px;
+    gap: 3px;
     position: relative;
-    border-radius: 8px;
-    margin: 2px 1px;
+    border-radius: 10px;
+    margin: 0;
     overflow: hidden;
-    transition: all 0.12s ease;
+    transition: all 0.15s ease;
     -webkit-tap-highlight-color: transparent;
   }
   .bar-btn:active {
@@ -454,16 +470,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
-    flex: 0 0 20px;
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
     color: #a9b1d6;
     transition: color 0.15s ease;
   }
   .bar-btn .btn-icon svg {
     display: block;
-    width: 100%;
-    height: 100%;
+    width: 20px;
+    height: 20px;
     max-width: 20px;
     max-height: 20px;
   }
@@ -471,17 +487,20 @@
     color: var(--accent);
   }
   .bar-btn .btn-label {
-    font-size: 8.5px;
+    font-size: 11px;
     font-weight: 600;
     text-align: center;
-    line-height: 1.1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: 1.15;
+    white-space: normal;
+    display: block;
     max-width: 100%;
     color: var(--muted);
     letter-spacing: -0.01em;
     flex-shrink: 0;
+    word-break: normal;
+  }
+  .bar-btn:active .btn-label {
+    color: var(--fg);
   }
 
   /* Hover Mode Button Special State */
@@ -498,8 +517,8 @@
   }
   #btnHoverToggle .status-badge {
     position: absolute;
-    top: 2px;
-    right: 4px;
+    top: 4px;
+    right: 6px;
     font-size: 7.5px;
     padding: 1px 3.5px;
     border-radius: 3px;
@@ -3810,8 +3829,9 @@
     display: flex;
     width: 100%;
     justify-content: space-around;
-    align-items: stretch;
+    align-items: center;
     height: 100%;
+    gap: 2px;
   }
 
   /* Options Modal Rows */
@@ -3870,16 +3890,10 @@
   .header-actions-group {
     display: inline-flex;
     align-items: center;
-    gap: 2px;
-    flex-shrink: 1;
+    gap: 8px;
+    flex: 0 0 auto;
     min-width: 0;
-    max-width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
   }
-  .header-actions-group::-webkit-scrollbar { display: none; }
 
   /* Modern Floating Pill Mode Switcher Dropdown & Popover */
   .mode-switcher-container {
@@ -4050,12 +4064,16 @@
     flex: 1 1 auto;
   }
 
-  .header-btn.pill-btn {
-    border-radius: 7px;
-    height: 28px;
-    min-width: 30px;
-    padding: 0 8px;
-    font-size: 12px;
+  .header-btn.pill-btn,
+  .header-actions-group .header-btn.pill-btn {
+    border-radius: 999px;
+    height: 32px;
+    min-height: 32px;
+    width: auto;
+    min-width: unset;
+    flex: 0 0 auto;
+    padding: 0 12px;
+    font-size: 12.5px;
     font-weight: 600;
     background: #1f2335;
     border: 1px solid var(--border);
@@ -4063,33 +4081,114 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    flex-shrink: 0;
+    gap: 6px;
+    letter-spacing: 0.1px;
     white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
   }
-  .header-btn.pill-btn:active {
+  .header-btn.pill-btn:hover,
+  .header-actions-group .header-btn.pill-btn:hover {
+    background: #272c42;
+    border-color: var(--border-hl);
+  }
+  .header-btn.pill-btn:active,
+  .header-actions-group .header-btn.pill-btn:active {
     background: rgba(122, 162, 247, 0.25);
-    border-color: #7aa2f7;
-    color: #7aa2f7;
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: scale(0.96);
+  }
+  .header-btn.pill-btn.active,
+  .header-actions-group .header-btn.pill-btn.active {
+    background: rgba(122, 162, 247, 0.2);
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 0 8px rgba(122, 162, 247, 0.25);
   }
 
-  .header-actions-group .header-btn,
-  .header-actions-group .pocket-split-header-btn,
-  .header-actions-group .pocket-delete-header-btn {
-    width: 30px;
-    height: 30px;
-    min-width: 30px;
-    flex: 0 0 30px;
-    padding: 0;
-    font-size: 13px;
-    border-radius: 7px;
+  .pocket-split-header-btn,
+  .header-actions-group .pocket-split-header-btn {
+    border-radius: 999px;
+    height: 32px;
+    min-height: 32px;
+    width: auto;
+    min-width: unset;
+    flex: 0 0 auto;
+    padding: 0 12px;
+    font-size: 12.5px;
+    font-weight: 600;
+    background: #1f2335;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
   }
+  .pocket-split-header-btn.active,
+  .header-actions-group .pocket-split-header-btn.active {
+    background: rgba(122, 162, 247, 0.22);
+    border-color: #7aa2f7;
+    color: #7aa2f7;
+    box-shadow: 0 0 10px rgba(122, 162, 247, 0.25);
+  }
+
+  .pocket-delete-header-btn,
+  .header-actions-group .pocket-delete-header-btn {
+    border-radius: 999px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    width: auto !important;
+    min-width: unset !important;
+    flex: 0 0 auto !important;
+    padding: 0 12px !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    color: #f7768e !important;
+    background: rgba(247, 118, 142, 0.12) !important;
+    border: 1px solid rgba(247, 118, 142, 0.3) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pocket-delete-header-btn:hover,
+  .pocket-delete-header-btn:active,
+  .header-actions-group .pocket-delete-header-btn:hover,
+  .header-actions-group .pocket-delete-header-btn:active {
+    background: #f7768e !important;
+    color: #1a1b26 !important;
+    border-color: #f7768e !important;
+    transform: scale(0.96) !important;
+  }
+
+  .pocket-note-color-btn,
   .header-actions-group .pocket-note-color-btn {
-    width: 18px;
-    height: 18px;
-    min-width: 18px;
-    flex: 0 0 18px;
-    margin: 0 1px;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    flex: 0 0 24px;
+    border-radius: 50%;
+    margin: 0 4px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.35);
+    background: #7aa2f7;
+    transition: transform 0.15s ease;
+  }
+  .pocket-note-color-btn:active,
+  .header-actions-group .pocket-note-color-btn:active {
+    transform: scale(1.15);
   }
 
   #basicEditorContainer {
@@ -6523,7 +6622,7 @@
             <line x1="12" y1="8" x2="12" y2="20"></line>
           </svg>
         </span>
-        <span class="btn-label">Collapse<br>above</span>
+        <span class="btn-label">Above</span>
       </button>
       <button id="btnCollapseAll" class="bar-btn" title="Collapse all headings">
         <span class="btn-icon">
@@ -6532,7 +6631,7 @@
             <polyline points="17 18 12 13 7 18"></polyline>
           </svg>
         </span>
-        <span class="btn-label">Collapse<br>all</span>
+        <span class="btn-label">Collapse</span>
       </button>
       <button id="btnHoverToggle" class="bar-btn hover-active" title="Toggle Hover/Tap Outline Preview Mode">
         <span class="btn-icon">
@@ -6541,7 +6640,7 @@
             <circle cx="12" cy="12" r="3"></circle>
           </svg>
         </span>
-        <span class="btn-label">Hover<br>mode</span>
+        <span class="btn-label">Hover</span>
         <span class="status-badge" id="hoverBadge">ON</span>
       </button>
       <button id="btnExpandAll" class="bar-btn" title="Expand all headings">
@@ -6551,7 +6650,7 @@
             <polyline points="7 13 12 18 17 13"></polyline>
           </svg>
         </span>
-        <span class="btn-label">Expand<br>all</span>
+        <span class="btn-label">Expand</span>
       </button>
       <button id="btnExpandBelow" class="bar-btn" title="Expand all headings below current view">
         <span class="btn-icon">
@@ -6561,7 +6660,7 @@
             <line x1="12" y1="4" x2="12" y2="16"></line>
           </svg>
         </span>
-        <span class="btn-label">Expand<br>below</span>
+        <span class="btn-label">Below</span>
       </button>
     </div>
     <!-- Checklist Mode Toolbar -->
@@ -6573,7 +6672,7 @@
             <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
           </svg>
         </span>
-        <span class="btn-label">Check<br>all</span>
+        <span class="btn-label">Check All</span>
       </button>
       <button id="btnChecklistUncheckAll" class="bar-btn" title="Uncheck All Tasks">
         <span class="btn-icon">
@@ -6582,7 +6681,7 @@
             <line x1="8" y1="12" x2="16" y2="12"></line>
           </svg>
         </span>
-        <span class="btn-label">Uncheck<br>all</span>
+        <span class="btn-label">Uncheck</span>
       </button>
       <button id="btnChecklistUndo" class="bar-btn" title="Undo Task Change">
         <span class="btn-icon">
@@ -6609,7 +6708,7 @@
             <line x1="4" y1="22" x2="4" y2="15"></line>
           </svg>
         </span>
-        <span class="btn-label">Check<br>points</span>
+        <span class="btn-label">Points</span>
       </button>
     </div>
   </footer>
@@ -7390,7 +7489,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v2.4.7</span>
+          <span class="settings-row-badge" id="appVersionSub">v2.4.9</span>
         </button>
         <div class="settings-row-config">
           <div class="settings-config-label">
@@ -7711,7 +7810,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '2.4.8';
+      window.AndroidBridge.getAppVersion() : '2.4.9';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -9548,7 +9647,7 @@
       if (docFloatingBar) docFloatingBar.style.display = 'none';
 
       if (btnHeaderBasicSubMode) {
-        btnHeaderBasicSubMode.innerHTML = '👁️';
+        btnHeaderBasicSubMode.innerHTML = '👁️ Preview';
         btnHeaderBasicSubMode.title = 'Switch to Formatted Preview';
       }
       if (basicBottomToggleLabel) basicBottomToggleLabel.textContent = 'Preview';
@@ -9570,7 +9669,7 @@
       }
 
       if (btnHeaderBasicSubMode) {
-        btnHeaderBasicSubMode.innerHTML = '✍️';
+        btnHeaderBasicSubMode.innerHTML = '✍️ Edit';
         btnHeaderBasicSubMode.title = 'Switch to Markdown Editor';
       }
       if (basicBottomToggleLabel) basicBottomToggleLabel.textContent = 'Edit';

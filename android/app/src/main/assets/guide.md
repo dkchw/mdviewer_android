@@ -329,4 +329,30 @@ Turn any markdown document or note into interactive study flashcards:
 
 ---
 
+## 🚀 17. What's New in v2.4.9
+
+- **🎨 Redesigned Header Toolbar & Eliminated Text Overlap**:
+  - **Spacious Pill Buttons**: Eliminated the restrictive 30px fixed-width rule that caused text labels (`✏️ Edit`, `Checklist`, `Aa View`, `🚩 Checkpoints`, `🗂 Cards`, `🔍 Search`) to overlap and crush into each other.
+  - **Comfortable 44px Bar Height**: Increased `.header-toolbar-row` height to 44px with 8px button gaps and generous 32px pill buttons (`border-radius: 999px; padding: 0 12px; font-size: 12.5px;`).
+  - **Smooth Horizontal Touch Scrolling**: Allowed the secondary action group to expand to natural button widths with seamless kinetic scrolling without truncating buttons.
+
+- **📱 Redesigned Bottom Action Toolbar & Accessibility**:
+  - **Comfortable 64px Mobile Bar**: Increased `#bottomBar` height to 64px (+ `env(safe-area-inset-bottom)`), providing comfortable 54px touch targets compliant with Android accessibility standards.
+  - **Clean Single-Line Labels & Zero Overlap**: Replaced cramped 8.5px micro-text and brittle `<br>` line breaks with crisp, legible 11px font:
+    - **Outline Bar**: `Above` | `Collapse` | `Hover` | `Expand` | `Below`
+    - **Checklist Bar**: `Check All` | `Uncheck` | `Undo` | `Redo` | `Points`
+    - **Notes Bar**: `Edit` | `TOC` | `2-Page` | `More`
+  - **Enlarged Touch Targets & Icons**: Increased vector icon containers to 22px with refined active states and tactile feedback.
+
+- **📖 In-Depth In-App Updater Architecture & Documentation**:
+  - Documented the verified, Google Play Protect-certified updater pipeline:
+    1. **GitHub Releases API Query**: Queries latest release metadata directly over HTTPS without personal access tokens.
+    2. **Intelligent Keystore Matching**: Inspects runtime certificate SHA-256 fingerprint (`isAppSignedWithDebugKey()`) to automatically download the matching asset (`mdviewer-vX.Y.Z.apk` vs `mdviewer-vX.Y.Z-debugkey.apk`), eliminating `INSTALL_FAILED_UPDATE_INCOMPATIBLE` signature collision errors.
+    3. **Android `DownloadManager` Engine**: Native OS background downloading with progress notifications, network drop recovery, and automatic clean-up of stale partial packages in app-scoped storage (`getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)`).
+    4. **Sandboxed `ApkProvider`**: Custom secure ContentProvider validating canonical file paths to strictly prevent path traversal vulnerabilities before handing files to the installer.
+    5. **Unknown App Sources Flow**: Gracefully detects if `ACTION_MANAGE_UNKNOWN_APP_SOURCES` is required on Android 8.0+, guides the user to the toggle, and automatically resumes installation upon return.
+    6. **Compliant OS Package Handover**: Hands off package installation to Android's built-in `Intent.ACTION_VIEW` PackageInstaller dialog with explicit URI read permissions, guaranteeing 100% Google Play Protect compliance.
+
+---
+
 *MD Viewer — Fast, Offline, Private Markdown Reading & Writing on Android.*

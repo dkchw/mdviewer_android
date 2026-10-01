@@ -227,9 +227,9 @@ class AndroidBridge(
     fun getAppVersion(): String {
         return try {
             val pInfo = activity.packageManager.getPackageInfo(activity.packageName, 0)
-            pInfo.versionName ?: "2.4.8"
+            pInfo.versionName ?: "2.4.9"
         } catch (e: Exception) {
-            "2.4.8"
+            "2.4.9"
         }
     }
 
