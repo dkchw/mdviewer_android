@@ -85,6 +85,11 @@ class AndroidBridge(
     }
 
     @JavascriptInterface
+    fun getRecursiveTreeForUri(treeUriString: String?): String {
+        return activity.getRecursiveTreeJson(treeUriString)
+    }
+
+    @JavascriptInterface
     fun getTreeChildren(docId: String?): String {
         return activity.getTreeChildrenJson(docId ?: "")
     }
@@ -135,6 +140,12 @@ class AndroidBridge(
     }
 
     @JavascriptInterface
+    fun createFileInTreeFolder(treeUriString: String?, parentDocId: String?, fileName: String?, content: String?): String {
+        if (fileName.isNullOrEmpty() || content == null) return "ERROR: Invalid params"
+        return activity.createFileInTreeFolder(treeUriString, parentDocId, fileName, content)
+    }
+
+    @JavascriptInterface
     fun saveFileAs(suggestedName: String?, content: String?) {
         handler.post {
             activity.openCreateFileChooser(suggestedName ?: "Document.md", content ?: "")
@@ -180,9 +191,9 @@ class AndroidBridge(
     fun getAppVersion(): String {
         return try {
             val pInfo = activity.packageManager.getPackageInfo(activity.packageName, 0)
-            pInfo.versionName ?: "1.4.5"
+            pInfo.versionName ?: "1.4.6"
         } catch (e: Exception) {
-            "1.4.5"
+            "1.4.6"
         }
     }
 

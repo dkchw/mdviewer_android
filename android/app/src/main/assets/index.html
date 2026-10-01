@@ -2837,23 +2837,57 @@
     border-radius: 4px;
     border: 1px solid rgba(115,218,202,0.2);
   }
-  #docBody pre.code-block-wrap {
+  #docBody pre.code-block-wrap,
+  .pocket-split-body pre.code-block-wrap,
+  pre.code-block-wrap {
     background: #14151f;
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 12px 14px;
-    overflow-x: auto;
+    overflow-x: auto !important;
     position: relative;
     margin: 16px 0;
+    tab-size: 4;
+    -moz-tab-size: 4;
+    font-variant-ligatures: none !important;
+    font-feature-settings: "liga" 0, "calt" 0, "dlig" 0 !important;
+    letter-spacing: 0 !important;
+    white-space: pre !important;
+    word-break: normal !important;
+    line-height: 1.35 !important;
+    -webkit-overflow-scrolling: touch;
   }
-  #docBody pre code {
+  #docBody pre code,
+  .pocket-split-body pre code,
+  pre.code-block-wrap code {
     background: transparent;
     border: none;
     padding: 0;
     color: #c0caf5;
     font-size: 13px;
-    line-height: 1.5;
+    line-height: 1.35 !important;
     display: block;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace !important;
+    font-variant-ligatures: none !important;
+    font-feature-settings: "liga" 0, "calt" 0, "dlig" 0 !important;
+    letter-spacing: 0 !important;
+    white-space: pre !important;
+    word-break: normal !important;
+  }
+  /* Specialized ASCII Diagram Code Block */
+  pre.code-block-wrap.ascii-diagram {
+    background: #0d0e15 !important;
+    border: 1px solid rgba(122, 162, 247, 0.3) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    padding: 10px 14px !important;
+    line-height: 1.25 !important;
+  }
+  pre.code-block-wrap.ascii-diagram code {
+    line-height: 1.25 !important;
+    color: #7dcfff !important;
+    white-space: pre !important;
+    font-variant-ligatures: none !important;
+    letter-spacing: 0 !important;
   }
   #docBody .code-header {
     display: flex;
@@ -3246,7 +3280,8 @@
     overflow: hidden;
     display: flex;
   }
-  #basicMarkdownEditor {
+  #basicMarkdownEditor,
+  .basic-markdown-editor {
     flex: 1;
     width: 100%;
     height: 100%;
@@ -3256,13 +3291,18 @@
     resize: none;
     background: #1a1b26;
     color: #c0caf5;
-    font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', Menlo, Monaco, Consolas, monospace;
-    font-size: 14.5px;
-    line-height: 1.65;
-    tab-size: 2;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace !important;
+    font-variant-ligatures: none !important;
+    font-feature-settings: "liga" 0, "calt" 0 !important;
+    letter-spacing: 0 !important;
+    font-size: 14px;
+    line-height: 1.55;
+    tab-size: 4;
+    -moz-tab-size: 4;
     box-sizing: border-box;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    white-space: pre-wrap;
     word-break: break-word;
   }
   .editor-status-bar {
@@ -3645,20 +3685,51 @@
     color: #a9b1d6;
     font-style: italic;
   }
+  .pocket-card-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
   .pocket-card-body pre {
-    background: rgba(0,0,0,0.3);
+    background: rgba(0,0,0,0.35);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 6px;
-    padding: 5px 7px;
-    overflow-x: auto;
+    padding: 6px 8px;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
     font-size: 11px;
     margin: 4px 0;
+    tab-size: 4;
+    -moz-tab-size: 4;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace !important;
+    font-variant-ligatures: none !important;
+    font-feature-settings: "liga" 0, "calt" 0 !important;
+    letter-spacing: 0 !important;
+    white-space: pre !important;
+    word-break: normal !important;
+    line-height: 1.3 !important;
+  }
+  .pocket-card-body pre code {
+    background: transparent;
+    padding: 0;
+    font-size: inherit;
+    font-family: inherit;
+    font-variant-ligatures: none !important;
+    font-feature-settings: "liga" 0, "calt" 0 !important;
+    letter-spacing: 0 !important;
+    white-space: pre !important;
+    word-break: normal !important;
+    line-height: inherit !important;
   }
   .pocket-card-body code {
     background: rgba(255,255,255,0.08);
     padding: 1px 4px;
     border-radius: 4px;
     font-size: 11px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-variant-ligatures: none !important;
+    letter-spacing: 0 !important;
   }
   .pocket-card-body input[type="checkbox"] {
     accent-color: #7aa2f7;
@@ -3722,23 +3793,96 @@
     flex-shrink: 0;
   }
   .pocket-card-size-btn,
-  .pocket-card-del-btn {
-    background: transparent;
-    border: none;
+  .pocket-card-del-btn,
+  .pocket-card-vault-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     cursor: pointer;
-    font-size: 13px;
-    padding: 2px;
-    opacity: 0.7;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 7px;
+    color: #c0caf5;
+    opacity: 0.85;
     transition: all 0.12s ease;
-    border-radius: 4px;
+    border-radius: 5px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 3px;
+    line-height: 1.2;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pocket-card-size-btn.top {
+    font-size: 10.5px;
+    padding: 2px 6px;
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  .pocket-card-size-btn.bottom {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+  .pocket-card-del-btn {
+    font-size: 12px;
+    padding: 2px 5px;
+  }
+  .pocket-card-vault-btn {
+    font-size: 11.5px;
+    padding: 2px 6px;
+    color: #7aa2f7;
   }
   .pocket-card-size-btn:active,
-  .pocket-card-del-btn:active {
+  .pocket-card-del-btn:active,
+  .pocket-card-vault-btn:active {
     opacity: 1;
-    transform: scale(1.18);
+    background: rgba(122, 162, 247, 0.25);
+    border-color: #7aa2f7;
+    color: #fff;
+    transform: scale(1.05);
+  }
+
+  /* Vault Move Success Banner Notification */
+  .vault-move-success-banner {
+    position: fixed;
+    bottom: 64px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1b26;
+    border: 1px solid #7aa2f7;
+    border-radius: 10px;
+    padding: 10px 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.65);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 2500;
+    max-width: 90vw;
+    animation: bannerSlideUp 0.25s ease;
+  }
+  @keyframes bannerSlideUp {
+    from { opacity: 0; transform: translate(-50%, 20px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+  }
+  .vault-move-banner-text {
+    font-size: 12px;
+    color: #c0caf5;
+    line-height: 1.35;
+  }
+  .vault-move-banner-btn {
+    background: #7aa2f7;
+    color: #15161e;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.12s ease;
+    flex-shrink: 0;
+  }
+  .vault-move-banner-btn:active {
+    transform: scale(0.96);
   }
 
   /* Empty State */
@@ -4534,6 +4678,7 @@
     <div id="basicHeaderActions" class="header-actions-group">
       <button id="pocketNoteColorBtn" class="pocket-note-color-btn" style="display:none;" title="Change Note Color"></button>
       <button id="btnPocketNoteTagHeader" class="header-btn pill-btn" style="display:none; font-size:11.5px; padding:3px 8px; gap:4px;" title="Manage Tags">🏷️ Tags</button>
+      <button id="btnHeaderBasicMoveToVault" class="header-btn pill-btn" style="display:none; font-size:11.5px; padding:3px 8px; gap:4px;" title="Move or Save this Note to Outline Vault">📁 To Vault</button>
       <button id="btnPocketSplitToggle" class="pocket-split-header-btn" style="display:none;" title="Toggle Split Screen"><span>◫</span><span>Split</span></button>
       <button id="btnHeaderBasicSubMode" class="header-btn pill-btn" title="Toggle Edit / Read Mode">✍️ Edit</button>
       <button id="btnBasicToggleSearch" class="header-btn" title="Search in Document">🔍</button>
@@ -4701,6 +4846,7 @@
           <div class="doc-floating-bar" id="docFloatingBar">
             <div class="doc-floating-left">
               <button id="docFloatEditBtn" class="doc-tool-btn" title="Switch to Editor Mode">✍️ Edit</button>
+              <button id="docFloatMoveToVaultBtn" class="doc-tool-btn" title="Move to Outline Vault">📁 To Vault</button>
               <button id="docFloatTocBtn" class="doc-tool-btn" title="Table of Contents">📑 TOC</button>
               <button id="docFloatDoubleBtn" class="doc-tool-btn" title="Toggle 2-Page Book Mode">📖 2-Page</button>
               <button id="docFloatWideBtn" class="doc-tool-btn" title="Toggle Wide Edge-to-Edge Layout">↔ Wide</button>
@@ -4734,6 +4880,7 @@
               <button type="button" class="ed-tool-btn" data-action="number" title="Numbered List">1. Num</button>
               <button type="button" class="ed-tool-btn" data-action="quote" title="Quote">&gt; Quote</button>
               <button type="button" class="ed-tool-btn" data-action="codeblock" title="Code Block">&lt;/&gt;</button>
+              <button type="button" class="ed-tool-btn" data-action="ascii" title="Insert ASCII Diagram Template">▦ ASCII</button>
               <button type="button" class="ed-tool-btn" data-action="table" title="Table">▦ Table</button>
               <button type="button" class="ed-tool-btn" data-action="divider" title="Divider">― Line</button>
               <div class="ed-sep"></div>
@@ -4741,11 +4888,13 @@
               <button type="button" class="ed-tool-btn" data-action="link" title="Markdown Link">🔗 Link</button>
               <button type="button" class="ed-tool-btn" data-action="callout" title="Obsidian Callout">[!NOTE]</button>
               <div class="ed-sep"></div>
+              <button type="button" class="ed-tool-btn" data-action="toggle-wrap" id="btnEditorWrapToggle" title="Toggle Line Wrap (Monospace Grid / Soft Wrap)">⇄ Wrap</button>
+              <button type="button" class="ed-tool-btn" data-action="move-to-vault" title="Move note into an Outline Vault">📁 Vault</button>
               <button type="button" class="ed-tool-btn" data-action="undo" title="Undo">↶</button>
               <button type="button" class="ed-tool-btn" data-action="redo" title="Redo">↷</button>
             </div>
             <div class="editor-textarea-wrapper">
-              <textarea id="basicMarkdownEditor" class="basic-markdown-editor" spellcheck="false" placeholder="Write or paste your markdown note here..."></textarea>
+              <textarea id="basicMarkdownEditor" class="basic-markdown-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Write or paste your markdown note here..."></textarea>
             </div>
             <div id="editorStatusBar" class="editor-status-bar">
               <span id="editorStatsInfo">0 words • 0 chars • Line 1</span>
@@ -4797,7 +4946,7 @@
             </div>
             <div class="pocket-split-body md-body markdown-body" id="pocketSplitBody1" style="display:none;"></div>
             <div class="editor-textarea-wrapper" id="pocketSplitEditWrap1" style="height:100%;">
-              <textarea id="pocketSplitEditor1" class="basic-markdown-editor" spellcheck="false" placeholder="Write markdown here..."></textarea>
+              <textarea id="pocketSplitEditor1" class="basic-markdown-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Write markdown here..."></textarea>
             </div>
           </div>
 
@@ -4820,7 +4969,7 @@
             </div>
             <div class="pocket-split-body md-body markdown-body" id="pocketSplitBody2"></div>
             <div class="editor-textarea-wrapper" id="pocketSplitEditWrap2" style="display:none;height:100%;">
-              <textarea id="pocketSplitEditor2" class="basic-markdown-editor" spellcheck="false" placeholder="Write in second note..."></textarea>
+              <textarea id="pocketSplitEditor2" class="basic-markdown-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Write in second note..."></textarea>
             </div>
           </div>
         </div>
@@ -5643,7 +5792,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v1.4.5</span>
+          <span class="settings-row-badge" id="appVersionSub">v1.4.6</span>
         </button>
         <div class="settings-row-config">
           <div class="settings-config-label">
@@ -5789,6 +5938,57 @@
   </div>
 </div>
 
+<!-- Custom Move Note to Outline Vault Modal -->
+<div id="moveToVaultModal" class="pocket-delete-modal" style="display:none; z-index: 1060;">
+  <div class="pocket-delete-card" style="max-width: 380px; text-align: left;">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+      <div class="pocket-delete-icon" style="background: rgba(122,162,247,0.15); color: #7aa2f7; margin:0;">📁</div>
+      <div>
+        <div class="pocket-delete-title" style="text-align: left; margin:0; font-size:16px;">Move to Outline Vault</div>
+        <div style="font-size:11px; color:var(--muted);">Save this note directly into an Outline Vault</div>
+      </div>
+    </div>
+
+    <!-- File Name Input -->
+    <div style="margin-bottom: 12px;">
+      <label style="font-size: 11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:4px; display:block;">File Name</label>
+      <input type="text" id="inputMoveToVaultFileName" class="rename-vault-input" placeholder="NoteTitle.md" maxlength="80">
+    </div>
+
+    <!-- Vault Selector -->
+    <div style="margin-bottom: 12px;">
+      <label style="font-size: 11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:4px; display:block;">Target Vault</label>
+      <select id="selectMoveToVaultTarget" class="rename-vault-input" style="width:100%; cursor:pointer;">
+        <!-- Dynamically populated with active vault and recent vaults -->
+      </select>
+    </div>
+
+    <!-- Subfolder Selector (populated when vault selected) -->
+    <div style="margin-bottom: 12px;" id="moveToVaultFolderRow">
+      <label style="font-size: 11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:4px; display:block;">Folder inside Vault</label>
+      <select id="selectMoveToVaultFolder" class="rename-vault-input" style="width:100%; cursor:pointer;">
+        <option value="">📁 / (Vault Root)</option>
+      </select>
+    </div>
+
+    <!-- Operation mode: Move vs Copy -->
+    <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius:8px; padding:8px 10px; margin-bottom:14px;">
+      <label style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--fg); cursor:pointer;">
+        <input type="checkbox" id="chkMoveRemoveFromPocket" checked style="accent-color:var(--accent);">
+        <span><b>Delete from Pocket Notes</b> (Move file)</span>
+      </label>
+      <div style="font-size:10.5px; color:var(--muted); margin-left:24px; margin-top:2px;">Uncheck to keep a duplicate copy on your Pocket Notes shelf.</div>
+    </div>
+
+    <div id="moveToVaultError" class="vault-rename-error" style="display:none; margin-bottom:10px;"></div>
+
+    <div class="pocket-delete-actions">
+      <button id="btnCancelMoveToVault" class="pocket-delete-cancel-btn">Cancel</button>
+      <button id="btnConfirmMoveToVault" class="pocket-delete-confirm-btn" style="background: var(--accent); color: #16161e;">🚀 Move to Vault</button>
+    </div>
+  </div>
+</div>
+
 <!-- Floating Quick Selection & Copy Toolbar -->
 <div id="selectionToolbar">
   <button id="btnCopySelection" class="sel-btn" title="Copy selection">
@@ -5813,7 +6013,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '1.4.5';
+      window.AndroidBridge.getAppVersion() : '1.4.6';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -5912,6 +6112,7 @@
   const btnHeaderBasicNew = document.getElementById('btnHeaderBasicNew');
   const btnBasicToggleSearch = document.getElementById('btnBasicToggleSearch');
   const btnHeaderBasicDelete = document.getElementById('btnHeaderBasicDelete');
+  const btnHeaderBasicMoveToVault = document.getElementById('btnHeaderBasicMoveToVault');
 
   // Basic Editor Elements
   const basicEditorContainer = document.getElementById('basicEditorContainer');
@@ -5921,6 +6122,7 @@
   const editorStatsInfo = document.getElementById('editorStatsInfo');
   const editorSaveBadge = document.getElementById('editorSaveBadge');
   const docFloatEditBtn = document.getElementById('docFloatEditBtn');
+  const docFloatMoveToVaultBtn = document.getElementById('docFloatMoveToVaultBtn');
 
   // Basic Bottom Bar Actions
   const btnBasicBottomToggle = document.getElementById('btnBasicBottomToggle');
@@ -6139,6 +6341,19 @@
   const pocketDeleteNoteTitle = document.getElementById('pocketDeleteNoteTitle');
   const btnCancelDeleteNote = document.getElementById('btnCancelDeleteNote');
   const btnConfirmDeleteNote = document.getElementById('btnConfirmDeleteNote');
+
+  // Move to Vault Modal elements
+  const moveToVaultModal = document.getElementById('moveToVaultModal');
+  const inputMoveToVaultFileName = document.getElementById('inputMoveToVaultFileName');
+  const selectMoveToVaultTarget = document.getElementById('selectMoveToVaultTarget');
+  const selectMoveToVaultFolder = document.getElementById('selectMoveToVaultFolder');
+  const moveToVaultFolderRow = document.getElementById('moveToVaultFolderRow');
+  const chkMoveRemoveFromPocket = document.getElementById('chkMoveRemoveFromPocket');
+  const moveToVaultError = document.getElementById('moveToVaultError');
+  const btnCancelMoveToVault = document.getElementById('btnCancelMoveToVault');
+  const btnConfirmMoveToVault = document.getElementById('btnConfirmMoveToVault');
+  let pendingMoveToVaultNoteId = null;
+  let pendingVaultMove = null;
 
   // Options Modal (Levels & Zoom)
   const optionsModal = document.getElementById('optionsModal');
@@ -6710,6 +6925,35 @@
     return s.toLowerCase().replace(/<[^>]+>/g, '').replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
   }
 
+  // Fast zero-allocation counters for high performance on massive files & pastes
+  function fastCountWords(str) {
+    if (!str) return 0;
+    let count = 0;
+    let inWord = false;
+    const len = str.length;
+    for (let i = 0; i < len; i++) {
+      if (str.charCodeAt(i) > 32) {
+        if (!inWord) {
+          inWord = true;
+          count++;
+        }
+      } else {
+        inWord = false;
+      }
+    }
+    return count;
+  }
+
+  function fastCountLines(str) {
+    if (!str) return 0;
+    let count = 1;
+    const len = str.length;
+    for (let i = 0; i < len; i++) {
+      if (str.charCodeAt(i) === 10) count++;
+    }
+    return count;
+  }
+
   function parseMarkdownToHtml(md) {
     if (!md) return { html: '', toc: [], words: 0, readingTime: 1 };
 
@@ -6873,8 +7117,11 @@
         } else {
           inCode = false;
           const codeText = codeLines.join('\n');
-          const langBadge = codeLang ? '<span class="code-lang">' + escapeHtml(codeLang) + '</span>' : '<span></span>';
-          out.push('<pre class="code-block-wrap"><div class="code-header">' + langBadge + '<button class="doc-code-copy-btn">📋 Copy</button></div><code>' + escapeHtml(codeText) + '</code></pre>');
+          const isAscii = /^(ascii|diagram|art|box|text|txt)$/i.test(codeLang.trim()) ||
+            /[┌┐└┘├┤┬┴┼═║╔╗╚╝╠╣╦╩╬─│╭╮╯╰░▒▓█]|\+[-=]{3,}\+/.test(codeText);
+          const langDisplay = isAscii ? (codeLang ? codeLang + ' (ASCII)' : 'ASCII Diagram') : codeLang;
+          const langBadge = langDisplay ? '<span class="code-lang">' + escapeHtml(langDisplay) + '</span>' : '<span></span>';
+          out.push('<pre class="code-block-wrap' + (isAscii ? ' ascii-diagram' : '') + '"><div class="code-header">' + langBadge + '<button class="doc-code-copy-btn">📋 Copy</button></div><code>' + escapeHtml(codeText) + '</code></pre>');
         }
         continue;
       }
@@ -6994,7 +7241,7 @@
     flushBlockquote();
 
     const finalHtml = out.join('\n');
-    const words = md.trim() ? md.trim().split(/\s+/).length : 0;
+    const words = fastCountWords(md);
     const readingTime = Math.max(1, Math.round(words / 200));
 
     return { html: finalHtml, toc, words, readingTime };
@@ -7383,12 +7630,31 @@
     setBasicSubMode(basicSubMode === 'edit' ? 'read' : 'edit');
   }
 
-  function updateEditorStats() {
+  let editorStatsDebounce = null;
+  function updateEditorStats(immediate = false) {
     if (!basicMarkdownEditor) return;
     const txt = basicMarkdownEditor.value;
-    const words = txt.trim() ? txt.trim().split(/\s+/).length : 0;
     const chars = txt.length;
-    const linesCount = txt.split('\n').length;
+
+    // For large documents, display character count immediately and debounce heavy counts
+    if (!immediate && chars > 30000) {
+      if (editorStatsInfo) {
+        editorStatsInfo.textContent = `... words • ${chars.toLocaleString()} chars • ... lines`;
+      }
+      clearTimeout(editorStatsDebounce);
+      editorStatsDebounce = setTimeout(() => {
+        computeAndRenderEditorStats(txt);
+      }, 250);
+      return;
+    }
+
+    computeAndRenderEditorStats(txt);
+  }
+
+  function computeAndRenderEditorStats(txt) {
+    const chars = txt.length;
+    const words = fastCountWords(txt);
+    const linesCount = fastCountLines(txt);
     if (editorStatsInfo) {
       editorStatsInfo.textContent = `${words.toLocaleString()} words • ${chars.toLocaleString()} chars • ${linesCount.toLocaleString()} lines`;
     }
@@ -7404,6 +7670,7 @@
     if (tab) tab.textContent = title || 'Untitled';
   }
 
+  let splitPreviewDebounce = null;
   function onEditorInput() {
     if (!basicMarkdownEditor) return;
     basicDocText = basicMarkdownEditor.value;
@@ -7421,13 +7688,19 @@
       if (docTitle) docTitle.textContent = (cur.title || 'Untitled') + '.md';
     }
     if (pocketSplitActive && pocketSplitDisplayMode === 'preview' && pocketSplitBody2) {
-      const res = parseMarkdownToHtml(basicDocText);
-      pocketSplitBody2.innerHTML = res.html || '<p style="color:var(--muted);font-style:italic;">Empty note</p>';
+      clearTimeout(splitPreviewDebounce);
+      splitPreviewDebounce = setTimeout(() => {
+        if (pocketSplitActive && pocketSplitDisplayMode === 'preview' && pocketSplitBody2) {
+          const res = parseMarkdownToHtml(basicDocText);
+          pocketSplitBody2.innerHTML = res.html || '<p style="color:var(--muted);font-style:italic;">Empty note</p>';
+        }
+      }, 300);
     }
     clearTimeout(editorInputDebounce);
+    const debounceTime = basicDocText.length > 50000 ? 750 : 400;
     editorInputDebounce = setTimeout(() => {
       saveBasicDocument(true);
-    }, 400);
+    }, debounceTime);
   }
 
   function saveBasicDocument(silent = false) {
@@ -7632,8 +7905,9 @@
   }
 
   function extractPocketTitle(content) {
-    if (!content || !content.trim()) return 'Untitled Note';
-    const rawLines = content.split('\n');
+    if (!content) return 'Untitled Note';
+    const sample = content.length > 2000 ? content.slice(0, 2000) : content;
+    const rawLines = sample.split('\n');
     for (let rawLine of rawLines) {
       const line = rawLine.trim();
       if (!line) continue;
@@ -7649,7 +7923,8 @@
 
   function cleanMarkdownSnippet(content) {
     if (!content) return '';
-    const rawLines = content.split('\n');
+    const sample = content.length > 2500 ? content.slice(0, 2500) : content;
+    const rawLines = sample.split('\n');
     let bodyLines = [];
     let skippedFirst = false;
     for (let rawLine of rawLines) {
@@ -7758,7 +8033,17 @@
     }
 
     // Strip leading title header line if it begins with # and resembles title
-    const lines = note.content.split('\n');
+    let sample = note.content;
+    let isCapped = false;
+    if (sizeMode === 'medium' && sample.length > 2500) {
+      sample = sample.slice(0, 2500);
+      isCapped = true;
+    } else if (sizeMode === 'full' && sample.length > 40000) {
+      sample = sample.slice(0, 40000);
+      isCapped = true;
+    }
+
+    const lines = sample.split('\n');
     let bodyLines = [];
     let skippedTitle = false;
     for (let i = 0; i < lines.length; i++) {
@@ -7772,18 +8057,14 @@
 
     let bodyText = bodyLines.join('\n').trim();
     if (!bodyText) {
-      bodyText = note.content.trim();
+      bodyText = sample.trim();
     }
 
-    // If note is unusually massive (> 1800 chars), cap with a subtle read more button
-    const isVeryLong = bodyText.length > 1800;
-    const toRender = isVeryLong ? bodyText.slice(0, 1600) + '...' : bodyText;
-
-    const parsed = parseMarkdownToHtml(toRender);
+    const parsed = parseMarkdownToHtml(bodyText);
     let html = parsed.html || '<p style="color:var(--muted);font-style:italic;margin:0;">Empty note</p>';
 
-    if (isVeryLong) {
-      html += '<div class="pocket-card-read-more">📖 Read full note in editor...</div>';
+    if (isCapped) {
+      html += '<div class="pocket-card-read-more">📖 Preview truncated for speed — tap card to read full note</div>';
     }
 
     return html;
@@ -7995,6 +8276,7 @@
 
   function renderPocketShelf() {
     if (!pocketNotesGrid) return;
+    const prevScroll = pocketShelfScroll ? pocketShelfScroll.scrollTop : 0;
     pocketNotesGrid.innerHTML = '';
 
     pocketNotesGrid.classList.toggle('list-mode', pocketLayoutMode === 'list');
@@ -8052,7 +8334,7 @@
       card.style.setProperty('--card-color', colorHex);
       card.dataset.id = note.id;
 
-      const words = note.content ? note.content.trim().split(/\s+/).filter(Boolean).length : 0;
+      const words = note.content ? fastCountWords(note.content) : 0;
       const relTime = formatRelativeTime(note.updatedAt);
       const tags = getNoteTags(note);
       const bodyHtml = renderCardBodyHtml(note, noteSize);
@@ -8067,17 +8349,21 @@
       card.innerHTML = `
         <div class="pocket-card-header">
           <div class="pocket-card-title">${escapeHtml(note.title || 'Untitled')}</div>
-          <span class="pocket-card-dot" style="background:${colorHex};" title="${note.color}"></span>
+          <div class="pocket-card-header-actions">
+            <button class="pocket-card-size-btn top" data-id="${note.id}" title="${noteSize === 'full' ? 'Collapse note' : 'Expand note'}">${noteSize === 'full' ? '▲ Fold' : '▼ Expand'}</button>
+            <span class="pocket-card-dot" style="background:${colorHex};" title="${note.color}"></span>
+          </div>
         </div>
         ${tagsHtml}
         <div class="pocket-card-body">${bodyHtml}</div>
         <div class="pocket-card-footer">
           <div class="pocket-card-meta">
             <span class="pocket-card-date">${relTime}</span>
-            <span class="pocket-card-words">${words} words</span>
+            <span class="pocket-card-words">${words.toLocaleString()} words</span>
           </div>
           <div class="pocket-card-actions">
-            <button class="pocket-card-size-btn" data-id="${note.id}" title="Toggle Preview Size (Full / Compact)">${noteSize === 'full' ? '↕️' : '⊟'}</button>
+            <button class="pocket-card-size-btn bottom" data-id="${note.id}" title="${noteSize === 'full' ? 'Collapse note' : 'Expand note'}">${noteSize === 'full' ? '▲ Collapse' : '▼ Expand'}</button>
+            <button class="pocket-card-vault-btn" data-id="${note.id}" title="Move Note to Outline Vault">📁</button>
             <button class="pocket-card-del-btn" title="Delete Note">🗑️</button>
           </div>
         </div>
@@ -8107,15 +8393,30 @@
           return;
         }
 
-        // Per-note size toggle button clicked
+        // Per-note size toggle button clicked (supported from top header or bottom footer)
         const sizeBtn = e.target.closest('.pocket-card-size-btn');
         if (sizeBtn) {
           e.stopPropagation();
+          const isTop = sizeBtn.classList.contains('top');
           const curSize = pocketCardSizeOverrides[note.id] || pocketCardSizeMode;
           const nextSize = (curSize === 'full') ? 'compact' : 'full';
           pocketCardSizeOverrides[note.id] = nextSize;
           renderPocketShelf();
           showToast(`Note preview: ${nextSize === 'full' ? 'Full Length' : 'Compact'}`);
+          if (!isTop && nextSize === 'compact') {
+            setTimeout(() => {
+              const updatedCard = pocketNotesGrid.querySelector(`.pocket-card[data-id="${note.id}"]`);
+              if (updatedCard) updatedCard.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }, 40);
+          }
+          return;
+        }
+
+        // Move to Vault button clicked on card
+        const vaultBtn = e.target.closest('.pocket-card-vault-btn');
+        if (vaultBtn) {
+          e.stopPropagation();
+          openMoveToVaultModal(note.id);
           return;
         }
 
@@ -8144,6 +8445,10 @@
 
       pocketNotesGrid.appendChild(card);
     });
+
+    if (pocketShelfScroll && prevScroll > 0) {
+      pocketShelfScroll.scrollTop = prevScroll;
+    }
   }
 
   function openPocketShelf() {
@@ -8171,6 +8476,7 @@
     if (btnHeaderBasicSubMode) btnHeaderBasicSubMode.style.display = 'none';
     if (btnHeaderBasicNew) btnHeaderBasicNew.style.display = 'inline-flex';
     if (btnHeaderBasicDelete) btnHeaderBasicDelete.style.display = 'none';
+    if (btnHeaderBasicMoveToVault) btnHeaderBasicMoveToVault.style.display = 'none';
     if (pocketColorModal) pocketColorModal.classList.remove('open');
 
     if (docTitle) docTitle.textContent = 'Pocket Notes';
@@ -8222,6 +8528,7 @@
     if (btnHeaderBasicSubMode) btnHeaderBasicSubMode.style.display = 'inline-flex';
     if (btnHeaderBasicNew) btnHeaderBasicNew.style.display = 'inline-flex';
     if (btnHeaderBasicDelete) btnHeaderBasicDelete.style.display = 'inline-flex';
+    if (btnHeaderBasicMoveToVault) btnHeaderBasicMoveToVault.style.display = 'inline-flex';
 
     if (pocketTagBarColorBtn) {
       pocketTagBarColorBtn.style.background = getPocketColorHex(note.color);
@@ -8418,6 +8725,324 @@
     }
   }
 
+  // --- Move Note to Outline Vault System ---
+  function openMoveToVaultModal(targetNoteId = null) {
+    let note = null;
+    if (targetNoteId) {
+      note = pocketNotes.find(n => n.id === targetNoteId);
+    } else if (currentPocketNoteId) {
+      note = pocketNotes.find(n => n.id === currentPocketNoteId);
+    }
+
+    if (currentPocketView === 'editor' && basicMarkdownEditor) {
+      if (note) {
+        note.content = basicMarkdownEditor.value;
+        note.title = extractPocketTitle(note.content);
+        note.updatedAt = Date.now();
+        savePocketNotes();
+      }
+    }
+
+    if (!note) {
+      if (basicDocText) {
+        note = {
+          id: null,
+          title: (basicDocName || 'Untitled').replace(/\.md$/, ''),
+          content: basicDocText
+        };
+      } else {
+        showToast('No document or note to move');
+        return;
+      }
+    }
+
+    pendingMoveToVaultNoteId = note.id || null;
+
+    let defaultName = (note.title || 'Note').trim();
+    if (!defaultName.toLowerCase().endsWith('.md') && !defaultName.toLowerCase().endsWith('.txt')) {
+      defaultName += '.md';
+    }
+    defaultName = defaultName.replace(/[/\\?%*:|"<>]/g, '_');
+    if (inputMoveToVaultFileName) {
+      inputMoveToVaultFileName.value = defaultName;
+    }
+
+    if (chkMoveRemoveFromPocket) {
+      chkMoveRemoveFromPocket.checked = !!note.id;
+      chkMoveRemoveFromPocket.disabled = !note.id;
+    }
+
+    if (moveToVaultError) {
+      moveToVaultError.style.display = 'none';
+      moveToVaultError.textContent = '';
+    }
+
+    populateMoveToVaultTargets();
+
+    if (moveToVaultModal) {
+      moveToVaultModal.style.display = 'flex';
+      if (inputMoveToVaultFileName) {
+        setTimeout(() => inputMoveToVaultFileName.focus(), 50);
+      }
+    }
+  }
+
+  function hideMoveToVaultModal() {
+    pendingMoveToVaultNoteId = null;
+    if (moveToVaultModal) {
+      moveToVaultModal.style.display = 'none';
+    }
+  }
+
+  function populateMoveToVaultTargets() {
+    if (!selectMoveToVaultTarget) return;
+    selectMoveToVaultTarget.innerHTML = '';
+
+    const addedUris = new Set();
+
+    if (openedFolderName) {
+      const curOpt = document.createElement('option');
+      curOpt.value = openedFolderTreeUri || '__active__';
+      curOpt.textContent = `📁 Active Vault: ${openedFolderName}`;
+      curOpt.selected = true;
+      selectMoveToVaultTarget.appendChild(curOpt);
+      if (openedFolderTreeUri) addedUris.add(openedFolderTreeUri);
+    }
+
+    if (Array.isArray(recentVaults)) {
+      recentVaults.forEach(vault => {
+        if (vault.uri && !addedUris.has(vault.uri)) {
+          addedUris.add(vault.uri);
+          const opt = document.createElement('option');
+          opt.value = vault.uri;
+          opt.textContent = `📁 ${vault.name || 'Vault'}`;
+          if (!openedFolderName && addedUris.size === 1) {
+            opt.selected = true;
+          }
+          selectMoveToVaultTarget.appendChild(opt);
+        }
+      });
+    }
+
+    const pickOpt = document.createElement('option');
+    pickOpt.value = '__pick_new__';
+    pickOpt.textContent = '➕ Choose Another Folder / Vault...';
+    if (selectMoveToVaultTarget.options.length === 0) {
+      pickOpt.selected = true;
+    }
+    selectMoveToVaultTarget.appendChild(pickOpt);
+
+    updateMoveToVaultSubfolders();
+  }
+
+  function extractVaultDirectories(node, currentPath = '') {
+    let list = [];
+    if (!node || !node.children) return list;
+    for (const child of node.children) {
+      if (child.kind === 'directory') {
+        const childPath = currentPath ? `${currentPath}/${child.name}` : child.name;
+        list.push({ id: child.id, path: childPath, name: child.name });
+        list = list.concat(extractVaultDirectories(child, childPath));
+      }
+    }
+    return list;
+  }
+
+  async function updateMoveToVaultSubfolders() {
+    if (!selectMoveToVaultTarget || !selectMoveToVaultFolder) return;
+    const targetUri = selectMoveToVaultTarget.value;
+
+    selectMoveToVaultFolder.innerHTML = '<option value="">📁 / (Vault Root)</option>';
+
+    if (targetUri === '__pick_new__') {
+      if (moveToVaultFolderRow) moveToVaultFolderRow.style.display = 'none';
+      return;
+    }
+
+    if (moveToVaultFolderRow) moveToVaultFolderRow.style.display = 'block';
+
+    try {
+      let treeRes = null;
+      if (window.AndroidBridge && window.AndroidBridge.getRecursiveTreeForUri) {
+        const raw = window.AndroidBridge.getRecursiveTreeForUri(targetUri === '__active__' ? (openedFolderTreeUri || '') : targetUri);
+        try { treeRes = JSON.parse(raw); } catch(e) {}
+      } else if (targetUri === '__active__' && window.AndroidBridge && window.AndroidBridge.getRecursiveTree) {
+        const raw = window.AndroidBridge.getRecursiveTree();
+        try { treeRes = JSON.parse(raw); } catch(e) {}
+      }
+
+      if (treeRes && treeRes.status === 'ok' && treeRes.root) {
+        const dirs = extractVaultDirectories(treeRes.root);
+        dirs.sort((a, b) => a.path.localeCompare(b.path));
+        for (const d of dirs) {
+          const opt = document.createElement('option');
+          opt.value = d.id;
+          opt.textContent = `📁 /${d.path}`;
+          selectMoveToVaultFolder.appendChild(opt);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching vault folders for move:', err);
+    }
+  }
+
+  async function confirmMoveToVault() {
+    if (moveToVaultError) {
+      moveToVaultError.style.display = 'none';
+      moveToVaultError.textContent = '';
+    }
+
+    let fileName = (inputMoveToVaultFileName ? inputMoveToVaultFileName.value : '').trim();
+    if (!fileName) {
+      if (moveToVaultError) {
+        moveToVaultError.textContent = 'Please enter a valid file name.';
+        moveToVaultError.style.display = 'block';
+      }
+      return;
+    }
+
+    if (!fileName.toLowerCase().endsWith('.md') && !fileName.toLowerCase().endsWith('.txt')) {
+      fileName += '.md';
+    }
+
+    let noteContent = '';
+    let noteId = pendingMoveToVaultNoteId;
+    if (noteId) {
+      const note = pocketNotes.find(n => n.id === noteId);
+      if (note) {
+        if (currentPocketView === 'editor' && currentPocketNoteId === noteId && basicMarkdownEditor) {
+          note.content = basicMarkdownEditor.value;
+        }
+        noteContent = note.content || '';
+      }
+    } else if (basicDocText) {
+      noteContent = (basicMarkdownEditor && currentPocketView === 'editor') ? basicMarkdownEditor.value : basicDocText;
+    }
+
+    const shouldDelete = chkMoveRemoveFromPocket ? chkMoveRemoveFromPocket.checked : false;
+    const targetVaultUri = selectMoveToVaultTarget ? selectMoveToVaultTarget.value : '__active__';
+    const targetFolderDocId = selectMoveToVaultFolder ? selectMoveToVaultFolder.value : '';
+
+    if (targetVaultUri === '__pick_new__') {
+      pendingVaultMove = {
+        fileName: fileName,
+        content: noteContent,
+        noteId: noteId,
+        shouldDelete: shouldDelete
+      };
+      hideMoveToVaultModal();
+      showToast('Select destination folder in Outline Vault...');
+      if (window.AndroidBridge && window.AndroidBridge.openNativeFolderPicker) {
+        window.AndroidBridge.openNativeFolderPicker();
+      } else {
+        showToast('Native folder picker not available in browser mode');
+      }
+      return;
+    }
+
+    const vaultUri = (targetVaultUri === '__active__') ? (openedFolderTreeUri || '') : targetVaultUri;
+    executeMoveFileToVault(vaultUri, targetFolderDocId, fileName, noteContent, noteId, shouldDelete);
+  }
+
+  function executeMoveFileToVault(vaultUri, parentDocId, fileName, content, noteId, shouldDelete) {
+    if (window.AndroidBridge && window.AndroidBridge.createFileInTreeFolder) {
+      try {
+        const respRaw = window.AndroidBridge.createFileInTreeFolder(vaultUri || null, parentDocId || null, fileName, content);
+        let parsed = null;
+        try { parsed = JSON.parse(respRaw); } catch(e) {}
+
+        if (!parsed || parsed.status !== 'ok') {
+          const errMsg = (parsed && parsed.message) || respRaw || 'Failed to create file in vault';
+          if (moveToVaultError) {
+            moveToVaultError.textContent = errMsg;
+            moveToVaultError.style.display = 'block';
+          } else {
+            showToast(`Error: ${errMsg}`);
+          }
+          return;
+        }
+
+        hideMoveToVaultModal();
+
+        const createdDocId = parsed.docId;
+        const createdName = parsed.name || fileName;
+
+        if (shouldDelete && noteId) {
+          deletePocketNote(noteId);
+        }
+
+        if (!vaultUri || vaultUri === openedFolderTreeUri) {
+          loadFolderTree(openedFolderRootDocId || '');
+        }
+
+        showVaultMoveSuccessNotification(createdName, createdDocId, content, vaultUri);
+
+      } catch (err) {
+        if (moveToVaultError) {
+          moveToVaultError.textContent = err.message || 'Error moving file';
+          moveToVaultError.style.display = 'block';
+        }
+      }
+    } else {
+      hideMoveToVaultModal();
+      if (shouldDelete && noteId) {
+        deletePocketNote(noteId);
+      }
+      showToast(`Saved "${fileName}" to Vault (Mock) ✓`);
+      showVaultMoveSuccessNotification(fileName, 'mock_doc_' + Date.now(), content, vaultUri);
+    }
+  }
+
+  function showVaultMoveSuccessNotification(fileName, docId, text, vaultUri) {
+    const oldBanner = document.getElementById('vaultMoveSuccessBanner');
+    if (oldBanner) oldBanner.remove();
+
+    const banner = document.createElement('div');
+    banner.id = 'vaultMoveSuccessBanner';
+    banner.className = 'vault-move-success-banner';
+
+    const textEl = document.createElement('div');
+    textEl.className = 'vault-move-banner-text';
+    textEl.innerHTML = `<span>✓ Moved to Vault: <b>${escapeHtml(fileName)}</b></span>`;
+
+    const btnView = document.createElement('button');
+    btnView.className = 'vault-move-banner-btn';
+    btnView.textContent = 'View in Outline ➔';
+    btnView.addEventListener('click', () => {
+      banner.remove();
+      if (vaultUri && vaultUri !== openedFolderTreeUri) {
+        if (window.AndroidBridge && window.AndroidBridge.openFolderByUri) {
+          window.AndroidBridge.openFolderByUri(vaultUri);
+        }
+      }
+      loadTreeFileIntoMode('outline', docId, fileName, text);
+    });
+
+    const btnClose = document.createElement('button');
+    btnClose.style.background = 'transparent';
+    btnClose.style.border = 'none';
+    btnClose.style.color = 'var(--muted)';
+    btnClose.style.cursor = 'pointer';
+    btnClose.style.fontSize = '14px';
+    btnClose.style.padding = '0 4px';
+    btnClose.textContent = '✕';
+    btnClose.addEventListener('click', () => banner.remove());
+
+    banner.appendChild(textEl);
+    banner.appendChild(btnView);
+    banner.appendChild(btnClose);
+    document.body.appendChild(banner);
+
+    setTimeout(() => {
+      if (banner.parentNode) {
+        banner.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        banner.style.opacity = '0';
+        banner.style.transform = 'translate(-50%, 15px)';
+        setTimeout(() => banner.remove(), 400);
+      }
+    }, 7000);
+  }
+
   function togglePocketSplit() {
     pocketSplitActive = !pocketSplitActive;
     if (btnPocketSplitToggle) btnPocketSplitToggle.classList.toggle('active', pocketSplitActive);
@@ -8605,6 +9230,13 @@
         replacement = '\n> [!NOTE]\n> ' + (selected || 'Callout content here.') + '\n';
         cursorOffset = replacement.length;
         break;
+      case 'ascii':
+        replacement = '\n```ascii\n+-----------------------+\n|     ASCII Diagram     |\n+-----------------------+\n           |\n           v\n+-----------------------+\n|       Component       |\n+-----------------------+\n```\n';
+        cursorOffset = replacement.length;
+        break;
+      case 'toggle-wrap':
+        toggleEditorWrap();
+        return;
       case 'undo':
         document.execCommand('undo');
         return;
@@ -8613,6 +9245,9 @@
         return;
       case 'save':
         saveBasicDocument();
+        return;
+      case 'move-to-vault':
+        openMoveToVaultModal(currentPocketNoteId);
         return;
       default:
         return;
@@ -8627,6 +9262,51 @@
     basicDocText = ed.value;
     onEditorInput();
   }
+
+  // Line Wrap & Monospace Grid Toggle (Useful for wide tables & ASCII diagrams)
+  let editorWrapActive = localStorage.getItem('mdviewer_editor_wrap') !== 'false';
+  function applyEditorWrap() {
+    const wrapBtn = document.getElementById('btnEditorWrapToggle');
+    if (wrapBtn) wrapBtn.classList.toggle('active', editorWrapActive);
+    [basicMarkdownEditor, pocketSplitEditor1, pocketSplitEditor2].forEach(ed => {
+      if (!ed) return;
+      if (editorWrapActive) {
+        ed.style.whiteSpace = 'pre-wrap';
+        ed.style.wordBreak = 'break-word';
+        ed.style.overflowX = 'hidden';
+      } else {
+        ed.style.whiteSpace = 'pre';
+        ed.style.wordBreak = 'normal';
+        ed.style.overflowX = 'auto';
+      }
+    });
+  }
+  function toggleEditorWrap() {
+    editorWrapActive = !editorWrapActive;
+    try { localStorage.setItem('mdviewer_editor_wrap', editorWrapActive); } catch(e) {}
+    applyEditorWrap();
+    showToast(editorWrapActive ? 'Line wrap: ON (Soft wrap)' : 'Line wrap: OFF (Monospace Diagram Grid ▤)');
+  }
+
+  // Paste Event Optimization to prevent freezes on large pasted text
+  function attachPasteOptimizations(editorEl) {
+    if (!editorEl) return;
+    editorEl.addEventListener('paste', (e) => {
+      const text = e.clipboardData ? e.clipboardData.getData('text') : '';
+      if (text && text.length > 20000) {
+        if (editorSaveBadge) {
+          editorSaveBadge.textContent = `Pasting ${(text.length / 1024).toFixed(0)} KB...`;
+          editorSaveBadge.className = 'editor-save-badge dirty';
+        }
+        setTimeout(() => {
+          updateEditorStats(true);
+          showToast(`Pasted ${text.length.toLocaleString()} chars (${fastCountLines(text).toLocaleString()} lines) ✓`);
+        }, 50);
+      }
+    });
+  }
+  attachPasteOptimizations(basicMarkdownEditor);
+  applyEditorWrap();
 
   // --- Attach Basic Editor Event Listeners ---
   if (basicMarkdownEditor) {
@@ -8694,6 +9374,46 @@
   if (pocketDeleteModal) {
     pocketDeleteModal.addEventListener('click', (e) => {
       if (e.target === pocketDeleteModal) hidePocketDeleteModal();
+    });
+  }
+
+  // --- Attach Move to Vault Event Listeners ---
+  if (btnHeaderBasicMoveToVault) {
+    btnHeaderBasicMoveToVault.addEventListener('click', () => {
+      openMoveToVaultModal(currentPocketNoteId);
+    });
+  }
+
+  if (docFloatMoveToVaultBtn) {
+    docFloatMoveToVaultBtn.addEventListener('click', () => {
+      openMoveToVaultModal(currentPocketNoteId);
+    });
+  }
+
+  if (btnCancelMoveToVault) {
+    btnCancelMoveToVault.addEventListener('click', hideMoveToVaultModal);
+  }
+
+  if (btnConfirmMoveToVault) {
+    btnConfirmMoveToVault.addEventListener('click', confirmMoveToVault);
+  }
+
+  if (moveToVaultModal) {
+    moveToVaultModal.addEventListener('click', (e) => {
+      if (e.target === moveToVaultModal) hideMoveToVaultModal();
+    });
+  }
+
+  if (selectMoveToVaultTarget) {
+    selectMoveToVaultTarget.addEventListener('change', updateMoveToVaultSubfolders);
+  }
+
+  if (inputMoveToVaultFileName) {
+    inputMoveToVaultFileName.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        confirmMoveToVault();
+      }
     });
   }
 
@@ -8922,7 +9642,9 @@
     });
   }
 
+  let splitEditor1PreviewDebounce = null;
   if (pocketSplitEditor1) {
+    attachPasteOptimizations(pocketSplitEditor1);
     pocketSplitEditor1.addEventListener('input', () => {
       const n1 = pocketNotes.find(n => n.id === currentPocketNoteId);
       if (n1) {
@@ -8934,18 +9656,25 @@
         updatePocketTabTitle(n1.id, n1.title);
         if (pocketSplitTitle1) pocketSplitTitle1.textContent = n1.title;
         if (pocketSplitDisplayMode === 'preview' && pocketSplitBody2) {
-          const res = parseMarkdownToHtml(n1.content || '');
-          pocketSplitBody2.innerHTML = res.html || '<p style="color:var(--muted);font-style:italic;">Empty note</p>';
+          clearTimeout(splitEditor1PreviewDebounce);
+          splitEditor1PreviewDebounce = setTimeout(() => {
+            if (pocketSplitDisplayMode === 'preview' && pocketSplitBody2) {
+              const res = parseMarkdownToHtml(n1.content || '');
+              pocketSplitBody2.innerHTML = res.html || '<p style="color:var(--muted);font-style:italic;">Empty note</p>';
+            }
+          }, 300);
         }
         clearTimeout(editorInputDebounce);
+        const debounceDelay = n1.content.length > 50000 ? 750 : 400;
         editorInputDebounce = setTimeout(() => {
           saveBasicDocument(true);
-        }, 400);
+        }, debounceDelay);
       }
     });
   }
 
   if (pocketSplitEditor2) {
+    attachPasteOptimizations(pocketSplitEditor2);
     pocketSplitEditor2.addEventListener('input', () => {
       const n2 = pocketNotes.find(n => n.id === pocketSplitNoteId2);
       if (n2) {
@@ -8954,9 +9683,10 @@
         n2.updatedAt = Date.now();
         updatePocketTabTitle(n2.id, n2.title);
         clearTimeout(editorInputDebounce);
+        const debounceDelay = n2.content.length > 50000 ? 750 : 400;
         editorInputDebounce = setTimeout(() => {
           savePocketNotes();
-        }, 400);
+        }, debounceDelay);
       }
     });
   }
@@ -12442,6 +13172,15 @@
 
     loadFolderTree(rootDocId);
     showToast(`Opened vault: ${name}`);
+
+    // If there is a pending move to vault task, execute it now
+    if (pendingVaultMove) {
+      const task = pendingVaultMove;
+      pendingVaultMove = null;
+      setTimeout(() => {
+        executeMoveFileToVault(treeUri || openedFolderTreeUri, '', task.fileName, task.content, task.noteId, task.shouldDelete);
+      }, 120);
+    }
   };
 
   window.onFolderClosed = function() {
@@ -12992,7 +13731,7 @@
     filtered.unshift({
       name: name,
       size: (text && text.length) || 0,
-      lines: text ? text.split('\n').length : 0,
+      lines: text ? fastCountLines(text) : 0,
       snippet: text ? text.slice(0, 15000) : '',
       uri: uri || null,
       docId: docId || null,

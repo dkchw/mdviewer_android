@@ -435,9 +435,13 @@ class MainActivity : Activity() {
     }
 
     // --- Recursive Tree Scanner ---
-    fun getRecursiveTreeJson(): String {
+    fun getRecursiveTreeJson(treeUriString: String? = null): String {
         val response = JSONObject()
-        val treeUri = mCurrentTreeUri ?: run {
+        val treeUri = if (!treeUriString.isNullOrEmpty()) {
+            try { Uri.parse(treeUriString) } catch (e: Exception) { mCurrentTreeUri }
+        } else {
+            mCurrentTreeUri
+        } ?: run {
             response.put("status", "error")
             response.put("message", "No folder is currently opened")
             return response.toString()
@@ -754,10 +758,14 @@ class MainActivity : Activity() {
     }
 
     fun createTreeFileContent(fileName: String, content: String): String {
-        return createFileInTreeUri(null, fileName, content)
+        return createFileInTreeFolder(null, null, fileName, content)
     }
 
     fun createFileInTreeUri(treeUriString: String?, fileName: String, content: String): String {
+        return createFileInTreeFolder(treeUriString, null, fileName, content)
+    }
+
+    fun createFileInTreeFolder(treeUriString: String?, parentDocId: String?, fileName: String, content: String): String {
         val treeUri = if (!treeUriString.isNullOrEmpty()) {
             try { Uri.parse(treeUriString) } catch (e: Exception) { mCurrentTreeUri }
         } else {
@@ -765,8 +773,8 @@ class MainActivity : Activity() {
         } ?: return "ERROR: No folder opened"
 
         return try {
-            val rootDocId = getRootDocumentId(treeUri)
-            val parentUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, rootDocId)
+            val targetDocId = if (!parentDocId.isNullOrEmpty()) parentDocId else getRootDocumentId(treeUri)
+            val parentUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, targetDocId)
             val newDocUri = DocumentsContract.createDocument(contentResolver, parentUri, "text/markdown", fileName)
                 ?: return "ERROR: Could not create document"
             contentResolver.openOutputStream(newDocUri, "wt")?.use { stream ->
@@ -774,11 +782,12 @@ class MainActivity : Activity() {
                 stream.flush()
             }
             val newDocId = DocumentsContract.getDocumentId(newDocUri)
+            val finalName = getFileName(newDocUri)
             JSONObject().apply {
                 put("status", "ok")
                 put("docId", newDocId)
                 put("uri", newDocUri.toString())
-                put("name", fileName)
+                put("name", if (finalName.isNotEmpty()) finalName else fileName)
             }.toString()
         } catch (e: Exception) {
             Log.e(TAG, "Error creating tree file: $fileName", e)
