@@ -59,32 +59,112 @@
   /* --- Top Header Bar --- */
   #headerBar {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 48px;
-    padding: 0 8px;
+    flex-direction: column;
     background: var(--bg2);
     border-bottom: 1px solid var(--border);
-    flex: 0 0 48px;
-    z-index: 20;
+    flex: 0 0 auto;
+    z-index: 600;
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
   }
+
+  .header-primary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 44px;
+    padding: 0 8px;
+    gap: 6px;
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .header-primary-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .header-primary-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .header-toolbar-row {
+    display: flex;
+    align-items: center;
+    height: 38px;
+    padding: 0 8px;
+    background: #171824;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+    width: 100%;
+    gap: 6px;
+  }
+  .header-toolbar-row::-webkit-scrollbar { display: none; }
 
   .header-btn {
     background: transparent;
     border: none;
     color: var(--fg);
-    font-size: 18px;
-    width: 38px;
-    height: 38px;
-    display: flex;
+    font-size: 16px;
+    height: 32px;
+    padding: 0 8px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
+    border-radius: 7px;
     cursor: pointer;
-    flex: 0 0 38px;
+    flex-shrink: 0;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+    white-space: nowrap;
   }
-  .header-btn:active { background: rgba(122, 162, 247, 0.2); }
+  .header-btn:active { background: rgba(122, 162, 247, 0.2); transform: scale(0.96); }
   .header-btn.active { color: var(--accent); background: rgba(122, 162, 247, 0.15); }
+
+  #btnOpenDrawer, #btnPocketBackShelf, #btnHeaderQuickSearch {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    padding: 0;
+    font-size: 18px;
+  }
+
+  .header-btn.pill-btn {
+    border-radius: 7px;
+    height: 28px;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #1f2335;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    letter-spacing: 0.1px;
+  }
+  .header-btn.pill-btn:hover {
+    background: #272c42;
+    border-color: var(--border-hl);
+  }
+  .header-btn.pill-btn:active {
+    background: rgba(122, 162, 247, 0.25);
+    transform: scale(0.96);
+  }
+  .header-btn.pill-btn.active {
+    background: rgba(122, 162, 247, 0.2);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
 
   #docInfo {
     flex: 1 1 auto;
@@ -438,7 +518,7 @@
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.65);
-    z-index: 100;
+    z-index: 1190;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
@@ -459,7 +539,7 @@
     width: min(92vw, 440px);
     max-width: 440px;
     background: var(--bg2);
-    z-index: 101;
+    z-index: 1200;
     display: flex;
     flex-direction: column;
     transform: translate3d(-100%, 0, 0);
@@ -2508,22 +2588,61 @@
   }
 
   /* --- Options Modal --- */
+  #optionsBackdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 790;
+    background: transparent;
+    display: none;
+    -webkit-tap-highlight-color: transparent;
+  }
   #optionsModal {
     position: fixed;
-    top: 54px;
-    right: 12px;
-    width: 250px;
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-    z-index: 80;
+    top: 86px;
+    right: 8px;
+    width: min(290px, 92vw);
+    background: #1a1b26;
+    border: 1px solid var(--border-hl, #3b4261);
+    border-radius: 12px;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.65);
+    z-index: 800;
     display: none;
     flex-direction: column;
-    padding: 10px;
-    gap: 10px;
+    padding: 12px;
+    gap: 8px;
+    animation: popUp 0.15s ease-out;
   }
   #optionsModal.open { display: flex; }
+  .opt-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 4px;
+  }
+  .opt-modal-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .opt-modal-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  .opt-modal-close-btn:active {
+    color: var(--fg);
+    background: rgba(255,255,255,0.1);
+  }
   .opt-group-label { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; }
   .lvl-buttons {
     display: grid;
@@ -3461,27 +3580,25 @@
 
   .mode-dropdown-menu {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 6px);
     left: 0;
-    min-width: 250px;
-    background: rgba(21, 22, 30, 0.98);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    width: 170px;
+    background: #181926;
     border: 1px solid var(--border-hl, #3b4261);
-    border-radius: 14px;
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.06);
-    padding: 6px;
-    z-index: 1500;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+    padding: 4px;
+    z-index: 700;
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    animation: modeDdSlideIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    gap: 2px;
+    animation: modeDdSlideIn 0.16s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   @keyframes modeDdSlideIn {
     from {
       opacity: 0;
-      transform: translateY(-6px) scale(0.97);
+      transform: translateY(-4px) scale(0.97);
     }
     to {
       opacity: 1;
@@ -3489,90 +3606,49 @@
     }
   }
 
-  .mode-dropdown-header {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: var(--muted);
-    padding: 6px 10px 4px 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    margin-bottom: 2px;
-  }
-
   .mode-dropdown-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    border-radius: 10px;
+    justify-content: space-between;
+    padding: 7px 10px;
+    border-radius: 7px;
     background: none;
     border: none;
     cursor: pointer;
     text-align: left;
     width: 100%;
+    color: var(--fg);
+    font-size: 13px;
+    font-weight: 600;
     transition: background 0.15s ease, transform 0.1s ease;
     -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
   }
   .mode-dropdown-item:hover {
-    background: rgba(122, 162, 247, 0.12);
+    background: rgba(122, 162, 247, 0.14);
   }
   .mode-dropdown-item:active {
     transform: scale(0.98);
-    background: rgba(122, 162, 247, 0.2);
+    background: rgba(122, 162, 247, 0.22);
   }
   .mode-dropdown-item.active {
-    background: rgba(122, 162, 247, 0.16);
+    background: rgba(122, 162, 247, 0.18);
+    color: var(--accent);
   }
 
-  .mode-item-icon-box {
-    width: 32px;
-    height: 32px;
-    min-width: 32px;
-    border-radius: 8px;
-    display: flex;
+  .mode-item-left {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    font-size: 16px;
+    gap: 8px;
   }
-  .mode-item-icon-box.basic-icon-box {
-    background: rgba(122, 162, 247, 0.15);
-    border: 1px solid rgba(122, 162, 247, 0.3);
-  }
-  .mode-item-icon-box.outline-icon-box {
-    background: rgba(125, 207, 255, 0.15);
-    border: 1px solid rgba(125, 207, 255, 0.3);
-  }
-  .mode-item-icon-box.checklist-icon-box {
-    background: rgba(158, 206, 106, 0.15);
-    border: 1px solid rgba(158, 206, 106, 0.3);
-  }
-
-  .mode-item-details {
-    flex: 1;
-    min-width: 0;
-  }
-  .mode-item-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--fg);
-    line-height: 1.25;
-  }
-  .mode-item-desc {
-    font-size: 11px;
-    color: var(--muted);
-    line-height: 1.2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .mode-item-left .mode-icon {
+    font-size: 15px;
+    line-height: 1;
   }
 
   .mode-item-check {
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
     color: var(--accent);
     opacity: 0;
     transform: scale(0.6);
@@ -3586,8 +3662,9 @@
   .mode-dropdown-backdrop {
     position: fixed;
     inset: 0;
-    z-index: 1490;
+    z-index: 690;
     background: transparent;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .header-mode-dropdown {
@@ -3610,26 +3687,26 @@
   }
 
   #headerBar.in-editor #docInfo {
-    max-width: 75px;
-    flex: 0 1 auto;
+    max-width: none;
+    flex: 1 1 auto;
   }
 
   .header-btn.pill-btn {
     border-radius: 7px;
-    width: 30px;
-    height: 30px;
+    height: 28px;
     min-width: 30px;
-    flex: 0 0 30px;
-    padding: 0;
-    font-size: 13px;
-    font-weight: 700;
+    padding: 0 8px;
+    font-size: 12px;
+    font-weight: 600;
     background: #1f2335;
     border: 1px solid var(--border);
     color: var(--fg);
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 4px;
     flex-shrink: 0;
+    white-space: nowrap;
   }
   .header-btn.pill-btn:active {
     background: rgba(122, 162, 247, 0.25);
@@ -5554,85 +5631,73 @@
 <div id="app">
   <!-- Top Header Bar -->
   <header id="headerBar">
-    <button id="btnPocketBackShelf" class="pocket-back-shelf-btn" style="display:none;" title="Back to Notes Shelf">‹</button>
-    <button id="btnOpenDrawer" class="header-btn" title="Open File Manager (or swipe left-to-right)">☰</button>
-    <div id="modeSwitcher" class="mode-switcher-container">
-      <button id="modeDropdownTrigger" class="header-mode-pill-btn" type="button" aria-haspopup="true" aria-expanded="false" title="Switch App Mode">
-        <span id="modeDropdownIcon" class="mode-pill-icon">✍️</span>
-        <span id="modeDropdownLabel" class="mode-pill-label">Notes</span>
-        <svg class="mode-pill-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
-      </button>
-      <div id="modeDropdownMenu" class="mode-dropdown-menu" style="display:none;" role="menu">
-        <div class="mode-dropdown-header">SWITCH VIEW MODE</div>
-        <button class="mode-dropdown-item active" data-mode="basic" type="button" role="menuitem">
-          <div class="mode-item-icon-box basic-icon-box">✍️</div>
-          <div class="mode-item-details">
-            <div class="mode-item-title">Notes</div>
-            <div class="mode-item-desc">Cards, Markdown &amp; Split Screen</div>
-          </div>
-          <div class="mode-item-check">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
+    <!-- Top Row: Navigation, Mode Switcher, Document Title & Stats -->
+    <div class="header-primary-row">
+      <div class="header-primary-left">
+        <button id="btnPocketBackShelf" class="pocket-back-shelf-btn" style="display:none;" title="Back to Notes Shelf">‹</button>
+        <button id="btnOpenDrawer" class="header-btn" title="Open File Manager (or swipe left-to-right)">☰</button>
+        <div id="modeSwitcher" class="mode-switcher-container">
+          <button id="modeDropdownTrigger" class="header-mode-pill-btn" type="button" aria-haspopup="true" aria-expanded="false" title="Switch App Mode">
+            <span id="modeDropdownIcon" class="mode-pill-icon">✍️</span>
+            <span id="modeDropdownLabel" class="mode-pill-label">Notes</span>
+            <svg class="mode-pill-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
+          </button>
+          <div id="modeDropdownMenu" class="mode-dropdown-menu" style="display:none;" role="menu">
+            <button class="mode-dropdown-item active" data-mode="basic" type="button" role="menuitem">
+              <span class="mode-item-left"><span class="mode-icon">✍️</span> <span>Notes</span></span>
+              <span class="mode-item-check">✓</span>
+            </button>
+            <button class="mode-dropdown-item" data-mode="outline" type="button" role="menuitem">
+              <span class="mode-item-left"><span class="mode-icon">📑</span> <span>Outline</span></span>
+              <span class="mode-item-check">✓</span>
+            </button>
+            <button class="mode-dropdown-item" data-mode="checklist" type="button" role="menuitem">
+              <span class="mode-item-left"><span class="mode-icon">☑️</span> <span>Checklist</span></span>
+              <span class="mode-item-check">✓</span>
+            </button>
           </div>
-        </button>
-        <button class="mode-dropdown-item" data-mode="outline" type="button" role="menuitem">
-          <div class="mode-item-icon-box outline-icon-box">📑</div>
-          <div class="mode-item-details">
-            <div class="mode-item-title">Outline</div>
-            <div class="mode-item-desc">Fast Heading Tree &amp; Zoom</div>
-          </div>
-          <div class="mode-item-check">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </div>
-        </button>
-        <button class="mode-dropdown-item" data-mode="checklist" type="button" role="menuitem">
-          <div class="mode-item-icon-box checklist-icon-box">☑️</div>
-          <div class="mode-item-details">
-            <div class="mode-item-title">Checklist</div>
-            <div class="mode-item-desc">Interactive Tasks, Batch &amp; Undo</div>
-          </div>
-          <div class="mode-item-check">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </div>
-        </button>
+          <div id="modeDropdownBackdrop" class="mode-dropdown-backdrop" style="display:none;"></div>
+          <!-- Hidden select for programmatic and event compatibility -->
+          <select id="modeSelectDropdown" class="header-mode-dropdown" style="display:none;" tabindex="-1" aria-hidden="true" title="Select App Mode">
+            <option value="basic">✍️ Notes</option>
+            <option value="outline">📑 Outline</option>
+            <option value="checklist">☑️ Checklist</option>
+          </select>
+        </div>
       </div>
-      <div id="modeDropdownBackdrop" class="mode-dropdown-backdrop" style="display:none;"></div>
-      <!-- Hidden select for programmatic and event compatibility -->
-      <select id="modeSelectDropdown" class="header-mode-dropdown" style="display:none;" tabindex="-1" aria-hidden="true" title="Select App Mode">
-        <option value="basic">✍️ Notes</option>
-        <option value="outline">📑 Outline</option>
-        <option value="checklist">☑️ Checklist</option>
-      </select>
+      <div id="docInfo">
+        <div id="docTitle">Guide.md</div>
+        <div id="docStats">Loading...</div>
+      </div>
+      <div class="header-primary-right">
+        <button id="btnHeaderQuickSearch" class="header-btn" title="Search in Document">🔍</button>
+      </div>
     </div>
-    <div id="docInfo">
-      <div id="docTitle">Guide.md</div>
-      <div id="docStats">Loading...</div>
-    </div>
-    <!-- Basic / Pocket Notes Header Actions -->
-    <div id="basicHeaderActions" class="header-actions-group">
-      <button id="btnHeaderPocketStar" class="header-btn pill-btn" style="display:none;" title="Star Note">☆</button>
-      <button id="btnHeaderPocketPin" class="header-btn pill-btn" style="display:none;" title="Pin Note to Top">📍</button>
-      <button id="pocketNoteColorBtn" class="pocket-note-color-btn" style="display:none;" title="Change Note Color"></button>
-      <button id="btnPocketNoteTagHeader" class="header-btn pill-btn" style="display:none;" title="Manage Tags">🏷️</button>
-      <button id="btnHeaderBasicMoveToVault" class="header-btn pill-btn" style="display:none;" title="Move or Save this Note to Outline Vault">📁</button>
-      <button id="btnPocketSplitToggle" class="pocket-split-header-btn" style="display:none;" title="Toggle Split Screen">◫</button>
-      <button id="btnHeaderBasicSubMode" class="header-btn pill-btn" title="Toggle Edit / Read Mode">✍️</button>
-      <button id="btnBasicToggleSearch" class="header-btn" title="Search in Document">🔍</button>
-      <button id="btnHeaderBasicDelete" class="header-btn pocket-delete-header-btn" style="display:none;" title="Delete this Note">🗑️</button>
-    </div>
-    <!-- Outline Viewer Header Actions -->
-    <div id="outlineHeaderActions" class="header-actions-group" style="display:none;">
-      <button id="btnOutlineEditNote" class="header-btn" title="Edit Note / Fix Typo">✏️</button>
-      <button id="btnToggleOptions" class="header-btn" title="View Options &amp; Zoom">Aa</button>
-      <button id="btnToggleFlashcard" class="header-btn" title="Study as Flashcards">🗂</button>
-      <button id="btnToggleSearch" class="header-btn" title="Toggle Search">🔍</button>
+
+    <!-- Second Line Toolbar Row -->
+    <div id="headerToolbar" class="header-toolbar-row">
+      <!-- Basic / Pocket Notes Header Actions -->
+      <div id="basicHeaderActions" class="header-actions-group">
+        <button id="btnHeaderBasicSubMode" class="header-btn pill-btn" title="Toggle Edit / Read Mode">✍️ Edit</button>
+        <button id="btnHeaderBasicAa" class="header-btn pill-btn" title="Typography, Text Zoom &amp; Layout">Aa View</button>
+        <button id="btnHeaderPocketStar" class="header-btn pill-btn" style="display:none;" title="Star Note">☆ Star</button>
+        <button id="btnHeaderPocketPin" class="header-btn pill-btn" style="display:none;" title="Pin Note to Top">📍 Pin</button>
+        <button id="pocketNoteColorBtn" class="pocket-note-color-btn" style="display:none;" title="Change Note Color"></button>
+        <button id="btnPocketNoteTagHeader" class="header-btn pill-btn" style="display:none;" title="Manage Tags">🏷️ Tags</button>
+        <button id="btnHeaderBasicMoveToVault" class="header-btn pill-btn" style="display:none;" title="Move or Save this Note to Outline Vault">📁 Vault</button>
+        <button id="btnPocketSplitToggle" class="pocket-split-header-btn" style="display:none;" title="Toggle Split Screen">◫ Split</button>
+        <button id="btnBasicToggleSearch" class="header-btn pill-btn" title="Search in Document">🔍 Search</button>
+        <button id="btnHeaderBasicDelete" class="header-btn pocket-delete-header-btn" style="display:none;" title="Delete this Note">🗑️ Delete</button>
+      </div>
+      <!-- Outline & Checklist Viewer Header Actions -->
+      <div id="outlineHeaderActions" class="header-actions-group" style="display:none;">
+        <button id="btnOutlineEditNote" class="header-btn pill-btn" title="Edit Note / Fix Typo">✏️ Edit</button>
+        <button id="btnToggleOptions" class="header-btn pill-btn" title="Typography, Text Zoom &amp; Headings">Aa View</button>
+        <button id="btnToggleFlashcard" class="header-btn pill-btn" title="Study as Flashcards">🗂 Cards</button>
+        <button id="btnToggleSearch" class="header-btn pill-btn" title="Toggle Search">🔍 Search</button>
+      </div>
     </div>
   </header>
 
@@ -5671,8 +5736,14 @@
     <div id="wsSearchResults"></div>
   </div>
 
-  <!-- Options Modal (Levels & Zoom) -->
+  <!-- Options Modal & Backdrop (Levels, Zoom, Layout) -->
+  <div id="optionsBackdrop"></div>
   <div id="optionsModal">
+    <div class="opt-modal-header">
+      <span class="opt-modal-title">Aa Typography &amp; View</span>
+      <button id="btnOptionsModalClose" class="opt-modal-close-btn" title="Close Options">✕</button>
+    </div>
+
     <!-- Basic Mode Options -->
     <div id="basicOptionsGroup">
       <div class="opt-group-label">Reading Layout</div>
@@ -5684,12 +5755,6 @@
       <button id="optOpenTocBtn" class="opt-toc-action-btn">
         <span>📑 Open Table of Contents</span>
       </button>
-      <div class="opt-group-label" style="margin-top:8px;">File Actions</div>
-      <div class="layout-toggle-row">
-        <button id="optNewNoteBtn" class="layout-opt-btn">➕ New Note</button>
-        <button id="optSaveAsBtn" class="layout-opt-btn">💾 Save As...</button>
-      </div>
-      <button id="btnOptionsOpenGuide" class="layout-opt-btn" style="width:100%; margin-top:6px;">📖 Help & User Guide</button>
       <div class="opt-group-label" style="margin-top:8px;">Text Zoom</div>
       <div class="zoom-row">
         <button id="btnBasicZoomOut" class="zoom-btn">A−</button>
@@ -5697,11 +5762,24 @@
         <button id="btnBasicZoomIn" class="zoom-btn">A+</button>
         <button id="btnBasicZoomReset" class="zoom-btn">Reset</button>
       </div>
+      <div class="opt-group-label" style="margin-top:8px;">File Actions</div>
+      <div class="layout-toggle-row">
+        <button id="optNewNoteBtn" class="layout-opt-btn">➕ New Note</button>
+        <button id="optSaveAsBtn" class="layout-opt-btn">💾 Save As...</button>
+      </div>
+      <button id="btnOptionsOpenGuide" class="layout-opt-btn" style="width:100%; margin-top:8px;">📖 Help &amp; User Guide</button>
     </div>
 
     <!-- Outline Mode Options -->
     <div id="outlineOptionsGroup" style="display:none;">
-      <div class="opt-group-label">Expand to Heading Level</div>
+      <div class="opt-group-label">Text Zoom</div>
+      <div class="zoom-row">
+        <button id="btnZoomOut" class="zoom-btn">A−</button>
+        <span id="zoomDisplay" style="font-size:12px;font-weight:600;">100%</span>
+        <button id="btnZoomIn" class="zoom-btn">A+</button>
+        <button id="btnZoomReset" class="zoom-btn">Reset</button>
+      </div>
+      <div class="opt-group-label" style="margin-top:8px;">Expand to Heading Level</div>
       <div class="lvl-buttons" id="lvlGroup">
         <button class="lvl-btn" data-lvl="1">H1</button>
         <button class="lvl-btn" data-lvl="2">H2</button>
@@ -5710,14 +5788,28 @@
         <button class="lvl-btn" data-lvl="5">H5</button>
         <button class="lvl-btn" data-lvl="6">H6</button>
       </div>
-      <div class="opt-group-label" style="margin-top:4px;">Text Zoom</div>
+      <button id="btnOptionsOpenGuideOutline" class="layout-opt-btn" style="width:100%; margin-top:8px;">📖 Help &amp; User Guide</button>
+    </div>
+
+    <!-- Checklist Mode Options -->
+    <div id="checklistOptionsGroup" style="display:none;">
+      <div class="opt-group-label">Text Zoom</div>
       <div class="zoom-row">
-        <button id="btnZoomOut" class="zoom-btn">A−</button>
-        <span id="zoomDisplay" style="font-size:12px;font-weight:600;">100%</span>
-        <button id="btnZoomIn" class="zoom-btn">A+</button>
-        <button id="btnZoomReset" class="zoom-btn">Reset</button>
+        <button id="btnChecklistZoomOut" class="zoom-btn">A−</button>
+        <span id="checklistZoomDisplay" style="font-size:12px;font-weight:600;">100%</span>
+        <button id="btnChecklistZoomIn" class="zoom-btn">A+</button>
+        <button id="btnChecklistZoomReset" class="zoom-btn">Reset</button>
       </div>
-      <button id="btnOptionsOpenGuideOutline" class="layout-opt-btn" style="width:100%; margin-top:8px;">📖 Help & User Guide</button>
+      <div class="opt-group-label" style="margin-top:8px;">Batch Checklist Actions</div>
+      <div class="layout-toggle-row">
+        <button id="btnOptCheckAll" class="layout-opt-btn">☑️ Check All</button>
+        <button id="btnOptUncheckAll" class="layout-opt-btn">⬜ Uncheck All</button>
+      </div>
+      <div class="layout-toggle-row" style="margin-top:6px;">
+        <button id="btnOptUndo" class="layout-opt-btn">↩ Undo</button>
+        <button id="btnOptRedo" class="layout-opt-btn">↪ Redo</button>
+      </div>
+      <button id="btnOptionsOpenGuideChecklist" class="layout-opt-btn" style="width:100%; margin-top:8px;">📖 Help &amp; User Guide</button>
     </div>
   </div>
 
@@ -6842,7 +6934,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v2.4.2</span>
+          <span class="settings-row-badge" id="appVersionSub">v2.4.3</span>
         </button>
         <div class="settings-row-config">
           <div class="settings-config-label">
@@ -7163,7 +7255,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '2.4.2';
+      window.AndroidBridge.getAppVersion() : '2.4.3';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -7305,9 +7397,12 @@
   const optNewNoteBtn = document.getElementById('optNewNoteBtn');
   const optSaveAsBtn = document.getElementById('optSaveAsBtn');
 
-  // Options Modal Dual-Group Elements
+  // Options Modal & Dropdown Elements
+  const optionsBackdrop = document.getElementById('optionsBackdrop');
+  const btnOptionsModalClose = document.getElementById('btnOptionsModalClose');
   const basicOptionsGroup = document.getElementById('basicOptionsGroup');
   const outlineOptionsGroup = document.getElementById('outlineOptionsGroup');
+  const checklistOptionsGroup = document.getElementById('checklistOptionsGroup');
   const optWideToggleBtn = document.getElementById('optWideToggleBtn');
   const optDoubleToggleBtn = document.getElementById('optDoubleToggleBtn');
   const optOpenTocBtn = document.getElementById('optOpenTocBtn');
@@ -7315,6 +7410,21 @@
   const btnBasicZoomIn = document.getElementById('btnBasicZoomIn');
   const btnBasicZoomReset = document.getElementById('btnBasicZoomReset');
   const basicZoomDisplay = document.getElementById('basicZoomDisplay');
+
+  const btnChecklistZoomOut = document.getElementById('btnChecklistZoomOut');
+  const btnChecklistZoomIn = document.getElementById('btnChecklistZoomIn');
+  const btnChecklistZoomReset = document.getElementById('btnChecklistZoomReset');
+  const checklistZoomDisplay = document.getElementById('checklistZoomDisplay');
+  const btnOptCheckAll = document.getElementById('btnOptCheckAll');
+  const btnOptUncheckAll = document.getElementById('btnOptUncheckAll');
+  const btnOptUndo = document.getElementById('btnOptUndo');
+  const btnOptRedo = document.getElementById('btnOptRedo');
+  const btnOptionsOpenGuideChecklist = document.getElementById('btnOptionsOpenGuideChecklist');
+
+  // Secondary Toolbar & Header Elements
+  const headerToolbar = document.getElementById('headerToolbar');
+  const btnHeaderQuickSearch = document.getElementById('btnHeaderQuickSearch');
+  const btnHeaderBasicAa = document.getElementById('btnHeaderBasicAa');
 
   // --- PocketMark Pocket Notes DOM Elements ---
   const btnPocketBackShelf = document.getElementById('btnPocketBackShelf');
@@ -8079,7 +8189,9 @@
     const fontSize = (BASE_FONT * mult).toFixed(1) + 'px';
     document.documentElement.style.setProperty('--line-h', LINE_H + 'px');
     document.documentElement.style.setProperty('--font-size', fontSize);
-    zoomDisplay.textContent = Math.round(mult * 100) + '%';
+    const pct = Math.round(mult * 100) + '%';
+    zoomDisplay.textContent = pct;
+    if (checklistZoomDisplay) checklistZoomDisplay.textContent = pct;
     computeSegments();
     render();
   }
@@ -8096,18 +8208,85 @@
     applyZoom();
   });
 
-  // --- Options Modal Toggle ---
-  btnToggleOptions.addEventListener('click', (e) => {
-    e.stopPropagation();
+  // --- Options Modal Toggle & Logic ---
+  function openOptionsModal(e) {
+    if (e) e.stopPropagation();
     if (basicOptionsGroup) basicOptionsGroup.style.display = (currentAppMode === 'basic') ? 'block' : 'none';
     if (outlineOptionsGroup) outlineOptionsGroup.style.display = (currentAppMode === 'outline') ? 'block' : 'none';
-    optionsModal.classList.toggle('open');
-  });
+    if (checklistOptionsGroup) checklistOptionsGroup.style.display = (currentAppMode === 'checklist') ? 'block' : 'none';
+
+    if (checklistZoomDisplay && zoomDisplay) {
+      checklistZoomDisplay.textContent = zoomDisplay.textContent;
+    }
+
+    const isOpen = optionsModal.classList.toggle('open');
+    if (optionsBackdrop) optionsBackdrop.style.display = isOpen ? 'block' : 'none';
+  }
+
+  function closeOptionsModal() {
+    if (optionsModal) optionsModal.classList.remove('open');
+    if (optionsBackdrop) optionsBackdrop.style.display = 'none';
+  }
+
+  if (btnToggleOptions) btnToggleOptions.addEventListener('click', openOptionsModal);
+  if (btnHeaderBasicAa) btnHeaderBasicAa.addEventListener('click', openOptionsModal);
+  if (btnOptionsModalClose) btnOptionsModalClose.addEventListener('click', closeOptionsModal);
+  if (optionsBackdrop) optionsBackdrop.addEventListener('click', closeOptionsModal);
+
   document.addEventListener('click', (e) => {
-    if (!optionsModal.contains(e.target) && e.target !== btnToggleOptions) {
-      optionsModal.classList.remove('open');
+    if (optionsModal && !optionsModal.contains(e.target) && e.target !== btnToggleOptions && e.target !== btnHeaderBasicAa) {
+      closeOptionsModal();
     }
   });
+
+  // Checklist Options Controls
+  if (btnChecklistZoomIn) {
+    btnChecklistZoomIn.addEventListener('click', () => {
+      btnZoomIn.click();
+    });
+  }
+  if (btnChecklistZoomOut) {
+    btnChecklistZoomOut.addEventListener('click', () => {
+      btnZoomOut.click();
+    });
+  }
+  if (btnChecklistZoomReset) {
+    btnChecklistZoomReset.addEventListener('click', () => {
+      btnZoomReset.click();
+    });
+  }
+  if (btnOptCheckAll) {
+    btnOptCheckAll.addEventListener('click', () => {
+      const btn = document.getElementById('btnChecklistCheckAll');
+      if (btn) btn.click();
+      closeOptionsModal();
+    });
+  }
+  if (btnOptUncheckAll) {
+    btnOptUncheckAll.addEventListener('click', () => {
+      const btn = document.getElementById('btnChecklistUncheckAll');
+      if (btn) btn.click();
+      closeOptionsModal();
+    });
+  }
+  if (btnOptUndo) {
+    btnOptUndo.addEventListener('click', () => {
+      const btn = document.getElementById('btnChecklistUndo');
+      if (btn) btn.click();
+    });
+  }
+  if (btnOptRedo) {
+    btnOptRedo.addEventListener('click', () => {
+      const btn = document.getElementById('btnChecklistRedo');
+      if (btn) btn.click();
+    });
+  }
+  if (btnOptionsOpenGuideChecklist) {
+    btnOptionsOpenGuideChecklist.addEventListener('click', () => {
+      closeOptionsModal();
+      openGuideModal();
+    });
+  }
 
   // Expand to Level (H1-H6)
   lvlGroup.addEventListener('click', (e) => {
@@ -9998,6 +10177,7 @@
     if (pocketShelfView) pocketShelfView.style.display = 'flex';
     if (basicBottomGroup) basicBottomGroup.style.display = 'none';
     if (bottomBar) bottomBar.style.display = 'none';
+    if (headerToolbar) headerToolbar.style.display = 'none';
 
     const headerBarEl = document.getElementById('headerBar');
     if (headerBarEl) headerBarEl.classList.remove('in-editor');
@@ -10010,6 +10190,7 @@
     if (btnPocketNoteTagHeader) btnPocketNoteTagHeader.style.display = 'none';
     if (btnPocketSplitToggle) btnPocketSplitToggle.style.display = 'none';
     if (btnHeaderBasicSubMode) btnHeaderBasicSubMode.style.display = 'none';
+    if (btnHeaderBasicAa) btnHeaderBasicAa.style.display = 'none';
     if (btnHeaderBasicNew) btnHeaderBasicNew.style.display = 'inline-flex';
     if (btnHeaderBasicDelete) btnHeaderBasicDelete.style.display = 'none';
     if (btnHeaderBasicMoveToVault) btnHeaderBasicMoveToVault.style.display = 'none';
@@ -10050,6 +10231,7 @@
     if (pocketEditorView) pocketEditorView.style.display = 'flex';
     if (basicBottomGroup) basicBottomGroup.style.display = 'none';
     if (bottomBar) bottomBar.style.display = 'none';
+    if (headerToolbar) headerToolbar.style.display = 'flex';
 
     const headerBarEl = document.getElementById('headerBar');
     if (headerBarEl) headerBarEl.classList.add('in-editor');
@@ -10071,6 +10253,7 @@
       btnPocketSplitToggle.classList.toggle('active', pocketSplitActive);
     }
     if (btnHeaderBasicSubMode) btnHeaderBasicSubMode.style.display = 'inline-flex';
+    if (btnHeaderBasicAa) btnHeaderBasicAa.style.display = 'inline-flex';
     if (btnHeaderBasicNew) btnHeaderBasicNew.style.display = 'inline-flex';
     if (btnHeaderBasicDelete) btnHeaderBasicDelete.style.display = 'inline-flex';
     if (btnHeaderBasicMoveToVault) btnHeaderBasicMoveToVault.style.display = 'inline-flex';
@@ -11908,6 +12091,11 @@
 
     if (basicOptionsGroup) basicOptionsGroup.style.display = (mode === 'basic') ? 'block' : 'none';
     if (outlineOptionsGroup) outlineOptionsGroup.style.display = (mode === 'outline') ? 'block' : 'none';
+    if (checklistOptionsGroup) checklistOptionsGroup.style.display = (mode === 'checklist') ? 'block' : 'none';
+
+    if (headerToolbar) {
+      headerToolbar.style.display = (mode === 'basic' && currentPocketView === 'shelf') ? 'none' : 'flex';
+    }
 
     if (mode === 'basic') {
       if (currentPocketView === 'editor') {
@@ -11919,6 +12107,7 @@
       const headerBarEl = document.getElementById('headerBar');
       if (headerBarEl) headerBarEl.classList.remove('in-editor');
       if (modeSwitcher) modeSwitcher.style.display = 'flex';
+      if (headerToolbar) headerToolbar.style.display = 'flex';
       if (btnPocketBackShelf) btnPocketBackShelf.style.display = 'none';
       if (pocketNoteColorBtn) pocketNoteColorBtn.style.display = 'none';
       if (btnPocketSplitToggle) btnPocketSplitToggle.style.display = 'none';
@@ -11944,6 +12133,20 @@
   const modeDropdownIcon = document.getElementById('modeDropdownIcon');
   const modeDropdownMenu = document.getElementById('modeDropdownMenu');
   const modeDropdownBackdrop = document.getElementById('modeDropdownBackdrop');
+
+  if (btnHeaderQuickSearch) {
+    btnHeaderQuickSearch.addEventListener('click', () => {
+      if (searchContainer) {
+        searchContainer.classList.toggle('visible');
+        if (searchContainer.classList.contains('visible')) {
+          searchInput.focus();
+          if (searchInput.value.trim()) runCurrentSearch();
+        } else {
+          clearSearch();
+        }
+      }
+    });
+  }
 
   function openModeDropdown() {
     if (!modeDropdownMenu) return;
@@ -14813,29 +15016,63 @@
     isTrackingSwipe = true;
   }, { passive: true });
 
+  window.addEventListener('touchmove', (e) => {
+    if (!isTrackingSwipe || e.touches.length !== 1) return;
+    const curX = e.touches[0].clientX;
+    const curY = e.touches[0].clientY;
+    const deltaX = curX - touchStartX;
+    const deltaY = curY - touchStartY;
+    const isDrawerOpen = fileDrawer && fileDrawer.classList.contains('open');
+
+    if (!isDrawerOpen) {
+      // Swiping right from left edge / bezel zone (within 100px of left screen edge)
+      const isLeftStart = touchStartX <= 100;
+      const isHorizontalRight = deltaX > 40 && deltaX > Math.abs(deltaY) * 1.1;
+      if (isLeftStart && isHorizontalRight) {
+        isTrackingSwipe = false;
+        if (window.navigator && window.navigator.vibrate) {
+          try { window.navigator.vibrate(8); } catch (_) {}
+        }
+        openDrawer();
+      }
+    } else {
+      // Swiping left to close file manager drawer
+      if (deltaX < -45 && Math.abs(deltaX) > Math.abs(deltaY) * 1.1) {
+        isTrackingSwipe = false;
+        closeDrawer();
+      }
+    }
+  }, { passive: true });
+
   window.addEventListener('touchend', (e) => {
-    if (!isTrackingSwipe || e.changedTouches.length !== 1) return;
+    if (!isTrackingSwipe || e.changedTouches.length !== 1) {
+      isTrackingSwipe = false;
+      return;
+    }
     isTrackingSwipe = false;
     const deltaX = e.changedTouches[0].clientX - touchStartX;
     const deltaY = e.changedTouches[0].clientY - touchStartY;
     const elapsed = Date.now() - touchStartTime;
 
-    const isDrawerOpen = fileDrawer.classList.contains('open');
+    const isDrawerOpen = fileDrawer && fileDrawer.classList.contains('open');
 
-    // Swipe Left-to-Right to open file manager
+    // Swipe Left-to-Right to open file manager (fallback flick detection)
     if (!isDrawerOpen) {
-      // Intentional edge swipe: starts within left 50px of viewport
-      const isEdgeSwipe = touchStartX <= 50 && deltaX > 38 && deltaX > Math.abs(deltaY) * 0.8 && elapsed < 600;
-      // Broad swipe: starts within left 140px
-      const isBroadSwipe = touchStartX <= 140 && deltaX > 65 && deltaX > Math.abs(deltaY) * 1.2 && elapsed < 500;
+      const isEdgeSwipe = touchStartX <= 100 && deltaX > 35 && deltaX > Math.abs(deltaY) * 0.8 && elapsed < 650;
+      const isBroadSwipe = touchStartX <= 160 && deltaX > 60 && deltaX > Math.abs(deltaY) * 1.1 && elapsed < 550;
       if (isEdgeSwipe || isBroadSwipe) {
+        if (window.navigator && window.navigator.vibrate) {
+          try { window.navigator.vibrate(8); } catch (_) {}
+        }
         openDrawer();
       }
-    }
-    // Swipe Right-to-Left to close file manager
-    else if (isDrawerOpen && deltaX < -40 && Math.abs(deltaX) > Math.abs(deltaY) * 0.8) {
+    } else if (isDrawerOpen && deltaX < -35 && Math.abs(deltaX) > Math.abs(deltaY) * 0.8) {
       closeDrawer();
     }
+  }, { passive: true });
+
+  window.addEventListener('touchcancel', () => {
+    isTrackingSwipe = false;
   }, { passive: true });
 
   function openDrawer() {

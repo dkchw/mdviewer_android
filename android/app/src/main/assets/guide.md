@@ -238,4 +238,30 @@ Turn any markdown document or note into interactive study flashcards:
 
 ---
 
+## 🚀 11. What's New in v2.4.3
+
+- **📲 Instant-Touch Real-Time Sidebar Swipe**:
+  - Added real-time horizontal touch trajectory detection (`touchmove`) starting within 100px of the screen edge.
+  - The drawer opens immediately during the swipe gesture without waiting for `touchend` release, completely eliminating gesture cancellation caused by Chromium Android WebView vertical scroll recognition.
+  - Added subtle haptic tick confirmation on drawer open.
+- **✨ Dedicated Two-Line Header Action Toolbar**:
+  - Reorganized header layout into a 2-line responsive structure on mobile devices:
+    - **Top Row**: Drawer toggle `☰` / Back to shelf `‹`, Mode Switcher pill (`✍️ Notes ▾`, `📑 Outline ▾`, `☑️ Checklist ▾`), full-width Document Title & Statistics, and Quick Search button `🔍`.
+    - **Second Row (Action Toolbar)**: Spacious action bar with clear touch targets and labels: `✏️ Edit`, `Aa View`, `🗂 Cards`, `🔍 Search` in Outline/Checklist modes, and full note tools in Notes mode.
+  - The file title and mode pill now enjoy abundant breathing room and are never truncated or cramped.
+- **🔤 Restored & Enhanced `Aa` Typography, Zoom & View Options**:
+  - Fixed issue where clicking `Aa` in Checklist mode displayed a blank modal.
+  - Added full multi-mode support:
+    - **Text Zoom**: Universal font size zoom (`A-`, `100%`, `A+`, `Reset`) across Notes, Outline, and Checklist modes.
+    - **Outline Depth**: Quick heading level expanders (`H1` to `H6`).
+    - **Checklist Batch Tools**: One-tap `Check All`, `Uncheck All`, `Undo`, and `Redo`.
+    - **Reading Layout**: One-tap toggle between Full Wide and 2-Page Book reader layouts.
+  - Added clean popover header (`Aa Typography & View`) with explicit close button `✕` and tap-away backdrop.
+- **🎯 Clean, Compact Mode Switcher Dropdown**:
+  - Fixed visual artifact where the mode dropdown appeared covered or clipped by document floating bars and HUD elements.
+  - Elevated header and dropdown stacking context (`z-index: 600-700`) above all document layers.
+  - Streamlined dropdown to a sleek, compact 170px menu with crisp mode rows and active checkmarks, eliminating bulky multi-line card wrappers.
+
+---
+
 *MD Viewer — Fast, Offline, Private Markdown Reading & Writing on Android.*
