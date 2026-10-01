@@ -2732,14 +2732,17 @@
     background: #242737;
     color: var(--fg);
     border: 1px solid var(--border);
-    padding: 3px 8px;
+    width: 28px;
+    height: 28px;
+    padding: 0;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    justify-content: center;
+    flex-shrink: 0;
   }
   .doc-tool-btn:active { background: #2c3040; color: #fff; }
   .doc-tool-btn.active { background: #24283b; color: #7aa2f7; border-color: #7aa2f7; }
@@ -3195,21 +3198,24 @@
     flex-shrink: 0;
   }
   .header-btn.pill-btn {
-    border-radius: 6px;
-    padding: 3px 8px;
-    font-size: 11px;
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    font-size: 13.5px;
     font-weight: 700;
-    background: #24283b;
-    border: 1px solid #3b4261;
-    color: #7aa2f7;
+    background: #1f2335;
+    border: 1px solid var(--border);
+    color: var(--fg);
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    height: 28px;
+    justify-content: center;
+    flex-shrink: 0;
   }
   .header-btn.pill-btn:active {
-    background: #7aa2f7;
-    color: #15161e;
+    background: rgba(122, 162, 247, 0.25);
+    border-color: #7aa2f7;
+    color: #7aa2f7;
   }
 
   #basicEditorContainer {
@@ -3242,7 +3248,8 @@
     color: #c0caf5;
     border: 1px solid #2f354f;
     border-radius: 6px;
-    padding: 4px 8px;
+    padding: 0 6px;
+    min-width: 28px;
     font-size: 11.5px;
     font-weight: 600;
     cursor: pointer;
@@ -3798,37 +3805,43 @@
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.12);
     cursor: pointer;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 2px 7px;
+    font-size: 11.5px;
+    font-weight: 700;
+    width: 26px;
+    height: 24px;
+    padding: 0;
     color: #c0caf5;
     opacity: 0.85;
     transition: all 0.12s ease;
-    border-radius: 5px;
+    border-radius: 6px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 3px;
-    line-height: 1.2;
+    line-height: 1;
     -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
   }
   .pocket-card-size-btn.top {
-    font-size: 10.5px;
-    padding: 2px 6px;
+    font-size: 10px;
+    width: 22px;
+    height: 20px;
     background: rgba(255, 255, 255, 0.06);
     border-color: rgba(255, 255, 255, 0.1);
   }
   .pocket-card-size-btn.bottom {
-    font-size: 11px;
-    padding: 3px 8px;
+    font-size: 11.5px;
+    width: 26px;
+    height: 24px;
   }
   .pocket-card-del-btn {
     font-size: 12px;
-    padding: 2px 5px;
+    width: 26px;
+    height: 24px;
   }
   .pocket-card-vault-btn {
-    font-size: 11.5px;
-    padding: 2px 6px;
+    font-size: 12px;
+    width: 26px;
+    height: 24px;
     color: #7aa2f7;
   }
   .pocket-card-size-btn:active,
@@ -4098,16 +4111,17 @@
     background: #1f2335;
     border: 1px solid var(--border);
     color: #7aa2f7;
-    font-size: 12px;
+    font-size: 16px;
     font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 15px;
+    width: 32px;
+    height: 30px;
+    padding: 0;
+    border-radius: 8px;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    justify-content: center;
     cursor: pointer;
     flex-shrink: 0;
-    height: 30px;
     transition: all 0.15s ease;
   }
   .pocket-back-shelf-btn:hover {
@@ -4135,17 +4149,19 @@
   .pocket-split-header-btn {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    font-size: 11.5px;
+    justify-content: center;
+    font-size: 13.5px;
     font-weight: 700;
-    padding: 4px 10px;
+    width: 32px;
     height: 30px;
-    border-radius: 15px;
+    padding: 0;
+    border-radius: 8px;
     background: #1f2335;
     border: 1px solid var(--border);
     color: var(--fg);
     cursor: pointer;
     transition: all 0.15s ease;
+    flex-shrink: 0;
   }
   .pocket-split-header-btn.active {
     background: rgba(122, 162, 247, 0.22);
@@ -4458,9 +4474,14 @@
     background: #1f2335;
     border: 1px solid var(--border);
     color: var(--fg);
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
-    padding: 3px 8px;
+    width: 28px;
+    height: 26px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.12s ease;
@@ -4870,10 +4891,10 @@
 <div id="app">
   <!-- Top Header Bar -->
   <header id="headerBar">
-    <button id="btnPocketBackShelf" class="pocket-back-shelf-btn" style="display:none;" title="Back to Notes Shelf">‹ Notes</button>
+    <button id="btnPocketBackShelf" class="pocket-back-shelf-btn" style="display:none;" title="Back to Notes Shelf">‹</button>
     <button id="btnOpenDrawer" class="header-btn" title="Open File Manager (or swipe left-to-right)">☰</button>
     <div id="modeSwitcher" class="mode-switcher-container">
-      <button id="modeBasicBtn" class="mode-tab-btn basic-tab active" title="PocketMark Notes &amp; Editor">✍️ Pocket Notes</button>
+      <button id="modeBasicBtn" class="mode-tab-btn basic-tab active" title="PocketMark Notes &amp; Editor">✍️ Notes</button>
       <button id="modeOutlineBtn" class="mode-tab-btn outline-tab" title="Virtual Outline &amp; Tree Reader">📑 Outline</button>
     </div>
     <div id="docInfo">
@@ -4883,10 +4904,10 @@
     <!-- Basic / Pocket Notes Header Actions -->
     <div id="basicHeaderActions" class="header-actions-group">
       <button id="pocketNoteColorBtn" class="pocket-note-color-btn" style="display:none;" title="Change Note Color"></button>
-      <button id="btnPocketNoteTagHeader" class="header-btn pill-btn" style="display:none; font-size:11.5px; padding:3px 8px; gap:4px;" title="Manage Tags">🏷️ Tags</button>
-      <button id="btnHeaderBasicMoveToVault" class="header-btn pill-btn" style="display:none; font-size:11.5px; padding:3px 8px; gap:4px;" title="Move or Save this Note to Outline Vault">📁 To Vault</button>
-      <button id="btnPocketSplitToggle" class="pocket-split-header-btn" style="display:none;" title="Toggle Split Screen"><span>◫</span><span>Split</span></button>
-      <button id="btnHeaderBasicSubMode" class="header-btn pill-btn" title="Toggle Edit / Read Mode">✍️ Edit</button>
+      <button id="btnPocketNoteTagHeader" class="header-btn pill-btn" style="display:none;" title="Manage Tags">🏷️</button>
+      <button id="btnHeaderBasicMoveToVault" class="header-btn pill-btn" style="display:none;" title="Move or Save this Note to Outline Vault">📁</button>
+      <button id="btnPocketSplitToggle" class="pocket-split-header-btn" style="display:none;" title="Toggle Split Screen">◫</button>
+      <button id="btnHeaderBasicSubMode" class="header-btn pill-btn" title="Toggle Edit / Read Mode">✍️</button>
       <button id="btnBasicToggleSearch" class="header-btn" title="Search in Document">🔍</button>
       <button id="btnHeaderBasicDelete" class="header-btn pocket-delete-header-btn" style="display:none;" title="Delete this Note">🗑️</button>
     </div>
@@ -4991,9 +5012,8 @@
             <input type="search" id="pocketSearchInput" class="pocket-search-input" placeholder="Search notes..." autocomplete="off">
             <span id="pocketSearchCount" style="font-size:11px;color:var(--muted);white-space:nowrap;"></span>
           </div>
-          <button id="btnPocketCardSizeToggle" class="pocket-shelf-tool-btn pocket-size-toggle-btn mode-full" title="Card Preview Size: Full Length (Tap to cycle)">
+          <button id="btnPocketCardSizeToggle" class="pocket-shelf-tool-btn pocket-size-toggle-btn mode-full" title="Card Preview Size (Tap to cycle: Full, Compact, Medium)">
             <span id="pocketCardSizeIcon">↕️</span>
-            <span id="pocketCardSizeText" style="font-size:11px;font-weight:700;margin-left:3px;">Full</span>
           </button>
           <button id="btnPocketLayoutToggle" class="pocket-shelf-tool-btn" title="Toggle 2-Col Grid / 1-Col List">⊞</button>
         </div>
@@ -5053,11 +5073,11 @@
         <div id="docContentWrap" class="doc-content-wrap">
           <div class="doc-floating-bar" id="docFloatingBar">
             <div class="doc-floating-left">
-              <button id="docFloatEditBtn" class="doc-tool-btn" title="Switch to Editor Mode">✍️ Edit</button>
-              <button id="docFloatMoveToVaultBtn" class="doc-tool-btn" title="Move to Outline Vault">📁 To Vault</button>
-              <button id="docFloatTocBtn" class="doc-tool-btn" title="Table of Contents">📑 TOC</button>
-              <button id="docFloatDoubleBtn" class="doc-tool-btn" title="Toggle 2-Page Book Mode">📖 2-Page</button>
-              <button id="docFloatWideBtn" class="doc-tool-btn" title="Toggle Wide Edge-to-Edge Layout">↔ Wide</button>
+              <button id="docFloatEditBtn" class="doc-tool-btn" title="Switch to Editor Mode">✍️</button>
+              <button id="docFloatMoveToVaultBtn" class="doc-tool-btn" title="Move to Outline Vault">📁</button>
+              <button id="docFloatTocBtn" class="doc-tool-btn" title="Table of Contents">📑</button>
+              <button id="docFloatDoubleBtn" class="doc-tool-btn" title="Toggle 2-Page Book Mode">📖</button>
+              <button id="docFloatWideBtn" class="doc-tool-btn" title="Toggle Wide Edge-to-Edge Layout">↔</button>
             </div>
             <div class="doc-floating-right">
               <span id="docWordCount" class="doc-stat-pill">0 words</span>
@@ -5083,21 +5103,21 @@
               <button type="button" class="ed-tool-btn" data-action="strike" title="Strikethrough"><s>S</s></button>
               <button type="button" class="ed-tool-btn" data-action="inline-code" title="Inline Code">`code`</button>
               <div class="ed-sep"></div>
-              <button type="button" class="ed-tool-btn" data-action="task" title="Task List">☑ Task</button>
-              <button type="button" class="ed-tool-btn" data-action="bullet" title="Bullet List">• List</button>
-              <button type="button" class="ed-tool-btn" data-action="number" title="Numbered List">1. Num</button>
-              <button type="button" class="ed-tool-btn" data-action="quote" title="Quote">&gt; Quote</button>
+              <button type="button" class="ed-tool-btn" data-action="task" title="Task List">☑</button>
+              <button type="button" class="ed-tool-btn" data-action="bullet" title="Bullet List">•</button>
+              <button type="button" class="ed-tool-btn" data-action="number" title="Numbered List">1.</button>
+              <button type="button" class="ed-tool-btn" data-action="quote" title="Quote">&gt;</button>
               <button type="button" class="ed-tool-btn" data-action="codeblock" title="Code Block">&lt;/&gt;</button>
-              <button type="button" class="ed-tool-btn" data-action="ascii" title="Insert ASCII Diagram Template">▦ ASCII</button>
-              <button type="button" class="ed-tool-btn" data-action="table" title="Table">▦ Table</button>
-              <button type="button" class="ed-tool-btn" data-action="divider" title="Divider">― Line</button>
+              <button type="button" class="ed-tool-btn" data-action="ascii" title="Insert ASCII Diagram Template">▦</button>
+              <button type="button" class="ed-tool-btn" data-action="table" title="Table">⊞</button>
+              <button type="button" class="ed-tool-btn" data-action="divider" title="Divider">―</button>
               <div class="ed-sep"></div>
               <button type="button" class="ed-tool-btn" data-action="wikilink" title="Obsidian Wikilink">[[ ]]</button>
-              <button type="button" class="ed-tool-btn" data-action="link" title="Markdown Link">🔗 Link</button>
-              <button type="button" class="ed-tool-btn" data-action="callout" title="Obsidian Callout">[!NOTE]</button>
+              <button type="button" class="ed-tool-btn" data-action="link" title="Markdown Link">🔗</button>
+              <button type="button" class="ed-tool-btn" data-action="callout" title="Obsidian Callout">[!]</button>
               <div class="ed-sep"></div>
-              <button type="button" class="ed-tool-btn" data-action="toggle-wrap" id="btnEditorWrapToggle" title="Toggle Line Wrap (Monospace Grid / Soft Wrap)">⇄ Wrap</button>
-              <button type="button" class="ed-tool-btn" data-action="move-to-vault" title="Move note into an Outline Vault">📁 Vault</button>
+              <button type="button" class="ed-tool-btn" data-action="toggle-wrap" id="btnEditorWrapToggle" title="Toggle Line Wrap (Monospace Grid / Soft Wrap)">⇄</button>
+              <button type="button" class="ed-tool-btn" data-action="move-to-vault" title="Move note into an Outline Vault">📁</button>
               <button type="button" class="ed-tool-btn" data-action="undo" title="Undo">↶</button>
               <button type="button" class="ed-tool-btn" data-action="redo" title="Redo">↷</button>
             </div>
@@ -5149,7 +5169,7 @@
                 <span class="pocket-split-tag">Primary</span>
               </div>
               <div class="pocket-split-pane-actions">
-                <button id="pocketSplitToggleEdit1" class="pocket-pane-tool-btn" title="Toggle Edit / Preview">👁️ Preview</button>
+                <button id="pocketSplitToggleEdit1" class="pocket-pane-tool-btn" title="Toggle Edit / Preview">👁️</button>
               </div>
             </div>
             <div class="pocket-split-body md-body markdown-body" id="pocketSplitBody1" style="display:none;"></div>
@@ -5172,7 +5192,7 @@
                 <select id="pocketSplitSelect2" class="pocket-split-select" style="display:none;" title="Select note to compare"></select>
               </div>
               <div class="pocket-split-pane-actions">
-                <button id="pocketSplitToggleEdit2" class="pocket-pane-tool-btn" style="display:none;" title="Toggle Edit / Preview">✍️ Edit</button>
+                <button id="pocketSplitToggleEdit2" class="pocket-pane-tool-btn" style="display:none;" title="Toggle Edit / Preview">✍️</button>
               </div>
             </div>
             <div class="pocket-split-body md-body markdown-body" id="pocketSplitBody2"></div>
@@ -7864,12 +7884,12 @@
       if (docFloatingBar) docFloatingBar.style.display = 'none';
 
       if (btnHeaderBasicSubMode) {
-        btnHeaderBasicSubMode.innerHTML = '👁️ Preview';
+        btnHeaderBasicSubMode.innerHTML = '👁️';
         btnHeaderBasicSubMode.title = 'Switch to Formatted Preview';
       }
       if (basicBottomToggleLabel) basicBottomToggleLabel.textContent = 'Preview';
       if (basicBottomToggleIcon) basicBottomToggleIcon.textContent = '👁️';
-      if (docFloatEditBtn) docFloatEditBtn.innerHTML = '👁️ Preview';
+      if (docFloatEditBtn) docFloatEditBtn.innerHTML = '👁️';
     } else {
       if (basicMarkdownEditor && basicEditorContainer && basicEditorContainer.style.display === 'flex') {
         basicDocText = basicMarkdownEditor.value;
@@ -7886,12 +7906,12 @@
       }
 
       if (btnHeaderBasicSubMode) {
-        btnHeaderBasicSubMode.innerHTML = '✍️ Edit';
+        btnHeaderBasicSubMode.innerHTML = '✍️';
         btnHeaderBasicSubMode.title = 'Switch to Markdown Editor';
       }
       if (basicBottomToggleLabel) basicBottomToggleLabel.textContent = 'Edit';
       if (basicBottomToggleIcon) basicBottomToggleIcon.textContent = '✍️';
-      if (docFloatEditBtn) docFloatEditBtn.innerHTML = '✍️ Edit';
+      if (docFloatEditBtn) docFloatEditBtn.innerHTML = '✍️';
     }
   }
 
@@ -8364,9 +8384,6 @@
     if (pocketCardSizeIcon) {
       pocketCardSizeIcon.textContent = (pocketCardSizeMode === 'full') ? '↕️' : (pocketCardSizeMode === 'compact') ? '⊟' : '≣';
     }
-    if (pocketCardSizeText) {
-      pocketCardSizeText.textContent = (pocketCardSizeMode === 'full') ? 'Full' : (pocketCardSizeMode === 'compact') ? 'Compact' : 'Medium';
-    }
     btnPocketCardSizeToggle.title = `Card Size: ${pocketCardSizeMode.toUpperCase()} (Tap to cycle)`;
   }
 
@@ -8619,7 +8636,7 @@
         <div class="pocket-card-header">
           <div class="pocket-card-title">${escapeHtml(note.title || 'Untitled')}</div>
           <div class="pocket-card-header-actions">
-            <button class="pocket-card-size-btn top" data-id="${note.id}" title="${noteSize === 'full' ? 'Collapse note' : 'Expand note'}">${noteSize === 'full' ? '▲ Fold' : '▼ Expand'}</button>
+            <button class="pocket-card-size-btn top" data-id="${note.id}" title="${noteSize === 'full' ? 'Collapse note' : 'Expand note'}">${noteSize === 'full' ? '▲' : '▼'}</button>
             <span class="pocket-card-dot" style="background:${colorHex};" title="${note.color}"></span>
           </div>
         </div>
@@ -8631,7 +8648,7 @@
             <span class="pocket-card-words">${words.toLocaleString()} words</span>
           </div>
           <div class="pocket-card-actions">
-            <button class="pocket-card-size-btn bottom" data-id="${note.id}" title="${noteSize === 'full' ? 'Collapse note' : 'Expand note'}">${noteSize === 'full' ? '▲ Collapse' : '▼ Expand'}</button>
+            <button class="pocket-card-size-btn bottom" data-id="${note.id}" title="${noteSize === 'full' ? 'Collapse note' : 'Expand note'}">${noteSize === 'full' ? '▲' : '▼'}</button>
             <button class="pocket-card-vault-btn" data-id="${note.id}" title="Move Note to Outline Vault">📁</button>
             <button class="pocket-card-del-btn" title="Delete Note">🗑️</button>
           </div>
@@ -9465,7 +9482,7 @@
       pocketSplitDot1.style.background = getPocketColorHex(note1.color);
     }
     if (pocketSplitToggleEdit1) {
-      pocketSplitToggleEdit1.textContent = (pocketSplitSubMode1 === 'edit') ? '👁️ Preview' : '✍️ Edit';
+      pocketSplitToggleEdit1.textContent = (pocketSplitSubMode1 === 'edit') ? '👁️' : '✍️';
     }
     if (pocketSplitSubMode1 === 'edit') {
       if (pocketSplitBody1) pocketSplitBody1.style.display = 'none';
@@ -9508,7 +9525,7 @@
       }
       if (pocketSplitToggleEdit2) {
         pocketSplitToggleEdit2.style.display = 'inline-flex';
-        pocketSplitToggleEdit2.textContent = (pocketSplitSubMode2 === 'edit') ? '👁️ Preview' : '✍️ Edit';
+        pocketSplitToggleEdit2.textContent = (pocketSplitSubMode2 === 'edit') ? '👁️' : '✍️';
       }
 
       const note2 = pocketNotes.find(n => n.id === pocketSplitNoteId2) || pocketNotes[1] || note1;
