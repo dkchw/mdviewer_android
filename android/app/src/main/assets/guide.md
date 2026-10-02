@@ -439,5 +439,14 @@ Turn any markdown document or note into interactive study flashcards:
 
 ---
 
+## 🚀 23. What's New in v2.4.15
+
+- **✨ Settings Menu Redesign**:
+  - **Tabbed Layout**: The massive settings popup has been overhauled into three clean, distinct tabs: **General**, **Controls**, and **Advanced**. 
+  - **De-Crowded Controls**: The massive "Controls & Gestures" card has been broken apart into organized sub-sections (Touch Gestures, Keyboard Shortcuts, Gamepad Mapping) for significantly better readability and to prevent UI elements from squishing together on smaller screens.
+  - **Smoother Animations**: Added elegant fade-in transitions when navigating between settings categories.
+
+---
+
 *MD Viewer — Fast, Offline, Private Markdown Reading & Writing on Android.*
 
