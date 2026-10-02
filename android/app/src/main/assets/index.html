@@ -2507,6 +2507,62 @@
   #settingsModal.open {
     display: flex;
   }
+  /* --- Settings Tabs --- */
+  .settings-tabs {
+    display: flex;
+    padding: 0 16px;
+    background: #181b2a;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    flex-shrink: 0;
+  }
+  .settings-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #9aa5ce;
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 14px 0;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .settings-tab.active {
+    color: #7aa2f7;
+  }
+  .settings-tab::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #7aa2f7;
+    border-radius: 3px 3px 0 0;
+    opacity: 0;
+    transform: scaleX(0.7);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .settings-tab.active::after {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  .settings-tab-content {
+    display: none;
+    flex-direction: column;
+    gap: 18px;
+    padding-bottom: 12px;
+  }
+  .settings-tab-content.active {
+    display: flex;
+    animation: fadeInTab 0.25s ease;
+  }
+  @keyframes fadeInTab {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
   .settings-header {
     display: flex;
     align-items: center;
@@ -7214,9 +7270,17 @@
     </div>
     <button id="btnCloseSettings" class="settings-close-btn" title="Close">✕</button>
   </div>
-  <div class="settings-body">
-    <!-- Document Actions -->
-    <div class="settings-group">
+  
+  <!-- Tab Header -->
+  <div class="settings-tabs">
+    <button class="settings-tab active" data-tab="tab-gen">General</button>
+    <button class="settings-tab" data-tab="tab-ctrl">Controls</button>
+    <button class="settings-tab" data-tab="tab-adv">Advanced</button>
+  </div>
+  
+  <div class="settings-body" style="padding-top: 12px; padding-bottom: 24px;">
+    <div class="settings-tab-content active" id="tab-gen">
+<div class="settings-group">
       <div class="settings-group-title">Document Actions</div>
       <div class="settings-card">
         <button class="settings-row-btn" id="btnOpenFlashcards">
@@ -7248,12 +7312,106 @@
 
     <!-- Controls & Gestures Configuration -->
     <div class="settings-group">
-      <div class="settings-group-title">Controls &amp; Gestures (Flashcard &amp; App)</div>
+      <div class="settings-group-title">Pocket Notes &amp; Color Palettes</div>
       <div class="settings-card">
-        <!-- Touch Gestures -->
-        <div class="settings-card-subtitle">Touch Gestures</div>
-
+        <!-- Active Palette Selector -->
         <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Active Color Palette</span>
+            <span class="settings-config-desc">Theme colors for note cards, accents and tags</span>
+          </div>
+          <select id="cfgActivePalette" class="cfg-select" style="max-width:150px;"></select>
+        </div>
+
+        <!-- Palette Preview Swatches -->
+        <div id="cfgPalettePreviewRow" style="display:flex; gap:6px; flex-wrap:wrap; padding:4px 0 10px;"></div>
+
+        <!-- Randomize Color Toggle -->
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Randomize New Note Color</span>
+            <span class="settings-config-desc">Assign random color from active palette on note creation</span>
+          </div>
+          <input type="checkbox" id="cfgRandomizeColor" class="cfg-toggle" checked>
+        </div>
+
+        <!-- Custom Palette Actions -->
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <button class="settings-row-btn" id="btnCreatePaletteModal" style="flex:1; justify-content:center; padding:9px 12px; background:rgba(122,162,247,0.12); border:1px solid rgba(122,162,247,0.3); border-radius:10px;">
+            <span class="settings-row-icon">🎨</span>
+            <span style="font-size:12.5px; font-weight:600; color:var(--accent);">＋ Create Custom Palette</span>
+          </button>
+          <button class="settings-row-btn" id="btnDeleteCustomPalette" style="display:none; padding:9px 12px; background:rgba(247,118,142,0.12); border:1px solid rgba(247,118,142,0.3); border-radius:10px;" title="Delete this custom palette">
+            <span class="settings-row-icon">🗑️</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Storage / History -->
+    <div class="settings-group" id="settingsGroupBasicStorage">
+      <div class="settings-group-title">Basic Mode Storage &amp; Folders</div>
+      <div class="settings-card">
+        <div class="settings-row-config" style="flex-direction:column;align-items:flex-start;gap:10px;padding:14px;">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Default Basic Save Location</span>
+            <span class="settings-config-desc">Automatically save notes as .md files directly to this folder on disk upon autosave.</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;width:100%;">
+            <div id="settingsDefaultSaveBadge" style="flex:1;background:#10121d;padding:10px 12px;border-radius:8px;font-size:12px;font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid rgba(122,162,247,0.25);color:#7dcfff;">
+              📁 Not Set (Stored in app cache)
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;width:100%;flex-wrap:wrap;">
+            <button id="btnSetBasicSaveFolder" class="settings-row-btn" style="flex:1;min-width:140px;justify-content:center;padding:10px 14px;background:#7aa2f7;color:#1a1b26;border-radius:8px;font-weight:700;font-size:12.5px;min-height:42px;">
+              📂 Choose Folder
+            </button>
+            <button id="btnClearBasicSaveFolder" class="settings-row-btn" style="padding:10px 16px;background:rgba(247,118,142,0.15);border:1px solid rgba(247,118,142,0.4);color:#f7768e;border-radius:8px;font-weight:700;font-size:12.5px;min-height:42px;" title="Reset to App Cache">
+              ✕ Reset
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- App Info & Updates -->
+    <div class="settings-group">
+      <div class="settings-group-title">File History</div>
+      <div class="settings-card">
+        <button class="settings-row-btn" id="btnClearRecentFiles">
+          <span class="settings-row-icon">🗑️</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">Clear Recent Files</span>
+            <span class="settings-row-desc">Remove recent document history</span>
+          </div>
+          <span class="settings-row-chevron">›</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Help & Documentation -->
+    <div class="settings-group">
+      <div class="settings-group-title">Help & Documentation</div>
+      <div class="settings-card">
+        <button class="settings-row-btn" id="btnSettingsOpenGuide">
+          <span class="settings-row-icon">📖</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">User Guide & Helper</span>
+            <span class="settings-row-desc">Interactive features, gestures, shortcuts & manuals</span>
+          </div>
+          <span class="settings-row-badge" style="color:var(--accent);">Open</span>
+          <span class="settings-row-chevron">›</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Performance Stress Tests -->
+        </div>
+    <div class="settings-tab-content" id="tab-ctrl">
+      <div class="settings-group">
+        <div class="settings-group-title">Touch Gestures</div>
+        <div class="settings-card">
+          <div class="settings-row-config">
           <div class="settings-config-label">
             <span class="settings-config-name">Horizontal Swipe</span>
             <span class="settings-config-desc">Swipe left / right to change cards or pages</span>
@@ -7314,9 +7472,12 @@
         </div>
 
         <!-- Keyboard Shortcuts -->
-        <div class="settings-card-subtitle">Keyboard Shortcuts (Type or Record)</div>
-
-        <div class="settings-row-config">
+        </div>
+      </div>
+      <div class="settings-group">
+        <div class="settings-group-title">Keyboard Shortcuts (Type or Record)</div>
+        <div class="settings-card">
+          <div class="settings-row-config">
           <div class="settings-config-label">
             <span class="settings-config-name">Flip Card</span>
             <span class="settings-config-desc">Keys to flip card front / back</span>
@@ -7427,9 +7588,12 @@
         </div>
 
         <!-- Gamepad Mapping (Xbox One Controller Standards) -->
-        <div class="settings-card-subtitle">Xbox One Gamepad Controller Mapping</div>
-
-        <div class="settings-row-config">
+        </div>
+      </div>
+      <div class="settings-group">
+        <div class="settings-group-title">Xbox One Gamepad Controller Mapping</div>
+        <div class="settings-card">
+          <div class="settings-row-config">
           <div class="settings-config-label">
             <span class="settings-config-name">Flip Card</span>
             <span class="settings-config-desc">Controller button to flip front/back</span>
@@ -7617,80 +7781,11 @@
             <span class="settings-row-desc">Restore standard Xbox One gamepad &amp; keyboard settings</span>
           </div>
         </button>
-      </div>
-    </div>
-
-    <!-- Pocket Notes & Color Palettes -->
-    <div class="settings-group">
-      <div class="settings-group-title">Pocket Notes &amp; Color Palettes</div>
-      <div class="settings-card">
-        <!-- Active Palette Selector -->
-        <div class="settings-row-config">
-          <div class="settings-config-label">
-            <span class="settings-config-name">Active Color Palette</span>
-            <span class="settings-config-desc">Theme colors for note cards, accents and tags</span>
-          </div>
-          <select id="cfgActivePalette" class="cfg-select" style="max-width:150px;"></select>
-        </div>
-
-        <!-- Palette Preview Swatches -->
-        <div id="cfgPalettePreviewRow" style="display:flex; gap:6px; flex-wrap:wrap; padding:4px 0 10px;"></div>
-
-        <!-- Randomize Color Toggle -->
-        <div class="settings-row-config">
-          <div class="settings-config-label">
-            <span class="settings-config-name">Randomize New Note Color</span>
-            <span class="settings-config-desc">Assign random color from active palette on note creation</span>
-          </div>
-          <input type="checkbox" id="cfgRandomizeColor" class="cfg-toggle" checked>
-        </div>
-
-        <!-- Custom Palette Actions -->
-        <div style="display:flex; gap:8px; margin-top:8px;">
-          <button class="settings-row-btn" id="btnCreatePaletteModal" style="flex:1; justify-content:center; padding:9px 12px; background:rgba(122,162,247,0.12); border:1px solid rgba(122,162,247,0.3); border-radius:10px;">
-            <span class="settings-row-icon">🎨</span>
-            <span style="font-size:12.5px; font-weight:600; color:var(--accent);">＋ Create Custom Palette</span>
-          </button>
-          <button class="settings-row-btn" id="btnDeleteCustomPalette" style="display:none; padding:9px 12px; background:rgba(247,118,142,0.12); border:1px solid rgba(247,118,142,0.3); border-radius:10px;" title="Delete this custom palette">
-            <span class="settings-row-icon">🗑️</span>
-          </button>
         </div>
       </div>
     </div>
-
-    <!-- Storage / History -->
-    <div class="settings-group">
-      <div class="settings-group-title">File History</div>
-      <div class="settings-card">
-        <button class="settings-row-btn" id="btnClearRecentFiles">
-          <span class="settings-row-icon">🗑️</span>
-          <div class="settings-row-content">
-            <span class="settings-row-name">Clear Recent Files</span>
-            <span class="settings-row-desc">Remove recent document history</span>
-          </div>
-          <span class="settings-row-chevron">›</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Help & Documentation -->
-    <div class="settings-group">
-      <div class="settings-group-title">Help & Documentation</div>
-      <div class="settings-card">
-        <button class="settings-row-btn" id="btnSettingsOpenGuide">
-          <span class="settings-row-icon">📖</span>
-          <div class="settings-row-content">
-            <span class="settings-row-name">User Guide & Helper</span>
-            <span class="settings-row-desc">Interactive features, gestures, shortcuts & manuals</span>
-          </div>
-          <span class="settings-row-badge" style="color:var(--accent);">Open</span>
-          <span class="settings-row-chevron">›</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Performance Stress Tests -->
-    <div class="settings-group">
+    <div class="settings-tab-content" id="tab-adv">
+<div class="settings-group">
       <div class="settings-group-title">Performance Stress Tests</div>
       <div class="settings-card">
         <button class="settings-row-btn" id="sampleGuide">
@@ -7729,32 +7824,6 @@
     </div>
 
     <!-- Basic Mode Storage & Folders -->
-    <div class="settings-group" id="settingsGroupBasicStorage">
-      <div class="settings-group-title">Basic Mode Storage &amp; Folders</div>
-      <div class="settings-card">
-        <div class="settings-row-config" style="flex-direction:column;align-items:flex-start;gap:10px;padding:14px;">
-          <div class="settings-config-label">
-            <span class="settings-config-name">Default Basic Save Location</span>
-            <span class="settings-config-desc">Automatically save notes as .md files directly to this folder on disk upon autosave.</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;width:100%;">
-            <div id="settingsDefaultSaveBadge" style="flex:1;background:#10121d;padding:10px 12px;border-radius:8px;font-size:12px;font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid rgba(122,162,247,0.25);color:#7dcfff;">
-              📁 Not Set (Stored in app cache)
-            </div>
-          </div>
-          <div style="display:flex;gap:10px;width:100%;flex-wrap:wrap;">
-            <button id="btnSetBasicSaveFolder" class="settings-row-btn" style="flex:1;min-width:140px;justify-content:center;padding:10px 14px;background:#7aa2f7;color:#1a1b26;border-radius:8px;font-weight:700;font-size:12.5px;min-height:42px;">
-              📂 Choose Folder
-            </button>
-            <button id="btnClearBasicSaveFolder" class="settings-row-btn" style="padding:10px 16px;background:rgba(247,118,142,0.15);border:1px solid rgba(247,118,142,0.4);color:#f7768e;border-radius:8px;font-weight:700;font-size:12.5px;min-height:42px;" title="Reset to App Cache">
-              ✕ Reset
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- App Info & Updates -->
     <div class="settings-group">
       <div class="settings-group-title">App Info & Updates</div>
       <div class="settings-card">
@@ -7806,8 +7875,11 @@
       <button id="panelCloseBtn" class="panel-btn" style="font-weight:700;">✕</button>
     </div>
   </div>
-  <div id="panelBody"></div>
+  <div id="panelBody">    </div>
+
+  </div>
 </div>
+
 
 <!-- Auto Update Modal Dialog -->
 <div id="updateBackdrop"></div>
@@ -16977,7 +17049,13 @@ ${cp.rawDocText || ''}
     settingsBackdrop.style.display = 'block';
     settingsModal.classList.add('open');
     settingsModal.style.display = 'flex';
+    
+    // Ensure the General tab is active before scrolling
+    if (typeof settingsTabs !== 'undefined') {
+      settingsTabs[0].click();
+    }
     if (targetSection === 'pocketPalettes' && cfgActivePalette) {
+
       setTimeout(() => {
         cfgActivePalette.closest('.settings-group')?.scrollIntoView({ behavior: 'smooth' });
       }, 50);
@@ -16991,6 +17069,25 @@ ${cp.rawDocText || ''}
   }
   btnOpenSettings.addEventListener('click', openSettings);
   btnCloseSettings.addEventListener('click', closeSettings);
+
+  // Settings Tabs Logic
+  const settingsTabs = document.querySelectorAll('.settings-tab');
+  const settingsTabContents = document.querySelectorAll('.settings-tab-content');
+  
+  settingsTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      // Remove active from all
+      settingsTabs.forEach(t => t.classList.remove('active'));
+      settingsTabContents.forEach(c => c.classList.remove('active'));
+      
+      // Add active to clicked
+      tab.classList.add('active');
+      const targetId = tab.getAttribute('data-tab');
+      const targetContent = document.getElementById(targetId);
+      if (targetContent) targetContent.classList.add('active');
+    });
+  });
+
   settingsBackdrop.addEventListener('click', closeSettings);
 
   btnClearRecentFiles.addEventListener('click', () => {
