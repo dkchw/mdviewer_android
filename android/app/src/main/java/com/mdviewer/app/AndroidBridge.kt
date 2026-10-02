@@ -222,9 +222,9 @@ class AndroidBridge(
     fun getAppVersion(): String {
         return try {
             val pInfo = activity.packageManager.getPackageInfo(activity.packageName, 0)
-            pInfo.versionName ?: "3.0.3"
+            pInfo.versionName ?: "3.1.0"
         } catch (e: Exception) {
-            "3.0.3"
+            "3.1.0"
         }
     }
 
@@ -275,5 +275,15 @@ class AndroidBridge(
     @JavascriptInterface
     fun closeApp() {
         handler.post { activity.finish() }
+    }
+
+    @JavascriptInterface
+    fun deleteTreeDocument(docId: String?): String {
+        return activity.deleteTreeDocument(docId ?: "")
+    }
+
+    @JavascriptInterface
+    fun moveTreeDocument(sourceDocId: String?, sourceParentDocId: String?, targetParentDocId: String?): String {
+        return activity.moveTreeDocument(sourceDocId ?: "", sourceParentDocId ?: "", targetParentDocId ?: "")
     }
 }

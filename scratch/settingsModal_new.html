@@ -1,0 +1,622 @@
+<div id="settingsModal">
+  <div class="settings-header">
+    <div class="settings-title">
+      <span class="settings-title-icon-badge">
+        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </span>
+      <span>Settings</span>
+    </div>
+    <button id="btnCloseSettings" class="settings-close-btn" title="Close">✕</button>
+  </div>
+  
+  <!-- Tab Header -->
+  <div class="settings-tabs">
+    <button class="settings-tab active" data-tab="tab-gen">General</button>
+    <button class="settings-tab" data-tab="tab-ctrl">Controls</button>
+    <button class="settings-tab" data-tab="tab-adv">Advanced</button>
+  </div>
+  
+  <div class="settings-body" style="padding-top: 12px; padding-bottom: 24px;">
+    <div class="settings-tab-content active" id="tab-gen">
+<div class="settings-group">
+      <div class="settings-group-title">Document Actions</div>
+      <div class="settings-card">
+        <button class="settings-row-btn" id="btnOpenFlashcards">
+          <span class="settings-row-icon">🗂️</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">Flashcard Study Mode</span>
+            <span class="settings-row-desc">Study heading sections with interactive cards</span>
+          </div>
+          <span class="settings-row-chevron">›</span>
+        </button>
+        <button class="settings-row-btn" id="btnShareDoc">
+          <span class="settings-row-icon">📤</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">Share Document</span>
+            <span class="settings-row-desc">Send markdown text to other apps</span>
+          </div>
+          <span class="settings-row-chevron">›</span>
+        </button>
+        <button class="settings-row-btn" id="btnCopyDoc">
+          <span class="settings-row-icon">📋</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">Copy All Text</span>
+            <span class="settings-row-desc">Copy document content to clipboard</span>
+          </div>
+          <span class="settings-row-chevron">›</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Controls & Gestures Configuration -->
+    <div class="settings-group">
+      <div class="settings-group-title">Pocket Notes &amp; Color Palettes</div>
+      <div class="settings-card">
+        <!-- Active Palette Selector -->
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Active Color Palette</span>
+            <span class="settings-config-desc">Theme colors for note cards, accents and tags</span>
+          </div>
+          <select id="cfgActivePalette" class="cfg-select" style="max-width:150px;"></select>
+        </div>
+
+        <!-- Palette Preview Swatches -->
+        <div id="cfgPalettePreviewRow" style="display:flex; gap:6px; flex-wrap:wrap; padding:4px 0 10px;"></div>
+
+        <!-- Randomize Color Toggle -->
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Randomize New Note Color</span>
+            <span class="settings-config-desc">Assign random color from active palette on note creation</span>
+          </div>
+          <input type="checkbox" id="cfgRandomizeColor" class="cfg-toggle" checked>
+        </div>
+
+        <!-- Custom Palette Actions -->
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <button class="settings-row-btn" id="btnCreatePaletteModal" style="flex:1; justify-content:center; padding:9px 12px; background:rgba(122,162,247,0.12); border:1px solid rgba(122,162,247,0.3); border-radius:10px;">
+            <span class="settings-row-icon">🎨</span>
+            <span style="font-size:12.5px; font-weight:600; color:var(--accent);">＋ Create Custom Palette</span>
+          </button>
+          <button class="settings-row-btn" id="btnDeleteCustomPalette" style="display:none; padding:9px 12px; background:rgba(247,118,142,0.12); border:1px solid rgba(247,118,142,0.3); border-radius:10px;" title="Delete this custom palette">
+            <span class="settings-row-icon">🗑️</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Storage / History -->
+    <div class="settings-group" id="settingsGroupBasicStorage">
+      <div class="settings-group-title">Basic Mode Storage &amp; Folders</div>
+      <div class="settings-card">
+        <div class="settings-row-config" style="flex-direction:column;align-items:flex-start;gap:10px;padding:14px;">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Default Basic Save Location</span>
+            <span class="settings-config-desc">Automatically save notes as .md files directly to this folder on disk upon autosave.</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;width:100%;">
+            <div id="settingsDefaultSaveBadge" style="flex:1;background:#10121d;padding:10px 12px;border-radius:8px;font-size:12px;font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid rgba(122,162,247,0.25);color:#7dcfff;">
+              📁 Not Set (Stored in app cache)
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;width:100%;flex-wrap:wrap;">
+            <button id="btnSetBasicSaveFolder" class="settings-row-btn" style="flex:1;min-width:140px;justify-content:center;padding:10px 14px;background:#7aa2f7;color:#1a1b26;border-radius:8px;font-weight:700;font-size:12.5px;min-height:42px;">
+              📂 Choose Folder
+            </button>
+            <button id="btnClearBasicSaveFolder" class="settings-row-btn" style="padding:10px 16px;background:rgba(247,118,142,0.15);border:1px solid rgba(247,118,142,0.4);color:#f7768e;border-radius:8px;font-weight:700;font-size:12.5px;min-height:42px;" title="Reset to App Cache">
+              ✕ Reset
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- App Info & Updates -->
+    <div class="settings-group">
+      <div class="settings-group-title">File History</div>
+      <div class="settings-card">
+        <button class="settings-row-btn" id="btnClearRecentFiles">
+          <span class="settings-row-icon">🗑️</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">Clear Recent Files</span>
+            <span class="settings-row-desc">Remove recent document history</span>
+          </div>
+          <span class="settings-row-chevron">›</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Help & Documentation -->
+    <div class="settings-group">
+      <div class="settings-group-title">Help & Documentation</div>
+      <div class="settings-card">
+        <button class="settings-row-btn" id="btnSettingsOpenGuide">
+          <span class="settings-row-icon">📖</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">User Guide & Helper</span>
+            <span class="settings-row-desc">Interactive features, gestures, shortcuts & manuals</span>
+          </div>
+          <span class="settings-row-badge" style="color:var(--accent);">Open</span>
+          <span class="settings-row-chevron">›</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Performance Stress Tests -->
+        </div>
+    <div class="settings-tab-content" id="tab-ctrl">
+      <div class="settings-group">
+        <div class="settings-group-title">Touch Gestures</div>
+        <div class="settings-card">
+          <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Horizontal Swipe</span>
+            <span class="settings-config-desc">Swipe left / right to change cards or pages</span>
+          </div>
+          <input type="checkbox" id="cfgGestureSwipe" class="cfg-toggle" checked>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Vertical Flick</span>
+            <span class="settings-config-desc">Flick up / down to flip flashcard</span>
+          </div>
+          <input type="checkbox" id="cfgGestureFlick" class="cfg-toggle" checked>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Double-Tap</span>
+            <span class="settings-config-desc">Double-tap card to toggle 2-column mode</span>
+          </div>
+          <input type="checkbox" id="cfgGestureDoubleTap" class="cfg-toggle" checked>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Long-Press (Hold)</span>
+            <span class="settings-config-desc">Hold card for 600ms to shuffle cards</span>
+          </div>
+          <input type="checkbox" id="cfgGestureLongPress" class="cfg-toggle" checked>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Edge Tap (Left/Right 16%)</span>
+            <span class="settings-config-desc">Tap left edge for prev, right edge for next</span>
+          </div>
+          <input type="checkbox" id="cfgGestureEdgeTap" class="cfg-toggle" checked>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Pinch-to-Zoom</span>
+            <span class="settings-config-desc">Pinch on card to resize font size</span>
+          </div>
+          <input type="checkbox" id="cfgGesturePinch" class="cfg-toggle" checked>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Swipe Sensitivity</span>
+            <span class="settings-config-desc">Distance threshold for swipe trigger</span>
+          </div>
+          <select id="cfgSwipeSensitivity" class="cfg-select">
+            <option value="30">High (30px)</option>
+            <option value="45" selected>Normal (45px)</option>
+            <option value="65">Low (65px)</option>
+          </select>
+        </div>
+
+        <!-- Keyboard Shortcuts -->
+        </div>
+      </div>
+      <div class="settings-group">
+        <div class="settings-group-title">Keyboard Shortcuts (Type or Record)</div>
+        <div class="settings-card">
+          <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Flip Card</span>
+            <span class="settings-config-desc">Keys to flip card front / back</span>
+          </div>
+          <div class="settings-key-config-row">
+            <input type="text" id="cfgKeyFlip" class="cfg-key-input" placeholder="e.g. Space, Enter">
+            <button class="cfg-record-btn" data-target="cfgKeyFlip" title="Press to record key">⌨️ Record</button>
+          </div>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Next Card</span>
+            <span class="settings-config-desc">Keys to advance to next card</span>
+          </div>
+          <div class="settings-key-config-row">
+            <input type="text" id="cfgKeyNext" class="cfg-key-input" placeholder="e.g. ArrowRight, n">
+            <button class="cfg-record-btn" data-target="cfgKeyNext" title="Press to record key">⌨️ Record</button>
+          </div>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Prev Card</span>
+            <span class="settings-config-desc">Keys to go to previous card</span>
+          </div>
+          <div class="settings-key-config-row">
+            <input type="text" id="cfgKeyPrev" class="cfg-key-input" placeholder="e.g. ArrowLeft, p">
+            <button class="cfg-record-btn" data-target="cfgKeyPrev" title="Press to record key">⌨️ Record</button>
+          </div>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Next Page (2-Col)</span>
+            <span class="settings-config-desc">Keys to advance page in 2-column mode</span>
+          </div>
+          <div class="settings-key-config-row">
+            <input type="text" id="cfgKeyNextPage" class="cfg-key-input" placeholder="e.g. ], PageDown">
+            <button class="cfg-record-btn" data-target="cfgKeyNextPage" title="Press to record key">⌨️ Record</button>
+          </div>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Prev Page (2-Col)</span>
+            <span class="settings-config-desc">Keys to go to previous page</span>
+          </div>
+          <div class="settings-key-config-row">
+            <input type="text" id="cfgKeyPrevPage" class="cfg-key-input" placeholder="e.g. [, PageUp">
+            <button class="cfg-record-btn" data-target="cfgKeyPrevPage" title="Press to record key">⌨️ Record</button>
+          </div>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Toggle 2-Column</span>
+            <span class="settings-config-desc">Keys to switch between 1-col &amp; 2-col</span>
+          </div>
+          <div class="settings-key-config-row">
+            <input type="text" id="cfgKeyToggleCol" class="cfg-key-input" placeholder="e.g. c, t">
+            <button class="cfg-record-btn" data-target="cfgKeyToggleCol" title="Press to record key">⌨️ Record</button>
+          </div>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Toggle Fullscreen</span>
+            <span class="settings-config-desc">Keys to toggle immersive fullscreen</span>
+          </div>
+          <div class="settings-key-config-row">
+            <input type="text" id="cfgKeyFullscreen" class="cfg-key-input" placeholder="e.g. f, F11">
+            <button class="cfg-record-btn" data-target="cfgKeyFullscreen" title="Press to record key">⌨️ Record</button>
+          </div>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Shuffle Cards</span>
+            <span class="settings-config-desc">Keys to randomize cards order</span>
+          </div>
+          <div class="settings-key-config-row">
+            <input type="text" id="cfgKeyShuffle" class="cfg-key-input" placeholder="e.g. s, r">
+            <button class="cfg-record-btn" data-target="cfgKeyShuffle" title="Press to record key">⌨️ Record</button>
+          </div>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Exit Mode</span>
+            <span class="settings-config-desc">Keys to exit flashcards to reader</span>
+          </div>
+          <div class="settings-key-config-row">
+            <input type="text" id="cfgKeyExit" class="cfg-key-input" placeholder="e.g. Escape, q">
+            <button class="cfg-record-btn" data-target="cfgKeyExit" title="Press to record key">⌨️ Record</button>
+          </div>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Font Zoom In / Out</span>
+            <span class="settings-config-desc">Keys to increase or decrease font size</span>
+          </div>
+          <div class="settings-key-config-row">
+            <input type="text" id="cfgKeyZoomIn" class="cfg-key-input" style="width:45px;" placeholder="+">
+            <input type="text" id="cfgKeyZoomOut" class="cfg-key-input" style="width:45px;" placeholder="-">
+          </div>
+        </div>
+
+        <!-- Gamepad Mapping (Xbox One Controller Standards) -->
+        </div>
+      </div>
+      <div class="settings-group">
+        <div class="settings-group-title">Xbox One Gamepad Controller Mapping</div>
+        <div class="settings-card">
+          <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Flip Card</span>
+            <span class="settings-config-desc">Controller button to flip front/back</span>
+          </div>
+          <select id="cfgGpFlip" class="cfg-select">
+            <option value="A">A Button</option>
+            <option value="B">B Button</option>
+            <option value="X">X Button</option>
+            <option value="Y">Y Button</option>
+            <option value="LB">LB (Left Bumper)</option>
+            <option value="RB">RB (Right Bumper)</option>
+            <option value="LT">LT (Left Trigger)</option>
+            <option value="RT">RT (Right Trigger)</option>
+            <option value="DpadUp">D-Pad Up</option>
+            <option value="DpadDown">D-Pad Down</option>
+            <option value="DpadLeft">D-Pad Left</option>
+            <option value="DpadRight">D-Pad Right</option>
+            <option value="Start">Start / Menu (☰)</option>
+            <option value="Back">Back / View (⧉)</option>
+            <option value="LS">LS Click (Left Stick)</option>
+            <option value="RS">RS Click (Right Stick)</option>
+            <option value="none">None (Disabled)</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Next Card</span>
+            <span class="settings-config-desc">Advance to next flashcard</span>
+          </div>
+          <select id="cfgGpNext" class="cfg-select">
+            <option value="RB">RB (Right Bumper)</option>
+            <option value="RT">RT (Right Trigger)</option>
+            <option value="DpadRight">D-Pad Right</option>
+            <option value="A">A Button</option>
+            <option value="B">B Button</option>
+            <option value="X">X Button</option>
+            <option value="Y">Y Button</option>
+            <option value="LB">LB (Left Bumper)</option>
+            <option value="LT">LT (Left Trigger)</option>
+            <option value="none">None (Disabled)</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Prev Card</span>
+            <span class="settings-config-desc">Return to previous flashcard</span>
+          </div>
+          <select id="cfgGpPrev" class="cfg-select">
+            <option value="LB">LB (Left Bumper)</option>
+            <option value="LT">LT (Left Trigger)</option>
+            <option value="DpadLeft">D-Pad Left</option>
+            <option value="A">A Button</option>
+            <option value="B">B Button</option>
+            <option value="X">X Button</option>
+            <option value="Y">Y Button</option>
+            <option value="RB">RB (Right Bumper)</option>
+            <option value="RT">RT (Right Trigger)</option>
+            <option value="none">None (Disabled)</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Next Page (2-Col)</span>
+            <span class="settings-config-desc">Page forward in 2-column mode</span>
+          </div>
+          <select id="cfgGpNextPage" class="cfg-select">
+            <option value="RT">RT (Right Trigger)</option>
+            <option value="RB">RB (Right Bumper)</option>
+            <option value="DpadRight">D-Pad Right</option>
+            <option value="RS">RS Click</option>
+            <option value="none">None (Disabled)</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Prev Page (2-Col)</span>
+            <span class="settings-config-desc">Page backward in 2-column mode</span>
+          </div>
+          <select id="cfgGpPrevPage" class="cfg-select">
+            <option value="LT">LT (Left Trigger)</option>
+            <option value="LB">LB (Left Bumper)</option>
+            <option value="DpadLeft">D-Pad Left</option>
+            <option value="LS">LS Click</option>
+            <option value="none">None (Disabled)</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Toggle 2-Column</span>
+            <span class="settings-config-desc">Switch between 1-col &amp; 2-col mode</span>
+          </div>
+          <select id="cfgGpToggleCol" class="cfg-select">
+            <option value="X">X Button</option>
+            <option value="Y">Y Button</option>
+            <option value="Start">Start / Menu</option>
+            <option value="Back">Back / View</option>
+            <option value="none">None (Disabled)</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Shuffle Cards</span>
+            <span class="settings-config-desc">Randomize flashcards order</span>
+          </div>
+          <select id="cfgGpShuffle" class="cfg-select">
+            <option value="Y">Y Button</option>
+            <option value="X">X Button</option>
+            <option value="Back">Back / View</option>
+            <option value="none">None (Disabled)</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Toggle Fullscreen</span>
+            <span class="settings-config-desc">Switch fullscreen on/off</span>
+          </div>
+          <select id="cfgGpFullscreen" class="cfg-select">
+            <option value="RS">RS Click (Right Stick)</option>
+            <option value="LS">LS Click (Left Stick)</option>
+            <option value="Start">Start / Menu</option>
+            <option value="Back">Back / View</option>
+            <option value="none">None (Disabled)</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Back / Exit Button</span>
+            <span class="settings-config-desc">Flip back to front or exit mode</span>
+          </div>
+          <select id="cfgGpBack" class="cfg-select">
+            <option value="B">B Button</option>
+            <option value="Back">Back / View</option>
+            <option value="Start">Start / Menu</option>
+            <option value="none">None (Disabled)</option>
+          </select>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Card Font Zoom</span>
+            <span class="settings-config-desc">Buttons to scale flashcard text size</span>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <select id="cfgGpZoomIn" class="cfg-select" style="max-width:85px;">
+              <option value="DpadUp">D-Up (+)</option>
+              <option value="RT">RT (+)</option>
+              <option value="none">None</option>
+            </select>
+            <select id="cfgGpZoomOut" class="cfg-select" style="max-width:85px;">
+              <option value="DpadDown">D-Down (-)</option>
+              <option value="LT">LT (-)</option>
+              <option value="none">None</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Left Analog Stick</span>
+            <span class="settings-config-desc">Stick left/right for cards, flick Y to flip</span>
+          </div>
+          <input type="checkbox" id="cfgGpAnalog" class="cfg-toggle" checked>
+        </div>
+
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Reader Mode Gamepad</span>
+            <span class="settings-config-desc">Navigate document in reader mode with controller</span>
+          </div>
+          <input type="checkbox" id="cfgGpReader" class="cfg-toggle" checked>
+        </div>
+
+        <button class="settings-row-btn" id="btnResetControls" style="margin-top:6px;">
+          <span class="settings-row-icon">⚙️</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name" style="color:var(--accent);">Reset All Controls to Default</span>
+            <span class="settings-row-desc">Restore standard Xbox One gamepad &amp; keyboard settings</span>
+          </div>
+        </button>
+        </div>
+      </div>
+    </div>
+    <div class="settings-tab-content" id="tab-adv">
+<div class="settings-group">
+      <div class="settings-group-title">Performance Stress Tests</div>
+      <div class="settings-card">
+        <button class="settings-row-btn" id="sampleGuide">
+          <span class="settings-row-icon">📖</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">Guide & Features</span>
+            <span class="settings-row-desc">Overview of functions and gestures</span>
+          </div>
+          <span class="settings-row-chevron">›</span>
+        </button>
+        <button class="settings-row-btn" id="sample10k">
+          <span class="settings-row-icon">🚀</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">10,000 Lines Test</span>
+            <span class="settings-row-desc">Quick 10k lines outline test</span>
+          </div>
+          <span class="settings-row-chevron">›</span>
+        </button>
+        <button class="settings-row-btn" id="sample100k">
+          <span class="settings-row-icon">🔥</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">100,000 Lines Test</span>
+            <span class="settings-row-desc">High volume folding benchmark</span>
+          </div>
+          <span class="settings-row-chevron">›</span>
+        </button>
+        <button class="settings-row-btn" id="sample1M">
+          <span class="settings-row-icon">⚡</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">1,000,000 Lines Ultra Test</span>
+            <span class="settings-row-desc">Extreme 1 million line benchmark</span>
+          </div>
+          <span class="settings-row-chevron">›</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Basic Mode Storage & Folders -->
+    <div class="settings-group">
+      <div class="settings-group-title">App Info & Updates</div>
+      <div class="settings-card">
+        <button class="settings-row-btn" id="btnCheckUpdateDrawer">
+          <span class="settings-row-icon">🔄</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">Check for Updates</span>
+            <span class="settings-row-desc">Check GitHub releases for new version</span>
+          </div>
+          <span class="settings-row-badge" id="appVersionSub">v2.4.14</span>
+          <span class="settings-row-chevron">›</span>
+        </button>
+        <div class="settings-row-config">
+          <div class="settings-config-label">
+            <span class="settings-config-name">Check Updates on Startup</span>
+            <span class="settings-config-desc">Automatically notify when a new release is available</span>
+          </div>
+          <input type="checkbox" id="cfgAutoDownloadUpdate" class="cfg-toggle" checked>
+        </div>
+        <button class="settings-row-btn" id="btnOpenGitHubRepo">
+          <span class="settings-row-icon">🌐</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">GitHub Repository</span>
+            <span class="settings-row-desc">dkchw/mdviewer_android</span>
+          </div>
+          <span class="settings-row-chevron">›</span>
+        </button>
+        <div class="settings-row-btn" style="cursor: default;">
+          <span class="settings-row-icon">⚖️</span>
+          <div class="settings-row-content">
+            <span class="settings-row-name">Apache License 2.0</span>
+            <span class="settings-row-desc">Free & open source software</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hover Outline Preview Panel -->
+<div id="panelBackdrop"></div>
+<div id="panel">
+  <div id="panelHeader">
+    <span id="panelTitle">Outline preview</span>
+    <div class="panel-actions">
+      <button id="panelZoomOut" class="panel-btn">A−</button>
+      <button id="panelZoomIn" class="panel-btn">A+</button>
+      <button id="panelJumpBtn" class="panel-btn" style="color:var(--accent);">Jump</button>
+      <button id="panelCloseBtn" class="panel-btn" style="font-weight:700;">✕</button>
+    </div>
+  </div>
+  <div id="panelBody">    </div>
+
+  </div>
+</div>

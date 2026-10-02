@@ -7833,7 +7833,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v3.0.3</span>
+          <span class="settings-row-badge" id="appVersionSub">v3.1.0</span>
           <span class="settings-row-chevron">›</span>
         </button>
         <div class="settings-row-config">
@@ -7890,8 +7890,8 @@
   </div>
   <div class="update-body">
     <div class="update-version-row">
-      <span class="badge new-badge" id="updateNewVersion">v3.0.3</span>
-      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.0.3</span>
+      <span class="badge new-badge" id="updateNewVersion">v3.1.0</span>
+      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.0</span>
     </div>
     <div class="update-changelog-title">Changelog:</div>
     <div class="update-changelog" id="updateChangelog"></div>
@@ -8164,7 +8164,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '3.0.3';
+      window.AndroidBridge.getAppVersion() : '3.1.0';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -18210,6 +18210,19 @@ ${cp.rawDocText || ''}
 
       selfEl.append(chevron, folderIcon, title);
 
+      const moreIcon = document.createElement('span');
+      moreIcon.innerHTML = '&#8942;';
+      moreIcon.style.marginLeft = 'auto';
+      moreIcon.style.padding = '0 8px';
+      moreIcon.style.fontSize = '18px';
+      moreIcon.style.color = '#7a88cf';
+      moreIcon.onclick = (e) => {
+        e.stopPropagation();
+        openTreeContextMenu(item, e.clientX, e.clientY);
+      };
+      selfEl.appendChild(moreIcon);
+
+
       if (typeof item.fileCount === 'number' && item.fileCount > 0) {
         const flair = document.createElement('span');
         flair.className = 'tree-item-flair';
@@ -18915,6 +18928,185 @@ ${cp.rawDocText || ''}
     return false;
   };
 
+  
+  // --- File Tree Context Menu Logic ---
+  let activeTreeCtxItem = null;
+  const treeContextMenu = document.getElementById('treeContextMenu');
+  const treeCtxBackdrop = document.getElementById('treeContextMenuBackdrop');
+  const ctxBtnNewFile = document.getElementById('ctxBtnNewFile');
+  const ctxBtnMove = document.getElementById('ctxBtnMove');
+  const ctxBtnDelete = document.getElementById('ctxBtnDelete');
+
+  const moveModal = document.getElementById('moveModal');
+  const inputMoveTargetDocId = document.getElementById('inputMoveTargetDocId');
+  const btnCancelMove = document.getElementById('btnCancelMove');
+  const btnConfirmMove = document.getElementById('btnConfirmMove');
+
+  window.openTreeContextMenu = function(item, x, y) {
+    activeTreeCtxItem = item;
+    
+    // Adjust menu items
+    if (item.kind === 'directory') {
+      ctxBtnNewFile.style.display = 'block';
+    } else {
+      ctxBtnNewFile.style.display = 'none';
+    }
+
+    treeContextMenu.style.left = Math.min(x, window.innerWidth - 160) + 'px';
+    treeContextMenu.style.top = Math.min(y, window.innerHeight - 150) + 'px';
+    treeContextMenu.classList.add('open');
+    treeCtxBackdrop.style.display = 'block';
+  };
+
+  function closeTreeContextMenu() {
+    treeContextMenu.classList.remove('open');
+    treeCtxBackdrop.style.display = 'none';
+    activeTreeCtxItem = null;
+  }
+
+  if (treeCtxBackdrop) {
+    treeCtxBackdrop.addEventListener('click', closeTreeContextMenu);
+  }
+
+  if (ctxBtnNewFile) {
+    ctxBtnNewFile.addEventListener('click', () => {
+      if (!activeTreeCtxItem || activeTreeCtxItem.kind !== 'directory') return;
+      const parentId = activeTreeCtxItem.id;
+      const folderName = activeTreeCtxItem.name;
+      const vaultUri = openedFolderTreeUri;
+      closeTreeContextMenu();
+      
+      const fileName = prompt(`Create new markdown file in '${folderName}'\nEnter file name (e.g. Note.md):`, 'Untitled.md');
+      if (!fileName) return;
+
+      if (window.AndroidBridge && window.AndroidBridge.createFileInTreeFolder) {
+        try {
+          const respRaw = window.AndroidBridge.createFileInTreeFolder(vaultUri, parentId, fileName, "");
+          const resp = JSON.parse(respRaw);
+          if (resp.status === 'ok') {
+            alert('File created successfully!');
+            renderRecentFilesForDrawer(true); // Refresh tree
+          } else {
+            alert('Error creating file: ' + (resp.message || 'Unknown error'));
+          }
+        } catch(e) { alert('Error: ' + e.message); }
+      }
+    });
+  }
+
+  if (ctxBtnDelete) {
+    ctxBtnDelete.addEventListener('click', () => {
+      if (!activeTreeCtxItem) return;
+      const docId = activeTreeCtxItem.id;
+      const name = activeTreeCtxItem.name;
+      closeTreeContextMenu();
+      
+      if (!confirm(`Are you sure you want to delete '${name}'? This cannot be undone.`)) return;
+
+      if (window.AndroidBridge && window.AndroidBridge.deleteTreeDocument) {
+        try {
+          const respRaw = window.AndroidBridge.deleteTreeDocument(docId);
+          const resp = JSON.parse(respRaw);
+          if (resp.status === 'ok') {
+            renderRecentFilesForDrawer(true); // Refresh tree
+          } else {
+            alert('Error deleting: ' + (resp.message || 'Unknown error'));
+          }
+        } catch(e) { alert('Error: ' + e.message); }
+      }
+    });
+  }
+
+  if (ctxBtnMove) {
+    ctxBtnMove.addEventListener('click', () => {
+      if (!activeTreeCtxItem) return;
+      // Because SAF move needs source Parent, we can only safely do it if we know the parent, 
+      // but Android moveDocument allows null for sourceParent? No, it requires sourceParent.
+      // Wait, let's just ask user for target ID, and maybe we can find source parent by traversing our JS tree.
+      
+      const itemToMove = activeTreeCtxItem;
+      closeTreeContextMenu();
+
+      // Find parent doc id from our cached `folderTreeItems` or tree traversal.
+      let sourceParentId = openedFolderRootDocId; // Default to root
+      function findParent(nodes, targetId, currentParent) {
+        for (const n of nodes) {
+          if (n.id === targetId) return currentParent;
+          if (n.children) {
+            const p = findParent(n.children, targetId, n.id);
+            if (p) return p;
+          }
+        }
+        return null;
+      }
+      
+      if (typeof folderTreeItems !== 'undefined') {
+        const found = findParent(folderTreeItems, itemToMove.id, openedFolderRootDocId);
+        if (found) sourceParentId = found;
+      }
+
+      activeTreeCtxItem = itemToMove; // Restore for modal
+      activeTreeCtxItem._sourceParentId = sourceParentId;
+
+      
+      const selectTarget = document.getElementById('selectMoveTargetDocId');
+      if (selectTarget) {
+        selectTarget.innerHTML = `<option value="${openedFolderRootDocId}">/ (Root)</option>`;
+        
+        function populateFolders(nodes, prefix) {
+          if (!nodes) return;
+          for (const n of nodes) {
+            if (n.kind === 'directory') {
+              // Prevent moving a folder into itself or its children
+              if (itemToMove.kind === 'directory' && n.id === itemToMove.id) continue;
+              
+              const opt = document.createElement('option');
+              opt.value = n.id;
+              opt.textContent = prefix + n.name;
+              selectTarget.appendChild(opt);
+              populateFolders(n.children, prefix + n.name + '/');
+            }
+          }
+        }
+        if (typeof folderTreeItems !== 'undefined') {
+          populateFolders(folderTreeItems, '/');
+        }
+      }
+
+      moveModal.style.display = 'flex';
+    });
+  }
+
+  if (btnCancelMove) {
+    btnCancelMove.addEventListener('click', () => {
+      moveModal.style.display = 'none';
+      activeTreeCtxItem = null;
+    });
+  }
+
+  if (btnConfirmMove) {
+    btnConfirmMove.addEventListener('click', () => {
+      if (!activeTreeCtxItem) return;
+      const targetParentId = document.getElementById('selectMoveTargetDocId').value || openedFolderRootDocId;
+      const sourceId = activeTreeCtxItem.id;
+      const sourceParentId = activeTreeCtxItem._sourceParentId;
+      
+      moveModal.style.display = 'none';
+      
+      if (window.AndroidBridge && window.AndroidBridge.moveTreeDocument) {
+        try {
+          const respRaw = window.AndroidBridge.moveTreeDocument(sourceId, sourceParentId, targetParentId);
+          const resp = JSON.parse(respRaw);
+          if (resp.status === 'ok') {
+            renderRecentFilesForDrawer(true);
+          } else {
+            alert('Error moving: ' + (resp.message || 'Unknown error'));
+          }
+        } catch(e) { alert('Error: ' + e.message); }
+      }
+    });
+  }
+
   // --- Initial Load ---
   updateHoverButtonUI();
   loadPocketNotes();
@@ -18993,5 +19185,60 @@ ${cp.rawDocText || ''}
   }, 3500);
 })();
 </script>
+
+  <!-- Tree Context Menu -->
+  <style>
+    .tree-context-menu {
+      position: fixed;
+      background: #1f2335;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      z-index: 10000;
+      display: none;
+      flex-direction: column;
+      min-width: 150px;
+      padding: 4px 0;
+    }
+    .tree-context-menu.open {
+      display: flex;
+    }
+    .tree-context-menu-item {
+      padding: 12px 16px;
+      font-size: 14px;
+      color: #c0caf5;
+      background: transparent;
+      border: none;
+      text-align: left;
+      cursor: pointer;
+    }
+    .tree-context-menu-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .tree-context-menu-item.danger {
+      color: #f7768e;
+    }
+  </style>
+  <div class="tree-context-menu" id="treeContextMenu">
+    <button class="tree-context-menu-item" id="ctxBtnNewFile">New File</button>
+    <button class="tree-context-menu-item" id="ctxBtnMove">Move</button>
+    <button class="tree-context-menu-item danger" id="ctxBtnDelete">Delete</button>
+  </div>
+  <div id="treeContextMenuBackdrop" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:9999;"></div>
+
+  <!-- Move Modal -->
+  <div class="modal" id="moveModal">
+    <div class="modal-content" style="max-width:320px;">
+      <h3 style="margin-top:0;">Move Item</h3>
+      <p style="font-size:14px; color:var(--muted);">Select destination folder:</p>
+      <select id="selectMoveTargetDocId" style="width:100%; padding:10px; border-radius:6px; background:#181b2a; color:#fff; border:1px solid rgba(255,255,255,0.1); margin-bottom:16px;">
+      </select>
+      <div style="display:flex; justify-content:flex-end; gap:8px;">
+        <button class="btn btn-outline" id="btnCancelMove">Cancel</button>
+        <button class="btn btn-primary" id="btnConfirmMove">Move</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

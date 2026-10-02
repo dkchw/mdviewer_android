@@ -4,6 +4,7 @@ Welcome to **MD Viewer**! A high-performance, lightweight, and 100% offline Mark
 
 ---
 
+
 ## 🚀 1. Triple-App Architecture
 
 MD Viewer provides three dedicated modes tailored for different writing, reading, and task workflows:
@@ -455,6 +456,12 @@ This major release consolidates the massive sequence of updates focused on makin
 - **⚙️ Complete Settings Menu Redesign**: The endless list of settings has been rebuilt into an elegant tabbed layout (General / Controls / Advanced), breaking down massive config cards to fix mobile layout squishing and drastically improve readability.
 - **🔄 Bulletproof Auto-Updater**: Eliminated the dreaded "update loop" where the app would perpetually ask you to install old versions. Stale APK files are now cleaned automatically on startup, version strings are cleanly normalized, and the startup toggle is correctly honored.
 - **🔒 Google Play Protect Security Fixes**: Removed overly broad `FileProvider` external paths to align with strict modern Android security scanning requirements, ensuring the app won't throw Play Protect warnings.
+
+---
+
+## 📁 26. What's New in v3.1.0 (File Management)
+
+- **File Management**: Added the ability to natively Create, Move, and Delete files directly inside the file tree sidebar! Click the vertical three-dots (`⋮`) icon next to any file or folder to access the context menu.
 
 ---
 
