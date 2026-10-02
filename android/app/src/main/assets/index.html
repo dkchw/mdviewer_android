@@ -7833,7 +7833,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v3.0.2</span>
+          <span class="settings-row-badge" id="appVersionSub">v3.0.3</span>
           <span class="settings-row-chevron">›</span>
         </button>
         <div class="settings-row-config">
@@ -7890,8 +7890,8 @@
   </div>
   <div class="update-body">
     <div class="update-version-row">
-      <span class="badge new-badge" id="updateNewVersion">v3.0.2</span>
-      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.0.2</span>
+      <span class="badge new-badge" id="updateNewVersion">v3.0.3</span>
+      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.0.3</span>
     </div>
     <div class="update-changelog-title">Changelog:</div>
     <div class="update-changelog" id="updateChangelog"></div>
@@ -8164,7 +8164,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '3.0.2';
+      window.AndroidBridge.getAppVersion() : '3.0.3';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -10100,7 +10100,7 @@
     const chars = txt.length;
 
     // For large documents, display character count immediately and debounce heavy counts
-    if (!immediate && chars > 3.0.2) {
+    if (!immediate && chars > 3000) {
       if (editorStatsInfo) {
         editorStatsInfo.textContent = `... words • ${chars.toLocaleString()} chars • ... lines`;
       }
@@ -10424,7 +10424,7 @@
       tags: ['welcome', 'guide'],
       pinned: true,
       starred: true,
-      updatedAt: Date.now() - 3.0.200,
+      updatedAt: Date.now() - 300000,
       uri: null,
       docId: null
     },
@@ -18555,7 +18555,7 @@ ${cp.rawDocText || ''}
         name: name,
         uri: uri || null,
         docId: docId || null,
-        text: (text && text.length < 3.0.200) ? text : '',
+        text: (text && text.length < 300000) ? text : '',
         time: Date.now()
       };
       localStorage.setItem('mdviewer_last_opened_basic', JSON.stringify(data));
@@ -18569,7 +18569,7 @@ ${cp.rawDocText || ''}
         name: name,
         uri: uri || null,
         docId: docId || null,
-        text: (text && text.length < 3.0.200) ? text : '',
+        text: (text && text.length < 300000) ? text : '',
         time: Date.now()
       };
       localStorage.setItem('mdviewer_last_opened_outline', JSON.stringify(data));

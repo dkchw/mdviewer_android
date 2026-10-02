@@ -458,7 +458,7 @@ This major release consolidates the massive sequence of updates focused on makin
 
 ---
 
-## 🔒 25. What's New in v3.0.2 (Critical Security Update)
+## 🔒 25. What's New in v3.0.3 (Critical Security Update)
 
 - **Strict Updater Validation**: Safely hardcoded the internal updater to exclusively allow APK downloads from the official GitHub release repository. This fully satisfies Google Play Protect requirements without breaking the core WebView functionality.
 
