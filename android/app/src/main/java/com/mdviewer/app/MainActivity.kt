@@ -1262,6 +1262,11 @@ class MainActivity : Activity() {
                     return@runOnUiThread
                 }
 
+                if (!apkUrl.startsWith("https://github.com/dkchw/mdviewer_android/releases/download/")) {
+                    Toast.makeText(this, "Security Block: Only official GitHub updates allowed.", Toast.LENGTH_LONG).show()
+                    return@runOnUiThread
+                }
+
                 val dm = getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager
                 if (dm == null) {
                     Toast.makeText(this, "Android DownloadManager not available, opening browser...", Toast.LENGTH_SHORT).show()
