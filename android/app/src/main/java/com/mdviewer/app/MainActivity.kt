@@ -176,6 +176,20 @@ class MainActivity : Activity() {
         }
 
         handleIntent(intent)
+
+        // Clear WebView cache upon version change to guarantee fresh assets
+        val currentVersion = try {
+            packageManager.getPackageInfo(packageName, 0).versionName ?: "unknown"
+        } catch (e: Exception) {
+            "unknown"
+        }
+        val prefs = getSharedPreferences("mdviewer_prefs", Context.MODE_PRIVATE)
+        val lastLoadedVersion = prefs.getString("last_loaded_app_version", null)
+        if (lastLoadedVersion != currentVersion) {
+            webView.clearCache(true)
+            prefs.edit().putString("last_loaded_app_version", currentVersion).apply()
+        }
+
         webView.loadUrl("file:///android_asset/index.html")
     }
 
@@ -1201,42 +1215,6 @@ class MainActivity : Activity() {
     }
 
     // --- Google Play Compliant Update & Link Support ---
-    fun checkGitHubRelease(): String {
-        return try {
-            val url = URL("https://api.github.com/repos/dkchw/mdviewer_android/releases/latest")
-            val conn = (url.openConnection() as HttpURLConnection).apply {
-                requestMethod = "GET"
-                setRequestProperty("User-Agent", "MDViewer-Android-App")
-                setRequestProperty("Accept", "application/vnd.github.v3+json")
-                connectTimeout = 8000
-                readTimeout = 8000
-            }
-
-            val code = conn.responseCode
-            if (code == 200) {
-                BufferedReader(InputStreamReader(conn.inputStream, StandardCharsets.UTF_8)).use { reader ->
-                    val sb = StringBuilder()
-                    var line: String?
-                    while (reader.readLine().also { line = it } != null) {
-                        sb.append(line)
-                    }
-                    sb.toString()
-                }
-            } else {
-                JSONObject().apply {
-                    put("status", "error")
-                    put("code", code)
-                }.toString()
-            }
-        } catch (e: Exception) {
-            Log.w(TAG, "Cannot fetch GitHub release", e)
-            JSONObject().apply {
-                put("status", "error")
-                put("message", e.message)
-            }.toString()
-        }
-    }
-
     fun isAppSignedWithDebugKey(): Boolean {
         return try {
             val signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -1253,8 +1231,10 @@ class MainActivity : Activity() {
                 val md = MessageDigest.getInstance("SHA-256")
                 val digest = md.digest(certBytes)
                 val hexString = digest.joinToString("") { "%02X".format(it) }
-                // Debug key SHA256: E20F8FA6BB86DF3505C8E93B02B6CAA9944A69F04775BA4B6C7B6775922916CC
-                hexString.equals("E20F8FA6BB86DF3505C8E93B02B6CAA9944A69F04775BA4B6C7B6775922916CC", ignoreCase = true)
+                // Official Release Key SHA-256:
+                // A8476B84AF080938F0257E161887751A7680027B55CF4AFA0CEABB9FC644FD07
+                val isOfficialRelease = hexString.equals("A8476B84AF080938F0257E161887751A7680027B55CF4AFA0CEABB9FC644FD07", ignoreCase = true)
+                !isOfficialRelease
             } else {
                 false
             }
@@ -1455,11 +1435,13 @@ class MainActivity : Activity() {
     private fun executeInstall(file: File) {
         runOnUiThread {
             try {
+                file.setReadable(true, false)
                 val contentUri = FileProvider.getUriForFile(this, "$packageName.provider", file)
                 val intent = Intent(Intent.ACTION_VIEW).apply {
                     setDataAndType(contentUri, "application/vnd.android.package-archive")
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 }
                 Toast.makeText(this, "Opening Android Package Installer...", Toast.LENGTH_SHORT).show()
                 startActivity(intent)

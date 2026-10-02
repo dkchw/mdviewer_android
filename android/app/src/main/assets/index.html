@@ -540,7 +540,7 @@
     z-index: 1190;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.28s cubic-bezier(0.1, 0.9, 0.2, 1);
+    transition: opacity 0.22s cubic-bezier(0, 0, 0.2, 1);
     will-change: opacity;
     transform: translateZ(0);
     backface-visibility: hidden;
@@ -562,7 +562,7 @@
     display: flex;
     flex-direction: column;
     transform: translate3d(-100%, 0, 0);
-    transition: transform 0.28s cubic-bezier(0.1, 0.9, 0.2, 1);
+    transition: transform 0.24s cubic-bezier(0.05, 0.7, 0.1, 1);
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.6);
     border-right: 1px solid var(--border);
     will-change: transform;
@@ -1387,6 +1387,10 @@
     from { opacity: 0; transform: translateY(12px) scale(0.98); }
     to { opacity: 1; transform: translateY(0) scale(1); }
   }
+  @keyframes modalPopIn {
+    0% { opacity: 0; transform: translate(-50%, -46%) scale(0.94); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
 
   /* Landscape Orientation: Dock hover preview panel on the right side */
   @media (orientation: landscape) {
@@ -2205,27 +2209,29 @@
   #updateBackdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.65);
-    z-index: 250;
+    background: rgba(10, 12, 20, 0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 1500;
     display: none;
   }
   #updateModal {
     position: fixed;
-    z-index: 251;
-    left: 20px;
-    right: 20px;
+    z-index: 1510;
+    left: 50%;
     top: 50%;
-    transform: translateY(-50%);
-    max-width: 400px;
-    margin: 0 auto;
-    background: var(--bg2);
-    border: 1px solid var(--accent);
-    border-radius: 14px;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+    transform: translate(-50%, -50%);
+    width: min(92vw, 420px);
+    max-height: 84vh;
+    margin: 0;
+    background: #141724;
+    border: 1px solid rgba(122, 162, 247, 0.3);
+    border-radius: 20px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.85);
     display: none;
     flex-direction: column;
     overflow: hidden;
-    animation: popUp 0.2s ease-out;
+    animation: modalPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .update-header {
     display: flex;
@@ -2316,92 +2322,128 @@
   #settingsBackdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.65);
-    z-index: 220;
+    background: rgba(10, 12, 20, 0.8);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 1400;
     display: none;
+    opacity: 0;
+    transition: opacity 0.22s ease-out;
+  }
+  #settingsBackdrop.open {
+    display: block;
+    opacity: 1;
   }
   #settingsModal {
     position: fixed;
-    z-index: 221;
-    left: 16px;
-    right: 16px;
+    z-index: 1410;
+    left: 50%;
     top: 50%;
-    transform: translateY(-50%);
-    max-width: 440px;
-    max-height: 84vh;
-    margin: 0 auto;
-    background: var(--bg2);
-    border: 1px solid var(--accent);
-    border-radius: 14px;
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75);
+    transform: translate(-50%, -50%);
+    width: min(92vw, 480px);
+    max-height: 85vh;
+    margin: 0;
+    background: #141724;
+    border: 1px solid rgba(122, 162, 247, 0.28);
+    border-radius: 20px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
     display: none;
     flex-direction: column;
     overflow: hidden;
-    animation: popUp 0.2s ease-out;
+    animation: modalPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  #settingsModal.open {
+    display: flex;
   }
   .settings-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 16px;
-    background: #191b29;
-    border-bottom: 1px solid var(--border);
+    padding: 14px 18px;
+    background: #181b2a;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    flex-shrink: 0;
   }
   .settings-title {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
-    color: var(--accent);
+    color: #f7f8fc;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    letter-spacing: -0.01em;
+  }
+  .settings-title-icon-badge {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    background: rgba(122, 162, 247, 0.16);
+    color: #7aa2f7;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 0 1px rgba(122, 162, 247, 0.28);
   }
   .settings-close-btn {
-    background: transparent;
-    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     color: var(--muted);
-    font-size: 18px;
+    font-size: 14px;
     cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
   }
   .settings-close-btn:active {
-    color: var(--fg);
-    background: #2c3040;
+    background: rgba(247, 118, 142, 0.2);
+    color: #f7768e;
+    border-color: rgba(247, 118, 142, 0.3);
+    transform: scale(0.92);
   }
   .settings-body {
     flex: 1;
     overflow-y: auto;
-    padding: 14px 16px 20px;
+    padding: 16px 16px 24px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 18px;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
   }
   .settings-group {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
   }
   .settings-group-title {
-    font-size: 11px;
+    font-size: 11.5px;
     font-weight: 700;
-    color: var(--muted);
+    color: #7aa2f7;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 2px;
+    letter-spacing: 0.08em;
+    padding-left: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   .settings-card {
-    background: #191b29;
-    border: 1px solid var(--border);
-    border-radius: 10px;
+    background: #181b2b;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
     overflow: hidden;
   }
   .settings-row-btn {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 11px 12px;
+    gap: 13px;
+    padding: 12px 14px;
+    min-height: 52px;
     width: 100%;
     background: transparent;
     border: none;
@@ -2409,8 +2451,9 @@
     color: var(--fg);
     cursor: pointer;
     text-align: left;
-    transition: background 0.12s ease;
+    transition: background 0.15s ease;
     -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
   }
   .settings-row-btn:last-child {
     border-bottom: none;
@@ -2419,10 +2462,16 @@
     background: rgba(122, 162, 247, 0.14);
   }
   .settings-row-icon {
-    font-size: 18px;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: rgba(122, 162, 247, 0.12);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
     flex-shrink: 0;
-    width: 24px;
-    text-align: center;
+    box-shadow: inset 0 0 0 1px rgba(122, 162, 247, 0.2);
   }
   .settings-row-content {
     flex: 1;
@@ -2433,15 +2482,16 @@
   .settings-row-name {
     font-size: 13.5px;
     font-weight: 600;
-    color: var(--fg);
+    color: #f0f2fa;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
   .settings-row-desc {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 1px;
+    font-size: 11.5px;
+    color: #9aa5ce;
+    margin-top: 2px;
+    line-height: 1.35;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2449,27 +2499,40 @@
   .settings-row-badge {
     font-size: 11px;
     font-weight: 700;
-    padding: 2px 7px;
+    padding: 3px 8px;
     border-radius: 6px;
     background: rgba(122, 162, 247, 0.16);
-    color: var(--accent);
+    color: #7aa2f7;
     flex-shrink: 0;
+    border: 1px solid rgba(122, 162, 247, 0.25);
+  }
+  .settings-row-chevron {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.3);
+    margin-left: auto;
+    flex-shrink: 0;
+    padding-left: 6px;
+    font-weight: 300;
   }
   .settings-card-subtitle {
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .06em;
-    color: var(--accent);
-    padding: 8px 12px 3px;
+    color: #89ddff;
+    padding: 9px 14px 6px;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   }
   .settings-row-config {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 9px 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    gap: 12px;
+    padding: 11px 14px;
+    min-height: 48px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    gap: 14px;
+    box-sizing: border-box;
   }
   .settings-row-config:last-child {
     border-bottom: none;
@@ -2481,33 +2544,71 @@
     flex: 1;
   }
   .settings-config-name {
-    font-size: 12.5px;
+    font-size: 13px;
     font-weight: 600;
-    color: var(--fg);
+    color: #e0e6f8;
   }
   .settings-config-desc {
-    font-size: 10.5px;
-    color: var(--muted);
-    margin-top: 1px;
+    font-size: 11px;
+    color: #9aa5ce;
+    margin-top: 2px;
+    line-height: 1.35;
   }
   .cfg-toggle {
-    width: 20px;
-    height: 20px;
-    accent-color: var(--accent);
+    appearance: none;
+    -webkit-appearance: none;
+    width: 44px;
+    height: 24px;
+    border-radius: 999px;
+    background: #2a2e42;
+    position: relative;
+    outline: none;
     cursor: pointer;
+    transition: background-color 0.22s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.22s;
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
     flex-shrink: 0;
+    margin: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .cfg-toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    background: #9aa5ce;
+    transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2), background-color 0.22s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+  }
+  .cfg-toggle:checked {
+    background: #7aa2f7;
+    border-color: #7aa2f7;
+  }
+  .cfg-toggle:checked::after {
+    transform: translateX(20px);
+    background: #ffffff;
   }
   .cfg-select {
-    background: #282c3f;
-    color: var(--fg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 5px 8px;
+    appearance: none;
+    -webkit-appearance: none;
+    background: #1f2336 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237aa2f7' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat calc(100% - 9px) center;
+    color: #c0caf5;
+    border: 1px solid rgba(122, 162, 247, 0.28);
+    border-radius: 8px;
+    padding: 6px 28px 6px 11px;
     font-size: 11.5px;
+    font-weight: 500;
     outline: none;
     cursor: pointer;
     flex-shrink: 0;
     max-width: 175px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .cfg-select:focus {
+    border-color: #7aa2f7;
+    box-shadow: 0 0 0 2px rgba(122, 162, 247, 0.2);
   }
   .settings-key-config-row {
     display: flex;
@@ -2520,33 +2621,35 @@
   .cfg-key-input {
     flex: 1;
     min-width: 0;
-    background: #191b29;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--fg);
-    font-family: inherit;
-    font-size: 11px;
-    padding: 5px 7px;
+    background: #12141f;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 7px;
+    color: #c0caf5;
+    font-family: monospace;
+    font-size: 11.5px;
+    padding: 6px 8px;
     outline: none;
   }
   .cfg-key-input:focus {
-    border-color: var(--accent);
+    border-color: #7aa2f7;
+    box-shadow: 0 0 0 1px #7aa2f7;
   }
   .cfg-record-btn {
     background: rgba(122, 162, 247, 0.14);
     border: 1px solid rgba(122, 162, 247, 0.35);
-    border-radius: 6px;
-    color: var(--accent);
-    font-size: 10.5px;
+    border-radius: 7px;
+    color: #7aa2f7;
+    font-size: 11px;
     font-weight: 600;
-    padding: 5px 7px;
+    padding: 6px 9px;
     cursor: pointer;
     white-space: nowrap;
     flex-shrink: 0;
-    transition: all 0.12s ease;
+    transition: all 0.15s ease;
   }
   .cfg-record-btn:active {
     background: rgba(122, 162, 247, 0.3);
+    transform: scale(0.96);
   }
   .cfg-record-btn.recording {
     background: #f7768e !important;
@@ -5872,30 +5975,30 @@
   #guideBackdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(3px);
-    z-index: 1070;
+    background: rgba(10, 12, 20, 0.8);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 1450;
     display: none;
   }
   #guideModal {
     position: fixed;
-    z-index: 1071;
-    left: 12px;
-    right: 12px;
+    z-index: 1460;
+    left: 50%;
     top: 50%;
-    transform: translateY(-50%);
-    max-width: 600px;
+    transform: translate(-50%, -50%);
+    width: min(92vw, 620px);
     max-height: 88vh;
     height: 85vh;
-    margin: 0 auto;
-    background: #16161e;
-    border: 1px solid var(--accent);
-    border-radius: 14px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+    margin: 0;
+    background: #141724;
+    border: 1px solid rgba(122, 162, 247, 0.3);
+    border-radius: 20px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.85);
     display: none;
     flex-direction: column;
     overflow: hidden;
-    animation: popUp 0.2s ease-out;
+    animation: modalPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .guide-header {
     display: flex;
@@ -6940,11 +7043,13 @@
 <div id="settingsModal">
   <div class="settings-header">
     <div class="settings-title">
-      <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="3"></circle>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-      </svg>
-      Settings
+      <span class="settings-title-icon-badge">
+        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </span>
+      <span>Settings</span>
     </div>
     <button id="btnCloseSettings" class="settings-close-btn" title="Close">✕</button>
   </div>
@@ -6959,6 +7064,7 @@
             <span class="settings-row-name">Flashcard Study Mode</span>
             <span class="settings-row-desc">Study heading sections with interactive cards</span>
           </div>
+          <span class="settings-row-chevron">›</span>
         </button>
         <button class="settings-row-btn" id="btnShareDoc">
           <span class="settings-row-icon">📤</span>
@@ -6966,6 +7072,7 @@
             <span class="settings-row-name">Share Document</span>
             <span class="settings-row-desc">Send markdown text to other apps</span>
           </div>
+          <span class="settings-row-chevron">›</span>
         </button>
         <button class="settings-row-btn" id="btnCopyDoc">
           <span class="settings-row-icon">📋</span>
@@ -6973,6 +7080,7 @@
             <span class="settings-row-name">Copy All Text</span>
             <span class="settings-row-desc">Copy document content to clipboard</span>
           </div>
+          <span class="settings-row-chevron">›</span>
         </button>
       </div>
     </div>
@@ -7399,6 +7507,7 @@
             <span class="settings-row-name">Clear Recent Files</span>
             <span class="settings-row-desc">Remove recent document history</span>
           </div>
+          <span class="settings-row-chevron">›</span>
         </button>
       </div>
     </div>
@@ -7414,6 +7523,7 @@
             <span class="settings-row-desc">Interactive features, gestures, shortcuts & manuals</span>
           </div>
           <span class="settings-row-badge" style="color:var(--accent);">Open</span>
+          <span class="settings-row-chevron">›</span>
         </button>
       </div>
     </div>
@@ -7428,6 +7538,7 @@
             <span class="settings-row-name">Guide & Features</span>
             <span class="settings-row-desc">Overview of functions and gestures</span>
           </div>
+          <span class="settings-row-chevron">›</span>
         </button>
         <button class="settings-row-btn" id="sample10k">
           <span class="settings-row-icon">🚀</span>
@@ -7435,6 +7546,7 @@
             <span class="settings-row-name">10,000 Lines Test</span>
             <span class="settings-row-desc">Quick 10k lines outline test</span>
           </div>
+          <span class="settings-row-chevron">›</span>
         </button>
         <button class="settings-row-btn" id="sample100k">
           <span class="settings-row-icon">🔥</span>
@@ -7442,6 +7554,7 @@
             <span class="settings-row-name">100,000 Lines Test</span>
             <span class="settings-row-desc">High volume folding benchmark</span>
           </div>
+          <span class="settings-row-chevron">›</span>
         </button>
         <button class="settings-row-btn" id="sample1M">
           <span class="settings-row-icon">⚡</span>
@@ -7449,6 +7562,7 @@
             <span class="settings-row-name">1,000,000 Lines Ultra Test</span>
             <span class="settings-row-desc">Extreme 1 million line benchmark</span>
           </div>
+          <span class="settings-row-chevron">›</span>
         </button>
       </div>
     </div>
@@ -7457,21 +7571,21 @@
     <div class="settings-group" id="settingsGroupBasicStorage">
       <div class="settings-group-title">Basic Mode Storage &amp; Folders</div>
       <div class="settings-card">
-        <div class="settings-row-config" style="flex-direction:column;align-items:flex-start;gap:8px;">
+        <div class="settings-row-config" style="flex-direction:column;align-items:flex-start;gap:10px;padding:14px;">
           <div class="settings-config-label">
             <span class="settings-config-name">Default Basic Save Location</span>
             <span class="settings-config-desc">Automatically save notes as .md files directly to this folder on disk upon autosave.</span>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;width:100%;margin-top:4px;">
-            <div id="settingsDefaultSaveBadge" style="flex:1;background:rgba(255,255,255,0.06);padding:8px 12px;border-radius:6px;font-size:12px;font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid rgba(255,255,255,0.1);color:#7dcfff;">
-              Not Set (Stored in app cache)
+          <div style="display:flex;align-items:center;gap:8px;width:100%;">
+            <div id="settingsDefaultSaveBadge" style="flex:1;background:#10121d;padding:10px 12px;border-radius:8px;font-size:12px;font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid rgba(122,162,247,0.25);color:#7dcfff;">
+              📁 Not Set (Stored in app cache)
             </div>
           </div>
-          <div style="display:flex;gap:8px;width:100%;margin-top:6px;flex-wrap:wrap;">
-            <button id="btnSetBasicSaveFolder" class="settings-row-btn" style="flex:1;min-width:140px;justify-content:center;padding:8px 12px;background:var(--accent);color:#fff;border-radius:6px;font-weight:600;font-size:12px;">
+          <div style="display:flex;gap:10px;width:100%;flex-wrap:wrap;">
+            <button id="btnSetBasicSaveFolder" class="settings-row-btn" style="flex:1;min-width:140px;justify-content:center;padding:10px 14px;background:#7aa2f7;color:#1a1b26;border-radius:8px;font-weight:700;font-size:12.5px;min-height:42px;">
               📂 Choose Folder
             </button>
-            <button id="btnClearBasicSaveFolder" class="settings-row-btn" style="padding:8px 14px;background:rgba(247,118,142,0.15);border:1px solid #f7768e;color:#f7768e;border-radius:6px;font-weight:600;font-size:12px;" title="Reset to App Cache">
+            <button id="btnClearBasicSaveFolder" class="settings-row-btn" style="padding:10px 16px;background:rgba(247,118,142,0.15);border:1px solid rgba(247,118,142,0.4);color:#f7768e;border-radius:8px;font-weight:700;font-size:12.5px;min-height:42px;" title="Reset to App Cache">
               ✕ Reset
             </button>
           </div>
@@ -7489,7 +7603,8 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v2.4.10</span>
+          <span class="settings-row-badge" id="appVersionSub">v2.4.11</span>
+          <span class="settings-row-chevron">›</span>
         </button>
         <div class="settings-row-config">
           <div class="settings-config-label">
@@ -7504,6 +7619,7 @@
             <span class="settings-row-name">GitHub Repository</span>
             <span class="settings-row-desc">dkchw/mdviewer_android</span>
           </div>
+          <span class="settings-row-chevron">›</span>
         </button>
         <div class="settings-row-btn" style="cursor: default;">
           <span class="settings-row-icon">⚖️</span>
@@ -7541,12 +7657,17 @@
   </div>
   <div class="update-body">
     <div class="update-version-row">
-      <span class="badge new-badge" id="updateNewVersion">v1.0.0</span>
-      <span class="badge current-badge" id="updateCurrentVersion">Current: v1.0.0</span>
+      <span class="badge new-badge" id="updateNewVersion">v2.4.11</span>
+      <span class="badge current-badge" id="updateCurrentVersion">Current: v2.4.11</span>
     </div>
     <div class="update-changelog-title">Changelog:</div>
     <div class="update-changelog" id="updateChangelog"></div>
     <div id="updateStatusMsg" class="update-status-msg" style="display:none;"></div>
+    <div id="updateManualLinks" style="display:flex; justify-content:center; align-items:center; gap:12px; margin-top:8px; font-size:12px; padding:6px 0;">
+      <a id="lnkDownloadReleaseApk" href="#" style="color:#7aa2f7; text-decoration:none; font-weight:600;">📦 Release APK</a>
+      <span style="color:var(--muted)">•</span>
+      <a id="lnkDownloadDebugApk" href="#" style="color:#bb9af7; text-decoration:none; font-weight:600;">🔧 Debug-Key APK</a>
+    </div>
   </div>
   <div class="update-footer">
     <button id="btnLaterUpdate" class="upd-btn-secondary">Later</button>
@@ -7810,7 +7931,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '2.4.10';
+      window.AndroidBridge.getAppVersion() : '2.4.11';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -12784,9 +12905,11 @@
           if (window.navigator && window.navigator.vibrate) {
             try { window.navigator.vibrate(12); } catch (_) {}
           }
-          setAppMode(targetMode);
-          setDrawerTargetMode(targetMode);
           closeModeDropdown();
+          requestAnimationFrame(() => {
+            setAppMode(targetMode);
+            setDrawerTargetMode(targetMode);
+          });
         }
       });
     });
@@ -12802,17 +12925,23 @@
 
   if (modeSelectDropdown) {
     modeSelectDropdown.addEventListener('change', () => {
-      setAppMode(modeSelectDropdown.value);
-      setDrawerTargetMode(modeSelectDropdown.value);
+      requestAnimationFrame(() => {
+        setAppMode(modeSelectDropdown.value);
+        setDrawerTargetMode(modeSelectDropdown.value);
+      });
     });
   }
   if (modeBasicBtn) modeBasicBtn.addEventListener('click', () => {
-    setAppMode('basic');
-    setDrawerTargetMode('basic');
+    requestAnimationFrame(() => {
+      setAppMode('basic');
+      setDrawerTargetMode('basic');
+    });
   });
   if (modeOutlineBtn) modeOutlineBtn.addEventListener('click', () => {
-    setAppMode('outline');
-    setDrawerTargetMode('outline');
+    requestAnimationFrame(() => {
+      setAppMode('outline');
+      setDrawerTargetMode('outline');
+    });
   });
 
   if (btnHeaderChecklistToggle) {
@@ -12820,13 +12949,11 @@
       if (window.navigator && window.navigator.vibrate) {
         try { window.navigator.vibrate(10); } catch (_) {}
       }
-      if (currentAppMode === 'checklist') {
-        setAppMode('outline');
-        setDrawerTargetMode('outline');
-      } else {
-        setAppMode('checklist');
-        setDrawerTargetMode('checklist');
-      }
+      const targetMode = (currentAppMode === 'checklist') ? 'outline' : 'checklist';
+      requestAnimationFrame(() => {
+        setAppMode(targetMode);
+        setDrawerTargetMode(targetMode);
+      });
     });
   }
 
@@ -16286,12 +16413,15 @@ ${cp.rawDocText || ''}
     const curY = e.touches[0].clientY;
     const deltaX = curX - touchStartX;
     const deltaY = curY - touchStartY;
+    const absX = Math.abs(deltaX);
+    const absY = Math.abs(deltaY);
     const isDrawerOpen = fileDrawer && fileDrawer.classList.contains('open');
 
     if (!isDrawerOpen) {
-      // Swiping right from left edge zone (within 85px of left screen edge)
-      const isLeftStart = touchStartX <= 85;
-      const isHorizontalRight = deltaX > 22 && deltaX > Math.abs(deltaY) * 0.55;
+      // Swiping right from left zone: allow generous edge zone (left 140px or 30% of screen)
+      const edgeLimit = Math.max(140, window.innerWidth * 0.30);
+      const isLeftStart = touchStartX <= edgeLimit;
+      const isHorizontalRight = deltaX > 16 && absX > absY * 0.45;
       if (isLeftStart && isHorizontalRight) {
         isTrackingSwipe = false;
         if (window.navigator && window.navigator.vibrate) {
@@ -16300,8 +16430,8 @@ ${cp.rawDocText || ''}
         openDrawer();
       }
     } else {
-      // Swiping left to close file manager drawer
-      if (deltaX < -22 && Math.abs(deltaX) > Math.abs(deltaY) * 0.55) {
+      // Swiping left to close file manager drawer: responsive close
+      if (deltaX < -18 && absX > absY * 0.45) {
         isTrackingSwipe = false;
         closeDrawer();
       }
@@ -16316,21 +16446,23 @@ ${cp.rawDocText || ''}
     isTrackingSwipe = false;
     const deltaX = e.changedTouches[0].clientX - touchStartX;
     const deltaY = e.changedTouches[0].clientY - touchStartY;
+    const absX = Math.abs(deltaX);
+    const absY = Math.abs(deltaY);
     const elapsed = Date.now() - touchStartTime;
 
     const isDrawerOpen = fileDrawer && fileDrawer.classList.contains('open');
 
     // Swipe Left-to-Right to open file manager (fallback flick detection)
     if (!isDrawerOpen) {
-      const isEdgeSwipe = touchStartX <= 85 && deltaX > 22 && deltaX > Math.abs(deltaY) * 0.55 && elapsed < 650;
-      const isBroadSwipe = touchStartX <= 150 && deltaX > 40 && deltaX > Math.abs(deltaY) * 0.7 && elapsed < 550;
-      if (isEdgeSwipe || isBroadSwipe) {
+      const flickZone = Math.max(160, window.innerWidth * 0.38);
+      const isEdgeFlick = touchStartX <= flickZone && deltaX > 20 && absX > absY * 0.45 && elapsed < 600;
+      if (isEdgeFlick) {
         if (window.navigator && window.navigator.vibrate) {
           try { window.navigator.vibrate(8); } catch (_) {}
         }
         openDrawer();
       }
-    } else if (isDrawerOpen && deltaX < -22 && Math.abs(deltaX) > Math.abs(deltaY) * 0.55) {
+    } else if (isDrawerOpen && deltaX < -18 && absX > absY * 0.45) {
       closeDrawer();
     }
   }, { passive: true });
@@ -16340,17 +16472,28 @@ ${cp.rawDocText || ''}
   }, { passive: true });
 
   function openDrawer() {
+    // 1. Immediately sync lightweight tab active indicators before animation starts
+    if (drawerTargetMode !== currentAppMode) {
+      drawerTargetMode = currentAppMode;
+      if (drawerTabBasic) drawerTabBasic.classList.toggle('active', currentAppMode === 'basic');
+      if (drawerTabOutline) drawerTabOutline.classList.toggle('active', currentAppMode === 'outline');
+      if (drawerTabChecklist) drawerTabChecklist.classList.toggle('active', currentAppMode === 'checklist');
+      if (drawerTargetBadge) {
+        drawerTargetBadge.textContent = (currentAppMode === 'basic') ? 'Basic Editor' : (currentAppMode === 'checklist' ? 'Checklist Mode' : 'Outline Viewer');
+      }
+    }
+    // 2. Hardware-accelerated slide-in with zero frame drops
     fileDrawer.classList.add('open');
     drawerBackdrop.classList.add('open');
-    // Defer heavy DOM work past the first animation frame for silky-smooth 60/120fps entry
+
+    // 3. Defer heavy list DOM rendering until slide animation completes
     setTimeout(() => {
-      setDrawerTargetMode(currentAppMode);
       if (typeof drawerRecentsDirty !== 'undefined' && drawerRecentsDirty) {
         renderRecentFilesForDrawer(true);
       }
       renderRecentVaultsUI();
       updateDefaultBasicSaveFolderUI();
-    }, 40);
+    }, 240);
   }
   function closeDrawer() {
     fileDrawer.classList.remove('open');
@@ -16367,7 +16510,9 @@ ${cp.rawDocText || ''}
     updateDefaultBasicSaveFolderUI();
     populateSettingsPaletteDropdown();
     updatePalettePreviewRow();
+    settingsBackdrop.classList.add('open');
     settingsBackdrop.style.display = 'block';
+    settingsModal.classList.add('open');
     settingsModal.style.display = 'flex';
     if (targetSection === 'pocketPalettes' && cfgActivePalette) {
       setTimeout(() => {
@@ -16376,7 +16521,9 @@ ${cp.rawDocText || ''}
     }
   }
   function closeSettings() {
+    settingsBackdrop.classList.remove('open');
     settingsBackdrop.style.display = 'none';
+    settingsModal.classList.remove('open');
     settingsModal.style.display = 'none';
   }
   btnOpenSettings.addEventListener('click', openSettings);
@@ -17624,26 +17771,14 @@ ${cp.rawDocText || ''}
     if (manual) showToast('Checking for updates...');
     try {
       const activeVer = getActiveAppVersion();
-      let releaseData = null;
-      if (window.AndroidBridge && window.AndroidBridge.checkLatestRelease) {
-        const raw = window.AndroidBridge.checkLatestRelease();
-        try {
-          const parsed = JSON.parse(raw);
-          if (!parsed.error && parsed.tag_name) {
-            releaseData = parsed;
-          }
-        } catch(e) {}
+      const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`, {
+        headers: { 'Accept': 'application/vnd.github.v3+json' }
+      });
+      if (!res.ok) {
+        if (manual) showToast(`Update check failed: HTTP ${res.status}`);
+        return;
       }
-
-      if (!releaseData) {
-        const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`, {
-          headers: { 'Accept': 'application/vnd.github.v3+json' }
-        });
-        if (res.ok) {
-          releaseData = await res.json();
-        }
-      }
-
+      const releaseData = await res.json();
       if (!releaseData || !releaseData.tag_name) {
         if (manual) showToast(`You are on the latest version (v${activeVer})`);
         return;
@@ -17668,6 +17803,39 @@ ${cp.rawDocText || ''}
     updateNewVersion.textContent = releaseData.tag_name;
     updateCurrentVersion.textContent = `Current: v${activeVer}`;
     updateChangelog.textContent = releaseData.body || 'No release notes provided.';
+
+    // Wire fallback manual download links
+    const releaseAsset = (releaseData.assets && releaseData.assets.length) ?
+        releaseData.assets.find(a => a.name && a.name.endsWith('.apk') && !a.name.includes('debugkey')) : null;
+    const debugAsset = (releaseData.assets && releaseData.assets.length) ?
+        releaseData.assets.find(a => a.name && a.name.endsWith('.apk') && a.name.includes('debugkey')) : null;
+
+    const lnkRel = document.getElementById('lnkDownloadReleaseApk');
+    const lnkDeb = document.getElementById('lnkDownloadDebugApk');
+    if (lnkRel) {
+      lnkRel.onclick = (e) => {
+        e.preventDefault();
+        const url = releaseAsset ? releaseAsset.browser_download_url : releaseData.html_url;
+        const cleanVer = (releaseData.tag_name || '').replace(/^v/, '').trim();
+        if (window.AndroidBridge && window.AndroidBridge.downloadAndInstall) {
+          window.AndroidBridge.downloadAndInstall(url, cleanVer);
+        } else {
+          window.open(url, '_blank');
+        }
+      };
+    }
+    if (lnkDeb) {
+      lnkDeb.onclick = (e) => {
+        e.preventDefault();
+        const url = debugAsset ? debugAsset.browser_download_url : (releaseAsset ? releaseAsset.browser_download_url : releaseData.html_url);
+        const cleanVer = (releaseData.tag_name || '').replace(/^v/, '').trim();
+        if (window.AndroidBridge && window.AndroidBridge.downloadAndInstall) {
+          window.AndroidBridge.downloadAndInstall(url, cleanVer);
+        } else {
+          window.open(url, '_blank');
+        }
+      };
+    }
 
     const cleanVer = (releaseData.tag_name || '').replace(/^v/, '').trim();
     const isReady = (window.AndroidBridge && window.AndroidBridge.isUpdateReadyForVersion) ?
@@ -18185,6 +18353,10 @@ ${cp.rawDocText || ''}
   const basicRestored = restoreLastOpenedBasic();
   const outlineRestored = restoreLastOpenedOutline();
 
+  // 1. Immediately activate current app mode on startup - ZERO startup lag or delay!
+  setAppMode(currentAppMode);
+
+  // 2. If any mode needs guide.md, load and initialize it in the background
   if (!basicRestored || !outlineRestored) {
     fetch('guide.md')
       .then(r => {
@@ -18195,31 +18367,47 @@ ${cp.rawDocText || ''}
         if (!basicRestored) {
           basicDocName = 'Guide.md';
           basicDocText = text;
+          if (currentAppMode === 'basic' && currentPocketView === 'editor') {
+            renderBasicDocument(basicDocText, basicDocName);
+          }
         }
         if (!outlineRestored) {
           outlineDocName = 'Guide.md';
           outlineDocText = text;
-          currentDocName = 'Guide.md';
-          parse(text);
+          if (currentAppMode !== 'basic') {
+            currentDocName = 'Guide.md';
+            parse(text);
+            render();
+          } else {
+            // Pre-parse in background so switching between modes is instantaneous!
+            setTimeout(() => {
+              if (!lines || lines.length === 0) {
+                currentDocName = 'Guide.md';
+                parse(text);
+              }
+            }, 60);
+          }
         }
-        setAppMode(currentAppMode);
       })
       .catch(() => {
         const fallbackText = '# MD Viewer\n\nWelcome! Swipe from left to right to open file manager.';
         if (!basicRestored) {
           basicDocName = 'Guide.md';
           basicDocText = fallbackText;
+          if (currentAppMode === 'basic' && currentPocketView === 'editor') {
+            renderBasicDocument(basicDocText, basicDocName);
+          }
         }
         if (!outlineRestored) {
           outlineDocName = 'Guide.md';
           outlineDocText = fallbackText;
-          currentDocName = 'Guide.md';
-          parse(fallbackText);
+          if (currentAppMode !== 'basic') {
+            currentDocName = 'Guide.md';
+            parse(fallbackText);
+            render();
+          }
         }
-        setAppMode(currentAppMode);
       });
-  } else {
-    setAppMode(currentAppMode);
   }
 
   applyBasicZoom();

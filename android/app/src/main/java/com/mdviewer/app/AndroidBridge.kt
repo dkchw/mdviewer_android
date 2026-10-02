@@ -214,11 +214,6 @@ class AndroidBridge(
     }
 
     @JavascriptInterface
-    fun checkLatestRelease(): String {
-        return activity.checkGitHubRelease()
-    }
-
-    @JavascriptInterface
     fun setFullscreen(fullscreen: Boolean) {
         activity.setSystemUiFullscreen(fullscreen)
     }
@@ -227,9 +222,9 @@ class AndroidBridge(
     fun getAppVersion(): String {
         return try {
             val pInfo = activity.packageManager.getPackageInfo(activity.packageName, 0)
-            pInfo.versionName ?: "2.4.10"
+            pInfo.versionName ?: "2.4.11"
         } catch (e: Exception) {
-            "2.4.10"
+            "2.4.11"
         }
     }
 

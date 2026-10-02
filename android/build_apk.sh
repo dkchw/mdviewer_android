@@ -86,10 +86,18 @@ if [ ! -f "$RELEASE_KEYSTORE" ]; then
 fi
 
 if [ ! -f "$DEBUG_KEYSTORE" ]; then
-    echo "Creating debug keystore..."
-    keytool -genkeypair -validity 10000 -dname "CN=MDViewer,O=MDViewer,C=US" \
-        -keystore "$DEBUG_KEYSTORE" -storepass android -keypass android \
-        -alias androiddebugkey -keyalg RSA -keysize 2048
+    if [ -f "/run/host/home/dkchw/Distrobox/.config/.android/debug.keystore" ]; then
+        echo "Using standard Android SDK debug keystore from Distrobox..."
+        cp -f "/run/host/home/dkchw/Distrobox/.config/.android/debug.keystore" "$DEBUG_KEYSTORE"
+    elif [ -f "$HOME/.android/debug.keystore" ]; then
+        echo "Using standard Android SDK debug keystore from home..."
+        cp -f "$HOME/.android/debug.keystore" "$DEBUG_KEYSTORE"
+    else
+        echo "Creating debug keystore..."
+        keytool -genkeypair -validity 10000 -dname "CN=Android Debug,O=Android,C=US" \
+            -keystore "$DEBUG_KEYSTORE" -storepass android -keypass android \
+            -alias androiddebugkey -keyalg RSA -keysize 2048
+    fi
 fi
 
 VERSION_NAME=$(grep -o 'android:versionName="[^"]*"' "$SRC_DIR/AndroidManifest.xml" | cut -d'"' -f2)

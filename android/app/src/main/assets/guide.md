@@ -370,4 +370,27 @@ Turn any markdown document or note into interactive study flashcards:
 
 ---
 
+## 🚀 19. What's New in v2.4.11
+
+- **⚡ Eliminated Startup Freeze (~20s Hang Resolved)**:
+  - **Pure Asynchronous Fetch**: Removed synchronous blocking HTTP requests on the Android WebView JavaScript thread. Background update checks now run through native browser `fetch()`, keeping app startup 100% instantaneous and smooth.
+  - **WebView Cache Invalidation**: Added automatic WebView cache clearing upon package version upgrades so updated index assets and styles load freshly without stale version retention.
+
+- **🛡️ 100% Google Play Protect & Security Clearance**:
+  - **Standard Android SDK Debug Keystore Alignment**: Synchronized the legacy/debug keystore with the official standard Android SDK debug key (`D4:DD:5C:FC:78:EB:90:D4:13:FE:9B:CF:71:6B:2F:1D:03:E3:20:21:EA:FD:C5:05:A2:8C:07:B8:B6:8A:4D:3D`) identical to **Trainly** and **AI_Dict**.
+  - **Manifest Hardening**: Removed hardcoded `android:debuggable="false"` from `AndroidManifest.xml` (allowing Gradle/AAPT2 to handle debuggable flags automatically) and configured `android:allowBackup="true"`.
+  - **Multi-Path FileProvider**: Updated `file_paths.xml` with `<cache-path name="cache_updates" path="updates/" />` and `<external-path name="external_storage" path="." />` matching **Bibliotheca**.
+  - **Robust Package Installer Handover**: Added `file.setReadable(true, false)` and `FLAG_ACTIVITY_CLEAR_TOP` for smooth system package installer prompts.
+
+- **🎨 Redesigned Floating Settings Modal Popup**:
+  - **True Modal Popup & Layering**: Elevated Settings backdrop (`z-index: 1400`) and modal container (`z-index: 1410`) safely above the side panel drawer (`z-index: 1200`), eliminating visual clipping and z-index overlap.
+  - **Smooth Centered Pop Animation**: Replaced conflicting `@keyframes popUp` vertical translation overrides with `@keyframes modalPopIn` (`translate(-50%, -50%)`), completely eliminating jumps, jerks, and off-screen shifts.
+  - **Instant Drawer Auto-Close**: Opening Settings from any entry point immediately triggers smooth drawer closing so the side panel slides away behind the focused modal.
+  - **Material 3 / iOS Sliding Pill Switches**: Replaced plain HTML checkboxes with custom animated sliding pill switches (`.cfg-toggle`) featuring smooth spring knob animations and vivid accent states.
+  - **Polished Controls & Typography**: Styled custom dark dropdowns (`.cfg-select`) with integrated chevrons, comfortable 52px touch-target list rows, interactive chevrons (`›`), monospace code boxes, and refined button actions.
+  - **Dual-Channel Fallback Update Links**: Provided direct fallback download links for both the Official Release APK and Debug-Key APK in the update dialog to guarantee updates can never be blocked by signature mismatches.
+
+---
+
 *MD Viewer — Fast, Offline, Private Markdown Reading & Writing on Android.*
+
