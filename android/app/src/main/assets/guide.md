@@ -448,5 +448,15 @@ Turn any markdown document or note into interactive study flashcards:
 
 ---
 
+## 🚀 24. What's New in v3.0.0 (Major UX Overhaul & Play Protect Alignment)
+
+This major release consolidates the massive sequence of updates focused on making MD Viewer more secure, stable, and fluid.
+- **📱 True Fluid Sidebar Gestures**: The navigation drawer now perfectly follows your finger in real-time. We also eliminated false-activations by restricting the swipe zone strictly to the left 40px edge, and added velocity-snapping for snappy flicks.
+- **⚙️ Complete Settings Menu Redesign**: The endless list of settings has been rebuilt into an elegant tabbed layout (General / Controls / Advanced), breaking down massive config cards to fix mobile layout squishing and drastically improve readability.
+- **🔄 Bulletproof Auto-Updater**: Eliminated the dreaded "update loop" where the app would perpetually ask you to install old versions. Stale APK files are now cleaned automatically on startup, version strings are cleanly normalized, and the startup toggle is correctly honored.
+- **🔒 Google Play Protect Security Fixes**: Removed overly broad `FileProvider` external paths to align with strict modern Android security scanning requirements, ensuring the app won't throw Play Protect warnings.
+
+---
+
 *MD Viewer — Fast, Offline, Private Markdown Reading & Writing on Android.*
 
