@@ -169,7 +169,7 @@ class MainActivity : Activity() {
                     val rootDocId = getRootDocumentId(treeUri)
                     val uriStr = treeUri.toString()
                     webView.post {
-                        notifyFolderOpened(folderName, rootDocId, uriStr)
+                        notifyFolderOpened(folderName, rootDocId, uriStr, isStartup = true)
                     }
                 }
             }
@@ -254,13 +254,13 @@ class MainActivity : Activity() {
 
     fun closeCurrentFolder() {
         mCurrentTreeUri = null
-        mPrefs.edit().remove("last_folder_tree_uri").apply()
+        mPrefs.edit().remove("last_folder_tree_uri").remove("last_folder_name").apply()
         mWebView?.evaluateJavascript("if(window.onFolderClosed){ window.onFolderClosed(); }", null)
     }
 
-    private fun notifyFolderOpened(folderName: String, rootDocId: String, treeUri: String = mCurrentTreeUri?.toString() ?: "") {
+    private fun notifyFolderOpened(folderName: String, rootDocId: String, treeUri: String = mCurrentTreeUri?.toString() ?: "", isStartup: Boolean = false) {
         val js = "if(window.onFolderOpened){ window.onFolderOpened(" +
-                "${JSONObject.quote(folderName)}, ${JSONObject.quote(rootDocId)}, ${JSONObject.quote(treeUri)}); }"
+                "${JSONObject.quote(folderName)}, ${JSONObject.quote(rootDocId)}, ${JSONObject.quote(treeUri)}, $isStartup); }"
         mWebView?.evaluateJavascript(js, null)
     }
 
@@ -268,11 +268,11 @@ class MainActivity : Activity() {
         return try {
             val treeUri = Uri.parse(uriString)
             mCurrentTreeUri = treeUri
-            mPrefs.edit().putString("last_folder_tree_uri", uriString).apply()
             val folderName = getFolderName(treeUri)
             val rootDocId = getRootDocumentId(treeUri)
+            mPrefs.edit().putString("last_folder_tree_uri", uriString).putString("last_folder_name", folderName).apply()
             runOnUiThread {
-                notifyFolderOpened(folderName, rootDocId, uriString)
+                notifyFolderOpened(folderName, rootDocId, uriString, isStartup = false)
             }
             true
         } catch (e: Exception) {
@@ -338,7 +338,7 @@ class MainActivity : Activity() {
             val isCurrent = (mCurrentTreeUri != null && (mCurrentTreeUri == targetTreeUri || mCurrentTreeUri.toString() == targetTreeUri.toString()))
             if (isCurrent) {
                 mCurrentTreeUri = newTreeUri
-                mPrefs.edit().putString("last_folder_tree_uri", newTreeUri.toString()).apply()
+                mPrefs.edit().putString("last_folder_tree_uri", newTreeUri.toString()).putString("last_folder_name", trimmed).apply()
             }
 
             response.put("status", "ok")
@@ -350,7 +350,7 @@ class MainActivity : Activity() {
 
             if (isCurrent) {
                 runOnUiThread {
-                    notifyFolderOpened(trimmed, newRootDocId, newTreeUri.toString())
+                    notifyFolderOpened(trimmed, newRootDocId, newTreeUri.toString(), isStartup = false)
                 }
             }
             return response.toString()
@@ -478,7 +478,7 @@ class MainActivity : Activity() {
             val counters = intArrayOf(0, 0) // [0] files, [1] dirs
             val visited = HashSet<String>()
 
-            val rootNode = buildRecursiveDirNode(treeUri, rootDocId, folderName, 0, counters, visited, 25, 15000)
+            val rootNode = buildRecursiveDirNode(treeUri, rootDocId, folderName, 0, counters, visited, 3, 200)
 
             response.put("status", "ok")
             response.put("root", rootNode)
@@ -1466,13 +1466,19 @@ class MainActivity : Activity() {
     }
 
     private fun getFolderName(treeUri: Uri): String {
+        val cached = mPrefs.getString("last_folder_name", null)
+        if (!cached.isNullOrEmpty()) return cached
+
         try {
             val treeDocId = DocumentsContract.getTreeDocumentId(treeUri)
             val docUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, treeDocId)
             contentResolver.query(docUri, arrayOf(DocumentsContract.Document.COLUMN_DISPLAY_NAME), null, null, null)?.use { cursor ->
                 if (cursor.moveToFirst()) {
                     val name = cursor.getString(0)
-                    if (!name.isNullOrEmpty()) return name
+                    if (!name.isNullOrEmpty()) {
+                        mPrefs.edit().putString("last_folder_name", name).apply()
+                        return name
+                    }
                 }
             }
         } catch (ignored: Exception) {}
@@ -1604,13 +1610,12 @@ class MainActivity : Activity() {
                 }
 
                 mCurrentTreeUri = treeUri
-                mPrefs.edit().putString("last_folder_tree_uri", treeUri.toString()).apply()
-
                 val folderName = getFolderName(treeUri)
                 val rootDocId = getRootDocumentId(treeUri)
+                mPrefs.edit().putString("last_folder_tree_uri", treeUri.toString()).putString("last_folder_name", folderName).apply()
 
                 mWebView?.post {
-                    notifyFolderOpened(folderName, rootDocId, treeUri.toString())
+                    notifyFolderOpened(folderName, rootDocId, treeUri.toString(), isStartup = false)
                 }
             }
             return

@@ -7764,7 +7764,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v2.4.12</span>
+          <span class="settings-row-badge" id="appVersionSub">v2.4.13</span>
           <span class="settings-row-chevron">›</span>
         </button>
         <div class="settings-row-config">
@@ -7818,8 +7818,8 @@
   </div>
   <div class="update-body">
     <div class="update-version-row">
-      <span class="badge new-badge" id="updateNewVersion">v2.4.12</span>
-      <span class="badge current-badge" id="updateCurrentVersion">Current: v2.4.12</span>
+      <span class="badge new-badge" id="updateNewVersion">v2.4.13</span>
+      <span class="badge current-badge" id="updateCurrentVersion">Current: v2.4.13</span>
     </div>
     <div class="update-changelog-title">Changelog:</div>
     <div class="update-changelog" id="updateChangelog"></div>
@@ -8092,7 +8092,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '2.4.12';
+      window.AndroidBridge.getAppVersion() : '2.4.13';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -16857,9 +16857,13 @@ ${cp.rawDocText || ''}
       if (typeof drawerRecentsDirty !== 'undefined' && drawerRecentsDirty) {
         renderRecentFilesForDrawer(true);
       }
+      if (typeof folderTreeDirty !== 'undefined' && folderTreeDirty && openedFolderRootDocId) {
+        folderTreeDirty = false;
+        loadFolderTree(openedFolderRootDocId);
+      }
       renderRecentVaultsUI();
       updateDefaultBasicSaveFolderUI();
-    }, 240);
+    }, 200);
   }
   function closeDrawer() {
     fileDrawer.classList.remove('open');
@@ -17864,7 +17868,9 @@ ${cp.rawDocText || ''}
     });
   }
 
-  window.onFolderOpened = function(name, rootDocId, treeUri) {
+  let folderTreeDirty = false;
+
+  window.onFolderOpened = function(name, rootDocId, treeUri, isStartup = false) {
     openedFolderName = name;
     openedFolderRootDocId = rootDocId;
     if (treeUri) openedFolderTreeUri = treeUri;
@@ -17895,8 +17901,14 @@ ${cp.rawDocText || ''}
       renderVaultDropdownList();
     }
 
-    loadFolderTree(rootDocId);
-    showToast(`Opened vault: ${name}`);
+    folderTreeDirty = true;
+    if (!isStartup || fileDrawer.classList.contains('open')) {
+      folderTreeDirty = false;
+      loadFolderTree(rootDocId);
+    }
+    if (!isStartup) {
+      showToast(`Opened vault: ${name}`);
+    }
 
     // If there is a pending move to vault task, execute it now
     if (pendingVaultMove) {
@@ -17955,27 +17967,14 @@ ${cp.rawDocText || ''}
   }
 
   async function loadFolderTree(rootId) {
-    folderTree.innerHTML = '<div style="padding:16px 12px;font-size:13px;color:var(--muted);text-align:center;">Scanning notes and folders...</div>';
+    folderTree.innerHTML = '<div style="padding:16px 12px;font-size:13px;color:var(--muted);text-align:center;">Loading vault files...</div>';
     if (folderStats) folderStats.style.display = 'none';
-    await new Promise(r => setTimeout(r, 40));
 
     try {
-      let entries = [];
-      let totalFiles = 0;
-      let totalDirs = 0;
-
-      if (window.AndroidBridge && window.AndroidBridge.getRecursiveTree) {
-        const treeRes = await fetchRecursiveTree();
-        const rootNode = treeRes.root || {};
-        entries = rootNode.children || [];
-        totalFiles = typeof treeRes.totalFiles === 'number' ? treeRes.totalFiles : 0;
-        totalDirs = typeof treeRes.totalDirs === 'number' ? treeRes.totalDirs : 0;
-      } else {
-        const rawEntries = await fetchTreeChildren(rootId);
-        entries = rawEntries || [];
-        totalFiles = entries.filter(e => e.kind === 'file').length;
-        totalDirs = entries.filter(e => e.kind === 'directory').length;
-      }
+      const rawEntries = await fetchTreeChildren(rootId);
+      const entries = rawEntries || [];
+      const totalFiles = entries.filter(e => e.kind === 'file').length;
+      const totalDirs = entries.filter(e => e.kind === 'directory').length;
 
       folderTree.innerHTML = '';
       if (!entries || entries.length === 0) {
@@ -18038,11 +18037,24 @@ ${cp.rawDocText || ''}
       let childrenBuilt = false;
       let isOpen = false;
 
-      const renderChildren = () => {
+      const renderChildren = async () => {
         if (childrenBuilt) return;
         childrenBuilt = true;
-        const children = item.children || [];
-        if (children.length === 0) {
+
+        let children = item.children;
+        if (!children) {
+          childrenContainer.innerHTML = '<div style="padding:6px 12px;font-size:12px;color:var(--muted);">Loading...</div>';
+          try {
+            children = await fetchTreeChildren(item.id);
+            item.children = children;
+          } catch(err) {
+            console.error('Failed fetching child folder', err);
+            children = [];
+          }
+        }
+
+        childrenContainer.innerHTML = '';
+        if (!children || children.length === 0) {
           const empty = document.createElement('div');
           empty.style.padding = '8px 12px';
           empty.style.fontSize = '12px';
