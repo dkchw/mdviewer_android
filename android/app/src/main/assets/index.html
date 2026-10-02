@@ -7764,7 +7764,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v2.4.13</span>
+          <span class="settings-row-badge" id="appVersionSub">v2.4.14</span>
           <span class="settings-row-chevron">›</span>
         </button>
         <div class="settings-row-config">
@@ -7818,8 +7818,8 @@
   </div>
   <div class="update-body">
     <div class="update-version-row">
-      <span class="badge new-badge" id="updateNewVersion">v2.4.13</span>
-      <span class="badge current-badge" id="updateCurrentVersion">Current: v2.4.13</span>
+      <span class="badge new-badge" id="updateNewVersion">v2.4.14</span>
+      <span class="badge current-badge" id="updateCurrentVersion">Current: v2.4.14</span>
     </div>
     <div class="update-changelog-title">Changelog:</div>
     <div class="update-changelog" id="updateChangelog"></div>
@@ -8092,7 +8092,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '2.4.13';
+      window.AndroidBridge.getAppVersion() : '2.4.14';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -16759,11 +16759,47 @@ ${cp.rawDocText || ''}
     }, 120);
   });
 
-  // --- Left-to-Right Swipe to Open File Manager ---
+  // --- Left-to-Right Swipe to Open/Close File Manager Drawer ---
   let touchStartX = 0;
   let touchStartY = 0;
   let touchStartTime = 0;
   let isTrackingSwipe = false;
+  let drawerDragActive = false;
+  let drawerDragDirection = ''; // 'open' or 'close'
+  const DRAWER_EDGE_ZONE = 40; // px — tight edge-only zone to avoid false activations
+  const DRAWER_CLOSE_ZONE = 60; // px from right edge of drawer
+
+  function getDrawerWidth() {
+    return fileDrawer ? fileDrawer.offsetWidth : Math.min(window.innerWidth * 0.92, 440);
+  }
+
+  function setDrawerDragPosition(px) {
+    // px: 0 = fully closed (off-screen), drawerWidth = fully open
+    const w = getDrawerWidth();
+    const clamped = Math.max(0, Math.min(px, w));
+    const offset = clamped - w; // negative = off-screen
+    fileDrawer.style.transition = 'none';
+    fileDrawer.style.transform = `translate3d(${offset}px, 0, 0)`;
+    // Backdrop opacity proportional to open fraction
+    const frac = clamped / w;
+    drawerBackdrop.style.transition = 'none';
+    drawerBackdrop.style.opacity = frac * 1;
+    drawerBackdrop.style.pointerEvents = frac > 0.05 ? 'auto' : 'none';
+  }
+
+  function finishDrawerDrag(open) {
+    // Restore CSS transitions and snap to open or closed
+    fileDrawer.style.transition = '';
+    fileDrawer.style.transform = '';
+    drawerBackdrop.style.transition = '';
+    drawerBackdrop.style.opacity = '';
+    drawerBackdrop.style.pointerEvents = '';
+    if (open) {
+      openDrawer();
+    } else {
+      closeDrawer();
+    }
+  }
 
   window.addEventListener('touchstart', (e) => {
     if (e.touches.length !== 1) return;
@@ -16771,6 +16807,8 @@ ${cp.rawDocText || ''}
     touchStartY = e.touches[0].clientY;
     touchStartTime = Date.now();
     isTrackingSwipe = true;
+    drawerDragActive = false;
+    drawerDragDirection = '';
   }, { passive: true });
 
   window.addEventListener('touchmove', (e) => {
@@ -16783,58 +16821,113 @@ ${cp.rawDocText || ''}
     const absY = Math.abs(deltaY);
     const isDrawerOpen = fileDrawer && fileDrawer.classList.contains('open');
 
-    if (!isDrawerOpen) {
-      // Swiping right from left zone: allow generous edge zone (left 140px or 30% of screen)
-      const edgeLimit = Math.max(140, window.innerWidth * 0.30);
-      const isLeftStart = touchStartX <= edgeLimit;
-      const isHorizontalRight = deltaX > 16 && absX > absY * 0.45;
-      if (isLeftStart && isHorizontalRight) {
+    // If we haven't committed to a drag direction yet
+    if (!drawerDragActive) {
+      // Must have enough movement and a clear horizontal bias
+      if (absX < 12 && absY < 12) return;
+      if (absY > absX * 0.8) {
+        // Vertical scroll — stop tracking
         isTrackingSwipe = false;
-        if (window.navigator && window.navigator.vibrate) {
-          try { window.navigator.vibrate(8); } catch (_) {}
-        }
-        openDrawer();
+        return;
       }
-    } else {
-      // Swiping left to close file manager drawer: responsive close
-      if (deltaX < -18 && absX > absY * 0.45) {
+
+      if (!isDrawerOpen && touchStartX <= DRAWER_EDGE_ZONE && deltaX > 0) {
+        drawerDragActive = true;
+        drawerDragDirection = 'open';
+        // Remove the CSS open class so we can manually position
+        fileDrawer.classList.remove('open');
+        drawerBackdrop.classList.remove('open');
+      } else if (isDrawerOpen && deltaX < 0) {
+        drawerDragActive = true;
+        drawerDragDirection = 'close';
+        fileDrawer.classList.remove('open');
+        drawerBackdrop.classList.remove('open');
+      } else {
         isTrackingSwipe = false;
-        closeDrawer();
+        return;
+      }
+    }
+
+    // Active drag: position drawer at finger
+    if (drawerDragActive) {
+      const w = getDrawerWidth();
+      if (drawerDragDirection === 'open') {
+        // Finger position from left edge = how far the drawer is "pulled out"
+        setDrawerDragPosition(curX);
+      } else {
+        // close: started from open, calculate how much remains visible
+        const remaining = w + deltaX; // deltaX is negative
+        setDrawerDragPosition(remaining);
       }
     }
   }, { passive: true });
 
   window.addEventListener('touchend', (e) => {
-    if (!isTrackingSwipe || e.changedTouches.length !== 1) {
-      isTrackingSwipe = false;
+    if (!isTrackingSwipe) {
+      drawerDragActive = false;
       return;
     }
     isTrackingSwipe = false;
+
+    if (drawerDragActive) {
+      const curX = e.changedTouches[0].clientX;
+      const deltaX = curX - touchStartX;
+      const elapsed = Date.now() - touchStartTime;
+      const velocity = Math.abs(deltaX) / Math.max(elapsed, 1); // px/ms
+      const w = getDrawerWidth();
+      const VELOCITY_THRESHOLD = 0.4; // px/ms — fast flick
+      const POSITION_THRESHOLD = 0.4; // 40% of drawer width
+
+      let shouldOpen;
+      if (drawerDragDirection === 'open') {
+        if (velocity > VELOCITY_THRESHOLD && deltaX > 0) {
+          shouldOpen = true;
+        } else {
+          shouldOpen = curX > w * POSITION_THRESHOLD;
+        }
+      } else {
+        if (velocity > VELOCITY_THRESHOLD && deltaX < 0) {
+          shouldOpen = false;
+        } else {
+          const remaining = w + deltaX;
+          shouldOpen = remaining > w * (1 - POSITION_THRESHOLD);
+        }
+      }
+
+      if (shouldOpen && window.navigator && window.navigator.vibrate) {
+        try { window.navigator.vibrate(8); } catch (_) {}
+      }
+      finishDrawerDrag(shouldOpen);
+      drawerDragActive = false;
+      return;
+    }
+
+    // Fallback: quick flick detection (no drag tracking started but fast edge flick)
     const deltaX = e.changedTouches[0].clientX - touchStartX;
     const deltaY = e.changedTouches[0].clientY - touchStartY;
     const absX = Math.abs(deltaX);
     const absY = Math.abs(deltaY);
     const elapsed = Date.now() - touchStartTime;
-
     const isDrawerOpen = fileDrawer && fileDrawer.classList.contains('open');
 
-    // Swipe Left-to-Right to open file manager (fallback flick detection)
-    if (!isDrawerOpen) {
-      const flickZone = Math.max(160, window.innerWidth * 0.38);
-      const isEdgeFlick = touchStartX <= flickZone && deltaX > 20 && absX > absY * 0.45 && elapsed < 600;
-      if (isEdgeFlick) {
-        if (window.navigator && window.navigator.vibrate) {
-          try { window.navigator.vibrate(8); } catch (_) {}
-        }
-        openDrawer();
+    if (!isDrawerOpen && touchStartX <= DRAWER_EDGE_ZONE && deltaX > 30 && absX > absY && elapsed < 400) {
+      if (window.navigator && window.navigator.vibrate) {
+        try { window.navigator.vibrate(8); } catch (_) {}
       }
-    } else if (isDrawerOpen && deltaX < -18 && absX > absY * 0.45) {
+      openDrawer();
+    } else if (isDrawerOpen && deltaX < -30 && absX > absY && elapsed < 400) {
       closeDrawer();
     }
   }, { passive: true });
 
   window.addEventListener('touchcancel', () => {
+    if (drawerDragActive) {
+      // Snap back to previous state
+      const wasOpen = drawerDragDirection === 'close';
+      finishDrawerDrag(wasOpen);
+    }
     isTrackingSwipe = false;
+    drawerDragActive = false;
   }, { passive: true });
 
   function openDrawer() {
@@ -18148,6 +18241,7 @@ ${cp.rawDocText || ''}
   async function checkForUpdates(manual = false) {
     if (manual) showToast('Checking for updates...');
     try {
+      // Always re-read the live app version (not cached CURRENT_APP_VERSION)
       const activeVer = getActiveAppVersion();
       const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`, {
         headers: { 'Accept': 'application/vnd.github.v3+json' }
@@ -18163,11 +18257,13 @@ ${cp.rawDocText || ''}
       }
 
       const latestTag = releaseData.tag_name;
-      if (compareVersions(latestTag, activeVer) > 0) {
+      const latestClean = latestTag.replace(/^v/, '');
+      const activeClean = activeVer.replace(/^v/, '');
+      if (compareVersions(latestClean, activeClean) > 0) {
         pendingReleaseData = releaseData;
         showUpdateDialog(releaseData);
       } else {
-        if (manual) showToast(`You are on the latest version (v${activeVer})`);
+        if (manual) showToast(`You are on the latest version (v${activeClean})`);
       }
     } catch(e) {
       if (manual) showToast('Could not check updates: ' + e.message);
@@ -18177,8 +18273,9 @@ ${cp.rawDocText || ''}
   function showUpdateDialog(releaseData) {
     closeSettings();
     pendingReleaseData = releaseData;
-    const activeVer = getActiveAppVersion();
-    updateNewVersion.textContent = releaseData.tag_name;
+    const activeVer = getActiveAppVersion().replace(/^v/, '');
+    const newVer = (releaseData.tag_name || '').replace(/^v/, '');
+    updateNewVersion.textContent = 'v' + newVer;
     updateCurrentVersion.textContent = `Current: v${activeVer}`;
     updateChangelog.textContent = releaseData.body || 'No release notes provided.';
 
@@ -18791,9 +18888,11 @@ ${cp.rawDocText || ''}
   applyBasicZoom();
   applyZoom();
 
-  // Check for updates automatically in background after a short delay
+  // Check for updates automatically in background after a short delay (if enabled)
   setTimeout(() => {
-    checkForUpdates(false);
+    if (controlsConfig.autoDownloadUpdate !== false) {
+      checkForUpdates(false);
+    }
   }, 3500);
 })();
 </script>

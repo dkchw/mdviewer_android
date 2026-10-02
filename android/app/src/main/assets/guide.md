@@ -422,5 +422,22 @@ Turn any markdown document or note into interactive study flashcards:
 
 ---
 
+## 🚀 22. What's New in v2.4.14
+
+- **🔄 Fixed Updater Version Detection Loop**:
+  - **Root Cause**: After installing a new version, old downloaded APK files from previous updates lingered in the downloads directory. The updater's `isUpdateDownloaded()` method detected *any* `mdviewer*.apk` file as a "ready update" — including stale APKs from already-installed versions — causing a perpetual "Install Now" loop.
+  - **Fix**: On version change (first launch after update), all stale APK files from previous versions are automatically cleaned up. The version detection now strictly matches the requested version and never reports a download as "ready" if it matches the currently installed version.
+  - **Auto-Update Toggle**: The startup auto-check now properly respects the "Check Updates on Startup" toggle setting.
+- **🔒 Google Play Security Improvements**:
+  - **Removed Broad FileProvider Path**: Removed the overly broad `external-path` entry from `file_paths.xml` that exposed the entire shared external storage. The updater only needs `external-files-path` (app-private directory), which is already declared.
+  - **Normalized Version Comparison**: All version comparisons now consistently strip the `v` prefix before comparing, preventing edge cases with `v2.4.13` vs `2.4.13` format mismatches.
+- **📱 Interactive Sidebar Drag-Tracking**:
+  - **Finger-Following Drawer**: The sidebar now follows your finger in real-time as you drag from the left edge, with smooth hardware-accelerated transforms and backdrop opacity tracking.
+  - **Tighter Edge Zone (40px)**: Reduced the swipe activation zone from 30–38% of screen width to a precise 40px left-edge-only zone, eliminating false drawer activations during normal content scrolling and interaction.
+  - **Velocity-Based Snap**: Fast flicks instantly open/close the drawer. Slow drags snap based on a 40% threshold — if you've pulled the drawer past 40% of its width, releasing opens it; otherwise it snaps closed.
+  - **Bidirectional Drag**: Both opening and closing the drawer support smooth interactive drag tracking. Swipe left anywhere on an open drawer to close it with finger-tracking feedback.
+
+---
+
 *MD Viewer — Fast, Offline, Private Markdown Reading & Writing on Android.*
 

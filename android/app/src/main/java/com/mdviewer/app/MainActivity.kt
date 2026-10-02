@@ -188,6 +188,9 @@ class MainActivity : Activity() {
         if (lastLoadedVersion != currentVersion) {
             webView.clearCache(true)
             prefs.edit().putString("last_loaded_app_version", currentVersion).apply()
+            // Clean up stale downloaded APKs from previous versions to prevent
+            // the updater from falsely detecting an old APK as a pending update
+            cleanupStaleUpdateApks(currentVersion)
         }
 
         webView.loadUrl("file:///android_asset/index.html")
@@ -1360,8 +1363,14 @@ class MainActivity : Activity() {
 
     fun isUpdateDownloaded(versionName: String? = null): Boolean {
         val extDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) ?: return false
+        val currentVersion = try {
+            packageManager.getPackageInfo(packageName, 0).versionName ?: ""
+        } catch (e: Exception) { "" }
+
         if (!versionName.isNullOrBlank()) {
             val cleanVersion = versionName.replace("^v".toRegex(), "").trim()
+            // Don't report "ready" if the requested version matches the already-installed version
+            if (cleanVersion == currentVersion) return false
             val files = extDir.listFiles()
             if (files != null) {
                 for (f in files) {
@@ -1370,12 +1379,14 @@ class MainActivity : Activity() {
                     }
                 }
             }
+            return false
         }
+        // No version specified: check if lastDownloadedApkFile is valid and not for the current version
         if (lastDownloadedApkFile != null && lastDownloadedApkFile!!.exists() && lastDownloadedApkFile!!.length() > 50000L) {
+            if (currentVersion.isNotEmpty() && lastDownloadedApkFile!!.name.contains(currentVersion)) return false
             return true
         }
-        val files = extDir.listFiles() ?: return false
-        return files.any { it.name.startsWith("mdviewer") && it.name.endsWith(".apk") && it.length() > 50000L }
+        return false
     }
 
     fun installDownloadedApk(versionName: String? = null) {
@@ -1449,6 +1460,29 @@ class MainActivity : Activity() {
                 Log.e(TAG, "Cannot launch package installer", e)
                 Toast.makeText(this, "Cannot prompt package installer: ${e.message}", Toast.LENGTH_LONG).show()
             }
+        }
+    }
+
+    private fun cleanupStaleUpdateApks(currentVersion: String) {
+        try {
+            val extDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) ?: return
+            val files = extDir.listFiles() ?: return
+            for (f in files) {
+                if (f.name.startsWith("mdviewer") && f.name.endsWith(".apk")) {
+                    // Delete APK files that don't match the current version
+                    // (they are leftover from previous updates)
+                    if (!f.name.contains(currentVersion)) {
+                        try {
+                            f.delete()
+                            Log.d(TAG, "Cleaned up stale update APK: ${f.name}")
+                        } catch (ignored: Exception) {}
+                    }
+                }
+            }
+            // Clear the in-memory reference too
+            lastDownloadedApkFile = null
+        } catch (e: Exception) {
+            Log.w(TAG, "Error cleaning up stale APKs", e)
         }
     }
 
