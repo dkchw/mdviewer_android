@@ -458,5 +458,12 @@ This major release consolidates the massive sequence of updates focused on makin
 
 ---
 
+## 🔒 25. What's New in v3.0.1 (Critical Security Patch)
+
+- **Hardened WebView Navigation**: Blocked arbitrary internet navigation inside the WebView. External web links will now strictly open in your external browser (like Chrome), ensuring MD Viewer cannot be used as an Arbitrary Code Execution vector.
+- **Strict Updater Validation**: The internal updater logic now strictly validates that downloaded APKs exclusively originate from the official GitHub release repository, entirely preventing remote malicious payload dropping.
+
+---
+
 *MD Viewer — Fast, Offline, Private Markdown Reading & Writing on Android.*
 
