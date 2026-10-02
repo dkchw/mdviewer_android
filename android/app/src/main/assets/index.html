@@ -540,7 +540,7 @@
     z-index: 1190;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity 0.28s cubic-bezier(0.1, 0.9, 0.2, 1);
     will-change: opacity;
     transform: translateZ(0);
     backface-visibility: hidden;
@@ -562,7 +562,7 @@
     display: flex;
     flex-direction: column;
     transform: translate3d(-100%, 0, 0);
-    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.28s cubic-bezier(0.1, 0.9, 0.2, 1);
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.6);
     border-right: 1px solid var(--border);
     will-change: transform;
@@ -7489,7 +7489,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v2.4.9</span>
+          <span class="settings-row-badge" id="appVersionSub">v2.4.10</span>
         </button>
         <div class="settings-row-config">
           <div class="settings-config-label">
@@ -7810,7 +7810,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '2.4.9';
+      window.AndroidBridge.getAppVersion() : '2.4.10';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -10321,7 +10321,13 @@
     });
   }
 
+  let pocketShelfDirty = true;
+  function markPocketShelfDirty() {
+    pocketShelfDirty = true;
+  }
+
   function savePocketNotes() {
+    pocketShelfDirty = true;
     try {
       localStorage.setItem('mdviewer_pocket_notes', JSON.stringify(pocketNotes));
     } catch(e) {}
@@ -10459,8 +10465,10 @@
     }
   }
 
-  function renderPocketShelf() {
+  function renderPocketShelf(force = false) {
     if (!pocketNotesGrid) return;
+    if (!force && !pocketShelfDirty && pocketNotesGrid.children.length > 0) return;
+    pocketShelfDirty = false;
     const prevScroll = pocketShelfScroll ? pocketShelfScroll.scrollTop : 0;
     pocketNotesGrid.innerHTML = '';
 
@@ -11927,7 +11935,7 @@
   if (pocketSearchInput) {
     pocketSearchInput.addEventListener('input', () => {
       pocketSearchQuery = pocketSearchInput.value;
-      renderPocketShelf();
+      renderPocketShelf(true);
     });
   }
 
@@ -11976,7 +11984,7 @@
         }
       }
       renderPocketChipsRow();
-      renderPocketShelf();
+      renderPocketShelf(true);
     });
   }
 
@@ -12599,7 +12607,7 @@
     if (currentAppMode === 'basic') {
       if (currentPocketView === 'editor' && basicMarkdownEditor && currentPocketNoteId) {
         const cur = pocketNotes.find(n => n.id === currentPocketNoteId);
-        if (cur) {
+        if (cur && cur.content !== basicMarkdownEditor.value) {
           cur.content = basicMarkdownEditor.value;
           cur.title = extractPocketTitle(cur.content);
           cur.updatedAt = Date.now();
@@ -12697,8 +12705,8 @@
         const banner = document.getElementById('checkpointActiveBanner');
         if (banner) banner.style.display = 'none';
       }
-      render();
       if (scroller) scroller.scrollTop = outlineScrollTop || 0;
+      renderImmediate();
     }
 
     if (searchContainer && searchContainer.classList.contains('visible') && searchInput && searchInput.value.trim()) {
@@ -12860,7 +12868,13 @@
   let checklistRedoHistory = [];
   let autoSaveOutlineDebounce = null;
 
+  let cachedChecklistStats = null;
+  function invalidateChecklistStats() {
+    cachedChecklistStats = null;
+  }
+
   function scheduleAutoSaveOutline() {
+    invalidateChecklistStats();
     clearTimeout(autoSaveOutlineDebounce);
     autoSaveOutlineDebounce = setTimeout(() => {
       saveLastOpenedOutline(outlineDocName, outlineDocUri, outlineDocTreeId, rawDocText);
@@ -12873,6 +12887,7 @@
   }
 
   function getChecklistStats() {
+    if (cachedChecklistStats) return cachedChecklistStats;
     let total = 0;
     let done = 0;
     const taskRe = /^\s*[-*+]\s+\[([ xX])\]/;
@@ -12885,7 +12900,8 @@
         if (m[1].toLowerCase() === 'x') done++;
       }
     }
-    return { total, done, pct: total > 0 ? Math.round((done / total) * 100) : 0 };
+    cachedChecklistStats = { total, done, pct: total > 0 ? Math.round((done / total) * 100) : 0 };
+    return cachedChecklistStats;
   }
 
   function updateChecklistStats() {
@@ -13839,6 +13855,7 @@ ${cp.rawDocText || ''}
   // --- Parser Core (Same high-performance logic as desktop) ---
   const HRE = /^(#{1,6})\s+(.*)$/;
   function parse(text) {
+    if (typeof invalidateChecklistStats === 'function') invalidateChecklistStats();
     rawDocText = text;
     lines = text.split(/\r\n|\r|\n/);
     headings = [];
@@ -14071,26 +14088,35 @@ ${cp.rawDocText || ''}
   }
 
   let rafPending = false;
+  function renderContent() {
+    const scrollTop = scroller.scrollTop;
+    const viewportH = scroller.clientHeight || window.innerHeight;
+    const firstVisible = Math.max(0, Math.floor(scrollTop / LINE_H) - BUFFER);
+    const rowCount = Math.ceil(viewportH / LINE_H) + BUFFER * 2;
+    const lastVisible = Math.min(totalVisible - 1, firstVisible + rowCount);
+
+    if (totalVisible === 0) { rowsEl.innerHTML = ''; return; }
+
+    let html = '';
+    for (let v = firstVisible; v <= lastVisible; v++) {
+      const lineNo = visibleIdxToLine(v);
+      html += rowHtmlFor(lineNo);
+    }
+    rowsEl.innerHTML = html;
+    rowsEl.style.transform = `translate3d(0, ${firstVisible * LINE_H}px, 0)`;
+  }
+
+  function renderImmediate() {
+    rafPending = false;
+    renderContent();
+  }
+
   function render() {
     if (rafPending) return;
     rafPending = true;
     requestAnimationFrame(() => {
       rafPending = false;
-      const scrollTop = scroller.scrollTop;
-      const viewportH = scroller.clientHeight;
-      const firstVisible = Math.max(0, Math.floor(scrollTop / LINE_H) - BUFFER);
-      const rowCount = Math.ceil(viewportH / LINE_H) + BUFFER * 2;
-      const lastVisible = Math.min(totalVisible - 1, firstVisible + rowCount);
-
-      if (totalVisible === 0) { rowsEl.innerHTML = ''; return; }
-
-      let html = '';
-      for (let v = firstVisible; v <= lastVisible; v++) {
-        const lineNo = visibleIdxToLine(v);
-        html += rowHtmlFor(lineNo);
-      }
-      rowsEl.innerHTML = html;
-      rowsEl.style.transform = `translate3d(0, ${firstVisible * LINE_H}px, 0)`;
+      renderContent();
     });
   }
 
@@ -16263,9 +16289,9 @@ ${cp.rawDocText || ''}
     const isDrawerOpen = fileDrawer && fileDrawer.classList.contains('open');
 
     if (!isDrawerOpen) {
-      // Swiping right from left edge / bezel zone (within 100px of left screen edge)
-      const isLeftStart = touchStartX <= 100;
-      const isHorizontalRight = deltaX > 40 && deltaX > Math.abs(deltaY) * 1.1;
+      // Swiping right from left edge zone (within 85px of left screen edge)
+      const isLeftStart = touchStartX <= 85;
+      const isHorizontalRight = deltaX > 22 && deltaX > Math.abs(deltaY) * 0.55;
       if (isLeftStart && isHorizontalRight) {
         isTrackingSwipe = false;
         if (window.navigator && window.navigator.vibrate) {
@@ -16275,7 +16301,7 @@ ${cp.rawDocText || ''}
       }
     } else {
       // Swiping left to close file manager drawer
-      if (deltaX < -45 && Math.abs(deltaX) > Math.abs(deltaY) * 1.1) {
+      if (deltaX < -22 && Math.abs(deltaX) > Math.abs(deltaY) * 0.55) {
         isTrackingSwipe = false;
         closeDrawer();
       }
@@ -16296,15 +16322,15 @@ ${cp.rawDocText || ''}
 
     // Swipe Left-to-Right to open file manager (fallback flick detection)
     if (!isDrawerOpen) {
-      const isEdgeSwipe = touchStartX <= 100 && deltaX > 35 && deltaX > Math.abs(deltaY) * 0.8 && elapsed < 650;
-      const isBroadSwipe = touchStartX <= 160 && deltaX > 60 && deltaX > Math.abs(deltaY) * 1.1 && elapsed < 550;
+      const isEdgeSwipe = touchStartX <= 85 && deltaX > 22 && deltaX > Math.abs(deltaY) * 0.55 && elapsed < 650;
+      const isBroadSwipe = touchStartX <= 150 && deltaX > 40 && deltaX > Math.abs(deltaY) * 0.7 && elapsed < 550;
       if (isEdgeSwipe || isBroadSwipe) {
         if (window.navigator && window.navigator.vibrate) {
           try { window.navigator.vibrate(8); } catch (_) {}
         }
         openDrawer();
       }
-    } else if (isDrawerOpen && deltaX < -35 && Math.abs(deltaX) > Math.abs(deltaY) * 0.8) {
+    } else if (isDrawerOpen && deltaX < -22 && Math.abs(deltaX) > Math.abs(deltaY) * 0.55) {
       closeDrawer();
     }
   }, { passive: true });
@@ -16316,11 +16342,15 @@ ${cp.rawDocText || ''}
   function openDrawer() {
     fileDrawer.classList.add('open');
     drawerBackdrop.classList.add('open');
-    requestAnimationFrame(() => {
+    // Defer heavy DOM work past the first animation frame for silky-smooth 60/120fps entry
+    setTimeout(() => {
       setDrawerTargetMode(currentAppMode);
+      if (typeof drawerRecentsDirty !== 'undefined' && drawerRecentsDirty) {
+        renderRecentFilesForDrawer(true);
+      }
       renderRecentVaultsUI();
       updateDefaultBasicSaveFolderUI();
-    });
+    }, 40);
   }
   function closeDrawer() {
     fileDrawer.classList.remove('open');
@@ -16332,6 +16362,7 @@ ${cp.rawDocText || ''}
 
   // --- Settings Modal Logic ---
   function openSettings(targetSection = null) {
+    closeDrawer();
     syncControlsSettingsUI();
     updateDefaultBasicSaveFolderUI();
     populateSettingsPaletteDropdown();
@@ -17942,8 +17973,14 @@ ${cp.rawDocText || ''}
     renderRecentFilesForDrawer();
   }
 
-  function renderRecentFilesForDrawer() {
+  let drawerRecentsDirty = true;
+  function renderRecentFilesForDrawer(force = false) {
     if (!recentFileList) return;
+    if (!force && fileDrawer && !fileDrawer.classList.contains('open')) {
+      drawerRecentsDirty = true;
+      return;
+    }
+    drawerRecentsDirty = false;
     const targetMode = drawerTargetMode || currentAppMode;
     const targetList = (targetMode === 'basic') ? recentFilesBasic : recentFilesOutline;
 

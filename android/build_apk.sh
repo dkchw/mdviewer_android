@@ -52,7 +52,7 @@ echo "2. Linking resources and manifest..."
     -o "$BUILD_DIR/unaligned.apk"
 
 echo "3. Compiling Kotlin sources with kotlinc..."
-kotlinc -cp "$PLATFORM_JAR:$APP_DIR/libs/kotlin-stdlib.jar" \
+kotlinc -cp "$PLATFORM_JAR:$APP_DIR/libs/kotlin-stdlib.jar:$APP_DIR/libs/androidx-core.jar" \
     -jvm-target 1.8 \
     -d "$BUILD_DIR/classes" \
     "$BUILD_DIR/gen/com/mdviewer/app/R.java" \
@@ -62,6 +62,7 @@ echo "4. Dexing classes with d8 in release mode..."
 "$BT/d8" --release --min-api 24 --lib "$PLATFORM_JAR" \
     --output "$BUILD_DIR/" \
     "$APP_DIR/libs/kotlin-stdlib.jar" \
+    "$APP_DIR/libs/androidx-core.jar" \
     $(find "$BUILD_DIR/classes" -name "*.class")
 
 echo "5. Adding classes.dex to APK..."

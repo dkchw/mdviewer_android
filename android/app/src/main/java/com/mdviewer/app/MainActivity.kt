@@ -28,6 +28,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -1454,37 +1455,17 @@ class MainActivity : Activity() {
     private fun executeInstall(file: File) {
         runOnUiThread {
             try {
-                val contentUri = Uri.parse("content://$packageName.apkprovider/${file.name}")
+                val contentUri = FileProvider.getUriForFile(this, "$packageName.provider", file)
                 val intent = Intent(Intent.ACTION_VIEW).apply {
                     setDataAndType(contentUri, "application/vnd.android.package-archive")
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 }
-
-                val activities = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
-                for (info in activities) {
-                    grantUriPermission(info.activityInfo.packageName, contentUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                }
-
                 Toast.makeText(this, "Opening Android Package Installer...", Toast.LENGTH_SHORT).show()
                 startActivity(intent)
             } catch (e: Exception) {
-                Log.e(TAG, "Cannot launch package installer with provider URI", e)
-                try {
-                    val contentUri = Uri.parse("content://$packageName.apkprovider/${file.name}")
-                    @Suppress("DEPRECATION")
-                    val fallbackIntent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
-                        data = contentUri
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
-                    }
-                    startActivity(fallbackIntent)
-                } catch (e2: Exception) {
-                    Log.e(TAG, "Fallback install intent failed", e2)
-                    Toast.makeText(this, "Cannot prompt package installer: ${e2.message}", Toast.LENGTH_LONG).show()
-                }
+                Log.e(TAG, "Cannot launch package installer", e)
+                Toast.makeText(this, "Cannot prompt package installer: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }

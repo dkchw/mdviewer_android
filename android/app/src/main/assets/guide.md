@@ -345,13 +345,28 @@ Turn any markdown document or note into interactive study flashcards:
   - **Enlarged Touch Targets & Icons**: Increased vector icon containers to 22px with refined active states and tactile feedback.
 
 - **📖 In-Depth In-App Updater Architecture & Documentation**:
-  - Documented the verified, Google Play Protect-certified updater pipeline:
-    1. **GitHub Releases API Query**: Queries latest release metadata directly over HTTPS without personal access tokens.
-    2. **Intelligent Keystore Matching**: Inspects runtime certificate SHA-256 fingerprint (`isAppSignedWithDebugKey()`) to automatically download the matching asset (`mdviewer-vX.Y.Z.apk` vs `mdviewer-vX.Y.Z-debugkey.apk`), eliminating `INSTALL_FAILED_UPDATE_INCOMPATIBLE` signature collision errors.
-    3. **Android `DownloadManager` Engine**: Native OS background downloading with progress notifications, network drop recovery, and automatic clean-up of stale partial packages in app-scoped storage (`getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)`).
-    4. **Sandboxed `ApkProvider`**: Custom secure ContentProvider validating canonical file paths to strictly prevent path traversal vulnerabilities before handing files to the installer.
-    5. **Unknown App Sources Flow**: Gracefully detects if `ACTION_MANAGE_UNKNOWN_APP_SOURCES` is required on Android 8.0+, guides the user to the toggle, and automatically resumes installation upon return.
-    6. **Compliant OS Package Handover**: Hands off package installation to Android's built-in `Intent.ACTION_VIEW` PackageInstaller dialog with explicit URI read permissions, guaranteeing 100% Google Play Protect compliance.
+  - Published comprehensive technical guide [`UPDATER.md`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/UPDATER.md) detailing the zero-dependency background updater architecture, GitHub Releases API integration, Android `DownloadManager`, and secure Android Jetpack `FileProvider`.
+
+---
+
+## 🚀 18. What's New in v2.4.10
+
+- **🛡️ Google Play Protect Security Alignment with Trainly**:
+  - **Standard Android Jetpack `FileProvider`**: Replaced custom `ApkProvider` with official `androidx.core.content.FileProvider` and authority `com.mdviewer.app.provider` defined via `res/xml/file_paths.xml`.
+  - **Zero Dropper/PHA Heuristics**: Eliminated custom ContentProvider raw file descriptors, removed `<queries>` for `package-archive`, and dropped manual `grantUriPermission` loops that triggered Play Protect static scanners.
+  - **Standard OS Intent Package Handover**: Handed off packages directly via `Intent.ACTION_VIEW` with `FLAG_GRANT_READ_URI_PERMISSION`, completely identical to the architecture tested and approved in Trainly.
+
+- **📱 Silky-Smooth Side Panel Drawer & Enhanced Gestures**:
+  - **Effortless Edge Swipe**: Widened bezel swipe detection zone to 85px and relaxed angle tolerance (`deltaX > Math.abs(deltaY) * 0.55`) so natural thumb arc swipes trigger instantly without strict horizontal alignment.
+  - **Fast Responsive Trigger**: Reduced movement requirement from 40px down to 22px with subtle haptic feedback for snappy, fluid response.
+  - **Silky 60/120fps Animation**: Updated drawer transition to Material 3 decelerate curve (`0.28s cubic-bezier(0.1, 0.9, 0.2, 1)`) and deferred heavy DOM layout passes by 40ms so the slide-in animation experiences zero frame drops.
+  - **Auto-Close Drawer on Settings**: Opening Settings from any entry point now automatically closes the side panel drawer.
+
+- **⚡ Zero-Lag Startup & Instant Mode Switching**:
+  - **Synchronous Virtual Row Rendering (`renderImmediate`)**: Eliminated the 1-frame blank flicker and stutter when switching between Notes, Outline, and Checklist modes by rendering visible rows synchronously before paint.
+  - **Checklist Stats O(1) Cache**: Added dirty-flag cache for checklist progress computation, eliminating full-text line splitting and regex parsing on every mode switch.
+  - **Lazy Drawer Recents Rendering**: Defer recent files DOM tree rebuilds while the drawer is closed, eliminating wasted main-thread work during mode switching.
+  - **Cached Pocket Shelf Cards**: Re-use existing DOM nodes on shelf entry unless notes or filters actually changed, keeping tab switching instant.
 
 ---
 
