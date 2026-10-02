@@ -26,6 +26,8 @@ import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.webkit.WebResourceRequest
+import android.annotation.TargetApi
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.core.content.FileProvider
@@ -160,6 +162,36 @@ class MainActivity : Activity() {
         }
 
         webView.webViewClient = object : WebViewClient() {
+            @Suppress("OVERRIDE_DEPRECATION")
+            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                if (url == null) return false
+                if (url.startsWith("http://") || url.startsWith("https://")) {
+                    try {
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                    } catch (e: Exception) {}
+                    return true // Block WebView from loading remote URLs
+                }
+                if (url.startsWith("file:///android_asset/")) {
+                    return false // Allow local assets
+                }
+                return true // Block everything else
+            }
+
+            @TargetApi(Build.VERSION_CODES.N)
+            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                val url = request?.url?.toString() ?: return false
+                if (url.startsWith("http://") || url.startsWith("https://")) {
+                    try {
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                    } catch (e: Exception) {}
+                    return true // Block WebView from loading remote URLs
+                }
+                if (url.startsWith("file:///android_asset/")) {
+                    return false // Allow local assets
+                }
+                return true // Block everything else
+            }
+
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 handlePendingIntentData()
@@ -1259,6 +1291,14 @@ class MainActivity : Activity() {
             try {
                 if (apkUrl.isBlank()) {
                     Toast.makeText(this, "Invalid update URL", Toast.LENGTH_SHORT).show()
+                    return@runOnUiThread
+                }
+
+                // SECURITY HARDENING: Prevent Arbitrary Code Execution (Dropper protection)
+                // Strict validation to ONLY allow downloads from our official GitHub release repository.
+                if (!apkUrl.startsWith("https://github.com/dkchw/mdviewer_android/releases/download/")) {
+                    Log.e(TAG, "Blocked untrusted APK update source: \$apkUrl")
+                    Toast.makeText(this, "Security Error: Blocked untrusted update source", Toast.LENGTH_LONG).show()
                     return@runOnUiThread
                 }
 
