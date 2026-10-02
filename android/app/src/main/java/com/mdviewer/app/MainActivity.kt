@@ -1686,13 +1686,18 @@ class MainActivity : Activity() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        mWebView?.evaluateJavascript("window.handleBackPressed ? window.handleBackPressed() : false") { value ->
+            if (value != "true") {
+                moveTaskToBack(true)
+            }
+        }
+    }
+
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            mWebView?.evaluateJavascript("window.handleBackPressed ? window.handleBackPressed() : false") { value ->
-                if (value != "true") {
-                    moveTaskToBack(true)
-                }
-            }
+            onBackPressed()
             return true
         }
         return super.onKeyDown(keyCode, event)

@@ -392,5 +392,24 @@ Turn any markdown document or note into interactive study flashcards:
 
 ---
 
+## 🚀 20. What's New in v2.4.12
+
+- **☑️ Heading-Level Batch Item Selection (Select / Deselect All in Section)**:
+  - **One-Tap Section Checkboxes**: Every heading containing checklist tasks displays a dedicated squircle section checkbox (`[✓]`, `[ ]`, or `[-]` for partial progress) and a real-time progress pill (e.g. `2/5` or `5/5 ✓`).
+  - **Click Heading to Select/Deselect All**:
+    - **In Checklist Mode**: Tapping the heading row, text, section checkbox, or progress badge toggles all checklist tasks under that section (checks all if any are unchecked; unchecks all if all are done).
+    - **In Outline Mode**: Interactive section checkboxes and progress pills appear on headings with tasks, enabling instant batch selection without switching modes while preserving outline navigation.
+    - **In Basic Reader Mode**: Clicking any document heading with tasks instantly toggles all task checkboxes in that section and synchronizes back to the document editor.
+  - **Full Hierarchy & Tree Scope**: Top-level headings govern all descendant tasks in their chapter, while subheadings scope strictly to their sub-section.
+  - **Integrated History (Undo / Redo)**: Section toggles are recorded in the checklist history stack with crisp haptic feedback (`vibrate(14)`), auto-saving and supporting instant Undo/Redo.
+- **📱 Flashcard & Gallery Review Mobile Usability Overhaul**:
+  - **Prominent One-Tap Exit Button (`✕ Exit`)**: Added a high-contrast, touch-friendly 38px+ exit button in the top bar with clear icon and text, visible and clickable on all mobile viewports without notch interference.
+  - **Fixed Z-Index Layering (`z-index: 1300`)**: Raised Flashcard overlay above top header bars (`z-index: 600`) and bottom toolbars, eliminating touch-blocking and layering conflicts on phones.
+  - **Clean 2-Tier Responsive Mobile Toolbar**: Dedicated top tier for `✕ Exit`, `[🗂️ Study | ▦ Gallery]` switcher, and card stats; horizontally scrollable second tier for filters (`Outline`, `H1`, `H2`, `All`), Shuffle, 2-Col, Fullscreen, and Zoom controls.
+  - **Full Mobile Gallery Usability**: Compact responsive face buttons (`🏷️ Front`, `📄 Back`, `◫ Both`), effortless one-tap card selection to jump directly from Gallery to Study mode, active touch feedback, and real-time search filtering.
+  - **Complete Android Back Gesture & Navigation Support**: Overrode `onBackPressed()` in `MainActivity.kt` to seamlessly catch edge-swipe gesture navigation on modern Android phones (swiping back in Gallery returns to Study; swiping back in Study cleanly exits Flashcard mode).
+
+---
+
 *MD Viewer — Fast, Offline, Private Markdown Reading & Writing on Android.*
 

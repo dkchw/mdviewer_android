@@ -10,8 +10,8 @@ android {
         applicationId "com.mdviewer.app"
         minSdk 24
         targetSdk 34
-        versionCode 39
-        versionName "2.4.11"
+        versionCode 40
+        versionName "2.4.12"
     }
 
     buildTypes {

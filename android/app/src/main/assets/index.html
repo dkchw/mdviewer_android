@@ -385,6 +385,86 @@
     border-left: 3px solid var(--accent);
   }
 
+  /* Section Task Batch Checkbox & Progress Pill on Headings */
+  .heading-task-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+    margin: 0 4px 0 2px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  input.heading-section-cb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 17px;
+    height: 17px;
+    min-width: 17px;
+    min-height: 17px;
+    margin: 0;
+    border: 2px solid var(--border-hl, #414868);
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    position: relative;
+    display: inline-grid;
+    place-content: center;
+    transition: all 0.18s ease;
+    vertical-align: middle;
+  }
+  input.heading-section-cb:hover {
+    border-color: var(--accent, #7aa2f7);
+    box-shadow: 0 0 6px rgba(122, 162, 247, 0.3);
+  }
+  input.heading-section-cb:active {
+    transform: scale(0.88);
+  }
+  input.heading-section-cb:checked {
+    background-color: var(--accent, #7aa2f7);
+    border-color: var(--accent, #7aa2f7);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+    background-size: 80% 80%;
+    background-position: center;
+    background-repeat: no-repeat;
+    box-shadow: 0 1px 6px rgba(122, 162, 247, 0.4);
+  }
+  input.heading-section-cb[data-indeterminate="true"] {
+    background-color: rgba(122, 162, 247, 0.22);
+    border-color: var(--accent, #7aa2f7);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237aa2f7' stroke-width='3.5' stroke-linecap='round'%3E%3Cline x1='5' y1='12' x2='19' y2='12'%3E%3C/line%3E%3C/svg%3E");
+    background-size: 70% 70%;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .heading-task-badge {
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 14px;
+    padding: 1px 6px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    margin-right: 6px;
+    flex: 0 0 auto;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.18s ease;
+  }
+  .heading-task-badge.part-done {
+    background: rgba(122, 162, 247, 0.15);
+    color: var(--accent, #7aa2f7);
+    border-color: rgba(122, 162, 247, 0.35);
+  }
+  .heading-task-badge.all-done {
+    background: rgba(74, 222, 128, 0.18);
+    color: #4ade80;
+    border-color: rgba(74, 222, 128, 0.4);
+  }
+
   .row.h1 .txt { color: var(--h1); font-weight: 700; font-size: 1.22em; }
   .row.h2 .txt { color: var(--h2); font-weight: 700; font-size: 1.12em; }
   .row.h3 .txt { color: var(--h3); font-weight: 600; font-size: 1.04em; }
@@ -1482,14 +1562,25 @@
   }
 
   /* --- Flashcard Mode --- */
+  body.flashcard-open #headerBar,
+  body.flashcard-open #bottomBar,
+  body.flashcard-open #drawerBackdrop,
+  body.flashcard-open #fileDrawer,
+  body.flashcard-open #selectionToolbar,
+  body.flashcard-open #wsSearchResults {
+    display: none !important;
+  }
+
   #flashcardView {
     display: none;
     flex-direction: column;
     position: fixed;
     inset: 0;
-    z-index: 150;
+    z-index: 1300;
     background: var(--bg);
     overflow: hidden;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   #flashcardView.fc-fullscreen {
     position: fixed !important;
@@ -1514,34 +1605,79 @@
   }
   #flashcardToolbar {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 6px;
-    padding: 8px 10px;
+    padding: 8px 12px;
     background: var(--bg2);
     border-bottom: 1px solid var(--border);
-    flex-wrap: wrap;
     flex-shrink: 0;
   }
-  #flashcardToolbar button {
+  .fc-toolbar-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+  }
+  .fc-exit-btn {
+    background: #2b3048 !important;
+    color: #fff !important;
+    border: 1.5px solid rgba(122, 162, 247, 0.45) !important;
+    padding: 6px 14px !important;
+    border-radius: 8px !important;
+    cursor: pointer;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    min-height: 38px !important;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.12s ease;
+  }
+  .fc-exit-btn:active {
+    background: #363c5a !important;
+    transform: scale(0.96);
+  }
+  .fc-toolbar-scroll {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    width: 100%;
+    padding-bottom: 2px;
+  }
+  .fc-toolbar-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  .fc-toolbar-scroll button,
+  .fc-tool-btn {
     background: #242737;
     color: var(--fg);
     border: 1px solid var(--border);
-    padding: 5px 9px;
+    padding: 5px 10px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 11.5px;
     font-weight: 500;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
     -webkit-tap-highlight-color: transparent;
     transition: all 0.12s ease;
   }
-  #flashcardToolbar button:active {
+  .fc-toolbar-scroll button:active,
+  .fc-tool-btn:active {
     background: #2c3040;
     transform: scale(0.96);
   }
-  #flashcardToolbar button.active {
+  .fc-toolbar-scroll button.active,
+  .fc-tool-btn.active {
     background: var(--accent);
     color: #16161e;
     font-weight: 700;
@@ -1560,6 +1696,7 @@
     border-radius: 6px;
     overflow: hidden;
     border: 1px solid var(--border);
+    flex-shrink: 0;
   }
   .fc-filter-group button {
     background: #191b29;
@@ -1581,9 +1718,10 @@
   .fc-stats {
     margin-left: auto;
     color: #a9b1d6;
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 700;
     white-space: nowrap;
+    flex-shrink: 0;
   }
   .fc-zoom-group {
     display: inline-flex;
@@ -1592,6 +1730,7 @@
     border: 1px solid var(--border);
     border-radius: 6px;
     overflow: hidden;
+    flex-shrink: 0;
   }
   .fc-zoom-group button {
     background: transparent !important;
@@ -1896,21 +2035,27 @@
   /* Flashcard View Mode Toggle (Study vs Gallery) */
   .fc-mode-toggle-group {
     display: inline-flex;
-    border-radius: 6px;
+    border-radius: 8px;
     overflow: hidden;
     border: 1px solid var(--border);
-    margin-right: 4px;
+    background: #14151f;
+    flex-shrink: 0;
   }
   .fc-mode-btn {
     background: #191b29 !important;
     color: var(--muted) !important;
     border: none !important;
     border-radius: 0 !important;
-    padding: 5px 10px !important;
-    font-size: 11.5px !important;
+    padding: 6px 12px !important;
+    font-size: 12px !important;
     font-weight: 600 !important;
     cursor: pointer;
     transition: all 0.12s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 36px;
+    -webkit-tap-highlight-color: transparent;
   }
   .fc-mode-btn:active {
     background: #242737 !important;
@@ -1934,8 +2079,8 @@
   .fc-gallery-subbar {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 14px;
+    gap: 8px;
+    padding: 8px 12px;
     background: #181926;
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
@@ -1947,12 +2092,13 @@
     overflow: hidden;
     border: 1px solid var(--border);
     background: #13141f;
+    flex-shrink: 0;
   }
   .fc-gallery-face-btn {
     background: transparent;
     border: none;
     color: var(--muted);
-    padding: 5px 11px;
+    padding: 6px 10px;
     font-size: 11.5px;
     font-weight: 600;
     cursor: pointer;
@@ -1973,9 +2119,8 @@
     box-shadow: inset 0 0 8px rgba(122, 162, 247, 0.2);
   }
   .fc-gallery-search-box {
-    flex: 1;
-    min-width: 140px;
-    max-width: 320px;
+    flex: 1 1 140px;
+    min-width: 120px;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -2051,10 +2196,17 @@
     border-radius: 14px;
     box-shadow: 0 4px 14px rgba(0,0,0,0.35);
     overflow: hidden;
-    transition: transform 0.12s ease, border-color 0.12s ease;
+    cursor: pointer;
+    -webkit-tap-highlight-color: rgba(122, 162, 247, 0.18);
+    transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
   }
   .fc-gcard:hover {
     border-color: rgba(122, 162, 247, 0.4);
+  }
+  .fc-gcard:active {
+    transform: scale(0.985);
+    border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(122, 162, 247, 0.25);
   }
 
   /* Front Only Card */
@@ -6820,26 +6972,35 @@
 <!-- Flashcard Study Mode Overlay -->
 <div id="flashcardView">
   <div id="flashcardToolbar">
-    <button id="fcExitBtn" title="Back to Document">← Back</button>
-    <div class="fc-filter-group" id="fcFilterGroup">
-      <button id="fcFilterOutline" class="active" data-filter="outline" title="Headings from current outline collapse state">Outline</button>
-      <button id="fcFilterH1" data-filter="h1" title="Level 1 headings">H1</button>
-      <button id="fcFilterH2" data-filter="h2" title="Level 2 headings">H2</button>
-      <button id="fcFilterAll" data-filter="all" title="All headings">All</button>
+    <div class="fc-toolbar-top">
+      <button id="fcExitBtn" class="fc-exit-btn" title="Back to Document">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>Exit</span>
+      </button>
+      <div class="fc-mode-toggle-group" id="fcModeToggleGroup">
+        <button id="btnFcModeStudy" class="fc-mode-btn active" title="1-Card Interactive Study Mode">🗂️ Study</button>
+        <button id="btnFcModeGallery" class="fc-mode-btn" title="All-Cards Gallery Review">▦ Gallery</button>
+      </div>
+      <div class="fc-stats" id="fcStats">0 / 0</div>
     </div>
-    <div class="fc-mode-toggle-group" id="fcModeToggleGroup">
-      <button id="btnFcModeStudy" class="fc-mode-btn active" title="1-Card Interactive Study Mode">🗂️ Study</button>
-      <button id="btnFcModeGallery" class="fc-mode-btn" title="All-Cards Gallery Review">▦ Gallery</button>
+    <div class="fc-toolbar-scroll">
+      <div class="fc-filter-group" id="fcFilterGroup">
+        <button id="fcFilterOutline" class="active" data-filter="outline" title="Headings from current outline collapse state">Outline</button>
+        <button id="fcFilterH1" data-filter="h1" title="Level 1 headings">H1</button>
+        <button id="fcFilterH2" data-filter="h2" title="Level 2 headings">H2</button>
+        <button id="fcFilterAll" data-filter="all" title="All headings">All</button>
+      </div>
+      <button id="fcShuffleBtn" class="fc-tool-btn" title="Shuffle flashcards">🔀 Shuffle</button>
+      <button id="fcColToggleBtn" class="fc-tool-btn" title="Toggle 2-Column Page Mode vs 1-Column Scroll">❚❚ 2-Col</button>
+      <button id="fcFullscreenBtn" class="fc-tool-btn" title="Toggle Fullscreen Mode (F)">⛶ Fullscreen</button>
+      <div class="fc-zoom-group" id="fcZoomGroup">
+        <button id="fcZoomOutBtn" title="Decrease font size ( - )">A−</button>
+        <span id="fcZoomDisplay" class="fc-zoom-val">100%</span>
+        <button id="fcZoomInBtn" title="Increase font size ( + )">A+</button>
+      </div>
     </div>
-    <button id="fcShuffleBtn" title="Shuffle flashcards">🔀</button>
-    <button id="fcColToggleBtn" title="Toggle 2-Column Page Mode vs 1-Column Scroll">❚❚ 2-Col</button>
-    <button id="fcFullscreenBtn" title="Toggle Fullscreen Mode (F)">⛶ Fullscreen</button>
-    <div class="fc-zoom-group" id="fcZoomGroup">
-      <button id="fcZoomOutBtn" title="Decrease font size ( - )">A−</button>
-      <span id="fcZoomDisplay" class="fc-zoom-val">100%</span>
-      <button id="fcZoomInBtn" title="Increase font size ( + )">A+</button>
-    </div>
-    <div class="fc-stats" id="fcStats">0 / 0</div>
   </div>
   <div id="flashcardStage">
     <div id="flashcard" class="flashcard">
@@ -6882,9 +7043,9 @@
   <div id="flashcardGalleryView" class="fc-gallery-view" style="display:none;">
     <div class="fc-gallery-subbar">
       <div class="fc-gallery-face-toggle" id="fcGalleryFaceGroup">
-        <button class="fc-gallery-face-btn" data-face="front" title="Show Front of all cards">Front Only</button>
-        <button class="fc-gallery-face-btn" data-face="back" title="Show Back (answers) of all cards">Back Only</button>
-        <button class="fc-gallery-face-btn active" data-face="both" title="Show Front and Back side-by-side">Both (Front &amp; Back)</button>
+        <button class="fc-gallery-face-btn" data-face="front" title="Show Front of all cards">🏷️ Front</button>
+        <button class="fc-gallery-face-btn" data-face="back" title="Show Back (answers) of all cards">📄 Back</button>
+        <button class="fc-gallery-face-btn active" data-face="both" title="Show Front and Back side-by-side">◫ Both</button>
       </div>
       <div class="fc-gallery-search-box">
         <span class="fc-gallery-search-icon">🔍</span>
@@ -7603,7 +7764,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v2.4.11</span>
+          <span class="settings-row-badge" id="appVersionSub">v2.4.12</span>
           <span class="settings-row-chevron">›</span>
         </button>
         <div class="settings-row-config">
@@ -7657,8 +7818,8 @@
   </div>
   <div class="update-body">
     <div class="update-version-row">
-      <span class="badge new-badge" id="updateNewVersion">v2.4.11</span>
-      <span class="badge current-badge" id="updateCurrentVersion">Current: v2.4.11</span>
+      <span class="badge new-badge" id="updateNewVersion">v2.4.12</span>
+      <span class="badge current-badge" id="updateCurrentVersion">Current: v2.4.12</span>
     </div>
     <div class="update-changelog-title">Changelog:</div>
     <div class="update-changelog" id="updateChangelog"></div>
@@ -7931,7 +8092,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '2.4.11';
+      window.AndroidBridge.getAppVersion() : '2.4.12';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -9508,6 +9669,63 @@
         searchScope = 'file';
         runCurrentSearch();
         return;
+      }
+
+      // 4. Click heading to select/deselect every task in this section
+      const headingEl = e.target.closest('h1, h2, h3, h4, h5, h6');
+      if (headingEl && headingEl.classList.contains('doc-heading')) {
+        const currentLevel = parseInt(headingEl.tagName.substring(1), 10);
+        let sibling = headingEl.nextElementSibling;
+        const checkboxes = [];
+        while (sibling) {
+          if (/^H[1-6]$/i.test(sibling.tagName)) {
+            const siblingLevel = parseInt(sibling.tagName.substring(1), 10);
+            if (siblingLevel <= currentLevel) break;
+          }
+          const found = sibling.querySelectorAll ? sibling.querySelectorAll('input.task-checkbox') : [];
+          found.forEach(cb => checkboxes.push(cb));
+          sibling = sibling.nextElementSibling;
+        }
+
+        if (checkboxes.length > 0) {
+          e.stopPropagation();
+          const allChecked = checkboxes.every(cb => cb.checked);
+          const newState = !allChecked;
+          const idxSet = new Map();
+          checkboxes.forEach(cb => {
+            cb.checked = newState;
+            const idx = parseInt(cb.getAttribute('data-task-idx'), 10);
+            if (!isNaN(idx)) idxSet.set(idx, newState);
+            const span = cb.nextElementSibling;
+            if (span) {
+              if (newState) span.classList.add('task-done');
+              else span.classList.remove('task-done');
+            }
+          });
+
+          let counter = 0;
+          basicDocText = basicDocText.replace(/^(\s*[-*+]\s+\[)([ xX])(\]\s+.*)$/gm, (match, pre, cur, post) => {
+            if (idxSet.has(counter)) {
+              const shouldCheck = idxSet.get(counter);
+              counter++;
+              return pre + (shouldCheck ? 'x' : ' ') + post;
+            }
+            counter++;
+            return match;
+          });
+
+          if (basicMarkdownEditor) {
+            basicMarkdownEditor.value = basicDocText;
+            updateEditorStats();
+          }
+          saveBasicDocument();
+          if (window.navigator && window.navigator.vibrate) {
+            try { window.navigator.vibrate(14); } catch (_) {}
+          }
+          const action = newState ? 'Selected' : 'Deselected';
+          showToast(`${action} all ${checkboxes.length} items in "${headingEl.textContent.trim()}" ${newState ? '✓' : ''}`);
+          return;
+        }
       }
     });
   }
@@ -13082,6 +13300,90 @@
     scheduleAutoSaveOutline();
   }
 
+  function findTasksForHeading(hIdx) {
+    if (hIdx < 0 || hIdx >= headings.length) return null;
+    const h = headings[hIdx];
+    if (!h || !taskLineIndices || taskLineIndices.length === 0) return null;
+
+    let lo = 0, hi = taskLineIndices.length - 1, firstIdx = -1;
+    const target = h.line + 1;
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1;
+      if (taskLineIndices[mid] >= target) {
+        firstIdx = mid;
+        hi = mid - 1;
+      } else {
+        lo = mid + 1;
+      }
+    }
+    if (firstIdx === -1 || taskLineIndices[firstIdx] > h.end) {
+      return null;
+    }
+
+    const taskRe = /^(\s*[-*+]\s+\[)([ xX])(\]\s*.*)$/;
+    let total = 0;
+    let done = 0;
+    const tasks = [];
+    for (let idx = firstIdx; idx < taskLineIndices.length; idx++) {
+      const lNo = taskLineIndices[idx];
+      if (lNo > h.end) break;
+      const line = lines[lNo];
+      if (line !== undefined) {
+        const m = taskRe.exec(line);
+        if (m) {
+          total++;
+          const isDone = m[2].toLowerCase() === 'x';
+          if (isDone) done++;
+          tasks.push({ lineNo: lNo, checked: isDone });
+        }
+      }
+    }
+
+    if (total === 0) return null;
+    return {
+      h,
+      total,
+      done,
+      allDone: done === total,
+      tasks
+    };
+  }
+
+  function toggleHeadingTasks(hIdx, targetState = null) {
+    const info = findTasksForHeading(hIdx);
+    if (!info || info.total === 0) return false;
+
+    // If targetState is not specified: if all are done -> uncheck all (false); otherwise check all (true)
+    const shouldCheck = (targetState !== null) ? targetState : !info.allDone;
+
+    const taskRe = /^(\s*[-*+]\s+\[)[ xX](\]\s*.*)$/;
+    const changes = [];
+    for (const t of info.tasks) {
+      if (t.checked !== shouldCheck) {
+        const oldLine = lines[t.lineNo];
+        const newLine = oldLine.replace(taskRe, `$1${shouldCheck ? 'x' : ' '}$2`);
+        changes.push({ lineNo: t.lineNo, oldLine, newLine });
+        lines[t.lineNo] = newLine;
+      }
+    }
+
+    if (changes.length > 0) {
+      pushChecklistHistory(shouldCheck ? 'checkSection' : 'uncheckSection', changes);
+      rawDocText = lines.join('\n');
+      outlineDocText = rawDocText;
+      render();
+      updateChecklistStats();
+      scheduleAutoSaveOutline();
+      if (window.navigator && window.navigator.vibrate) {
+        try { window.navigator.vibrate(14); } catch (_) {}
+      }
+      const action = shouldCheck ? 'Selected' : 'Deselected';
+      showToast(`${action} all ${info.total} items in "${info.h.text}" ${shouldCheck ? '✓' : ''}`);
+      return true;
+    }
+    return false;
+  }
+
   if (btnChecklistCheckAll) {
     btnChecklistCheckAll.addEventListener('click', () => {
       if (window.navigator && window.navigator.vibrate) {
@@ -13981,6 +14283,7 @@ ${cp.rawDocText || ''}
 
   // --- Parser Core (Same high-performance logic as desktop) ---
   const HRE = /^(#{1,6})\s+(.*)$/;
+  let taskLineIndices = [];
   function parse(text) {
     if (typeof invalidateChecklistStats === 'function') invalidateChecklistStats();
     rawDocText = text;
@@ -13988,9 +14291,12 @@ ${cp.rawDocText || ''}
     headings = [];
     lineToHeadingIdx = new Map();
     activeHeadingIdx = -1;
+    taskLineIndices = [];
 
+    const taskRe = /^\s*[-*+]\s+\[[ xX]\]/;
     for (let i = 0; i < lines.length; i++) {
-      const m = HRE.exec(lines[i]);
+      const line = lines[i];
+      const m = HRE.exec(line);
       if (m) {
         const idx = headings.length;
         headings.push({
@@ -14004,6 +14310,9 @@ ${cp.rawDocText || ''}
           collapsed: false
         });
         lineToHeadingIdx.set(i, idx);
+      }
+      if (taskRe.test(line)) {
+        taskLineIndices.push(i);
       }
     }
 
@@ -14194,6 +14503,21 @@ ${cp.rawDocText || ''}
       const isActive = (hIdx === activeHeadingIdx);
       const activeClass = isActive ? ' active-heading' : '';
 
+      const taskInfo = findTasksForHeading(hIdx);
+      let headingTaskHtml = '';
+      if (taskInfo) {
+        const isAllDone = taskInfo.allDone;
+        const isSomeDone = taskInfo.done > 0 && !isAllDone;
+        const indAttr = isSomeDone ? ' data-indeterminate="true"' : '';
+        const titleText = isAllDone ? 'Deselect all items in this section' : 'Select all items in this section';
+        const badgeClass = isAllDone ? 'all-done' : (taskInfo.done > 0 ? 'part-done' : '');
+
+        headingTaskHtml = `<label class="heading-task-label" title="${titleText}" onclick="event.stopPropagation()">` +
+          `<input type="checkbox" class="heading-section-cb" data-heading="${hIdx}" ${isAllDone ? 'checked' : ''}${indAttr}>` +
+          `</label>` +
+          `<span class="heading-task-badge ${badgeClass}" data-heading-action="${hIdx}">${taskInfo.done}/${taskInfo.total}</span>`;
+      }
+
       let txtHtml = escapeHtml('#'.repeat(h.level) + ' ') + formatPlainHtml(h.text);
       if (searchQuery && searchScope === 'file') {
         txtHtml = highlightInHtml(txtHtml, searchQuery, isTarget);
@@ -14201,6 +14525,7 @@ ${cp.rawDocText || ''}
       return `<div class="row heading h${h.level}${targetClass}${activeClass}" data-line="${lineNo}" data-heading="${hIdx}">` +
         `<span class="lnum">${lineNo + 1}</span>` +
         `<span class="arrow ${arrowClass}" data-toggle="${hIdx}">${arrow}</span>` +
+        headingTaskHtml +
         `<span class="txt">${txtHtml}</span></div>`;
     }
 
@@ -14258,10 +14583,20 @@ ${cp.rawDocText || ''}
 
   scroller.addEventListener('change', (e) => {
     const cb = e.target.closest('.outline-task-cb');
-    if (!cb) return;
-    const lineNo = parseInt(cb.dataset.line, 10);
-    if (isNaN(lineNo) || lineNo < 0 || lineNo >= lines.length) return;
-    toggleOutlineTask(lineNo, cb.checked);
+    if (cb) {
+      const lineNo = parseInt(cb.dataset.line, 10);
+      if (isNaN(lineNo) || lineNo < 0 || lineNo >= lines.length) return;
+      toggleOutlineTask(lineNo, cb.checked);
+      return;
+    }
+    const headingCb = e.target.closest('.heading-section-cb');
+    if (headingCb) {
+      const hIdx = parseInt(headingCb.dataset.heading, 10);
+      if (!isNaN(hIdx)) {
+        toggleHeadingTasks(hIdx, headingCb.checked);
+      }
+      return;
+    }
   });
 
   window.addEventListener('resize', render);
@@ -14308,12 +14643,30 @@ ${cp.rawDocText || ''}
       return;
     }
 
+    // 1. Collapse / expand arrow clicked
     const arrow = e.target.closest('[data-toggle]');
     if (arrow) {
       e.stopPropagation();
       toggleHeading(parseInt(arrow.dataset.toggle, 10));
       return;
     }
+
+    // 2. Heading section task checkbox or badge clicked directly
+    const headingBadge = e.target.closest('.heading-task-badge');
+    if (headingBadge) {
+      e.stopPropagation();
+      const hIdx = parseInt(headingBadge.getAttribute('data-heading-action'), 10);
+      if (!isNaN(hIdx)) {
+        toggleHeadingTasks(hIdx);
+      }
+      return;
+    }
+    const headingLabel = e.target.closest('.heading-task-label');
+    if (headingLabel) {
+      // Let change event handle the checkbox
+      return;
+    }
+
     const row = e.target.closest('.row');
     if (!row) return;
 
@@ -14338,14 +14691,20 @@ ${cp.rawDocText || ''}
 
     render();
 
-    if (hoverModeEnabled) {
-      if (targetHIdx >= 0) {
+    if (headingRow && targetHIdx >= 0) {
+      if (currentAppMode === 'checklist') {
+        // In Checklist Mode: tapping the heading selects/deselects all items in it if it has tasks!
+        const toggled = toggleHeadingTasks(targetHIdx);
+        if (!toggled) {
+          toggleHeading(targetHIdx);
+        }
+      } else if (hoverModeEnabled) {
         showPanel(targetHIdx, lineNo);
-      }
-    } else {
-      if (headingRow && targetHIdx >= 0) {
+      } else {
         toggleHeading(targetHIdx);
       }
+    } else if (hoverModeEnabled && targetHIdx >= 0) {
+      showPanel(targetHIdx, lineNo);
     }
   });
 
@@ -15486,6 +15845,7 @@ ${cp.rawDocText || ''}
       parse(basicDocText);
     }
     isFlashcardMode = true;
+    document.body.classList.add('flashcard-open');
     flashcardView.style.display = 'flex';
     updateColumnState();
     applyFcZoom();
@@ -15578,6 +15938,7 @@ ${cp.rawDocText || ''}
   function exitFlashcardMode() {
     exitFcFullscreen();
     isFlashcardMode = false;
+    document.body.classList.remove('flashcard-open');
     flashcardView.style.display = 'none';
     if (gamepadRafId) {
       cancelAnimationFrame(gamepadRafId);
@@ -15694,25 +16055,30 @@ ${cp.rawDocText || ''}
   // Gallery Card Actions (Study jump & Peek toggle)
   if (fcGalleryGrid) {
     fcGalleryGrid.addEventListener('click', (e) => {
-      const btn = e.target.closest('button[data-action]');
-      if (!btn) return;
-      const action = btn.dataset.action;
-      const idx = parseInt(btn.dataset.index, 10);
-      if (isNaN(idx)) return;
-
-      if (action === 'study') {
-        currentCardIndex = idx;
-        setFcViewMode('study');
-        renderCurrentCard();
-        showToast(`Studying card ${currentCardIndex + 1} of ${flashcardList.length}`);
-      } else if (action === 'peek') {
+      const peekBtn = e.target.closest('button[data-action="peek"]');
+      if (peekBtn) {
+        const idx = parseInt(peekBtn.dataset.index, 10);
+        if (isNaN(idx)) return;
         const peekEl = document.getElementById('fcPeekBody_' + idx);
         if (peekEl) {
           const isHidden = peekEl.style.display === 'none';
           peekEl.style.display = isHidden ? 'block' : 'none';
-          btn.textContent = isHidden ? 'Hide Answer ▴' : 'Peek Answer ▾';
+          peekBtn.textContent = isHidden ? 'Hide Answer ▴' : 'Peek Answer ▾';
         }
+        return;
       }
+
+      // Tap study button or anywhere on card
+      const cardEl = e.target.closest('.fc-gcard');
+      if (!cardEl) return;
+      const idx = parseInt(cardEl.dataset.index, 10);
+      if (isNaN(idx)) return;
+
+      currentCardIndex = idx;
+      setFcViewMode('study');
+      renderCurrentCard();
+      showToast(`Studying card ${currentCardIndex + 1} of ${flashcardList.length}`);
+      if (navigator.vibrate) navigator.vibrate(12);
     });
   }
 
