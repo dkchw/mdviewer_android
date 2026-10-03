@@ -465,6 +465,16 @@ This major release consolidates the massive sequence of updates focused on makin
 
 ---
 
+## 🔍 27. What's New in v3.1.2 (Hover Mode Restoration & Performance)
+
+- **Hover Mode Fully Restored**:
+  - Fixed an issue where Outline Mode was unpopulated on initial startup when switching from Notes Mode, rendering the outline tree and hover previews inactive.
+  - Added native synchronous asset loading via `AndroidBridge.readAssetFile`, bypassing WebView file-access security restrictions and loading the built-in Guide and documents instantly.
+  - Mode switching now automatically synchronizes and parses the active document text into the Outline tree with zero empty screens.
+  - Eliminated touch micro-scroll jitter that previously swallowed heading taps on mobile touchscreens.
+  - Backdrops now seamlessly forward taps to underlying outline rows so you can rapidly tap different headings to preview them without dismissing the panel.
+  - Added Hover Preview support when tapping headings directly in Notes Mode.
+
 ## 🔒 25. What's New in v3.0.3 (Critical Security Update)
 
 - **Strict Updater Validation**: Safely hardcoded the internal updater to exclusively allow APK downloads from the official GitHub release repository. This fully satisfies Google Play Protect requirements without breaking the core WebView functionality.

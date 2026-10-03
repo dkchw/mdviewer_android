@@ -222,9 +222,9 @@ class AndroidBridge(
     fun getAppVersion(): String {
         return try {
             val pInfo = activity.packageManager.getPackageInfo(activity.packageName, 0)
-            pInfo.versionName ?: "3.1.1"
+            pInfo.versionName ?: "3.1.2"
         } catch (e: Exception) {
-            "3.1.1"
+            "3.1.2"
         }
     }
 
@@ -285,5 +285,10 @@ class AndroidBridge(
     @JavascriptInterface
     fun moveTreeDocument(sourceDocId: String?, sourceParentDocId: String?, targetParentDocId: String?): String {
         return activity.moveTreeDocument(sourceDocId ?: "", sourceParentDocId ?: "", targetParentDocId ?: "")
+    }
+
+    @JavascriptInterface
+    fun readAssetFile(fileName: String?): String {
+        return activity.readAssetFile(fileName)
     }
 }

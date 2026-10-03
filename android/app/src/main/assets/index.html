@@ -6443,6 +6443,7 @@
       <div id="basicHeaderActions" class="header-actions-group">
         <button id="btnHeaderBasicSubMode" class="header-btn pill-btn" title="Toggle Edit / Read Mode">✍️ Edit</button>
         <button id="btnHeaderBasicAa" class="header-btn pill-btn" title="Typography, Text Zoom &amp; Layout">Aa View</button>
+        <button id="btnHeaderBasicOutline" class="header-btn pill-btn" title="Switch to Outline / Hover Preview">📑 Outline</button>
         <button id="btnHeaderPocketStar" class="header-btn pill-btn" style="display:none;" title="Star Note">☆ Star</button>
         <button id="btnHeaderPocketPin" class="header-btn pill-btn" style="display:none;" title="Pin Note to Top">📍 Pin</button>
         <button id="pocketNoteColorBtn" class="pocket-note-color-btn" style="display:none;" title="Change Note Color"></button>
@@ -7833,7 +7834,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v3.1.1</span>
+          <span class="settings-row-badge" id="appVersionSub">v3.1.2</span>
           <span class="settings-row-chevron">›</span>
         </button>
         <div class="settings-row-config">
@@ -7890,8 +7891,8 @@
   </div>
   <div class="update-body">
     <div class="update-version-row">
-      <span class="badge new-badge" id="updateNewVersion">v3.1.1</span>
-      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.1</span>
+      <span class="badge new-badge" id="updateNewVersion">v3.1.2</span>
+      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.2</span>
     </div>
     <div class="update-changelog-title">Changelog:</div>
     <div class="update-changelog" id="updateChangelog"></div>
@@ -8164,7 +8165,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '3.1.1';
+      window.AndroidBridge.getAppVersion() : '3.1.2';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -9658,7 +9659,16 @@
     }
 
     setupDocBodyDelegatedEvents();
-    applyBasicZoom();
+    
+  const btnHeaderBasicOutline = document.getElementById('btnHeaderBasicOutline');
+  if (btnHeaderBasicOutline) {
+    btnHeaderBasicOutline.addEventListener('click', () => {
+      setAppMode('outline');
+      setDrawerTargetMode('outline');
+    });
+  }
+
+  applyBasicZoom();
     updateDoublePageLayout(true);
   }
 
@@ -9697,8 +9707,22 @@
       showToast(cb.checked ? 'Task completed ✓' : 'Task uncompleted');
     });
 
-    // Delegated click for copy buttons, lightbox, and wikilinks
+    // Delegated click for copy buttons, lightbox, wikilinks, and hover headings
     docBody.addEventListener('click', (e) => {
+      // 0. Heading clicked in Hover Mode
+      const hoverHeadingEl = e.target.closest('h1, h2, h3, h4, h5, h6');
+      if (hoverHeadingEl && hoverModeEnabled) {
+        if (!headings || headings.length === 0 || rawDocText !== basicDocText) {
+          parse(basicDocText || '');
+        }
+        const hText = hoverHeadingEl.textContent.trim().toLowerCase();
+        const foundIdx = headings.findIndex(h => h.text.trim().toLowerCase() === hText);
+        if (foundIdx >= 0) {
+          showPanel(foundIdx);
+          return;
+        }
+      }
+
       // 1. Copy code button
       const copyBtn = e.target.closest('.doc-code-copy-btn');
       if (copyBtn) {
@@ -10023,19 +10047,46 @@
   if (btnBasicZoomIn) {
     btnBasicZoomIn.addEventListener('click', () => {
       basicZoom = Math.min(220, basicZoom + 10);
-      applyBasicZoom();
+      
+  const btnHeaderBasicOutline = document.getElementById('btnHeaderBasicOutline');
+  if (btnHeaderBasicOutline) {
+    btnHeaderBasicOutline.addEventListener('click', () => {
+      setAppMode('outline');
+      setDrawerTargetMode('outline');
+    });
+  }
+
+  applyBasicZoom();
     });
   }
   if (btnBasicZoomOut) {
     btnBasicZoomOut.addEventListener('click', () => {
       basicZoom = Math.max(70, basicZoom - 10);
-      applyBasicZoom();
+      
+  const btnHeaderBasicOutline = document.getElementById('btnHeaderBasicOutline');
+  if (btnHeaderBasicOutline) {
+    btnHeaderBasicOutline.addEventListener('click', () => {
+      setAppMode('outline');
+      setDrawerTargetMode('outline');
+    });
+  }
+
+  applyBasicZoom();
     });
   }
   if (btnBasicZoomReset) {
     btnBasicZoomReset.addEventListener('click', () => {
       basicZoom = 100;
-      applyBasicZoom();
+      
+  const btnHeaderBasicOutline = document.getElementById('btnHeaderBasicOutline');
+  if (btnHeaderBasicOutline) {
+    btnHeaderBasicOutline.addEventListener('click', () => {
+      setAppMode('outline');
+      setDrawerTargetMode('outline');
+    });
+  }
+
+  applyBasicZoom();
     });
   }
 
@@ -13106,8 +13157,17 @@
       if (pocketNoteColorBtn) pocketNoteColorBtn.style.display = 'none';
       if (btnPocketSplitToggle) btnPocketSplitToggle.style.display = 'none';
       if (pocketColorModal) pocketColorModal.classList.remove('open');
+      if (!outlineDocText && basicDocText) {
+        outlineDocText = basicDocText;
+        outlineDocName = basicDocName || 'Guide.md';
+      }
       currentDocName = outlineDocName || 'Guide.md';
       docTitle.textContent = outlineDocName || 'Guide.md';
+
+      if (!lines || lines.length === 0 || rawDocText !== outlineDocText) {
+        parse(outlineDocText || basicDocText || '# MD Viewer\n\nWelcome!');
+      }
+
       if (mode === 'checklist') {
         updateChecklistStats();
         if (typeof updateActiveCheckpointBanner === 'function') updateActiveCheckpointBanner();
@@ -14646,6 +14706,28 @@ ${cp.rawDocText || ''}
 
   let isScrolling = false;
   let scrollTimeout = null;
+  let scrollerTouchStartX = 0;
+  let scrollerTouchStartY = 0;
+  let scrollerTouchMoved = false;
+
+  scroller.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      scrollerTouchStartX = e.touches[0].clientX;
+      scrollerTouchStartY = e.touches[0].clientY;
+      scrollerTouchMoved = false;
+    }
+  }, { passive: true });
+
+  scroller.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 1) {
+      const dx = Math.abs(e.touches[0].clientX - scrollerTouchStartX);
+      const dy = Math.abs(e.touches[0].clientY - scrollerTouchStartY);
+      if (dx > 10 || dy > 10) {
+        scrollerTouchMoved = true;
+      }
+    }
+  }, { passive: true });
+
   scroller.addEventListener('scroll', () => {
     isScrolling = true;
     clearTimeout(scrollTimeout);
@@ -14706,7 +14788,7 @@ ${cp.rawDocText || ''}
   }
 
   rowsEl.addEventListener('click', (e) => {
-    if (isScrolling || justDeselected) return;
+    if ((isScrolling && scrollerTouchMoved) || justDeselected) return;
     if (e.target.closest('.outline-task-label')) return;
 
     // Do not intercept or clear text selection when user selects words/sentences
@@ -14758,6 +14840,9 @@ ${cp.rawDocText || ''}
       if (parentH) {
         targetHIdx = headings.indexOf(parentH);
         activeHeadingIdx = targetHIdx;
+      } else if (headings.length > 0) {
+        targetHIdx = 0;
+        activeHeadingIdx = 0;
       }
     }
 
@@ -14985,6 +15070,22 @@ ${cp.rawDocText || ''}
   let currentPreviewTargetLine = -1;
 
   function showPanel(hIdx, targetLineNo) {
+    if (headings.length === 0) {
+      panelTitle.innerHTML = escapeHtml(currentDocName || 'Document Preview');
+      panelTitle.style.color = 'var(--accent)';
+      let html = '';
+      const maxL = Math.min(lines.length - 1, 300);
+      for (let i = 0; i <= maxL; i++) {
+        const text = lines[i] ?? '';
+        const isTarget = (i === targetLineNo);
+        const targetCls = isTarget ? ' prow-target-highlight' : '';
+        html += `<div class="prow-line plain${targetCls}" data-pline="${i}">${renderPlainLine(text, i)}</div>`;
+      }
+      panelBody.innerHTML = html;
+      panel.style.display = 'flex';
+      panelBackdrop.style.display = 'block';
+      return;
+    }
     const isSameHeading = (currentPreviewHIdx === hIdx && panel.style.display === 'flex');
     currentPreviewHIdx = hIdx;
     currentPreviewTargetLine = (targetLineNo !== undefined) ? targetLineNo : -1;
@@ -15043,7 +15144,17 @@ ${cp.rawDocText || ''}
     currentPreviewTargetLine = -1;
   }
   panelCloseBtn.addEventListener('click', hidePanel);
-  panelBackdrop.addEventListener('click', hidePanel);
+  panelBackdrop.addEventListener('click', (e) => {
+    panelBackdrop.style.pointerEvents = 'none';
+    const under = document.elementFromPoint(e.clientX, e.clientY);
+    panelBackdrop.style.pointerEvents = 'auto';
+    const targetRow = under ? under.closest('.row') : null;
+    if (targetRow) {
+      targetRow.click();
+      return;
+    }
+    hidePanel();
+  });
 
   panelBody.addEventListener('click', (e) => {
     if (justDeselected) return;
@@ -17375,6 +17486,25 @@ ${cp.rawDocText || ''}
   }
 
   // Compatibility wrapper
+  
+  function fetchGuideContent() {
+    if (window.AndroidBridge && window.AndroidBridge.readAssetFile) {
+      try {
+        const nativeContent = window.AndroidBridge.readAssetFile('guide.md');
+        if (nativeContent && nativeContent.length > 50) {
+          return Promise.resolve(nativeContent);
+        }
+      } catch (e) {
+        console.warn('readAssetFile error:', e);
+      }
+    }
+    return fetch('guide.md')
+      .then(r => {
+        if (r.ok) return r.text();
+        throw new Error('fetch failed');
+      });
+  }
+
   function loadText(text, fileName, uri, docId) {
     if (uri) {
       importFileIntoMode(drawerTargetMode || currentAppMode, uri, fileName, text);
@@ -18776,10 +18906,9 @@ ${cp.rawDocText || ''}
   document.getElementById('sampleGuide').addEventListener('click', () => {
     closeSettings();
     closeDrawer();
-    fetch('guide.md')
-      .then(r => r.text())
+    fetchGuideContent()
       .then(txt => loadText(txt, 'Guide.md'))
-      .catch(() => loadText(rawDocText, 'Guide.md'));
+      .catch(e => showToast('Failed to load guide: ' + e.message));
   });
 
   function generateMarkdownBenchmark(totalTargetLines) {
@@ -19122,11 +19251,7 @@ ${cp.rawDocText || ''}
 
   // 2. If any mode needs guide.md, load and initialize it in the background
   if (!basicRestored || !outlineRestored) {
-    fetch('guide.md')
-      .then(r => {
-        if (r.ok) return r.text();
-        throw new Error();
-      })
+    fetchGuideContent()
       .then(text => {
         if (!basicRestored) {
           basicDocName = 'Guide.md';
@@ -19138,18 +19263,10 @@ ${cp.rawDocText || ''}
         if (!outlineRestored) {
           outlineDocName = 'Guide.md';
           outlineDocText = text;
+          currentDocName = 'Guide.md';
+          parse(text);
           if (currentAppMode !== 'basic') {
-            currentDocName = 'Guide.md';
-            parse(text);
             render();
-          } else {
-            // Pre-parse in background so switching between modes is instantaneous!
-            setTimeout(() => {
-              if (!lines || lines.length === 0) {
-                currentDocName = 'Guide.md';
-                parse(text);
-              }
-            }, 60);
           }
         }
       })
@@ -19165,13 +19282,22 @@ ${cp.rawDocText || ''}
         if (!outlineRestored) {
           outlineDocName = 'Guide.md';
           outlineDocText = fallbackText;
+          currentDocName = 'Guide.md';
+          parse(fallbackText);
           if (currentAppMode !== 'basic') {
-            currentDocName = 'Guide.md';
-            parse(fallbackText);
             render();
           }
         }
       });
+  }
+
+  
+  const btnHeaderBasicOutline = document.getElementById('btnHeaderBasicOutline');
+  if (btnHeaderBasicOutline) {
+    btnHeaderBasicOutline.addEventListener('click', () => {
+      setAppMode('outline');
+      setDrawerTargetMode('outline');
+    });
   }
 
   applyBasicZoom();

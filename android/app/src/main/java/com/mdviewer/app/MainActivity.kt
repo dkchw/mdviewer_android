@@ -1844,4 +1844,14 @@ class MainActivity : Activity() {
         }
         return response.toString()
     }
+
+    fun readAssetFile(fileName: String?): String {
+        if (fileName.isNullOrEmpty()) return ""
+        return try {
+            assets.open(fileName).bufferedReader(java.nio.charset.StandardCharsets.UTF_8).use { it.readText() }
+        } catch (e: Exception) {
+            Log.w(TAG, "Cannot read asset file: $fileName", e)
+            ""
+        }
+    }
 }
