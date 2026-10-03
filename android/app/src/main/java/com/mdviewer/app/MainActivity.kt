@@ -11,6 +11,8 @@ import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.database.Cursor
+import android.media.AudioAttributes
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -785,7 +787,10 @@ class MainActivity : Activity() {
         return try {
             val docUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, targetDocId)
             val stream = contentResolver.openInputStream(docUri) ?: return null
+            val docName = getDocumentName(treeUri, targetDocId)
             val mimeType = getMimeTypeForPath(path).ifEmpty {
+                getMimeTypeForPath(docName)
+            }.ifEmpty {
                 contentResolver.getType(docUri) ?: "application/octet-stream"
             }
 
@@ -909,41 +914,95 @@ class MainActivity : Activity() {
             return foundDocId
         }
 
-        // Fallback: Check if file is in "assets/" folder
         val fileName = segments.last()
-        if (!cleanPath.startsWith("assets/", ignoreCase = true)) {
-            val assetsPath = "assets/$fileName"
-            val assetsKey = "${treeUri}::${assetsPath}"
-            val cachedAssets = mDocPathCache[assetsKey]
-            if (cachedAssets != null) {
-                mDocPathCache[cacheKey] = cachedAssets
-                return cachedAssets
-            }
-            val assetsDocId = findChildByName(treeUri, rootDocId, "assets", isDir = true)
-            if (assetsDocId != null) {
-                val fileInAssets = findChildByName(treeUri, assetsDocId, fileName, isDir = false)
-                if (fileInAssets != null) {
-                    mDocPathCache[cacheKey] = fileInAssets
-                    mDocPathCache[assetsKey] = fileInAssets
-                    return fileInAssets
-                }
-            }
-        }
 
-        // Fallback: Name cache lookup
+        // Fallback 1: Name cache lookup
         val cachedByName = mDocNameCache[fileName.lowercase()]
         if (cachedByName != null) {
             mDocPathCache[cacheKey] = cachedByName
             return cachedByName
         }
 
-        // Fallback: File directly in root
+        // Fallback 2: Check common media folders in vault root
+        val commonMediaFolders = arrayOf(
+            "attachments", "media", "_media", "_resources", "collection.media",
+            "assets", "images", "img", "audio", "sound", "sounds"
+        )
+        for (folder in commonMediaFolders) {
+            if (!cleanPath.startsWith("$folder/", ignoreCase = true)) {
+                val folderDocId = findChildByName(treeUri, rootDocId, folder, isDir = true)
+                if (folderDocId != null) {
+                    val fileInFolder = findChildByName(treeUri, folderDocId, fileName, isDir = false)
+                    if (fileInFolder != null) {
+                        mDocPathCache[cacheKey] = fileInFolder
+                        mDocPathCache["${treeUri}::$folder/$fileName"] = fileInFolder
+                        return fileInFolder
+                    }
+                }
+            }
+        }
+
+        // Fallback 3: File directly in root
         val inRoot = findChildByName(treeUri, rootDocId, fileName, isDir = false)
         if (inRoot != null) {
             mDocPathCache[cacheKey] = inRoot
             return inRoot
         }
 
+        // Fallback 4: Recursive search across vault up to 4 levels deep
+        val foundInVault = recursiveFindChildByName(treeUri, rootDocId, fileName, depth = 0, maxDepth = 4)
+        if (foundInVault != null) {
+            mDocPathCache[cacheKey] = foundInVault
+            return foundInVault
+        }
+
+        return null
+    }
+
+    private fun recursiveFindChildByName(
+        treeUri: Uri,
+        parentDocId: String,
+        targetName: String,
+        depth: Int = 0,
+        maxDepth: Int = 4
+    ): String? {
+        if (depth > maxDepth) return null
+        val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentDocId)
+        val projection = arrayOf(
+            DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+            DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+            DocumentsContract.Document.COLUMN_MIME_TYPE
+        )
+        val subDirs = ArrayList<String>()
+        try {
+            contentResolver.query(childrenUri, projection, null, null, null)?.use { cursor ->
+                val idCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
+                val nameCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
+                val mimeCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE)
+                while (cursor.moveToNext()) {
+                    val id = if (idCol >= 0) cursor.getString(idCol) else null
+                    val name = if (nameCol >= 0) cursor.getString(nameCol) else null
+                    val mime = if (mimeCol >= 0) cursor.getString(mimeCol) else null
+                    if (name != null && id != null) {
+                        mDocNameCache[name.lowercase()] = id
+                        val isDir = DocumentsContract.Document.MIME_TYPE_DIR == mime
+                        if (!isDir && name.equals(targetName, ignoreCase = true)) {
+                            return id
+                        } else if (isDir && !name.startsWith(".")) {
+                            val nl = name.lowercase()
+                            if (nl != "node_modules" && nl != ".git" && nl != ".obsidian" && nl != ".trash" && nl != ".idea") {
+                                subDirs.add(id)
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (ignored: Exception) {}
+
+        for (dirId in subDirs) {
+            val found = recursiveFindChildByName(treeUri, dirId, targetName, depth + 1, maxDepth)
+            if (found != null) return found
+        }
         return null
     }
 
@@ -983,7 +1042,10 @@ class MainActivity : Activity() {
         val targetDocId = findDocumentIdByPath(treeUri, relativePath) ?: return ""
         return try {
             val docUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, targetDocId)
+            val docName = getDocumentName(treeUri, targetDocId)
             val mimeType = getMimeTypeForPath(relativePath).ifEmpty {
+                getMimeTypeForPath(docName)
+            }.ifEmpty {
                 contentResolver.getType(docUri) ?: "application/octet-stream"
             }
             contentResolver.openInputStream(docUri)?.use { stream ->
@@ -994,6 +1056,86 @@ class MainActivity : Activity() {
         } catch (e: Exception) {
             Log.e(TAG, "Error reading media base64: $relativePath", e)
             ""
+        }
+    }
+
+    private var mMediaPlayer: MediaPlayer? = null
+
+    @Synchronized
+    fun stopAudio() {
+        try {
+            mMediaPlayer?.let { player ->
+                if (player.isPlaying) {
+                    player.stop()
+                }
+                player.reset()
+                player.release()
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Error stopping media player", e)
+        } finally {
+            mMediaPlayer = null
+        }
+    }
+
+    @Synchronized
+    fun playAudio(relativePath: String): Boolean {
+        val treeUri = mCurrentTreeUri ?: return false
+        stopAudio()
+        return try {
+            var clean = relativePath.trim()
+            var directDocId: String? = null
+            if (clean.startsWith("https://vault.mdviewer/media")) {
+                try {
+                    val u = Uri.parse(clean)
+                    directDocId = u.getQueryParameter("docId")
+                    val qPath = u.getQueryParameter("path")
+                    if (!qPath.isNullOrEmpty()) {
+                        clean = qPath
+                    }
+                } catch (ignored: Exception) {}
+            }
+            clean = try { URLDecoder.decode(clean, "UTF-8") } catch (e: Exception) { clean }
+
+            val targetDocId = if (!directDocId.isNullOrEmpty()) {
+                directDocId
+            } else {
+                findDocumentIdByPath(treeUri, clean)
+            } ?: return false
+
+            val docUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, targetDocId)
+            val pfd = contentResolver.openFileDescriptor(docUri, "r") ?: return false
+            val player = MediaPlayer()
+            player.setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .build()
+            )
+            player.setDataSource(pfd.fileDescriptor)
+            pfd.close()
+            player.setOnCompletionListener {
+                stopAudio()
+                runOnUiThread {
+                    mWebView?.evaluateJavascript("if(window.onAudioPlaybackCompleted) window.onAudioPlaybackCompleted();", null)
+                }
+            }
+            player.setOnErrorListener { _, what, extra ->
+                Log.e(TAG, "MediaPlayer error: what=$what, extra=$extra")
+                stopAudio()
+                runOnUiThread {
+                    mWebView?.evaluateJavascript("if(window.onAudioPlaybackCompleted) window.onAudioPlaybackCompleted();", null)
+                }
+                true
+            }
+            player.prepare()
+            player.start()
+            mMediaPlayer = player
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "Error playing audio: $relativePath", e)
+            stopAudio()
+            false
         }
     }
 
@@ -2212,6 +2354,7 @@ class MainActivity : Activity() {
     }
 
     override fun onDestroy() {
+        stopAudio()
         if (downloadReceiver != null) {
             try {
                 unregisterReceiver(downloadReceiver)

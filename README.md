@@ -94,15 +94,19 @@ An ultra-fast, lightweight, and 100% offline Markdown workspace and outline read
 ### 6. 🎴 Flashcard Study & Gallery Review System
 - **Automatic Card Generation**:
   - Automatically turns headings, Q&A sections (`Q: ... A: ...`), and term definitions (`Term :: Def`) into interactive flashcards.
-- **Study Flip Mode**:
-  - 3D flip card animation between prompt and answer, with card counter, keyboard/gamepad navigation, and outline scoping.
-- **Gallery Review Mode (`🖼️ Gallery`)**:
-  - Review all cards in an infinite scroll gallery for rapid revision.
-  - **3 Face Viewing Modes**:
-    1. **Front Only**: Displays all question prompts.
-    2. **Back Only**: Displays all answers and explanations.
-    3. **Both (Side-by-Side)**: Displays front and back next to each other on the same card.
-  - Real-time search query box to filter cards by keywords or headings.
+- **📁 Folder Deck Mode & Searchable Datalist Dropdown**:
+  - Combine all notes across a folder or entire vault into a unified deck.
+  - Interactive **type-in dropdown (searchable datalist)** populated with vault subfolders and recent vaults, plus a native **📁 Pick** button to choose any storage directory.
+  - Modal floats seamlessly on top of flashcard view (`z-index: 10050`) with dedicated back-button dismissal.
+- **🔊 Hardware-Accelerated Audio Engine**:
+  - Full native `MediaPlayer` playback for Anki sound tags (`[sound:audio.mp3]`), markdown embeds (`![audio](audio.ogg)`), Obsidian wikilinks (`![[pronunciation.mp3]]`), and HTML5 `<audio>`.
+  - Smart multi-directory media resolution (searches `attachments/`, `media/`, `collection.media/`, `sounds/`, note folders, and vault hierarchy).
+- **🖼️ Obsidian Wikilink & Markdown Image Support**:
+  - Full support for standard markdown images (`![alt](url)`), Obsidian wikilink embeds (`![[diagram.png]]`, `![[photo.png|400]]`), and raw `<img>` tags on both front and back card faces.
+  - Tap any card image for full-screen pinch-to-zoom interactive lightbox.
+- **Study Flip Mode & Gallery Review**:
+  - 3D flip card animation, keyboard/gamepad navigation (`Space`, `Enter`, `R` for replay audio).
+  - Gallery mode with 3 face modes (Front Only, Back Only, Both Side-by-Side) and real-time search.
 
 ---
 

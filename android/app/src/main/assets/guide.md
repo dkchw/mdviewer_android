@@ -531,5 +531,23 @@ This major release consolidates the massive sequence of updates focused on makin
 
 ---
 
+## 🎴 30. What's New in v3.1.6 (Folder Deck Picker, Native Audio Engine & Obsidian Media Fix)
+
+- **📁 Interactive Folder Deck Dropdown & Datalist Picker**:
+  - Replaced the static/readonly path field with a searchable type-in dropdown (HTML5 datalist) populated with vault folders, subfolders, and recent vaults.
+  - Added a dedicated **📁 Pick** button to directly open Android's native Storage Access Framework folder picker without leaving the modal.
+  - Fixed modal z-index layering (`z-index: 10050`): modal now opens immediately on top of the Flashcard view (even in fullscreen mode).
+  - Fixed back button handling so pressing back with the Folder Deck modal open cleanly dismisses the modal rather than exiting flashcard mode.
+- **🔊 Hardware-Accelerated Native Audio Playback**:
+  - Added native Android `MediaPlayer` integration with SAF file descriptors in `MainActivity.kt` and `AndroidBridge.kt`, bypassing WebView Chromium audio streaming limitations.
+  - Full support for Anki sound tags (`[sound:audio.mp3]`), markdown embeds (`![audio](voice.mp3)`), Obsidian wikilinks (`![[voice.mp3]]`), and HTML5 `<audio>`.
+  - Removed forced `'assets/'` prepending, ensuring audio files in note folders, `attachments/`, `media/`, `collection.media/`, and vault root are properly resolved.
+- **🖼️ Obsidian Wikilink & Markdown Image Rendering**:
+  - Added support for Obsidian wikilink image embeds (`![[image.png]]`, `![[image.png|width]]`), standard markdown images (`![alt](url)`), and raw `<img>` tags across both front and back card faces.
+  - Single-file flashcard review now leverages the complete `renderFcMarkdown` renderer with full card image styling and lightbox zoom.
+  - Smart vault-wide media resolution: automatically searches note folders, `attachments/`, `media/`, `_media/`, `collection.media/`, `images/`, and recursive vault hierarchy.
+
+---
+
 *MD Viewer — Fast, Offline, Private Markdown Reading & Writing on Android.*
 

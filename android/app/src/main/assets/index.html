@@ -8151,7 +8151,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v3.1.5</span>
+          <span class="settings-row-badge" id="appVersionSub">v3.1.6</span>
           <span class="settings-row-chevron">›</span>
         </button>
         <div class="settings-row-config">
@@ -8208,8 +8208,8 @@
   </div>
   <div class="update-body">
     <div class="update-version-row">
-      <span class="badge new-badge" id="updateNewVersion">v3.1.5</span>
-      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.5</span>
+      <span class="badge new-badge" id="updateNewVersion">v3.1.6</span>
+      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.6</span>
     </div>
     <div class="update-changelog-title">Changelog:</div>
     <div class="update-changelog" id="updateChangelog"></div>
@@ -8376,20 +8376,26 @@
 </div>
 
 <!-- Study Folder as Flashcard Deck Modal -->
-<div id="fcFolderDeckModal" class="pocket-delete-modal" style="display:none; z-index: 1050;">
-  <div class="pocket-delete-card" style="max-width: 360px; text-align: left;">
+<div id="fcFolderDeckModal" class="pocket-delete-modal" style="display:none; z-index: 10050;">
+  <div class="pocket-delete-card" style="max-width: 380px; text-align: left;">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
       <div style="font-size:16px; font-weight:700; color:#7aa2f7; display:flex; align-items:center; gap:8px;">
         <span>🎴</span> Study Folder Deck
       </div>
-      <button id="fcFolderDeckModalCloseBtn" style="background:none; border:none; color:var(--muted); font-size:18px; cursor:pointer;">✕</button>
+      <button id="fcFolderDeckModalCloseBtn" type="button" style="background:none; border:none; color:var(--muted); font-size:18px; cursor:pointer;">✕</button>
     </div>
     <div style="font-size:12px; color:var(--muted); margin-bottom:12px;">
       Reads and combines all markdown notes in this folder into a single unified flashcard deck (compatible with Anki .apkg exported decks).
     </div>
-    <div style="margin-bottom:10px;">
-      <label style="font-size:11px; font-weight:600; color:#c0caf5; text-transform:uppercase;">Selected Folder:</label>
-      <input type="text" id="fcFolderDeckPathInput" class="rename-vault-input" readonly style="opacity:0.85; margin-top:4px;" />
+    <div style="margin-bottom:12px;">
+      <label for="fcFolderDeckPathInput" style="font-size:11px; font-weight:600; color:#c0caf5; text-transform:uppercase;">Select or Search Folder:</label>
+      <div style="display:flex; gap:6px; margin-top:4px;">
+        <input type="text" id="fcFolderDeckPathInput" list="fcFolderDeckDatalist" class="rename-vault-input" style="flex:1; margin-top:0;" placeholder="Search or select folder..." autocomplete="off" />
+        <button id="fcFolderDeckBrowseBtn" type="button" class="pocket-delete-cancel-btn" style="padding:6px 10px; font-size:12px; flex-shrink:0; display:flex; align-items:center; gap:4px;" title="Pick a folder from device">
+          <span>📁</span> Pick
+        </button>
+      </div>
+      <datalist id="fcFolderDeckDatalist"></datalist>
     </div>
     <div style="margin-bottom:12px;">
       <label for="fcFolderDeckLevelSelect" style="font-size:11px; font-weight:600; color:#c0caf5; text-transform:uppercase;">Heading Level Filter:</label>
@@ -8406,8 +8412,8 @@
       <label for="fcFolderDeckRecursiveCheck" style="font-size:12.5px; color:#c0caf5; cursor:pointer;">Include subdirectories (recursive)</label>
     </div>
     <div class="pocket-delete-actions">
-      <button id="fcFolderDeckCancelBtn" class="pocket-delete-cancel-btn">Cancel</button>
-      <button id="fcFolderDeckStartBtn" class="pocket-delete-confirm-btn" style="background:#7aa2f7; color:#16161e; font-weight:700;">🚀 Open Deck</button>
+      <button id="fcFolderDeckCancelBtn" type="button" class="pocket-delete-cancel-btn">Cancel</button>
+      <button id="fcFolderDeckStartBtn" type="button" class="pocket-delete-confirm-btn" style="background:#7aa2f7; color:#16161e; font-weight:700;">🚀 Open Deck</button>
     </div>
   </div>
 </div>
@@ -8536,7 +8542,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '3.1.5';
+      window.AndroidBridge.getAppVersion() : '3.1.6';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -14920,7 +14926,7 @@ ${cp.rawDocText || ''}
 
   function resolveMediaUrl(cleanUrl, cardFilePath) {
     if (!cleanUrl) return '';
-    cleanUrl = cleanUrl.trim();
+    cleanUrl = cleanUrl.trim().split('|')[0].trim();
     if (cleanUrl.startsWith('data:') || cleanUrl.startsWith('blob:') || cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
       return cleanUrl;
     }
@@ -14942,6 +14948,13 @@ ${cp.rawDocText || ''}
       finalPath = fp.substring(0, fp.lastIndexOf('/') + 1) + cleanUrl;
     }
 
+    if (window.AndroidBridge && window.AndroidBridge.resolveMediaUri) {
+      try {
+        const direct = window.AndroidBridge.resolveMediaUri(finalPath) || window.AndroidBridge.resolveMediaUri(cleanUrl);
+        if (direct) return direct;
+      } catch(e) {}
+    }
+
     return 'https://vault.mdviewer/media?path=' + encodeURIComponent(finalPath);
   }
 
@@ -14959,7 +14972,7 @@ ${cp.rawDocText || ''}
 
     if (window.AndroidBridge && window.AndroidBridge.readMediaBase64) {
       let pathToRead = cleanUrl;
-      if (pathToRead.startsWith('https://vault.mdviewer/media?path=')) {
+      if (pathToRead.startsWith('https://vault.mdviewer/media?path='')) {
         try {
           pathToRead = decodeURIComponent(pathToRead.split('path=')[1].split('&')[0]);
         } catch(e) {}
@@ -14975,6 +14988,14 @@ ${cp.rawDocText || ''}
   }
 
   window.playEmbedAudioUrl = function(streamUrl, rawPath) {
+    if (window.AndroidBridge && window.AndroidBridge.playAudio) {
+      try {
+        const ok = window.AndroidBridge.playAudio(rawPath || streamUrl);
+        if (ok) return;
+      } catch(e) {
+        console.warn('Native playAudio failed:', e);
+      }
+    }
     let a = new Audio(streamUrl);
     const p = a.play();
     if (p && typeof p.catch === 'function') {
@@ -15013,12 +15034,21 @@ ${cp.rawDocText || ''}
       return saveToken(`<span class="md-img-pill" onclick="event.stopPropagation(); if(typeof openImageModal==='function') openImageModal('${escapeHtml(resolved)}', '${escapeHtml(alt || 'Image')}');" title="Click to view image: ${escapeHtml(alt || 'Image')}"><img src="${escapeHtml(resolved)}" class="md-img-thumb" alt="" loading="lazy" /><span class="md-img-label">🖼️ ${escapeHtml(alt || 'Image')}</span></span>`);
     });
 
+    // 2b. Obsidian Wikilink Media: ![[file|alt]]
+    t = t.replace(/!\[\[([^\]|]+)(?:\|([^\]]*))?\]\]/g, (m, fileRef, extra) => {
+      const cleanRef = fileRef.trim();
+      const label = (extra || cleanRef).trim();
+      if (/\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(\?.*)?$/i.test(cleanRef)) {
+        const playUrl = resolveMediaUrl(cleanRef);
+        return saveToken(`<span class="md-audio-pill" onclick="event.stopPropagation(); playEmbedAudioUrl('${escapeHtml(playUrl)}', '${escapeHtml(cleanRef)}');" title="Click to play audio">🔊 ${escapeHtml(label || 'Audio')}</span>`);
+      }
+      const resolved = resolveMediaUrl(cleanRef);
+      return saveToken(`<span class="md-img-pill" onclick="event.stopPropagation(); if(typeof openImageModal==='function') openImageModal('${escapeHtml(resolved)}', '${escapeHtml(label || 'Image')}');" title="Click to view image: ${escapeHtml(label || 'Image')}"><img src="${escapeHtml(resolved)}" class="md-img-thumb" alt="" loading="lazy" /><span class="md-img-label">🖼️ ${escapeHtml(label || 'Image')}</span></span>`);
+    });
+
     // 3. Anki sound syntax
     t = t.replace(/\[sound:([^\]]+)\]/g, (m, url) => {
       let cleanUrl = url.trim();
-      if (!cleanUrl.startsWith('assets/') && !cleanUrl.startsWith('/') && !cleanUrl.startsWith('http')) {
-        cleanUrl = 'assets/' + cleanUrl;
-      }
       const playUrl = resolveMediaUrl(cleanUrl);
       return saveToken(`<span class="md-audio-pill" onclick="event.stopPropagation(); playEmbedAudioUrl('${escapeHtml(playUrl)}', '${escapeHtml(cleanUrl)}');" title="Click to play audio">🔊 Audio</span>`);
     });
@@ -15049,7 +15079,7 @@ ${cp.rawDocText || ''}
   const SAFE_INLINE_HTML_TAGS = new Set([
     'span', 'font', 'b', 'strong', 'i', 'em', 'u', 's', 'strike', 'del', 'ins',
     'mark', 'kbd', 'code', 'sub', 'sup', 'abbr', 'small', 'q', 'cite', 'br', 'wbr',
-    'ruby', 'rt', 'rp', 'dfn', 'time', 'a', 'p', 'div'
+    'ruby', 'rt', 'rp', 'dfn', 'time', 'a', 'p', 'div', 'img', 'audio', 'source'
   ]);
 
   function formatPlainHtml(rawText) {
@@ -15914,6 +15944,9 @@ ${cp.rawDocText || ''}
   let currentCardAudioIndex = 0;
 
   function stopAllCardAudios() {
+    if (window.AndroidBridge && window.AndroidBridge.stopAudio) {
+      try { window.AndroidBridge.stopAudio(); } catch(e) {}
+    }
     if (activeFlashcardAudio) {
       try {
         activeFlashcardAudio.pause();
@@ -15934,6 +15967,14 @@ ${cp.rawDocText || ''}
     });
   }
 
+  window.onAudioPlaybackCompleted = function() {
+    document.querySelectorAll('.fc-audio-wrap').forEach(w => {
+      w.classList.remove('fc-audio-active');
+      const btn = w.querySelector('.fc-audio-play-btn');
+      if (btn) btn.textContent = '▶';
+    });
+  };
+
   function extractCardAudioUrls(h, origBack) {
     const urls = [];
     const textToScan = ((h && h.text) ? h.text : '') + '\n' + (origBack || '');
@@ -15950,18 +15991,23 @@ ${cp.rawDocText || ''}
       }
     }
 
-    // 2. Anki sound syntax: [sound:url]
-    const ankiSoundRegex = /\[sound:([^\]]+)\]/g;
-    while ((m = ankiSoundRegex.exec(textToScan)) !== null) {
-      let u = m[1].trim();
-      if (!u.startsWith('assets/') && !u.startsWith('/') && !u.startsWith('http')) {
-        u = 'assets/' + u;
-      }
+    // 2. Obsidian wikilink audio: ![[audio.mp3]] or ![[audio.mp3|alt]]
+    const wikiAudioRegex = /!\[\[([^\]|]+\.(?:mp3|wav|ogg|m4a|opus|aac|flac))(?:\?.*)?(?:\|[^\]]*)?\]\]/gi;
+    while ((m = wikiAudioRegex.exec(textToScan)) !== null) {
+      const u = m[1].trim();
       const res = resolveMediaUrl(u, cardFilePath);
       if (res && !urls.includes(res)) urls.push(res);
     }
 
-    // 3. HTML audio syntax: <audio src="..."> or <source src="...">
+    // 3. Anki sound syntax: [sound:url]
+    const ankiSoundRegex = /\[sound:([^\]]+)\]/g;
+    while ((m = ankiSoundRegex.exec(textToScan)) !== null) {
+      const u = m[1].trim();
+      const res = resolveMediaUrl(u, cardFilePath);
+      if (res && !urls.includes(res)) urls.push(res);
+    }
+
+    // 4. HTML audio syntax: <audio src="..."> or <source src="...">
     const htmlAudioRegex = /<(?:audio|source)[^>]+src=["']([^"']+)["']/gi;
     while ((m = htmlAudioRegex.exec(textToScan)) !== null) {
       const res = resolveMediaUrl(m[1].trim(), cardFilePath);
@@ -15999,13 +16045,25 @@ ${cp.rawDocText || ''}
         if (btn) btn.textContent = '⏸';
       }
 
+      const rawPath = (wrap && wrap.dataset.audioPath) || (wrap && wrap.dataset.audioSrc) || targetAudio.src;
+
+      // Try native MediaPlayer first
+      if (rawPath && window.AndroidBridge && window.AndroidBridge.playAudio) {
+        try {
+          if (window.AndroidBridge.playAudio(rawPath)) {
+            return true;
+          }
+        } catch(e) {
+          console.warn('Native playAudio failed:', e);
+        }
+      }
+
       try {
         targetAudio.currentTime = 0;
         const p = targetAudio.play();
         if (p && typeof p.catch === 'function') {
           p.catch(e => {
             console.log('Flashcard audio play interrupted, trying fallback:', e);
-            const rawPath = (wrap && wrap.dataset.audioPath) || (wrap && wrap.dataset.audioSrc) || targetAudio.src;
             const b64 = getAudioBase64Fallback(rawPath);
             if (b64) {
               targetAudio.src = b64;
@@ -16022,9 +16080,17 @@ ${cp.rawDocText || ''}
     if (currentCardAudioUrls.length > 0) {
       const idx = Math.max(0, Math.min(targetIndex, currentCardAudioUrls.length - 1));
       currentCardAudioIndex = idx;
+      const targetSrc = currentCardAudioUrls[idx];
+
+      if (window.AndroidBridge && window.AndroidBridge.playAudio) {
+        try {
+          if (window.AndroidBridge.playAudio(targetSrc)) {
+            return true;
+          }
+        } catch(e) {}
+      }
 
       try {
-        const targetSrc = currentCardAudioUrls[idx];
         activeFlashcardAudio = new Audio(targetSrc);
         const p = activeFlashcardAudio.play();
         if (p && typeof p.catch === 'function') {
@@ -16072,19 +16138,31 @@ ${cp.rawDocText || ''}
   window.playEmbedAudio = function(el) {
     const wrap = el.closest('.fc-audio-wrap');
     if (!wrap) return;
-    const audio = wrap.querySelector('audio');
-    if (!audio) return;
     const playBtn = wrap.querySelector('.fc-audio-play-btn');
+    const audio = wrap.querySelector('audio');
+    const rawPath = (wrap && wrap.dataset.audioPath) || (wrap && wrap.dataset.audioSrc) || (audio && audio.src) || '';
 
-    if (!audio.paused && !audio.ended) {
-      audio.pause();
-      if (playBtn) playBtn.textContent = '▶';
-      wrap.classList.remove('fc-audio-active');
-    } else {
+    if (wrap.classList.contains('fc-audio-active')) {
       stopAllCardAudios();
-      wrap.classList.add('fc-audio-active');
-      if (playBtn) playBtn.textContent = '⏸';
+      return;
+    }
 
+    stopAllCardAudios();
+    wrap.classList.add('fc-audio-active');
+    if (playBtn) playBtn.textContent = '⏸';
+
+    // Try native MediaPlayer first
+    if (rawPath && window.AndroidBridge && window.AndroidBridge.playAudio) {
+      try {
+        if (window.AndroidBridge.playAudio(rawPath)) {
+          return;
+        }
+      } catch(e) {
+        console.warn('Native playAudio failed:', e);
+      }
+    }
+
+    if (audio) {
       if (audio.ended || (audio.duration && audio.currentTime >= audio.duration - 0.1)) {
         audio.currentTime = 0;
       }
@@ -16092,7 +16170,6 @@ ${cp.rawDocText || ''}
       if (p && typeof p.catch === 'function') {
         p.catch(e => {
           console.log('Audio playback error, trying base64 fallback:', e);
-          const rawPath = (wrap && wrap.dataset.audioPath) || (wrap && wrap.dataset.audioSrc) || audio.src;
           const b64 = getAudioBase64Fallback(rawPath);
           if (b64) {
             audio.src = b64;
@@ -16183,12 +16260,32 @@ ${cp.rawDocText || ''}
       `);
     });
 
+    // 2b. Obsidian Wikilink Media embeds: ![[file|alt]]
+    s = s.replace(/!\[\[([^\]|]+)(?:\|([^\]]*))?\]\]/g, (m, fileRef, extra) => {
+      const cleanRef = fileRef.trim();
+      const cleanExtra = (extra || cleanRef).trim();
+      if (/\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(\?.*)?$/i.test(cleanRef)) {
+        const playUrl = resolveMediaUrl(cleanRef, cardFilePath);
+        return saveToken(`
+          <div class="fc-audio-wrap" data-audio-src="${escapeHtml(playUrl)}" data-audio-path="${escapeHtml(cleanRef)}" onclick="if(event.target.tagName!=='AUDIO'){event.stopPropagation();playEmbedAudio(this);}" title="Click to play">
+            <button type="button" class="fc-audio-play-btn" onclick="event.stopPropagation();playEmbedAudio(this);" title="Play / Pause">▶</button>
+            <audio controls preload="none" src="${escapeHtml(playUrl)}" onclick="event.stopPropagation();"></audio>
+            <span class="fc-audio-caption" onclick="event.stopPropagation();playEmbedAudio(this);" style="cursor:pointer;" title="Click to play">🔊 ${escapeHtml(cleanExtra || cleanRef || 'Audio')}</span>
+          </div>
+        `);
+      }
+      const resolved = resolveMediaUrl(cleanRef, cardFilePath);
+      return saveToken(`
+        <div class="fc-img-wrap">
+          <img class="fc-card-img" src="${escapeHtml(resolved)}" alt="${escapeHtml(cleanExtra || cleanRef || 'Image')}" loading="lazy"
+               onclick="event.stopPropagation(); if(typeof openImageModal==='function') openImageModal('${escapeHtml(resolved)}', '${escapeHtml(cleanExtra || cleanRef || 'Image')}');" />
+        </div>
+      `);
+    });
+
     // 3. Anki sound syntax: [sound:url]
     s = s.replace(/\[sound:([^\]]+)\]/g, (m, url) => {
-      let cleanUrl = url.trim();
-      if (!cleanUrl.startsWith('assets/') && !cleanUrl.startsWith('/') && !cleanUrl.startsWith('http')) {
-        cleanUrl = 'assets/' + cleanUrl;
-      }
+      const cleanUrl = url.trim();
       const playUrl = resolveMediaUrl(cleanUrl, cardFilePath);
       return saveToken(`
         <div class="fc-audio-wrap" data-audio-src="${escapeHtml(playUrl)}" data-audio-path="${escapeHtml(cleanUrl)}" onclick="if(event.target.tagName!=='AUDIO'){event.stopPropagation();playEmbedAudio(this);}" title="Click to play">
@@ -16242,14 +16339,37 @@ ${cp.rawDocText || ''}
         continue;
       }
 
+      // Obsidian wikilink media block: ![[file|alt]]
+      const wikiMatch = /^\s*!\[\[([^\]|]+)(?:\|([^\]]*))?\]\]\s*$/i.exec(rawLine);
+      if (wikiMatch) {
+        const fileRef = wikiMatch[1].trim();
+        const alt = (wikiMatch[2] || fileRef).trim();
+        if (/\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(\?.*)?$/i.test(fileRef)) {
+          const playUrl = resolveMediaUrl(fileRef, cardFilePath);
+          html += `
+            <div class="fc-audio-wrap" data-audio-src="${escapeHtml(playUrl)}" data-audio-path="${escapeHtml(fileRef)}" onclick="if(event.target.tagName!=='AUDIO'){event.stopPropagation();playEmbedAudio(this);}" title="Click to play">
+              <button type="button" class="fc-audio-play-btn" onclick="event.stopPropagation();playEmbedAudio(this);" title="Play / Pause">▶</button>
+              <audio controls preload="none" src="${escapeHtml(playUrl)}" onclick="event.stopPropagation();"></audio>
+              <span class="fc-audio-caption" onclick="event.stopPropagation();playEmbedAudio(this);" style="cursor:pointer;" title="Click to play">🔊 ${escapeHtml(alt || 'Audio')}</span>
+            </div>`;
+          continue;
+        } else {
+          const resolved = resolveMediaUrl(fileRef, cardFilePath);
+          html += `
+            <div class="fc-img-wrap">
+              <img class="fc-card-img" src="${escapeHtml(resolved)}" alt="${escapeHtml(alt || 'Image')}" loading="lazy"
+                   onclick="event.stopPropagation(); if(typeof openImageModal==='function') openImageModal('${escapeHtml(resolved)}', '${escapeHtml(alt || 'Image')}');" />
+            </div>`;
+          continue;
+        }
+      }
+
+      // Standard markdown audio or Anki sound block
       const audioMatch = /^\s*!\[([^\]]*)\]\(([^)]+\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(?:\?.*)?)\)\s*$/i.exec(rawLine);
       const ankiSoundMatch = /^\s*\[sound:([^\]]+)\]\s*$/i.exec(rawLine);
       if (audioMatch || ankiSoundMatch) {
         const alt = audioMatch ? audioMatch[1] : 'Audio';
-        let src = audioMatch ? audioMatch[2].trim() : ankiSoundMatch[1].trim();
-        if (!src.startsWith('assets/') && !src.startsWith('/') && !src.startsWith('http')) {
-          src = 'assets/' + src;
-        }
+        const src = audioMatch ? audioMatch[2].trim() : ankiSoundMatch[1].trim();
         const playUrl = resolveMediaUrl(src, cardFilePath);
         html += `
           <div class="fc-audio-wrap" data-audio-src="${escapeHtml(playUrl)}" data-audio-path="${escapeHtml(src)}" onclick="if(event.target.tagName!=='AUDIO'){event.stopPropagation();playEmbedAudio(this);}" title="Click to play">
@@ -16260,6 +16380,7 @@ ${cp.rawDocText || ''}
         continue;
       }
 
+      // Standard markdown image block
       const imgMatch = /^\s*!\[([^\]]*)\]\(([^)]+)\)\s*$/i.exec(rawLine);
       if (imgMatch && !/\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(?:\?.*)?$/i.test(imgMatch[2])) {
         const alt = imgMatch[1] || 'Image';
@@ -16269,6 +16390,19 @@ ${cp.rawDocText || ''}
           <div class="fc-img-wrap">
             <img class="fc-card-img" src="${escapeHtml(resolved)}" alt="${escapeHtml(alt)}" loading="lazy"
                  onclick="event.stopPropagation(); if(typeof openImageModal==='function') openImageModal('${escapeHtml(resolved)}', '${escapeHtml(alt)}');" />
+          </div>`;
+        continue;
+      }
+
+      // Raw HTML img tag block
+      const rawImgMatch = /^\s*<img[^>]+src=["']([^"']+)["'][^>]*>\s*$/i.exec(rawLine);
+      if (rawImgMatch) {
+        const src = rawImgMatch[1].trim();
+        const resolved = resolveMediaUrl(src, cardFilePath);
+        html += `
+          <div class="fc-img-wrap">
+            <img class="fc-card-img" src="${escapeHtml(resolved)}" alt="Image" loading="lazy"
+                 onclick="event.stopPropagation(); if(typeof openImageModal==='function') openImageModal('${escapeHtml(resolved)}', 'Image');" />
           </div>`;
         continue;
       }
@@ -16300,27 +16434,107 @@ ${cp.rawDocText || ''}
     if (startLine > endLine) {
       return '<div class="prow-line plain" style="padding:12px 14px; font-style:italic; opacity:0.6;"><span class="txt">(Empty section)</span></div>';
     }
-    let html = '';
-    const end = Math.min(endLine, startLine + maxPreview);
-    for (let i = startLine; i <= end; i++) {
-      html += panelRowHtml(i, -1);
+    if (typeof lines !== 'undefined' && lines) {
+      const end = Math.min(endLine, startLine + maxPreview);
+      const sectionText = lines.slice(startLine, end + 1).join('\n');
+      let html = renderFcMarkdown(sectionText, h.file_path || (typeof currentDocName !== 'undefined' ? currentDocName : ''));
+      if (endLine > end) {
+        html += '<div class="prow-line plain" style="padding:8px 12px; font-style:italic; opacity:0.7;"><span class="txt">(Section continues...)</span></div>';
+      }
+      return html;
     }
-    if (endLine > end) {
-      html += '<div class="prow-line plain" style="padding:8px 12px; font-style:italic; opacity:0.7;"><span class="txt">(Section continues...)</span></div>';
-    }
-    return html;
+    return '';
   }
 
   // --- Folder Deck Controller ---
-  function openFolderDeckModal(folderDocId = '', folderName = '') {
-    const targetDocId = folderDocId || openedFolderRootDocId || '';
-    const displayName = folderName || openedFolderName || 'Vault Root';
-    const pathInput = document.getElementById('fcFolderDeckPathInput');
-    const modal = document.getElementById('fcFolderDeckModal');
-    if (pathInput) {
-      pathInput.value = displayName;
-      pathInput.dataset.docId = targetDocId;
+  let fcFolderDeckMap = new Map();
+
+  function populateFolderDeckDropdown(preselectedDocId = '', preselectedName = '') {
+    fcFolderDeckMap.clear();
+    const datalist = document.getElementById('fcFolderDeckDatalist');
+    if (datalist) datalist.innerHTML = '';
+
+    const rootDocId = openedFolderRootDocId || '';
+    const rootName = openedFolderName || 'Vault Root';
+    const rootKey = `📁 / (Vault Root: ${rootName})`;
+
+    if (rootDocId) {
+      fcFolderDeckMap.set(rootKey, rootDocId);
+      fcFolderDeckMap.set('/ (Vault Root)', rootDocId);
+      fcFolderDeckMap.set(rootName, rootDocId);
+      if (datalist) {
+        const opt = document.createElement('option');
+        opt.value = rootKey;
+        datalist.appendChild(opt);
+      }
     }
+
+    if (window.AndroidBridge && window.AndroidBridge.getRecursiveTree) {
+      try {
+        const treeRaw = window.AndroidBridge.getRecursiveTree();
+        const treeData = JSON.parse(treeRaw);
+        if (treeData && treeData.status === 'ok' && treeData.root) {
+          function collectDirOptions(node, relPath) {
+            if (!node || !node.children) return;
+            for (const c of node.children) {
+              if (c.kind === 'directory') {
+                const subPath = relPath ? `${relPath}/${c.name}` : c.name;
+                const optVal = `📁 ${subPath}`;
+                fcFolderDeckMap.set(optVal, c.id);
+                fcFolderDeckMap.set(subPath, c.id);
+                fcFolderDeckMap.set(c.name, c.id);
+                if (datalist) {
+                  const opt = document.createElement('option');
+                  opt.value = optVal;
+                  datalist.appendChild(opt);
+                }
+                collectDirOptions(c, subPath);
+              }
+            }
+          }
+          collectDirOptions(treeData.root, '');
+        }
+      } catch(err) {
+        console.warn('Error reading recursive tree for folder deck modal:', err);
+      }
+    }
+
+    if (typeof recentVaults !== 'undefined' && Array.isArray(recentVaults)) {
+      recentVaults.forEach(v => {
+        if (v && v.name && v.rootDocId && v.rootDocId !== rootDocId) {
+          const vKey = `💾 [Vault] ${v.name}`;
+          fcFolderDeckMap.set(vKey, v.rootDocId);
+          fcFolderDeckMap.set(v.name, v.rootDocId);
+          if (datalist) {
+            const opt = document.createElement('option');
+            opt.value = vKey;
+            datalist.appendChild(opt);
+          }
+        }
+      });
+    }
+
+    const pathInput = document.getElementById('fcFolderDeckPathInput');
+    if (pathInput) {
+      let selectedText = '';
+      let targetDocId = preselectedDocId || rootDocId;
+      if (preselectedName) {
+        selectedText = `📁 ${preselectedName}`;
+      } else if (preselectedDocId && preselectedDocId === rootDocId) {
+        selectedText = rootKey;
+      } else {
+        selectedText = rootKey;
+      }
+      pathInput.value = selectedText;
+      pathInput.dataset.docId = targetDocId;
+      pathInput.focus();
+      pathInput.select();
+    }
+  }
+
+  function openFolderDeckModal(folderDocId = '', folderName = '') {
+    populateFolderDeckDropdown(folderDocId, folderName);
+    const modal = document.getElementById('fcFolderDeckModal');
     if (modal) modal.style.display = 'flex';
   }
 
@@ -16526,17 +16740,31 @@ ${cp.rawDocText || ''}
 
     // Front: Extract any embedded images from front heading title
     const frontImgs = [];
-    let cleanFrontTitle = (h.text || '').replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m, alt, url) => {
-      const u = url.trim();
-      if (!/\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(\?.*)?$/i.test(u)) {
-        frontImgs.push({ alt: alt || 'Card Image', url: u });
-      }
-      return '';
-    }).replace(/\[sound:[^\]]+\]/g, '').trim();
+    let cleanFrontTitle = (h.text || '')
+      .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m, alt, url) => {
+        const u = url.trim();
+        if (!/\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(\?.*)?$/i.test(u)) {
+          frontImgs.push({ alt: alt || 'Card Image', url: u });
+        }
+        return '';
+      })
+      .replace(/!\[\[([^\]|]+)(?:\|([^\]]*))?\]\]/g, (m, fileRef, extra) => {
+        const u = fileRef.trim();
+        if (!/\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(\?.*)?$/i.test(u)) {
+          frontImgs.push({ alt: (extra || '').trim() || 'Card Image', url: u });
+        }
+        return '';
+      })
+      .replace(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi, (m, src) => {
+        frontImgs.push({ alt: 'Card Image', url: src.trim() });
+        return '';
+      })
+      .replace(/\[sound:[^\]]+\]/g, '')
+      .trim();
 
     let displayTitle = cleanFrontTitle;
     if (!displayTitle || /^\d+\.?\s*$/.test(displayTitle)) {
-      if (frontImgs.length > 0 && frontImgs[0].alt && frontImgs[0].alt.toLowerCase() !== 'image') {
+      if (frontImgs.length > 0 && frontImgs[0].alt && frontImgs[0].alt.toLowerCase() !== 'image' && frontImgs[0].alt.toLowerCase() !== 'card image') {
         displayTitle = (cleanFrontTitle ? cleanFrontTitle + ' ' : '') + frontImgs[0].alt;
       } else {
         displayTitle = cleanFrontTitle || `Card ${currentCardIndex + 1}`;
@@ -16561,7 +16789,12 @@ ${cp.rawDocText || ''}
     }
 
     // Back title & content
-    let cleanBackTitle = (h.text || '').replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '').replace(/\[sound:[^\]]+\]/g, '').trim();
+    let cleanBackTitle = (h.text || '')
+      .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '')
+      .replace(/!\[\[([^\]|]+)(?:\|([^\]]*))?\]\]/g, '')
+      .replace(/<img[^>]+src=["'][^"']+["'][^>]*>/gi, '')
+      .replace(/\[sound:[^\]]+\]/g, '')
+      .trim();
     if (!cleanBackTitle || /^\d+\.?\s*$/.test(cleanBackTitle)) {
       cleanBackTitle = displayTitle;
     }
@@ -17493,12 +17726,64 @@ ${cp.rawDocText || ''}
     });
   }
 
+  const fcFolderDeckBrowseBtn = document.getElementById('fcFolderDeckBrowseBtn');
+  if (fcFolderDeckBrowseBtn) {
+    fcFolderDeckBrowseBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (window.AndroidBridge && window.AndroidBridge.openNativeFolderPicker) {
+        window.AndroidBridge.openNativeFolderPicker();
+      }
+    });
+  }
+
+  const fcFolderDeckPathInput = document.getElementById('fcFolderDeckPathInput');
+  if (fcFolderDeckPathInput) {
+    const updatePathInputDocId = () => {
+      const typed = fcFolderDeckPathInput.value.trim();
+      if (!typed) {
+        fcFolderDeckPathInput.dataset.docId = openedFolderRootDocId || '';
+        return;
+      }
+      if (fcFolderDeckMap.has(typed)) {
+        fcFolderDeckPathInput.dataset.docId = fcFolderDeckMap.get(typed);
+        return;
+      }
+      const lower = typed.toLowerCase();
+      for (const [k, id] of fcFolderDeckMap.entries()) {
+        const kLower = k.toLowerCase();
+        if (kLower === lower || kLower.endsWith('/' + lower) || kLower.includes(lower)) {
+          fcFolderDeckPathInput.dataset.docId = id;
+          return;
+        }
+      }
+    };
+    fcFolderDeckPathInput.addEventListener('input', updatePathInputDocId);
+    fcFolderDeckPathInput.addEventListener('change', updatePathInputDocId);
+  }
+
   const fcFolderDeckStartBtn = document.getElementById('fcFolderDeckStartBtn');
   if (fcFolderDeckStartBtn) {
     fcFolderDeckStartBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       const pathInput = document.getElementById('fcFolderDeckPathInput');
-      const folderDocId = pathInput ? pathInput.dataset.docId : '';
+      let folderDocId = pathInput ? pathInput.dataset.docId : '';
+      if (!folderDocId && pathInput && pathInput.value.trim()) {
+        const typed = pathInput.value.trim();
+        if (fcFolderDeckMap.has(typed)) {
+          folderDocId = fcFolderDeckMap.get(typed);
+        } else {
+          const lower = typed.toLowerCase();
+          for (const [k, id] of fcFolderDeckMap.entries()) {
+            if (k.toLowerCase().includes(lower)) {
+              folderDocId = id;
+              break;
+            }
+          }
+        }
+      }
+      if (!folderDocId) {
+        folderDocId = openedFolderRootDocId || '';
+      }
       const levelSelect = document.getElementById('fcFolderDeckLevelSelect');
       const targetLevel = levelSelect ? levelSelect.value : '2';
       const recursiveCheck = document.getElementById('fcFolderDeckRecursiveCheck');
@@ -19575,6 +19860,11 @@ ${cp.rawDocText || ''}
       renderVaultDropdownList();
     }
 
+    const folderDeckModal = document.getElementById('fcFolderDeckModal');
+    if (folderDeckModal && folderDeckModal.style.display === 'flex' && typeof populateFolderDeckDropdown === 'function') {
+      populateFolderDeckDropdown(rootDocId, name);
+    }
+
     folderTreeDirty = true;
     if (!isStartup || fileDrawer.classList.contains('open')) {
       folderTreeDirty = false;
@@ -20360,6 +20650,14 @@ ${cp.rawDocText || ''}
       togglePocketSplit();
       return true;
     }
+    if (document.getElementById('imageModal') && document.getElementById('imageModal').style.display === 'flex') {
+      closeImageModal();
+      return true;
+    }
+    if (document.getElementById('fcFolderDeckModal') && document.getElementById('fcFolderDeckModal').style.display === 'flex') {
+      closeFolderDeckModal();
+      return true;
+    }
     if (isFlashcardMode) {
       if (isFcFullscreen) {
         exitFcFullscreen();
@@ -20370,14 +20668,6 @@ ${cp.rawDocText || ''}
         return true;
       }
       exitFlashcardMode();
-      return true;
-    }
-    if (document.getElementById('imageModal') && document.getElementById('imageModal').style.display === 'flex') {
-      closeImageModal();
-      return true;
-    }
-    if (document.getElementById('fcFolderDeckModal') && document.getElementById('fcFolderDeckModal').style.display === 'flex') {
-      closeFolderDeckModal();
       return true;
     }
     if (guideModal && guideModal.style.display === 'flex') {

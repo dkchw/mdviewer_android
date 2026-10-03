@@ -314,5 +314,16 @@ class AndroidBridge(
     fun collectFolderCards(folderDocId: String?, targetLevel: String?, recursive: Boolean): String {
         return activity.collectFolderCardsJson(folderDocId, targetLevel, recursive)
     }
+
+    @JavascriptInterface
+    fun playAudio(relativePath: String?): Boolean {
+        if (relativePath.isNullOrEmpty()) return false
+        return activity.playAudio(relativePath)
+    }
+
+    @JavascriptInterface
+    fun stopAudio() {
+        activity.stopAudio()
+    }
 }
 
