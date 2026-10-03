@@ -222,9 +222,9 @@ class AndroidBridge(
     fun getAppVersion(): String {
         return try {
             val pInfo = activity.packageManager.getPackageInfo(activity.packageName, 0)
-            pInfo.versionName ?: "3.1.2"
+            pInfo.versionName ?: "3.1.3"
         } catch (e: Exception) {
-            "3.1.2"
+            "3.1.3"
         }
     }
 
@@ -291,4 +291,28 @@ class AndroidBridge(
     fun readAssetFile(fileName: String?): String {
         return activity.readAssetFile(fileName)
     }
+
+    @JavascriptInterface
+    fun readMediaBase64(relativePath: String?): String {
+        if (relativePath.isNullOrEmpty()) return ""
+        return activity.readMediaBase64(relativePath)
+    }
+
+    @JavascriptInterface
+    fun resolveMediaUri(relativePath: String?): String {
+        if (relativePath.isNullOrEmpty()) return ""
+        val treeUri = activity.getCurrentTreeUri() ?: return ""
+        val docId = activity.findDocumentIdByPath(treeUri, relativePath) ?: return ""
+        return try {
+            "https://vault.mdviewer/media?path=" + java.net.URLEncoder.encode(relativePath, "UTF-8") + "&docId=" + docId
+        } catch (e: Exception) {
+            "https://vault.mdviewer/media?path=" + relativePath + "&docId=" + docId
+        }
+    }
+
+    @JavascriptInterface
+    fun collectFolderCards(folderDocId: String?, targetLevel: String?, recursive: Boolean): String {
+        return activity.collectFolderCardsJson(folderDocId, targetLevel, recursive)
+    }
 }
+

@@ -6385,6 +6385,299 @@
     color: #15161e;
   }
 
+  /* Media & Anki Import Styles */
+  .md-audio-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(187, 154, 247, 0.15);
+    color: #bb9af7;
+    border: 1px solid rgba(187, 154, 247, 0.35);
+    padding: 0 6px;
+    border-radius: 9px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s ease;
+    vertical-align: middle;
+  }
+  .md-audio-pill:hover, .md-audio-pill:active {
+    background: rgba(187, 154, 247, 0.3);
+    color: #fff;
+    border-color: #bb9af7;
+  }
+  .md-img-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(122, 162, 247, 0.15);
+    color: #7aa2f7;
+    border: 1px solid rgba(122, 162, 247, 0.35);
+    padding: 1px 7px 1px 3px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    user-select: none;
+    transition: all 0.18s ease;
+    vertical-align: middle;
+    line-height: 1.4;
+    max-height: 22px;
+  }
+  .md-img-pill:hover, .md-img-pill:active {
+    background: rgba(122, 162, 247, 0.3);
+    color: #fff;
+    border-color: #7aa2f7;
+    box-shadow: 0 0 10px rgba(122, 162, 247, 0.35);
+    transform: translateY(-1px);
+  }
+  .md-img-thumb {
+    width: 17px;
+    height: 17px;
+    object-fit: cover;
+    border-radius: 3px;
+    border: 1px solid rgba(122, 162, 247, 0.4);
+    display: inline-block;
+    flex-shrink: 0;
+    background: #1a1b26;
+  }
+  .md-img-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+  }
+  .fc-img-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 14px 0;
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .fc-card-img {
+    max-width: 100%;
+    max-height: 360px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    cursor: zoom-in;
+    object-fit: contain;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .fc-card-img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
+  }
+  .fc-front-media {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 14px 0;
+    width: 100%;
+    max-width: 520px;
+  }
+  .fc-front-img-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+  .fc-front-card-img {
+    max-height: 280px;
+    max-width: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+    cursor: zoom-in;
+    object-fit: contain;
+  }
+  .fc-audio-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(187, 154, 247, 0.08);
+    border: 1px solid rgba(187, 154, 247, 0.25);
+    border-radius: 8px;
+    padding: 6px 12px;
+    margin: 8px 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .fc-audio-wrap:hover {
+    border-color: rgba(187, 154, 247, 0.6);
+    background: rgba(187, 154, 247, 0.14);
+  }
+  .fc-audio-wrap.fc-audio-active {
+    border-color: #bb9af7;
+    background: rgba(187, 154, 247, 0.22);
+    box-shadow: 0 0 12px rgba(187, 154, 247, 0.35);
+  }
+  .fc-audio-play-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #bb9af7;
+    color: #1a1b26;
+    border: none;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+    flex-shrink: 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+  }
+  .fc-audio-play-btn:hover, .fc-audio-play-btn:active {
+    transform: scale(1.08);
+    background: #c099ff;
+  }
+  .fc-audio-wrap audio {
+    flex: 1;
+    height: 34px;
+    min-width: 140px;
+    outline: none;
+  }
+  .fc-audio-caption {
+    font-size: 12px;
+    font-weight: 600;
+    color: #bb9af7;
+    white-space: nowrap;
+    user-select: none;
+    transition: filter 0.15s ease;
+    cursor: pointer;
+  }
+  .fc-audio-caption:hover {
+    filter: brightness(1.25);
+  }
+  @keyframes audioPulse {
+    0% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.08); filter: brightness(1.3); box-shadow: 0 0 10px rgba(187, 154, 247, 0.6); }
+    100% { transform: scale(1); filter: brightness(1); }
+  }
+  .audio-playing-pulse {
+    animation: audioPulse 0.5s ease-in-out;
+  }
+  .fc-audio-replay-btn {
+    background: rgba(187, 154, 247, 0.15) !important;
+    color: #bb9af7 !important;
+    border: 1px solid rgba(187, 154, 247, 0.35) !important;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .fc-audio-replay-btn:hover, .fc-audio-replay-btn:active {
+    background: rgba(187, 154, 247, 0.28) !important;
+    color: #fff !important;
+    border-color: #bb9af7 !important;
+  }
+
+  /* Key-Value Pill Badges (Executive Glossy Look) */
+  .fc-key-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.88em;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-right: 6px;
+    line-height: 1.35;
+    white-space: nowrap;
+    vertical-align: baseline;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  }
+  .fc-key-badge .badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .fc-key-badge.badge-cyan {
+    color: #7dcfff;
+    background: rgba(125, 207, 255, 0.14);
+    border: 1px solid rgba(125, 207, 255, 0.35);
+  }
+  .fc-key-badge.badge-cyan .badge-dot { background: #7dcfff; box-shadow: 0 0 6px #7dcfff; }
+  .fc-key-badge.badge-green {
+    color: #9ece6a;
+    background: rgba(158, 206, 106, 0.14);
+    border: 1px solid rgba(158, 206, 106, 0.35);
+  }
+  .fc-key-badge.badge-green .badge-dot { background: #9ece6a; box-shadow: 0 0 6px #9ece6a; }
+  .fc-key-badge.badge-purple {
+    color: #bb9af7;
+    background: rgba(187, 154, 247, 0.14);
+    border: 1px solid rgba(187, 154, 247, 0.35);
+  }
+  .fc-key-badge.badge-purple .badge-dot { background: #bb9af7; box-shadow: 0 0 6px #bb9af7; }
+  .fc-key-badge.badge-orange {
+    color: #ff9e64;
+    background: rgba(255, 158, 100, 0.14);
+    border: 1px solid rgba(255, 158, 100, 0.35);
+  }
+  .fc-key-badge.badge-orange .badge-dot { background: #ff9e64; box-shadow: 0 0 6px #ff9e64; }
+  .fc-key-badge.badge-amber {
+    color: #e0af68;
+    background: rgba(224, 175, 104, 0.14);
+    border: 1px solid rgba(224, 175, 104, 0.35);
+  }
+  .fc-key-badge.badge-amber .badge-dot { background: #e0af68; box-shadow: 0 0 6px #e0af68; }
+  .fc-key-badge.badge-red {
+    color: #f7768e;
+    background: rgba(247, 118, 142, 0.14);
+    border: 1px solid rgba(247, 118, 142, 0.35);
+  }
+  .fc-key-badge.badge-red .badge-dot { background: #f7768e; box-shadow: 0 0 6px #f7768e; }
+  .fc-key-badge.badge-blue {
+    color: #7aa2f7;
+    background: rgba(122, 162, 247, 0.14);
+    border: 1px solid rgba(122, 162, 247, 0.35);
+  }
+  .fc-key-badge.badge-blue .badge-dot { background: #7aa2f7; box-shadow: 0 0 6px #7aa2f7; }
+
+  .md-highlight, .fc-md-mark {
+    background: rgba(224, 175, 104, 0.28);
+    color: #e0af68;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+  .md-del, .fc-md-del {
+    color: var(--muted);
+    text-decoration: line-through;
+  }
+  .fc-folder-deck-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(122, 162, 247, 0.18);
+    color: #7aa2f7;
+    border: 1px solid rgba(122, 162, 247, 0.4);
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .fc-folder-deck-badge .fc-deck-close {
+    cursor: pointer;
+    font-weight: 700;
+    margin-left: 4px;
+    color: #f7768e;
+  }
+
   #hiddenFileInput { display: none; }
 </style>
 </head>
@@ -7049,6 +7342,8 @@
         <button id="fcFilterH2" data-filter="h2" title="Level 2 headings">H2</button>
         <button id="fcFilterAll" data-filter="all" title="All headings">All</button>
       </div>
+      <button id="fcFolderDeckBtn" class="fc-tool-btn" title="Study entire folder or vault as a unified flashcard deck">🎴 Folder Deck</button>
+      <span id="fcFolderDeckBadge" class="fc-folder-deck-badge" style="display:none;" title="Folder Deck mode active"></span>
       <button id="fcShuffleBtn" class="fc-tool-btn" title="Shuffle flashcards">🔀 Shuffle</button>
       <button id="fcColToggleBtn" class="fc-tool-btn" title="Toggle 2-Column Page Mode vs 1-Column Scroll">❚❚ 2-Col</button>
       <button id="fcFullscreenBtn" class="fc-tool-btn" title="Toggle Fullscreen Mode (F)">⛶ Fullscreen</button>
@@ -7065,8 +7360,12 @@
       <div class="fc-face fc-front" id="fcFrontFace">
         <div class="fc-badge" id="fcLevelBadge">H1</div>
         <div class="fc-breadcrumb" id="fcBreadcrumb"></div>
+        <div id="fcFrontMedia" class="fc-front-media" style="display:none;"></div>
         <div class="fc-front-title" id="fcFrontTitle">Title</div>
-        <div class="fc-hint">Tap to flip • Swipe ◄ / ► cards • Flick ▲ / ▼ flip • Hold to shuffle</div>
+        <div class="fc-front-audio-row" style="margin-top:10px;display:flex;justify-content:center;">
+          <button id="fcFrontAudioBtn" class="fc-tool-btn fc-audio-replay-btn" style="display:none;" title="Play card audio (R)">🔊 Audio</button>
+        </div>
+        <div class="fc-hint">Tap to flip • Swipe ◄ / ► cards • Flick ▲ / ▼ flip • Press R for audio</div>
       </div>
       <!-- Back Face -->
       <div class="fc-face fc-back" id="fcBackFace">
@@ -7078,6 +7377,7 @@
             <button id="fcNextPageBtn" title="Next page">›</button>
           </div>
           <div class="fc-back-controls">
+            <button id="fcBackAudioBtn" class="fc-card-control-btn fc-audio-replay-btn" style="display:none;" title="Replay card audio (R)">🔊 Replay</button>
             <button id="fcCardColBtn" title="Toggle 2-Column Page Mode vs 1-Column Scroll">❚❚ 2-Col</button>
             <button id="fcCardFsBtn" title="Toggle Fullscreen Mode (F)">⛶</button>
           </div>
@@ -7086,7 +7386,7 @@
           <div class="fc-snap-layer" id="fcSnapLayer"></div>
           <div class="fc-back-content" id="fcBackContent"></div>
         </div>
-        <div class="fc-hint" style="padding:6px 12px;background:#191b29;border-top:1px solid var(--border);margin-top:0;">Tap to flip back • Double-tap for 2-Col / 1-Col • Gamepad &amp; Keys supported</div>
+        <div class="fc-hint" style="padding:6px 12px;background:#191b29;border-top:1px solid var(--border);margin-top:0;">Tap to flip back • Double-tap for 2-Col / 1-Col • Press R to replay audio</div>
       </div>
     </div>
     <div id="fcNavControls">
@@ -7834,7 +8134,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v3.1.2</span>
+          <span class="settings-row-badge" id="appVersionSub">v3.1.3</span>
           <span class="settings-row-chevron">›</span>
         </button>
         <div class="settings-row-config">
@@ -7891,8 +8191,8 @@
   </div>
   <div class="update-body">
     <div class="update-version-row">
-      <span class="badge new-badge" id="updateNewVersion">v3.1.2</span>
-      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.2</span>
+      <span class="badge new-badge" id="updateNewVersion">v3.1.3</span>
+      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.3</span>
     </div>
     <div class="update-changelog-title">Changelog:</div>
     <div class="update-changelog" id="updateChangelog"></div>
@@ -8041,6 +8341,60 @@
   </div>
 </div>
 
+<!-- Interactive Lightbox Image Modal -->
+<div id="imageModal" style="display:none; position:fixed; inset:0; z-index:10005; background:rgba(10,11,18,0.92); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); flex-direction:column; align-items:center; justify-content:center; padding:12px;">
+  <div style="position:absolute; top:12px; left:16px; right:16px; display:flex; justify-content:space-between; align-items:center; z-index:10;">
+    <span id="imageModalCaption" style="color:#c0caf5; font-size:13px; font-weight:600; max-width:55vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-shadow:0 1px 4px rgba(0,0,0,0.8);"></span>
+    <div style="display:flex; gap:6px; align-items:center;">
+      <button id="imageModalZoomOutBtn" class="fc-tool-btn" style="padding:4px 10px; font-weight:700;">−</button>
+      <span id="imageModalZoomLevel" style="color:#7aa2f7; font-size:12px; font-weight:700; min-width:38px; text-align:center;">100%</span>
+      <button id="imageModalZoomInBtn" class="fc-tool-btn" style="padding:4px 10px; font-weight:700;">+</button>
+      <button id="imageModalResetBtn" class="fc-tool-btn" style="padding:4px 8px; font-size:11px;">1:1</button>
+      <button id="imageModalCloseBtn" class="fc-tool-btn" style="padding:4px 10px; color:#ff757f; font-weight:700;">✕</button>
+    </div>
+  </div>
+  <div id="imageModalViewport" style="overflow:auto; max-width:96vw; max-height:86vh; display:flex; align-items:center; justify-content:center; border-radius:8px; background:rgba(18,20,30,0.7); cursor:grab;">
+    <img id="imageModalImg" src="" alt="Full Preview" style="max-width:100%; max-height:86vh; object-fit:contain; transform-origin:center center; transition:transform 0.15s ease-out; user-select:none;" />
+  </div>
+</div>
+
+<!-- Study Folder as Flashcard Deck Modal -->
+<div id="fcFolderDeckModal" class="pocket-delete-modal" style="display:none; z-index: 1050;">
+  <div class="pocket-delete-card" style="max-width: 360px; text-align: left;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+      <div style="font-size:16px; font-weight:700; color:#7aa2f7; display:flex; align-items:center; gap:8px;">
+        <span>🎴</span> Study Folder Deck
+      </div>
+      <button id="fcFolderDeckModalCloseBtn" style="background:none; border:none; color:var(--muted); font-size:18px; cursor:pointer;">✕</button>
+    </div>
+    <div style="font-size:12px; color:var(--muted); margin-bottom:12px;">
+      Reads and combines all markdown notes in this folder into a single unified flashcard deck (compatible with Anki .apkg exported decks).
+    </div>
+    <div style="margin-bottom:10px;">
+      <label style="font-size:11px; font-weight:600; color:#c0caf5; text-transform:uppercase;">Selected Folder:</label>
+      <input type="text" id="fcFolderDeckPathInput" class="rename-vault-input" readonly style="opacity:0.85; margin-top:4px;" />
+    </div>
+    <div style="margin-bottom:12px;">
+      <label for="fcFolderDeckLevelSelect" style="font-size:11px; font-weight:600; color:#c0caf5; text-transform:uppercase;">Heading Level Filter:</label>
+      <select id="fcFolderDeckLevelSelect" class="rename-vault-input" style="margin-top:4px; padding:8px 10px;">
+        <option value="2" selected>H2 - Level 2 Headings (Recommended / Anki)</option>
+        <option value="1">H1 - Level 1 Headings</option>
+        <option value="3">H3 - Level 3 Headings</option>
+        <option value="4">H4 - Level 4 Headings</option>
+        <option value="all">All Heading Levels (H1 - H6)</option>
+      </select>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
+      <input type="checkbox" id="fcFolderDeckRecursiveCheck" checked style="accent-color:#7aa2f7; width:16px; height:16px;">
+      <label for="fcFolderDeckRecursiveCheck" style="font-size:12.5px; color:#c0caf5; cursor:pointer;">Include subdirectories (recursive)</label>
+    </div>
+    <div class="pocket-delete-actions">
+      <button id="fcFolderDeckCancelBtn" class="pocket-delete-cancel-btn">Cancel</button>
+      <button id="fcFolderDeckStartBtn" class="pocket-delete-confirm-btn" style="background:#7aa2f7; color:#16161e; font-weight:700;">🚀 Open Deck</button>
+    </div>
+  </div>
+</div>
+
 <!-- Create Custom Color Palette Modal -->
 <div id="paletteCreateModal" class="pocket-delete-modal" style="display:none; z-index: 1070;">
   <div class="pocket-delete-card" style="max-width: 360px; text-align: left;">
@@ -8165,7 +8519,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '3.1.2';
+      window.AndroidBridge.getAppVersion() : '3.1.3';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -8642,6 +8996,11 @@
   const fcZoomOutBtn = document.getElementById('fcZoomOutBtn');
   const fcZoomInBtn = document.getElementById('fcZoomInBtn');
   const fcZoomDisplay = document.getElementById('fcZoomDisplay');
+  const fcFolderDeckBtn = document.getElementById('fcFolderDeckBtn');
+  const fcFolderDeckBadge = document.getElementById('fcFolderDeckBadge');
+  const fcFrontMedia = document.getElementById('fcFrontMedia');
+  const fcFrontAudioBtn = document.getElementById('fcFrontAudioBtn');
+  const fcBackAudioBtn = document.getElementById('fcBackAudioBtn');
   let isFcFullscreen = false;
 
   // Selection & Floating Quick Copy Elements
@@ -8666,7 +9025,7 @@
     keyPrevPage: '[, PageUp, ,, <',
     keyToggleCol: 'c, t',
     keyFullscreen: 'f, F11',
-    keyShuffle: 's, r',
+    keyShuffle: 's',
     keyExit: 'Escape, Backspace, q',
     keyZoomIn: '+, =',
     keyZoomOut: '-, _',
@@ -14528,12 +14887,125 @@ ${cp.rawDocText || ''}
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
+  const mdKeyColorMap = {
+    'meaning': 'cyan', 'bedeutung': 'cyan', 'definition': 'cyan', 'concept': 'cyan', 'answer': 'cyan', 'back': 'cyan',
+    'example': 'green', 'beispiel': 'green', 'beispiele': 'green', 'beispielsatz': 'green',
+    'grammar': 'purple', 'grammatik': 'purple', 'inflection': 'purple', 'konjugation': 'purple', 'wortart': 'purple',
+    'pronunciation': 'orange', 'aussprache': 'orange', 'ipa': 'orange',
+    'collocations': 'amber', 'kollokationen': 'amber', 'synonym': 'amber', 'antonym': 'amber', 'etymology': 'amber',
+    'note': 'red', 'hinweis': 'red', 'achtung': 'red', 'warning': 'red', 'tipp': 'red',
+    'level': 'blue', 'niveau': 'blue', 'theme': 'blue', 'thema': 'blue', 'input': 'blue', 'front': 'blue', 'tags': 'purple'
+  };
+
+  function getMdKeyColor(keyName) {
+    const clean = (keyName || '').toLowerCase().trim();
+    for (const [k, color] of Object.entries(mdKeyColorMap)) {
+      if (clean.includes(k)) return color;
+    }
+    return 'blue';
+  }
+
+  function resolveMediaUrl(cleanUrl, cardFilePath) {
+    if (!cleanUrl) return '';
+    cleanUrl = cleanUrl.trim();
+    if (cleanUrl.startsWith('data:') || cleanUrl.startsWith('blob:') || cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
+      return cleanUrl;
+    }
+    if (cleanUrl.startsWith('./')) {
+      cleanUrl = cleanUrl.substring(2);
+    }
+    const fp = cardFilePath || (typeof currentDocName !== 'undefined' ? currentDocName : '');
+    let finalPath = cleanUrl;
+    if (fp && fp.includes('/') && cleanUrl.startsWith('../')) {
+      const parts = fp.split('/');
+      parts.pop();
+      const segs = cleanUrl.split('/');
+      while (segs[0] === '..') {
+        segs.shift();
+        parts.pop();
+      }
+      finalPath = (parts.length > 0 ? parts.join('/') + '/' : '') + segs.join('/');
+    } else if (fp && fp.includes('/') && !cleanUrl.startsWith('/')) {
+      finalPath = fp.substring(0, fp.lastIndexOf('/') + 1) + cleanUrl;
+    }
+
+    return 'https://vault.mdviewer/media?path=' + encodeURIComponent(finalPath);
+  }
+
+  function getPlayableAudioUrl(cleanUrl, cardFilePath) {
+    if (!cleanUrl) return '';
+    cleanUrl = cleanUrl.trim();
+    if (cleanUrl.startsWith('data:') || cleanUrl.startsWith('blob:')) return cleanUrl;
+
+    if (window.AndroidBridge && window.AndroidBridge.readMediaBase64) {
+      let pathToRead = cleanUrl;
+      if (pathToRead.startsWith('https://vault.mdviewer/media?path=')) {
+        try {
+          pathToRead = decodeURIComponent(pathToRead.split('path=')[1].split('&')[0]);
+        } catch(e) {}
+      }
+      const b64 = window.AndroidBridge.readMediaBase64(pathToRead);
+      if (b64 && b64.startsWith('data:')) {
+        return b64;
+      }
+    }
+    return resolveMediaUrl(cleanUrl, cardFilePath);
+  }
+
   function mdInline(escaped) {
-    let t = escaped.replace(/`([^`]+)`/g, '<span class="md-code">$1</span>');
+    const tokens = [];
+    const saveToken = (h) => {
+      const id = tokens.length;
+      tokens.push(h);
+      return `@@MDOUTLINETOKEN${id}@@`;
+    };
+
+    let t = escaped;
+
+    // 1. Code spans
+    t = t.replace(/`([^`]+)`/g, (m, code) => saveToken(`<span class="md-code">${code}</span>`));
+
+    // 2. Images & Audio embeds
+    t = t.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m, alt, url) => {
+      const cleanUrl = url.trim();
+      if (/\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(\?.*)?$/i.test(cleanUrl)) {
+        const playUrl = getPlayableAudioUrl(cleanUrl);
+        return saveToken(`<span class="md-audio-pill" onclick="event.stopPropagation(); const a = new Audio('${escapeHtml(playUrl)}'); a.play().catch(e => console.log(e));" title="Click to play audio">🔊 ${escapeHtml(alt || 'Audio')}</span>`);
+      }
+      const resolved = resolveMediaUrl(cleanUrl);
+      return saveToken(`<span class="md-img-pill" onclick="event.stopPropagation(); if(typeof openImageModal==='function') openImageModal('${escapeHtml(resolved)}', '${escapeHtml(alt || 'Image')}');" title="Click to view image: ${escapeHtml(alt || 'Image')}"><img src="${escapeHtml(resolved)}" class="md-img-thumb" alt="" loading="lazy" /><span class="md-img-label">🖼️ ${escapeHtml(alt || 'Image')}</span></span>`);
+    });
+
+    // 3. Anki sound syntax
+    t = t.replace(/\[sound:([^\]]+)\]/g, (m, url) => {
+      let cleanUrl = url.trim();
+      if (!cleanUrl.startsWith('assets/') && !cleanUrl.startsWith('/') && !cleanUrl.startsWith('http')) {
+        cleanUrl = 'assets/' + cleanUrl;
+      }
+      const playUrl = getPlayableAudioUrl(cleanUrl);
+      return saveToken(`<span class="md-audio-pill" onclick="event.stopPropagation(); const a = new Audio('${escapeHtml(playUrl)}'); a.play().catch(e => console.log(e));" title="Click to play audio">🔊 Audio</span>`);
+    });
+
+    // 4. Badges: **Key:** or **Key name:**
+    t = t.replace(/\*\*([A-Za-z0-9ÄÖÜäöüß\s/_.-]+):\*\*/g, (m, k) => {
+      const color = getMdKeyColor(k);
+      return `<span class="fc-key-badge badge-${color}"><span class="badge-dot"></span>${k}:</span>`;
+    });
+
+    // 5. Links
+    t = t.replace(/\[([^\]]+)\]\([^)]+\)/g, (m, label) => saveToken(`<span class="md-link">${label}</span>`));
+
+    // 6. Bold & Italic
     t = t.replace(/\*\*([^*]+)\*\*|__([^_]+)__/g, (m, a, b) => `<span class="md-bold">${a || b}</span>`);
     t = t.replace(/(^|[^*])\*([^*\s][^*]*?)\*(?!\*)/g, (m, pre, inner) => `${pre}<span class="md-italic">${inner}</span>`);
     t = t.replace(/(^|[^_])_([^_\s][^_]*?)_(?!_)/g, (m, pre, inner) => `${pre}<span class="md-italic">${inner}</span>`);
-    t = t.replace(/\[([^\]]+)\]\([^)]+\)/g, '<span class="md-link">$1</span>');
+
+    // 7. Highlights & Strikethrough
+    t = t.replace(/==([^=]+)==/g, '<mark class="md-highlight">$1</mark>');
+    t = t.replace(/~~([^~]+)~~/g, '<del class="md-del">$1</del>');
+
+    // 8. Restore tokens
+    t = t.replace(/@@MDOUTLINETOKEN(\d+)@@/g, (m, id) => tokens[parseInt(id, 10)] || '');
     return t;
   }
 
@@ -15196,10 +15668,15 @@ ${cp.rawDocText || ''}
   });
 
   // --- Flashcard Mode Implementation ---
+  let isFolderDeck = false;
+  let folderDeckInfo = null;
+  let folderDeckAllCards = [];
+
   function getBreadcrumb(h) {
+    if (h && h.breadcrumb) return h.breadcrumb;
     const parts = [];
     let curr = h;
-    while (curr && curr.parent !== -1) {
+    while (curr && curr.parent !== -1 && typeof headings !== 'undefined' && headings) {
       const p = headings[curr.parent];
       if (p) {
         parts.unshift(p.text);
@@ -15210,6 +15687,12 @@ ${cp.rawDocText || ''}
   }
 
   function collectFlashcards(mode = 'outline') {
+    if (isFolderDeck) {
+      if (!folderDeckAllCards || folderDeckAllCards.length === 0) return [];
+      if (mode === 'h1') return folderDeckAllCards.filter(h => h.level === 1);
+      if (mode === 'h2') return folderDeckAllCards.filter(h => h.level === 2);
+      return folderDeckAllCards.slice();
+    }
     if (!headings || headings.length === 0) return [];
     if (mode === 'h1') return headings.filter(h => h.level === 1);
     if (mode === 'h2') return headings.filter(h => h.level === 2);
@@ -15374,8 +15857,366 @@ ${cp.rawDocText || ''}
     updateColumnState();
   }
 
+  // --- Flashcard Audio Engine ---
+  let activeFlashcardAudio = null;
+  let currentCardAudioUrls = [];
+  let currentCardAudioIndex = 0;
+
+  function stopAllCardAudios() {
+    if (activeFlashcardAudio) {
+      try {
+        activeFlashcardAudio.pause();
+        activeFlashcardAudio.currentTime = 0;
+      } catch(e) {}
+      activeFlashcardAudio = null;
+    }
+    document.querySelectorAll('audio').forEach(a => {
+      try {
+        a.pause();
+        a.currentTime = 0;
+      } catch(e) {}
+    });
+    document.querySelectorAll('.fc-audio-wrap').forEach(w => {
+      w.classList.remove('fc-audio-active');
+      const btn = w.querySelector('.fc-audio-play-btn');
+      if (btn) btn.textContent = '▶';
+    });
+  }
+
+  function extractCardAudioUrls(h, origBack) {
+    const urls = [];
+    const textToScan = ((h && h.text) ? h.text : '') + '\n' + (origBack || '');
+    const cardFilePath = (h && h.file_path) || '';
+
+    // 1. Markdown audio links: ![alt](url)
+    const mdImgRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+    let m;
+    while ((m = mdImgRegex.exec(textToScan)) !== null) {
+      const u = m[2].trim();
+      if (/\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(\?.*)?$/i.test(u)) {
+        const res = getPlayableAudioUrl(u, cardFilePath);
+        if (res && !urls.includes(res)) urls.push(res);
+      }
+    }
+
+    // 2. Anki sound syntax: [sound:url]
+    const ankiSoundRegex = /\[sound:([^\]]+)\]/g;
+    while ((m = ankiSoundRegex.exec(textToScan)) !== null) {
+      let u = m[1].trim();
+      if (!u.startsWith('assets/') && !u.startsWith('/') && !u.startsWith('http')) {
+        u = 'assets/' + u;
+      }
+      const res = getPlayableAudioUrl(u, cardFilePath);
+      if (res && !urls.includes(res)) urls.push(res);
+    }
+
+    // 3. HTML audio syntax: <audio src="..."> or <source src="...">
+    const htmlAudioRegex = /<(?:audio|source)[^>]+src=["']([^"']+)["']/gi;
+    while ((m = htmlAudioRegex.exec(textToScan)) !== null) {
+      const res = getPlayableAudioUrl(m[1].trim(), cardFilePath);
+      if (res && !urls.includes(res)) urls.push(res);
+    }
+
+    return urls;
+  }
+
+  function playCurrentCardAudioAtIndex(targetIndex = 0) {
+    const isFlipped = fcCard && fcCard.classList.contains('flipped');
+    const primary = isFlipped ? fcBackContent : fcFrontFace;
+    const secondary = isFlipped ? fcFrontFace : fcBackContent;
+
+    let audios = primary ? Array.from(primary.querySelectorAll('audio')) : [];
+    if (audios.length === 0 && secondary) {
+      audios = Array.from(secondary.querySelectorAll('audio'));
+    }
+
+    if (audios.length === 0 && currentCardAudioUrls.length === 0) {
+      return false;
+    }
+
+    stopAllCardAudios();
+
+    if (audios.length > 0) {
+      const idx = Math.max(0, Math.min(targetIndex, audios.length - 1));
+      currentCardAudioIndex = idx;
+
+      const targetAudio = audios[idx];
+      const wrap = targetAudio.closest('.fc-audio-wrap');
+      if (wrap) {
+        wrap.classList.add('fc-audio-active');
+        const btn = wrap.querySelector('.fc-audio-play-btn');
+        if (btn) btn.textContent = '⏸';
+      }
+
+      try {
+        targetAudio.currentTime = 0;
+        const p = targetAudio.play();
+        if (p && typeof p.catch === 'function') {
+          p.catch(e => console.log('Flashcard audio play interrupted:', e));
+        }
+        return true;
+      } catch(e) {
+        console.warn('Audio play error:', e);
+      }
+    }
+
+    if (currentCardAudioUrls.length > 0) {
+      const idx = Math.max(0, Math.min(targetIndex, currentCardAudioUrls.length - 1));
+      currentCardAudioIndex = idx;
+
+      try {
+        activeFlashcardAudio = new Audio(currentCardAudioUrls[idx]);
+        const p = activeFlashcardAudio.play();
+        if (p && typeof p.catch === 'function') {
+          p.catch(e => console.log('Fallback audio play error:', e));
+        }
+        return true;
+      } catch(e) {
+        console.warn('Fallback audio play error:', e);
+      }
+    }
+    return false;
+  }
+
+  function playCurrentCardAudio(options = {}) {
+    const isFlipped = fcCard && fcCard.classList.contains('flipped');
+    const primary = isFlipped ? fcBackContent : fcFrontFace;
+    const secondary = isFlipped ? fcFrontFace : fcBackContent;
+
+    let audios = primary ? Array.from(primary.querySelectorAll('audio')) : [];
+    if (audios.length === 0 && secondary) {
+      audios = Array.from(secondary.querySelectorAll('audio'));
+    }
+    const total = audios.length > 0 ? audios.length : currentCardAudioUrls.length;
+
+    if (total <= 1) {
+      return playCurrentCardAudioAtIndex(0);
+    }
+
+    let nextIdx = 0;
+    if (options && options.initial) {
+      nextIdx = 0;
+    } else {
+      nextIdx = (currentCardAudioIndex + 1) % total;
+    }
+    return playCurrentCardAudioAtIndex(nextIdx);
+  }
+
+  window.playEmbedAudio = function(el) {
+    const wrap = el.closest('.fc-audio-wrap');
+    if (!wrap) return;
+    const audio = wrap.querySelector('audio');
+    if (!audio) return;
+    const playBtn = wrap.querySelector('.fc-audio-play-btn');
+
+    if (!audio.paused && !audio.ended) {
+      audio.pause();
+      if (playBtn) playBtn.textContent = '▶';
+      wrap.classList.remove('fc-audio-active');
+    } else {
+      stopAllCardAudios();
+      wrap.classList.add('fc-audio-active');
+      if (playBtn) playBtn.textContent = '⏸';
+
+      if (audio.ended || (audio.duration && audio.currentTime >= audio.duration - 0.1)) {
+        audio.currentTime = 0;
+      }
+      const p = audio.play();
+      if (p && typeof p.catch === 'function') {
+        p.catch(e => {
+          console.log('Audio playback error:', e);
+          if (playBtn) playBtn.textContent = '▶';
+          wrap.classList.remove('fc-audio-active');
+        });
+      }
+    }
+  };
+
+  function initCardAudioElements(container) {
+    if (!container) return;
+    const wraps = container.querySelectorAll('.fc-audio-wrap');
+    wraps.forEach((wrap) => {
+      const audio = wrap.querySelector('audio');
+      const playBtn = wrap.querySelector('.fc-audio-play-btn');
+      if (!audio) return;
+      if (audio._initialized) return;
+      audio._initialized = true;
+
+      audio.addEventListener('play', () => {
+        document.querySelectorAll('audio').forEach(other => {
+          if (other !== audio && !other.paused) other.pause();
+        });
+        document.querySelectorAll('.fc-audio-wrap').forEach(w => {
+          if (w !== wrap) {
+            w.classList.remove('fc-audio-active');
+            const b = w.querySelector('.fc-audio-play-btn');
+            if (b) b.textContent = '▶';
+          }
+        });
+        wrap.classList.add('fc-audio-active');
+        if (playBtn) playBtn.textContent = '⏸';
+      });
+
+      audio.addEventListener('pause', () => {
+        if (playBtn) playBtn.textContent = '▶';
+        wrap.classList.remove('fc-audio-active');
+      });
+
+      audio.addEventListener('ended', () => {
+        if (playBtn) playBtn.textContent = '▶';
+        wrap.classList.remove('fc-audio-active');
+      });
+    });
+  }
+
+  // --- Flashcard Markdown Formatter (Full Anki Badge & Media Support) ---
+  function mdInlineForCard(escaped, cardFilePath) {
+    const tokens = [];
+    const saveToken = (h) => {
+      const id = tokens.length;
+      tokens.push(h);
+      return `@@MDINLINETOKEN${id}@@`;
+    };
+
+    let s = escaped;
+
+    // 1. Inline code: `code`
+    s = s.replace(/`([^`]+)`/g, (m, code) => saveToken(`<span class="md-code">${code}</span>`));
+
+    // 2. Images & Audio embeds: ![alt](url)
+    s = s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m, alt, url) => {
+      const cleanUrl = url.trim();
+      if (/\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(\?.*)?$/i.test(cleanUrl)) {
+        const playUrl = getPlayableAudioUrl(cleanUrl, cardFilePath);
+        return saveToken(`
+          <div class="fc-audio-wrap" data-audio-src="${escapeHtml(playUrl)}" onclick="if(event.target.tagName!=='AUDIO'){event.stopPropagation();playEmbedAudio(this);}" title="Click to play">
+            <button type="button" class="fc-audio-play-btn" onclick="event.stopPropagation();playEmbedAudio(this);" title="Play / Pause">▶</button>
+            <audio controls preload="auto" src="${escapeHtml(playUrl)}" onclick="event.stopPropagation();"></audio>
+            <span class="fc-audio-caption" onclick="event.stopPropagation();playEmbedAudio(this);" style="cursor:pointer;" title="Click to play">🔊 ${escapeHtml(alt || 'Audio')}</span>
+          </div>
+        `);
+      }
+      const resolved = resolveMediaUrl(cleanUrl, cardFilePath);
+      return saveToken(`
+        <div class="fc-img-wrap">
+          <img class="fc-card-img" src="${escapeHtml(resolved)}" alt="${escapeHtml(alt || 'Image')}" loading="lazy"
+               onclick="event.stopPropagation(); if(typeof openImageModal==='function') openImageModal('${escapeHtml(resolved)}', '${escapeHtml(alt || 'Image')}');" />
+        </div>
+      `);
+    });
+
+    // 3. Anki sound syntax: [sound:url]
+    s = s.replace(/\[sound:([^\]]+)\]/g, (m, url) => {
+      let cleanUrl = url.trim();
+      if (!cleanUrl.startsWith('assets/') && !cleanUrl.startsWith('/') && !cleanUrl.startsWith('http')) {
+        cleanUrl = 'assets/' + cleanUrl;
+      }
+      const playUrl = getPlayableAudioUrl(cleanUrl, cardFilePath);
+      return saveToken(`
+        <div class="fc-audio-wrap" data-audio-src="${escapeHtml(playUrl)}" onclick="if(event.target.tagName!=='AUDIO'){event.stopPropagation();playEmbedAudio(this);}" title="Click to play">
+          <button type="button" class="fc-audio-play-btn" onclick="event.stopPropagation();playEmbedAudio(this);" title="Play / Pause">▶</button>
+          <audio controls preload="auto" src="${escapeHtml(playUrl)}" onclick="event.stopPropagation();"></audio>
+          <span class="fc-audio-caption" onclick="event.stopPropagation();playEmbedAudio(this);" style="cursor:pointer;" title="Click to play">🔊 Audio</span>
+        </div>
+      `);
+    });
+
+    // 4. Badges: **Key:** or **Key name:**
+    s = s.replace(/\*\*([A-Za-z0-9ÄÖÜäöüß\s/_.-]+):\*\*/g, (m, key) => {
+      const color = getMdKeyColor(key);
+      return `<span class="fc-key-badge badge-${color}"><span class="badge-dot"></span>${key}:</span>`;
+    });
+
+    // 5. Links: [text](url)
+    s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, label, href) => {
+      return saveToken(`<a class="md-link" href="${escapeHtml(href.trim())}" target="_blank">${label}</a>`);
+    });
+
+    // 6. Bold & Italic
+    s = s.replace(/\*\*([^*]+)\*\*|__([^_]+)__/g, (m, a, b) => `<span class="md-bold">${a || b}</span>`);
+    s = s.replace(/(^|[^*])\*([^*\s][^*]*?)\*(?!\*)/g, (m, pre, inner) => `${pre}<span class="md-italic">${inner}</span>`);
+    s = s.replace(/(^|[^_])_([^_\s][^_]*?)_(?!_)/g, (m, pre, inner) => `${pre}<span class="md-italic">${inner}</span>`);
+
+    // 7. Highlights & Strikethrough
+    s = s.replace(/==([^=]+)==/g, '<mark class="fc-md-mark">$1</mark>');
+    s = s.replace(/~~([^~]+)~~/g, '<del class="fc-md-del">$1</del>');
+
+    // 8. Checkboxes
+    s = s.replace(/\[\s*\]\s*/g, '<span class="md-task-uncheck">☐</span> ');
+    s = s.replace(/\[x\]\s*/gi, '<span class="md-task-check">☑</span> ');
+
+    // 9. Restore tokens
+    s = s.replace(/@@MDINLINETOKEN(\d+)@@/g, (m, id) => tokens[parseInt(id, 10)] || '');
+    return s;
+  }
+
+  function renderFcMarkdown(text, cardFilePath) {
+    if (!text) return '<div class="prow-line plain" style="padding:12px 14px; font-style:italic; opacity:0.6;"><span class="txt">(Empty section)</span></div>';
+    const lines = text.split('\n');
+    let html = '';
+
+    for (let i = 0; i < lines.length; i++) {
+      const rawLine = lines[i];
+      const trimmed = rawLine.trim();
+
+      if (/^\s*([-*_])\1\1[\1\-*_\s]*$/.test(rawLine) && trimmed.length >= 3) {
+        html += '<div class="prow-line plain" style="margin:8px 0;"><span class="md-hr">────────────────────────</span></div>';
+        continue;
+      }
+
+      const audioMatch = /^\s*!\[([^\]]*)\]\(([^)]+\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(?:\?.*)?)\)\s*$/i.exec(rawLine);
+      const ankiSoundMatch = /^\s*\[sound:([^\]]+)\]\s*$/i.exec(rawLine);
+      if (audioMatch || ankiSoundMatch) {
+        const alt = audioMatch ? audioMatch[1] : 'Audio';
+        let src = audioMatch ? audioMatch[2].trim() : ankiSoundMatch[1].trim();
+        if (!src.startsWith('assets/') && !src.startsWith('/') && !src.startsWith('http')) {
+          src = 'assets/' + src;
+        }
+        const playUrl = getPlayableAudioUrl(src, cardFilePath);
+        html += `
+          <div class="fc-audio-wrap" data-audio-src="${escapeHtml(playUrl)}" onclick="if(event.target.tagName!=='AUDIO'){event.stopPropagation();playEmbedAudio(this);}" title="Click to play">
+            <button type="button" class="fc-audio-play-btn" onclick="event.stopPropagation();playEmbedAudio(this);" title="Play / Pause">▶</button>
+            <audio controls preload="auto" src="${escapeHtml(playUrl)}" onclick="event.stopPropagation();"></audio>
+            <span class="fc-audio-caption" onclick="event.stopPropagation();playEmbedAudio(this);" style="cursor:pointer;" title="Click to play">🔊 ${escapeHtml(alt || 'Audio')}</span>
+          </div>`;
+        continue;
+      }
+
+      const imgMatch = /^\s*!\[([^\]]*)\]\(([^)]+)\)\s*$/i.exec(rawLine);
+      if (imgMatch && !/\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(?:\?.*)?$/i.test(imgMatch[2])) {
+        const alt = imgMatch[1] || 'Image';
+        const src = imgMatch[2].trim();
+        const resolved = resolveMediaUrl(src, cardFilePath);
+        html += `
+          <div class="fc-img-wrap">
+            <img class="fc-card-img" src="${escapeHtml(resolved)}" alt="${escapeHtml(alt)}" loading="lazy"
+                 onclick="event.stopPropagation(); if(typeof openImageModal==='function') openImageModal('${escapeHtml(resolved)}', '${escapeHtml(alt)}');" />
+          </div>`;
+        continue;
+      }
+
+      const bq = /^(\s*)>\s?(.*)$/.exec(rawLine);
+      if (bq) {
+        html += `<div class="prow-line plain"><span class="md-quote">▏ ${mdInlineForCard(escapeHtml(bq[2]), cardFilePath)}</span></div>`;
+        continue;
+      }
+
+      const li = /^(\s*)([-*+])\s+(.*)$/.exec(rawLine);
+      if (li) {
+        html += `<div class="prow-line plain">${escapeHtml(li[1])}<span class="md-bullet">•</span>${mdInlineForCard(escapeHtml(li[3]), cardFilePath)}</div>`;
+        continue;
+      }
+
+      html += `<div class="prow-line plain">${mdInlineForCard(escapeHtml(rawLine), cardFilePath)}</div>`;
+    }
+    return html;
+  }
+
   function getCardBodyHtml(h, maxPreview = 800) {
     if (!h) return '';
+    if (h.card_content !== undefined) {
+      return renderFcMarkdown(h.card_content, h.file_path);
+    }
     const startLine = h.line + 1;
     const endLine = h.end;
     if (startLine > endLine) {
@@ -15392,7 +16233,185 @@ ${cp.rawDocText || ''}
     return html;
   }
 
+  // --- Folder Deck Controller ---
+  function openFolderDeckModal(folderDocId = '', folderName = '') {
+    const targetDocId = folderDocId || openedFolderRootDocId || '';
+    const displayName = folderName || openedFolderName || 'Vault Root';
+    const pathInput = document.getElementById('fcFolderDeckPathInput');
+    const modal = document.getElementById('fcFolderDeckModal');
+    if (pathInput) {
+      pathInput.value = displayName;
+      pathInput.dataset.docId = targetDocId;
+    }
+    if (modal) modal.style.display = 'flex';
+  }
+
+  function closeFolderDeckModal() {
+    const modal = document.getElementById('fcFolderDeckModal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  async function loadFolderDeck(folderDocId = '', targetLevel = '2', recursive = true, initialCardIndex = 0) {
+    closeFolderDeckModal();
+    showToast('⏳ Collecting flashcards across folder...');
+
+    const docId = folderDocId || openedFolderRootDocId || '';
+
+    try {
+      let cards = [];
+      let totalFiles = 0;
+      let totalCards = 0;
+      let folderName = openedFolderName || 'Vault';
+
+      if (window.AndroidBridge && window.AndroidBridge.collectFolderCards) {
+        const raw = window.AndroidBridge.collectFolderCards(docId, targetLevel, !!recursive);
+        const data = JSON.parse(raw);
+        if (data.status !== 'ok' || !data.cards || data.cards.length === 0) {
+          showToast(`⚠️ No flashcards found at heading level H${targetLevel} in this folder.`);
+          return;
+        }
+        cards = data.cards;
+        totalFiles = data.total_files;
+        totalCards = data.total_cards;
+        folderName = data.folder_name || folderName;
+      } else {
+        cards = collectFlashcards('all').map(h => ({
+          ...h,
+          card_content: (typeof lines !== 'undefined' && lines && h.line + 1 <= h.end) ? lines.slice(h.line + 1, h.end + 1).join('\n') : ''
+        }));
+        totalFiles = 1;
+        totalCards = cards.length;
+      }
+
+      if (!cards || cards.length === 0) {
+        showToast(`⚠️ No cards found at level H${targetLevel}`);
+        return;
+      }
+
+      isFolderDeck = true;
+      folderDeckInfo = {
+        folderDocId: docId,
+        folderName: folderName,
+        targetLevel: targetLevel,
+        totalFiles: totalFiles,
+        totalCards: totalCards
+      };
+      folderDeckAllCards = cards.slice();
+      flashcardList = cards.slice();
+      currentCardIndex = Math.min(initialCardIndex, Math.max(0, flashcardList.length - 1));
+
+      if (!isFlashcardMode) {
+        openFlashcards();
+      } else {
+        renderCurrentCard();
+      }
+
+      updateFolderDeckUI();
+      showToast(`🎴 Loaded ${totalCards.toLocaleString()} cards from ${totalFiles} notes!`);
+    } catch(err) {
+      console.error('Failed to load folder deck:', err);
+      showToast('❌ Failed to load folder deck: ' + err.message);
+    }
+  }
+
+  function exitFolderDeck() {
+    isFolderDeck = false;
+    folderDeckInfo = null;
+    folderDeckAllCards = [];
+    updateFolderDeckUI();
+    flashcardList = collectFlashcards(flashcardFilter);
+    currentCardIndex = 0;
+    renderCurrentCard();
+    showToast('Exited Folder Deck mode');
+  }
+
+  function updateFolderDeckUI() {
+    const badge = document.getElementById('fcFolderDeckBadge');
+    if (!badge) return;
+    if (isFolderDeck && folderDeckInfo) {
+      badge.style.display = 'inline-flex';
+      badge.innerHTML = `📁 ${escapeHtml(folderDeckInfo.folderName)} [H${escapeHtml(folderDeckInfo.targetLevel)}] • ${flashcardList.length.toLocaleString()} cards <span class="fc-deck-close" onclick="event.stopPropagation(); exitFolderDeck();" title="Exit Folder Deck">✕</span>`;
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  // --- Interactive Lightbox Image Modal ---
+  let imageModalZoom = 1.0;
+
+  function updateImageModalZoom() {
+    const img = document.getElementById('imageModalImg');
+    const zoomLvl = document.getElementById('imageModalZoomLevel');
+    if (img) img.style.transform = `scale(${imageModalZoom})`;
+    if (zoomLvl) zoomLvl.textContent = `${Math.round(imageModalZoom * 100)}%`;
+  }
+
+  function imageModalZoomIn() {
+    imageModalZoom = Math.min(4.0, +(imageModalZoom + 0.25).toFixed(2));
+    updateImageModalZoom();
+  }
+
+  function imageModalZoomOut() {
+    imageModalZoom = Math.max(0.5, +(imageModalZoom - 0.25).toFixed(2));
+    updateImageModalZoom();
+  }
+
+  function imageModalReset() {
+    imageModalZoom = 1.0;
+    updateImageModalZoom();
+  }
+
+  function openImageModal(src, caption) {
+    const modal = document.getElementById('imageModal');
+    const img = document.getElementById('imageModalImg');
+    const cap = document.getElementById('imageModalCaption');
+    const zoomLvl = document.getElementById('imageModalZoomLevel');
+    if (!modal || !img) {
+      window.open(src, '_blank');
+      return;
+    }
+    imageModalZoom = 1.0;
+    img.src = src;
+    img.style.transform = 'scale(1.0)';
+    if (cap) cap.textContent = caption || src.split('/').pop().split('?')[0];
+    if (zoomLvl) zoomLvl.textContent = '100%';
+    modal.style.display = 'flex';
+  }
+
+  function closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    if (!modal) return;
+    modal.style.display = 'none';
+    const img = document.getElementById('imageModalImg');
+    if (img) img.src = '';
+    imageModalZoom = 1.0;
+  }
+
+  const imgModalCloseBtn = document.getElementById('imageModalCloseBtn');
+  if (imgModalCloseBtn) imgModalCloseBtn.addEventListener('click', closeImageModal);
+
+  const imgModalZoomInBtn = document.getElementById('imageModalZoomInBtn');
+  if (imgModalZoomInBtn) imgModalZoomInBtn.addEventListener('click', imageModalZoomIn);
+
+  const imgModalZoomOutBtn = document.getElementById('imageModalZoomOutBtn');
+  if (imgModalZoomOutBtn) imgModalZoomOutBtn.addEventListener('click', imageModalZoomOut);
+
+  const imgModalResetBtn = document.getElementById('imageModalResetBtn');
+  if (imgModalResetBtn) imgModalResetBtn.addEventListener('click', imageModalReset);
+
+  const imgModalEl = document.getElementById('imageModal');
+  if (imgModalEl) {
+    imgModalEl.addEventListener('click', (e) => {
+      if (e.target === imgModalEl || e.target.id === 'imageModalViewport') {
+        closeImageModal();
+      }
+    });
+  }
+
+  // --- Render Current Flashcard ---
   function renderCurrentCard() {
+    stopAllCardAudios();
+
     if (!flashcardList || flashcardList.length === 0) {
       fcCard.classList.remove('flipped');
       fcLevelBadge.textContent = 'None';
@@ -15400,7 +16419,10 @@ ${cp.rawDocText || ''}
       fcFrontTitle.textContent = 'No headings found';
       fcFrontTitle.style.color = 'var(--muted)';
       fcBackTitle.textContent = 'No Content';
-      if (fcBackContent) fcBackContent.innerHTML = '<div class="prow-line plain" style="padding:16px; opacity:0.6;"><span class="txt">Open a markdown file with headings to generate flashcards.</span></div>';
+      if (fcFrontMedia) { fcFrontMedia.style.display = 'none'; fcFrontMedia.innerHTML = ''; }
+      if (fcFrontAudioBtn) fcFrontAudioBtn.style.display = 'none';
+      if (fcBackAudioBtn) fcBackAudioBtn.style.display = 'none';
+      if (fcBackContent) fcBackContent.innerHTML = '<div class="prow-line plain" style="padding:16px; opacity:0.6;"><span class="txt">Open a markdown file or folder to generate flashcards.</span></div>';
       fcStats.textContent = '0 / 0';
       fcPrevBtn.disabled = true;
       fcNextBtn.disabled = true;
@@ -15419,18 +16441,84 @@ ${cp.rawDocText || ''}
     const h = flashcardList[currentCardIndex];
     fcCard.classList.remove('flipped');
 
-    // Front
+    // Front: Level & Breadcrumb
     fcLevelBadge.textContent = `H${h.level}`;
     fcLevelBadge.style.color = `var(--h${h.level})`;
-    fcBreadcrumb.textContent = getBreadcrumb(h);
-    fcFrontTitle.textContent = h.text;
+    fcBreadcrumb.textContent = isFolderDeck ? ('📁 ' + (h.breadcrumb || (h.file_name ? `${h.file_name} > H${h.level}` : getBreadcrumb(h)))) : getBreadcrumb(h);
+
+    // Front: Extract any embedded images from front heading title
+    const frontImgs = [];
+    let cleanFrontTitle = (h.text || '').replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m, alt, url) => {
+      const u = url.trim();
+      if (!/\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(\?.*)?$/i.test(u)) {
+        frontImgs.push({ alt: alt || 'Card Image', url: u });
+      }
+      return '';
+    }).replace(/\[sound:[^\]]+\]/g, '').trim();
+
+    let displayTitle = cleanFrontTitle;
+    if (!displayTitle || /^\d+\.?\s*$/.test(displayTitle)) {
+      if (frontImgs.length > 0 && frontImgs[0].alt && frontImgs[0].alt.toLowerCase() !== 'image') {
+        displayTitle = (cleanFrontTitle ? cleanFrontTitle + ' ' : '') + frontImgs[0].alt;
+      } else {
+        displayTitle = cleanFrontTitle || `Card ${currentCardIndex + 1}`;
+      }
+    }
+
+    fcFrontTitle.textContent = displayTitle;
     fcFrontTitle.style.color = `var(--h${h.level})`;
 
-    // Back
-    fcBackTitle.textContent = '#'.repeat(h.level) + ' ' + h.text;
+    // Front media container
+    if (fcFrontMedia) {
+      if (frontImgs.length > 0) {
+        fcFrontMedia.style.display = 'flex';
+        fcFrontMedia.innerHTML = frontImgs.map(img => {
+          const resolved = resolveMediaUrl(img.url, h.file_path);
+          return `<div class="fc-front-img-wrap"><img class="fc-card-img fc-front-card-img" src="${escapeHtml(resolved)}" alt="${escapeHtml(img.alt)}" loading="lazy" onclick="event.stopPropagation(); if(typeof openImageModal==='function') openImageModal('${escapeHtml(resolved)}', '${escapeHtml(img.alt)}');" /></div>`;
+        }).join('');
+      } else {
+        fcFrontMedia.style.display = 'none';
+        fcFrontMedia.innerHTML = '';
+      }
+    }
+
+    // Back title & content
+    let cleanBackTitle = (h.text || '').replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '').replace(/\[sound:[^\]]+\]/g, '').trim();
+    if (!cleanBackTitle || /^\d+\.?\s*$/.test(cleanBackTitle)) {
+      cleanBackTitle = displayTitle;
+    }
+    fcBackTitle.textContent = '#'.repeat(h.level) + ' ' + cleanBackTitle;
     fcBackTitle.style.color = `var(--h${h.level})`;
 
-    if (fcBackContent) fcBackContent.innerHTML = getCardBodyHtml(h, 800);
+    let origBack = '';
+    if (h && h.card_content !== undefined) {
+      origBack = h.card_content;
+      if (fcBackContent) fcBackContent.innerHTML = renderFcMarkdown(h.card_content, h.file_path);
+    } else {
+      if (fcBackContent) fcBackContent.innerHTML = getCardBodyHtml(h, 800);
+      if (typeof lines !== 'undefined' && lines && h.line + 1 <= h.end) {
+        origBack = lines.slice(h.line + 1, h.end + 1).join('\n');
+      }
+    }
+
+    if (fcBackContent) {
+      initCardAudioElements(fcBackContent);
+    }
+    if (fcFrontFace) {
+      initCardAudioElements(fcFrontFace);
+    }
+
+    // Audio support
+    currentCardAudioUrls = extractCardAudioUrls(h, origBack);
+    currentCardAudioIndex = 0;
+    const hasAudio = (currentCardAudioUrls.length > 0) || (fcBackContent && fcBackContent.querySelector('audio')) || (fcFrontFace && fcFrontFace.querySelector('audio'));
+
+    if (fcFrontAudioBtn) {
+      fcFrontAudioBtn.style.display = hasAudio ? 'inline-flex' : 'none';
+    }
+    if (fcBackAudioBtn) {
+      fcBackAudioBtn.style.display = hasAudio ? 'inline-flex' : 'none';
+    }
 
     updateColumnState();
     applyFcZoom();
@@ -15442,6 +16530,14 @@ ${cp.rawDocText || ''}
     }, 40);
 
     fcStats.textContent = `Card ${currentCardIndex + 1} of ${flashcardList.length}`;
+
+    // Auto-play audio if enabled
+    const autoPlayPref = localStorage.getItem('mdviewer_fc_autoplay_audio');
+    if (autoPlayPref !== 'false' && hasAudio) {
+      setTimeout(() => {
+        playCurrentCardAudio({ initial: true });
+      }, 150);
+    }
   }
 
   function flipFlashcard() {
@@ -16177,6 +17273,59 @@ ${cp.rawDocText || ''}
     fcZoomOut();
   });
 
+  if (fcFolderDeckBtn) {
+    fcFolderDeckBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openFolderDeckModal();
+    });
+  }
+
+  if (fcFrontAudioBtn) {
+    fcFrontAudioBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      playCurrentCardAudio();
+    });
+  }
+
+  if (fcBackAudioBtn) {
+    fcBackAudioBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      playCurrentCardAudio();
+    });
+  }
+
+  const fcFolderDeckModalCloseBtn = document.getElementById('fcFolderDeckModalCloseBtn');
+  if (fcFolderDeckModalCloseBtn) {
+    fcFolderDeckModalCloseBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeFolderDeckModal();
+    });
+  }
+
+  const fcFolderDeckCancelBtn = document.getElementById('fcFolderDeckCancelBtn');
+  if (fcFolderDeckCancelBtn) {
+    fcFolderDeckCancelBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeFolderDeckModal();
+    });
+  }
+
+  const fcFolderDeckStartBtn = document.getElementById('fcFolderDeckStartBtn');
+  if (fcFolderDeckStartBtn) {
+    fcFolderDeckStartBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const pathInput = document.getElementById('fcFolderDeckPathInput');
+      const folderDocId = pathInput ? pathInput.dataset.docId : '';
+      const levelSelect = document.getElementById('fcFolderDeckLevelSelect');
+      const targetLevel = levelSelect ? levelSelect.value : '2';
+      const recursiveCheck = document.getElementById('fcFolderDeckRecursiveCheck');
+      const recursive = recursiveCheck ? recursiveCheck.checked : true;
+      loadFolderDeck(folderDocId, targetLevel, recursive);
+    });
+  }
+
   // Filter Buttons
   if (fcFilterGroup) {
     fcFilterGroup.addEventListener('click', (e) => {
@@ -16501,10 +17650,21 @@ ${cp.rawDocText || ''}
         return;
       }
 
+      // Replay Audio (R)
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'r' || e.key === 'R')) {
+        e.preventDefault();
+        playCurrentCardAudio();
+        return;
+      }
+
       // 9. Exit Mode / Back
       if (isKeyMatched(controlsConfig.keyExit, e) || isXboxButtonOrKey(controlsConfig.gpBack, keyCode)) {
         e.preventDefault();
-        if (isFcFullscreen) {
+        if (document.getElementById('imageModal') && document.getElementById('imageModal').style.display === 'flex') {
+          closeImageModal();
+        } else if (document.getElementById('fcFolderDeckModal') && document.getElementById('fcFolderDeckModal').style.display === 'flex') {
+          closeFolderDeckModal();
+        } else if (isFcFullscreen) {
           exitFcFullscreen();
         } else if (fcCard && fcCard.classList.contains('flipped')) {
           flipFlashcard();
@@ -19018,6 +20178,14 @@ ${cp.rawDocText || ''}
       exitFlashcardMode();
       return true;
     }
+    if (document.getElementById('imageModal') && document.getElementById('imageModal').style.display === 'flex') {
+      closeImageModal();
+      return true;
+    }
+    if (document.getElementById('fcFolderDeckModal') && document.getElementById('fcFolderDeckModal').style.display === 'flex') {
+      closeFolderDeckModal();
+      return true;
+    }
     if (guideModal && guideModal.style.display === 'flex') {
       hideGuideModal();
       return true;
@@ -19062,6 +20230,7 @@ ${cp.rawDocText || ''}
   let activeTreeCtxItem = null;
   const treeContextMenu = document.getElementById('treeContextMenu');
   const treeCtxBackdrop = document.getElementById('treeContextMenuBackdrop');
+  const ctxBtnStudyFolderDeck = document.getElementById('ctxBtnStudyFolderDeck');
   const ctxBtnNewFile = document.getElementById('ctxBtnNewFile');
   const ctxBtnMove = document.getElementById('ctxBtnMove');
   const ctxBtnDelete = document.getElementById('ctxBtnDelete');
@@ -19076,9 +20245,11 @@ ${cp.rawDocText || ''}
     
     // Adjust menu items
     if (item.kind === 'directory') {
-      ctxBtnNewFile.style.display = 'block';
+      if (ctxBtnNewFile) ctxBtnNewFile.style.display = 'block';
+      if (ctxBtnStudyFolderDeck) ctxBtnStudyFolderDeck.style.display = 'block';
     } else {
-      ctxBtnNewFile.style.display = 'none';
+      if (ctxBtnNewFile) ctxBtnNewFile.style.display = 'none';
+      if (ctxBtnStudyFolderDeck) ctxBtnStudyFolderDeck.style.display = 'none';
     }
 
     treeContextMenu.style.left = Math.min(x, window.innerWidth - 160) + 'px';
@@ -19095,6 +20266,17 @@ ${cp.rawDocText || ''}
 
   if (treeCtxBackdrop) {
     treeCtxBackdrop.addEventListener('click', closeTreeContextMenu);
+  }
+
+  if (ctxBtnStudyFolderDeck) {
+    ctxBtnStudyFolderDeck.addEventListener('click', () => {
+      if (!activeTreeCtxItem || activeTreeCtxItem.kind !== 'directory') return;
+      const folderDocId = activeTreeCtxItem.id;
+      const folderName = activeTreeCtxItem.name;
+      closeTreeContextMenu();
+      closeDrawer();
+      openFolderDeckModal(folderDocId, folderName);
+    });
   }
 
   if (ctxBtnNewFile) {
@@ -19346,6 +20528,7 @@ ${cp.rawDocText || ''}
     }
   </style>
   <div class="tree-context-menu" id="treeContextMenu">
+    <button class="tree-context-menu-item" id="ctxBtnStudyFolderDeck">🎴 Study Folder Deck</button>
     <button class="tree-context-menu-item" id="ctxBtnNewFile">New File</button>
     <button class="tree-context-menu-item" id="ctxBtnMove">Move</button>
     <button class="tree-context-menu-item danger" id="ctxBtnDelete">Delete</button>

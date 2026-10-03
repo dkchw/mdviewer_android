@@ -25,6 +25,8 @@ import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.Toast
@@ -39,6 +41,7 @@ import java.io.IOException
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.util.Collections
@@ -46,6 +49,8 @@ import java.util.Comparator
 import java.util.HashSet
 import java.util.LinkedList
 import java.util.Queue
+import java.util.concurrent.ConcurrentHashMap
+
 
 class MainActivity : Activity() {
 
@@ -64,12 +69,15 @@ class MainActivity : Activity() {
     private var mPendingSharedText: String? = null
     private var mPendingCreateContent: String? = null
     private var mCurrentTreeUri: Uri? = null
+    fun getCurrentTreeUri(): Uri? = mCurrentTreeUri
     private lateinit var mPrefs: SharedPreferences
 
     private var downloadReceiver: BroadcastReceiver? = null
     private var activeDownloadId: Long = -1L
     private var pendingInstallFile: File? = null
     private var lastDownloadedApkFile: File? = null
+    private val mDocPathCache = ConcurrentHashMap<String, String>()
+    private val mDocNameCache = ConcurrentHashMap<String, String>()
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -121,6 +129,7 @@ class MainActivity : Activity() {
             loadWithOverviewMode = true
             displayZoomControls = false
             builtInZoomControls = false
+            mediaPlaybackRequiresUserGesture = false
         }
 
         webView.addJavascriptInterface(AndroidBridge(this, webView), "AndroidBridge")
@@ -160,6 +169,31 @@ class MainActivity : Activity() {
         }
 
         webView.webViewClient = object : WebViewClient() {
+            override fun shouldInterceptRequest(
+                view: WebView?,
+                request: WebResourceRequest?
+            ): WebResourceResponse? {
+                val uri = request?.url ?: return super.shouldInterceptRequest(view, request)
+                if (uri.scheme == "https" && uri.host == "vault.mdviewer") {
+                    return handleVaultMediaRequest(uri)
+                }
+                return super.shouldInterceptRequest(view, request)
+            }
+
+            @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
+            override fun shouldInterceptRequest(
+                view: WebView?,
+                url: String?
+            ): WebResourceResponse? {
+                if (url != null && url.startsWith("https://vault.mdviewer/")) {
+                    try {
+                        val uri = Uri.parse(url)
+                        return handleVaultMediaRequest(uri)
+                    } catch (ignored: Exception) {}
+                }
+                return super.shouldInterceptRequest(view, url)
+            }
+
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 handlePendingIntentData()
@@ -257,6 +291,8 @@ class MainActivity : Activity() {
 
     fun closeCurrentFolder() {
         mCurrentTreeUri = null
+        mDocPathCache.clear()
+        mDocNameCache.clear()
         mPrefs.edit().remove("last_folder_tree_uri").remove("last_folder_name").apply()
         mWebView?.evaluateJavascript("if(window.onFolderClosed){ window.onFolderClosed(); }", null)
     }
@@ -271,6 +307,8 @@ class MainActivity : Activity() {
         return try {
             val treeUri = Uri.parse(uriString)
             mCurrentTreeUri = treeUri
+            mDocPathCache.clear()
+            mDocNameCache.clear()
             val folderName = getFolderName(treeUri)
             val rootDocId = getRootDocumentId(treeUri)
             mPrefs.edit().putString("last_folder_tree_uri", uriString).putString("last_folder_name", folderName).apply()
@@ -719,6 +757,403 @@ class MainActivity : Activity() {
             Log.e(TAG, "Error reading tree file docId=$docId", e)
             "ERROR: ${e.javaClass.simpleName}: ${e.message}"
         }
+    }
+
+    private fun handleVaultMediaRequest(uri: Uri): WebResourceResponse? {
+        val treeUri = mCurrentTreeUri ?: return null
+        val docId = uri.getQueryParameter("docId")
+        val rawPath = uri.getQueryParameter("path") ?: uri.path?.removePrefix("/media")?.removePrefix("/") ?: ""
+        val path = try { URLDecoder.decode(rawPath, "UTF-8") } catch (e: Exception) { rawPath }
+
+        val targetDocId = if (!docId.isNullOrEmpty()) {
+            docId
+        } else if (path.isNotEmpty()) {
+            findDocumentIdByPath(treeUri, path)
+        } else {
+            null
+        }
+
+        if (targetDocId == null) {
+            val notFoundBytes = "File not found: $path".toByteArray(StandardCharsets.UTF_8)
+            val resp = WebResourceResponse("text/plain", "UTF-8", 404, "Not Found", null, notFoundBytes.inputStream())
+            val headers = HashMap<String, String>()
+            headers["Access-Control-Allow-Origin"] = "*"
+            resp.responseHeaders = headers
+            return resp
+        }
+
+        return try {
+            val docUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, targetDocId)
+            val stream = contentResolver.openInputStream(docUri) ?: return null
+            val mimeType = getMimeTypeForPath(path).ifEmpty {
+                contentResolver.getType(docUri) ?: "application/octet-stream"
+            }
+
+            val response = WebResourceResponse(mimeType, null, 200, "OK", null, stream)
+            val headers = HashMap<String, String>()
+            headers["Access-Control-Allow-Origin"] = "*"
+            headers["Access-Control-Allow-Methods"] = "GET, HEAD, OPTIONS"
+            headers["Access-Control-Allow-Headers"] = "*"
+            headers["Cache-Control"] = "max-age=86400"
+            headers["Accept-Ranges"] = "bytes"
+            response.responseHeaders = headers
+            response
+        } catch (e: Exception) {
+            Log.e(TAG, "Error streaming media docId=$targetDocId path=$path", e)
+            null
+        }
+    }
+
+    fun getMimeTypeForPath(path: String): String {
+        val p = path.lowercase().substringBefore('?').substringBefore('#')
+        return when {
+            p.endsWith(".mp3") -> "audio/mpeg"
+            p.endsWith(".wav") -> "audio/wav"
+            p.endsWith(".ogg") -> "audio/ogg"
+            p.endsWith(".m4a") -> "audio/mp4"
+            p.endsWith(".aac") -> "audio/aac"
+            p.endsWith(".flac") -> "audio/flac"
+            p.endsWith(".opus") -> "audio/opus"
+            p.endsWith(".weba") -> "audio/webm"
+            p.endsWith(".png") -> "image/png"
+            p.endsWith(".jpg") || p.endsWith(".jpeg") -> "image/jpeg"
+            p.endsWith(".gif") -> "image/gif"
+            p.endsWith(".webp") -> "image/webp"
+            p.endsWith(".svg") -> "image/svg+xml"
+            p.endsWith(".bmp") -> "image/bmp"
+            p.endsWith(".ico") -> "image/x-icon"
+            p.endsWith(".mp4") -> "video/mp4"
+            p.endsWith(".webm") -> "video/webm"
+            p.endsWith(".md") || p.endsWith(".markdown") -> "text/markdown"
+            p.endsWith(".txt") -> "text/plain"
+            else -> ""
+        }
+    }
+
+    fun findDocumentIdByPath(treeUri: Uri, relativePath: String): String? {
+        val cleanPath = relativePath.trim()
+            .removePrefix("./")
+            .removePrefix("/")
+            .substringBefore('?')
+            .substringBefore('#')
+        if (cleanPath.isEmpty()) return null
+
+        val cacheKey = "${treeUri}::${cleanPath}"
+        mDocPathCache[cacheKey]?.let { return it }
+
+        val rootDocId = getRootDocumentId(treeUri)
+        if (rootDocId.isEmpty()) return null
+
+        val rawSegments = cleanPath.split('/').map { it.trim() }.filter { it.isNotEmpty() && it != "." }
+        val segments = ArrayList<String>()
+        for (seg in rawSegments) {
+            if (seg == "..") {
+                if (segments.isNotEmpty()) segments.removeAt(segments.size - 1)
+            } else {
+                segments.add(seg)
+            }
+        }
+        if (segments.isEmpty()) return null
+
+        var currentDirDocId = rootDocId
+        var foundDocId: String? = null
+
+        for (i in segments.indices) {
+            val segmentName = segments[i]
+            val isLast = (i == segments.size - 1)
+            val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, currentDirDocId)
+            val projection = arrayOf(
+                DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                DocumentsContract.Document.COLUMN_MIME_TYPE
+            )
+            var matchedChildId: String? = null
+            var matchedIsDir = false
+
+            try {
+                contentResolver.query(childrenUri, projection, null, null, null)?.use { cursor ->
+                    val idCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
+                    val nameCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
+                    val mimeCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE)
+
+                    while (cursor.moveToNext()) {
+                        val id = if (idCol >= 0) cursor.getString(idCol) else null
+                        val name = if (nameCol >= 0) cursor.getString(nameCol) else null
+                        val mime = if (mimeCol >= 0) cursor.getString(mimeCol) else null
+                        if (name == null || id == null) continue
+
+                        mDocNameCache[name.lowercase()] = id
+
+                        if (name.equals(segmentName, ignoreCase = true)) {
+                            matchedChildId = id
+                            matchedIsDir = (DocumentsContract.Document.MIME_TYPE_DIR == mime)
+                            break
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Error querying children for path: $segmentName", e)
+            }
+
+            val mid = matchedChildId ?: break
+            if (isLast) {
+                foundDocId = mid
+            } else {
+                if (!matchedIsDir) break
+                currentDirDocId = mid
+            }
+        }
+
+        if (foundDocId != null) {
+            mDocPathCache[cacheKey] = foundDocId
+            return foundDocId
+        }
+
+        // Fallback: Check if file is in "assets/" folder
+        val fileName = segments.last()
+        if (!cleanPath.startsWith("assets/", ignoreCase = true)) {
+            val assetsPath = "assets/$fileName"
+            val assetsKey = "${treeUri}::${assetsPath}"
+            val cachedAssets = mDocPathCache[assetsKey]
+            if (cachedAssets != null) {
+                mDocPathCache[cacheKey] = cachedAssets
+                return cachedAssets
+            }
+            val assetsDocId = findChildByName(treeUri, rootDocId, "assets", isDir = true)
+            if (assetsDocId != null) {
+                val fileInAssets = findChildByName(treeUri, assetsDocId, fileName, isDir = false)
+                if (fileInAssets != null) {
+                    mDocPathCache[cacheKey] = fileInAssets
+                    mDocPathCache[assetsKey] = fileInAssets
+                    return fileInAssets
+                }
+            }
+        }
+
+        // Fallback: Name cache lookup
+        val cachedByName = mDocNameCache[fileName.lowercase()]
+        if (cachedByName != null) {
+            mDocPathCache[cacheKey] = cachedByName
+            return cachedByName
+        }
+
+        // Fallback: File directly in root
+        val inRoot = findChildByName(treeUri, rootDocId, fileName, isDir = false)
+        if (inRoot != null) {
+            mDocPathCache[cacheKey] = inRoot
+            return inRoot
+        }
+
+        return null
+    }
+
+    private fun findChildByName(treeUri: Uri, parentDocId: String, targetName: String, isDir: Boolean): String? {
+        val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentDocId)
+        val projection = arrayOf(
+            DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+            DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+            DocumentsContract.Document.COLUMN_MIME_TYPE
+        )
+        try {
+            contentResolver.query(childrenUri, projection, null, null, null)?.use { cursor ->
+                val idCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
+                val nameCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
+                val mimeCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE)
+                while (cursor.moveToNext()) {
+                    val id = if (idCol >= 0) cursor.getString(idCol) else null
+                    val name = if (nameCol >= 0) cursor.getString(nameCol) else null
+                    val mime = if (mimeCol >= 0) cursor.getString(mimeCol) else null
+                    if (name != null && id != null) {
+                        mDocNameCache[name.lowercase()] = id
+                        if (name.equals(targetName, ignoreCase = true)) {
+                            val matchesDir = (DocumentsContract.Document.MIME_TYPE_DIR == mime)
+                            if (isDir == matchesDir) {
+                                return id
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (ignored: Exception) {}
+        return null
+    }
+
+    fun readMediaBase64(relativePath: String): String {
+        val treeUri = mCurrentTreeUri ?: return ""
+        val targetDocId = findDocumentIdByPath(treeUri, relativePath) ?: return ""
+        return try {
+            val docUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, targetDocId)
+            val mimeType = getMimeTypeForPath(relativePath).ifEmpty {
+                contentResolver.getType(docUri) ?: "application/octet-stream"
+            }
+            contentResolver.openInputStream(docUri)?.use { stream ->
+                val bytes = stream.readBytes()
+                val b64 = android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
+                "data:$mimeType;base64,$b64"
+            } ?: ""
+        } catch (e: Exception) {
+            Log.e(TAG, "Error reading media base64: $relativePath", e)
+            ""
+        }
+    }
+
+    fun collectFolderCardsJson(folderDocId: String?, targetLevelStr: String?, recursive: Boolean): String {
+        val treeUri = mCurrentTreeUri ?: return JSONObject().apply {
+            put("status", "error")
+            put("message", "No vault is currently open")
+            put("cards", JSONArray())
+        }.toString()
+
+        return try {
+            val rootDocId = if (!folderDocId.isNullOrEmpty()) folderDocId else getRootDocumentId(treeUri)
+            val targetLevel = if (targetLevelStr.isNullOrEmpty() || targetLevelStr == "all") 0 else (targetLevelStr.toIntOrNull() ?: 2)
+            val folderName = getDocumentName(treeUri, rootDocId).ifEmpty { getFolderName(treeUri) }
+
+            val mdFiles = ArrayList<Pair<String, String>>()
+            val ignoredDirs = hashSetOf(
+                "node_modules", ".obsidian", ".vscode", ".git", ".idea",
+                "assets", "archive", "backup", "_archive", "_backup", "_full_deck", ".trash", ".checkpoints"
+            )
+
+            fun scanFolder(dirDocId: String, currentPath: String) {
+                val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, dirDocId)
+                val projection = arrayOf(
+                    DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                    DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                    DocumentsContract.Document.COLUMN_MIME_TYPE
+                )
+                val subDirs = ArrayList<Pair<String, String>>()
+                try {
+                    contentResolver.query(childrenUri, projection, null, null, null)?.use { cursor ->
+                        val idCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
+                        val nameCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
+                        val mimeCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE)
+
+                        while (cursor.moveToNext()) {
+                            val id = if (idCol >= 0) cursor.getString(idCol) else null
+                            val name = if (nameCol >= 0) cursor.getString(nameCol) else null
+                            val mime = if (mimeCol >= 0) cursor.getString(mimeCol) else null
+
+                            if (name == null || name.startsWith(".") || id == null) continue
+                            val nameLower = name.lowercase()
+                            val isDir = DocumentsContract.Document.MIME_TYPE_DIR == mime
+                            if (isDir) {
+                                if (!ignoredDirs.contains(nameLower) && recursive) {
+                                    subDirs.add(Pair(id, if (currentPath.isEmpty()) name else "$currentPath/$name"))
+                                }
+                            } else {
+                                if (nameLower.endsWith(".md") || nameLower.endsWith(".markdown") || nameLower.endsWith(".txt") ||
+                                    "text/markdown" == mime || "text/x-markdown" == mime || "text/plain" == mime) {
+                                    mdFiles.add(Pair(id, if (currentPath.isEmpty()) name else "$currentPath/$name"))
+                                }
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "Error scanning folder: $dirDocId", e)
+                }
+
+                for (sub in subDirs) {
+                    scanFolder(sub.first, sub.second)
+                }
+            }
+
+            scanFolder(rootDocId, "")
+
+            val allCards = JSONArray()
+            val seenSignatures = HashSet<String>()
+            val headingRegex = Regex("""^(#{1,6})\s+(.*)$""")
+
+            for (filePair in mdFiles) {
+                val fileDocId = filePair.first
+                val filePath = filePair.second
+                val fileName = filePath.substringAfterLast('/')
+
+                val fileContent = readTreeFileContent(fileDocId)
+                if (fileContent.startsWith("ERROR:")) continue
+
+                val fileLines = fileContent.lines()
+                data class HeadingInfo(val level: Int, val text: String, val line: Int, var end: Int)
+                val headingsList = ArrayList<HeadingInfo>()
+
+                for (idx in fileLines.indices) {
+                    val match = headingRegex.find(fileLines[idx])
+                    if (match != null) {
+                        val lvl = match.groupValues[1].length
+                        val hText = match.groupValues[2].trim()
+                        headingsList.add(HeadingInfo(lvl, hText, idx, fileLines.size - 1))
+                    }
+                }
+
+                for (i in headingsList.indices) {
+                    val curr = headingsList[i]
+                    for (j in i + 1 until headingsList.size) {
+                        val nxt = headingsList[j]
+                        if (nxt.level <= curr.level) {
+                            curr.end = maxOf(curr.line, nxt.line - 1)
+                            break
+                        }
+                    }
+                }
+
+                for (h in headingsList) {
+                    if (targetLevel > 0 && h.level != targetLevel) continue
+
+                    val cleanText = h.text.trim().lowercase()
+                    val sig = "${h.level}::$cleanText"
+                    if (seenSignatures.contains(sig)) continue
+                    seenSignatures.add(sig)
+
+                    val startL = h.line + 1
+                    val endL = h.end
+                    val cardBody = if (startL <= endL && startL < fileLines.size) {
+                        fileLines.subList(startL, minOf(endL + 1, fileLines.size)).joinToString("\n")
+                    } else ""
+
+                    val cardObj = JSONObject().apply {
+                        put("file_path", filePath)
+                        put("file_name", fileName)
+                        put("file_doc_id", fileDocId)
+                        put("level", h.level)
+                        put("text", h.text)
+                        put("breadcrumb", "$fileName > H${h.level}")
+                        put("card_content", cardBody)
+                        put("line", h.line)
+                        put("end", h.end)
+                    }
+                    allCards.put(cardObj)
+                }
+            }
+
+            JSONObject().apply {
+                put("status", "ok")
+                put("folder", rootDocId)
+                put("folder_name", folderName)
+                put("target_level", if (targetLevel == 0) "all" else targetLevel.toString())
+                put("total_files", mdFiles.size)
+                put("total_cards", allCards.length())
+                put("cards", allCards)
+            }.toString()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error collecting folder cards", e)
+            JSONObject().apply {
+                put("status", "error")
+                put("message", "${e.javaClass.simpleName}: ${e.message}")
+                put("cards", JSONArray())
+            }.toString()
+        }
+    }
+
+    fun getDocumentName(treeUri: Uri, docId: String): String {
+        try {
+            val docUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, docId)
+            contentResolver.query(docUri, arrayOf(DocumentsContract.Document.COLUMN_DISPLAY_NAME), null, null, null)?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    return cursor.getString(0) ?: ""
+                }
+            }
+        } catch (ignored: Exception) {}
+        return ""
     }
 
     fun readNativeFileContent(uriStr: String): String {

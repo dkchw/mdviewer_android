@@ -148,11 +148,24 @@ Designed for reading massive documents and browsing full vaults:
 
 ## 🎴 6. Flashcard Study & Gallery Review System
 
-Turn any markdown document or note into interactive study flashcards:
+Turn any markdown document, note, or synced Anki deck into interactive study flashcards:
 
 - **Automatic Flashcard Generation**:
   - Headings (`# Heading`) and their body content automatically turn into Question / Answer cards.
   - Question-and-answer patterns (`Q: ... A: ...`) and term definitions (`Term :: Definition`) are detected.
+  - Heading level filter allows studying specific depths (e.g., H2 for Anki imported decks, H1 for main chapters, or All).
+- **🎴 Anki `.apkg` Imported Deck Full Compatibility**:
+  - **Direct Desktop Sync Parity**: Full support for markdown notes and folders exported from desktop MD Viewer's APKG importer.
+  - **Inline Audio & Flashcard Audio Wraps**: Offline audio playback via zero-latency base64 streaming and SAF tree resolution (`[sound:filename.mp3]` / `🔊 audio.mp3`).
+  - **Audio Auto-Play & Replay Shortcut**: Automatically plays card audio upon advancing or flipping. Press **`R`** on a physical keyboard or tap the **`🔊`** button on either the front or back face to replay audio anytime.
+  - **Embedded Image Thumbnails & Interactive Lightbox Zoom**: Images embedded in cards (`![alt](image.png)` or `<img src="...">`) render with smooth thumbnails. Tap any image to open the full-screen interactive lightbox with zoom in (**`+`**), zoom out (**`−`**), and **`1:1`** reset.
+  - **Glowing Metadata Badges & Cloze Highlights**: Formats key-value pairs (`**Word:** ...`, `**IPA:** ...`, `**Meaning:** ...`) with vibrant glowing badges (`.fc-key-badge`), plus full styling for Obsidian cloze highlights (`==highlight==`), strikethrough (`~~text~~`), and task checkboxes.
+- **📁 Unified Folder Deck Mode (`🎴 Folder Deck`)**:
+  - Study an entire folder, subfolder, or full vault as a unified, seamless flashcard deck across multiple markdown files.
+  - Select heading level filter (H2 recommended for Anki imported decks, H1, H3, H4, or All levels).
+  - Optional recursive scanning across nested subdirectories.
+  - One-tap access from the Flashcard toolbar (**`🎴 Folder Deck`**) or by long-pressing / tapping the `⋮` menu on any folder in the File Tree drawer and choosing **`🎴 Study Folder Deck`**.
+  - Active folder deck indicator badge displaying current folder, heading filter level, and card count with instant one-tap exit (`✕`).
 - **Study Flip Mode**:
   - Tap the card to flip between Question and Answer with 3D flip animation.
   - Navigation buttons (`‹ Prev` and `Next ›`) and touch swipe gestures.
@@ -478,6 +491,23 @@ This major release consolidates the massive sequence of updates focused on makin
 ## 🔒 25. What's New in v3.0.3 (Critical Security Update)
 
 - **Strict Updater Validation**: Safely hardcoded the internal updater to exclusively allow APK downloads from the official GitHub release repository. This fully satisfies Google Play Protect requirements without breaking the core WebView functionality.
+
+---
+
+## 🎴 28. What's New in v3.1.3 (Desktop Parity: Anki APKG Decks & Folder Deck System)
+
+- **Complete Anki APKG Deck Parity**:
+  - Full compatibility with Markdown decks generated from desktop MD Viewer's APKG importer.
+  - **Inline Audio & Flashcard Audio Wraps**: Offline audio playback via zero-latency base64 streaming and SAF tree resolution (`[sound:filename.mp3]` / `🔊 audio.mp3`).
+  - **Audio Auto-Play & Replay Shortcut**: Automatically plays card audio upon advancing or flipping. Press **`R`** on a physical keyboard or tap the **`🔊`** button on either the front or back face to replay audio anytime.
+  - **Embedded Image Thumbnails & Interactive Lightbox Zoom**: Images embedded in cards render with smooth thumbnails. Tap any image to open the full-screen interactive lightbox with zoom in (**`+`**), zoom out (**`−`**), and **`1:1`** reset.
+  - **Glowing Metadata Badges & Cloze Highlights**: Formats key-value pairs (`**Word:** ...`, `**IPA:** ...`, `**Meaning:** ...`) with vibrant glowing badges (`.fc-key-badge`), plus full styling for Obsidian cloze highlights (`==highlight==`), strikethrough (`~~text~~`), and task checkboxes.
+- **Unified Folder Deck Mode (`🎴 Folder Deck`)**:
+  - Study an entire folder, subfolder, or full vault as a unified, seamless flashcard deck across multiple markdown files.
+  - Select heading level filter (H2 recommended for Anki imported decks, H1, H3, H4, or All levels).
+  - Optional recursive scanning across nested subdirectories.
+  - One-tap access from the Flashcard toolbar (**`🎴 Folder Deck`**) or by long-pressing / tapping the `⋮` menu on any folder in the File Tree drawer and choosing **`🎴 Study Folder Deck`**.
+  - Active folder deck indicator badge displaying current folder, heading filter level, and card count with instant one-tap exit (`✕`).
 
 ---
 
