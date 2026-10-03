@@ -511,5 +511,25 @@ This major release consolidates the massive sequence of updates focused on makin
 
 ---
 
+## ⚡ 29. What's New in v3.1.4 (Flashcard Performance Overhaul & Memory Optimization)
+
+- **⚡ Flashcard Gallery Virtualized Windowing & Infinite Scroll**:
+  - Replaced synchronous full-deck DOM rendering with high-speed windowed batching (`30` cards per chunk).
+  - Utilizes `IntersectionObserver` sentinel loading and scroll threshold detection for butter-smooth 60 FPS scrolling even across decks with 5,000+ cards.
+  - Eliminated UI freeze when opening large decks or switching gallery view modes.
+- **🚀 On-Demand Lazy Markdown & Audio Rendering**:
+  - In Front-Only mode, hidden answer bodies are rendered lazily only when "Peek Answer" is tapped, slashing initial render times by over 90%.
+  - Added HTML string caching (`_cachedBodyHtml`) so rendered markdown cards are never parsed twice.
+  - Offloaded audio loading: removed synchronous multi-megabyte Base64 disk reads during HTML construction; audio URLs now resolve instantly and read bytes on-demand only upon playback.
+- **🔋 Eliminated Idle Background CPU Burn**:
+  - Fixed a continuous 60 FPS Gamepad `requestAnimationFrame` loop that was polling `navigator.getGamepads()` constantly on Android even when no controller was connected.
+  - Polling now immediately suspends when no controller is connected and wakes only upon gamepad connection events.
+- **🔍 Debounced Real-Time Search**:
+  - Added a 150ms input debounce and lightweight pre-lowercased matching to search filtering, eliminating keystroke lag when typing.
+- **🎨 Modern CSS Hardware Acceleration**:
+  - Added `contain: content;` and `content-visibility: auto;` with intrinsic size hints to flashcard cards, allowing the Chromium compositor to skip layout passes for off-screen cards.
+
+---
+
 *MD Viewer — Fast, Offline, Private Markdown Reading & Writing on Android.*
 

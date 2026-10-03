@@ -2194,11 +2194,14 @@
     background: #1a1b28;
     border: 1.5px solid var(--border);
     border-radius: 14px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     overflow: hidden;
     cursor: pointer;
     -webkit-tap-highlight-color: rgba(122, 162, 247, 0.18);
-    transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+    transition: transform 0.12s ease, border-color 0.12s ease;
+    contain: content;
+    content-visibility: auto;
+    contain-intrinsic-size: 0 140px;
   }
   .fc-gcard:hover {
     border-color: rgba(122, 162, 247, 0.4);
@@ -8134,7 +8137,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v3.1.3</span>
+          <span class="settings-row-badge" id="appVersionSub">v3.1.4</span>
           <span class="settings-row-chevron">›</span>
         </button>
         <div class="settings-row-config">
@@ -8191,8 +8194,8 @@
   </div>
   <div class="update-body">
     <div class="update-version-row">
-      <span class="badge new-badge" id="updateNewVersion">v3.1.3</span>
-      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.3</span>
+      <span class="badge new-badge" id="updateNewVersion">v3.1.4</span>
+      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.4</span>
     </div>
     <div class="update-changelog-title">Changelog:</div>
     <div class="update-changelog" id="updateChangelog"></div>
@@ -8519,7 +8522,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '3.1.3';
+      window.AndroidBridge.getAppVersion() : '3.1.4';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -14936,6 +14939,13 @@ ${cp.rawDocText || ''}
     if (!cleanUrl) return '';
     cleanUrl = cleanUrl.trim();
     if (cleanUrl.startsWith('data:') || cleanUrl.startsWith('blob:')) return cleanUrl;
+    return resolveMediaUrl(cleanUrl, cardFilePath);
+  }
+
+  function getAudioBase64Fallback(cleanUrl) {
+    if (!cleanUrl) return '';
+    cleanUrl = cleanUrl.trim();
+    if (cleanUrl.startsWith('data:') || cleanUrl.startsWith('blob:')) return cleanUrl;
 
     if (window.AndroidBridge && window.AndroidBridge.readMediaBase64) {
       let pathToRead = cleanUrl;
@@ -14944,13 +14954,30 @@ ${cp.rawDocText || ''}
           pathToRead = decodeURIComponent(pathToRead.split('path=')[1].split('&')[0]);
         } catch(e) {}
       }
-      const b64 = window.AndroidBridge.readMediaBase64(pathToRead);
-      if (b64 && b64.startsWith('data:')) {
-        return b64;
-      }
+      try {
+        const b64 = window.AndroidBridge.readMediaBase64(pathToRead);
+        if (b64 && b64.startsWith('data:')) {
+          return b64;
+        }
+      } catch(e) {}
     }
-    return resolveMediaUrl(cleanUrl, cardFilePath);
+    return '';
   }
+
+  window.playEmbedAudioUrl = function(streamUrl, rawPath) {
+    let a = new Audio(streamUrl);
+    const p = a.play();
+    if (p && typeof p.catch === 'function') {
+      p.catch(e => {
+        console.log('Stream audio playback error, attempting base64 fallback:', e);
+        const b64 = getAudioBase64Fallback(rawPath || streamUrl);
+        if (b64) {
+          let b = new Audio(b64);
+          b.play().catch(err => console.log('Base64 playback error:', err));
+        }
+      });
+    }
+  };
 
   function mdInline(escaped) {
     const tokens = [];
@@ -14969,8 +14996,8 @@ ${cp.rawDocText || ''}
     t = t.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m, alt, url) => {
       const cleanUrl = url.trim();
       if (/\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(\?.*)?$/i.test(cleanUrl)) {
-        const playUrl = getPlayableAudioUrl(cleanUrl);
-        return saveToken(`<span class="md-audio-pill" onclick="event.stopPropagation(); const a = new Audio('${escapeHtml(playUrl)}'); a.play().catch(e => console.log(e));" title="Click to play audio">🔊 ${escapeHtml(alt || 'Audio')}</span>`);
+        const playUrl = resolveMediaUrl(cleanUrl);
+        return saveToken(`<span class="md-audio-pill" onclick="event.stopPropagation(); playEmbedAudioUrl('${escapeHtml(playUrl)}', '${escapeHtml(cleanUrl)}');" title="Click to play audio">🔊 ${escapeHtml(alt || 'Audio')}</span>`);
       }
       const resolved = resolveMediaUrl(cleanUrl);
       return saveToken(`<span class="md-img-pill" onclick="event.stopPropagation(); if(typeof openImageModal==='function') openImageModal('${escapeHtml(resolved)}', '${escapeHtml(alt || 'Image')}');" title="Click to view image: ${escapeHtml(alt || 'Image')}"><img src="${escapeHtml(resolved)}" class="md-img-thumb" alt="" loading="lazy" /><span class="md-img-label">🖼️ ${escapeHtml(alt || 'Image')}</span></span>`);
@@ -14982,8 +15009,8 @@ ${cp.rawDocText || ''}
       if (!cleanUrl.startsWith('assets/') && !cleanUrl.startsWith('/') && !cleanUrl.startsWith('http')) {
         cleanUrl = 'assets/' + cleanUrl;
       }
-      const playUrl = getPlayableAudioUrl(cleanUrl);
-      return saveToken(`<span class="md-audio-pill" onclick="event.stopPropagation(); const a = new Audio('${escapeHtml(playUrl)}'); a.play().catch(e => console.log(e));" title="Click to play audio">🔊 Audio</span>`);
+      const playUrl = resolveMediaUrl(cleanUrl);
+      return saveToken(`<span class="md-audio-pill" onclick="event.stopPropagation(); playEmbedAudioUrl('${escapeHtml(playUrl)}', '${escapeHtml(cleanUrl)}');" title="Click to play audio">🔊 Audio</span>`);
     });
 
     // 4. Badges: **Key:** or **Key name:**
@@ -15894,7 +15921,7 @@ ${cp.rawDocText || ''}
     while ((m = mdImgRegex.exec(textToScan)) !== null) {
       const u = m[2].trim();
       if (/\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(\?.*)?$/i.test(u)) {
-        const res = getPlayableAudioUrl(u, cardFilePath);
+        const res = resolveMediaUrl(u, cardFilePath);
         if (res && !urls.includes(res)) urls.push(res);
       }
     }
@@ -15906,14 +15933,14 @@ ${cp.rawDocText || ''}
       if (!u.startsWith('assets/') && !u.startsWith('/') && !u.startsWith('http')) {
         u = 'assets/' + u;
       }
-      const res = getPlayableAudioUrl(u, cardFilePath);
+      const res = resolveMediaUrl(u, cardFilePath);
       if (res && !urls.includes(res)) urls.push(res);
     }
 
     // 3. HTML audio syntax: <audio src="..."> or <source src="...">
     const htmlAudioRegex = /<(?:audio|source)[^>]+src=["']([^"']+)["']/gi;
     while ((m = htmlAudioRegex.exec(textToScan)) !== null) {
-      const res = getPlayableAudioUrl(m[1].trim(), cardFilePath);
+      const res = resolveMediaUrl(m[1].trim(), cardFilePath);
       if (res && !urls.includes(res)) urls.push(res);
     }
 
@@ -15952,7 +15979,15 @@ ${cp.rawDocText || ''}
         targetAudio.currentTime = 0;
         const p = targetAudio.play();
         if (p && typeof p.catch === 'function') {
-          p.catch(e => console.log('Flashcard audio play interrupted:', e));
+          p.catch(e => {
+            console.log('Flashcard audio play interrupted, trying fallback:', e);
+            const rawPath = (wrap && wrap.dataset.audioPath) || (wrap && wrap.dataset.audioSrc) || targetAudio.src;
+            const b64 = getAudioBase64Fallback(rawPath);
+            if (b64) {
+              targetAudio.src = b64;
+              targetAudio.play().catch(err => console.log('Base64 fallback play error:', err));
+            }
+          });
         }
         return true;
       } catch(e) {
@@ -15965,10 +16000,18 @@ ${cp.rawDocText || ''}
       currentCardAudioIndex = idx;
 
       try {
-        activeFlashcardAudio = new Audio(currentCardAudioUrls[idx]);
+        const targetSrc = currentCardAudioUrls[idx];
+        activeFlashcardAudio = new Audio(targetSrc);
         const p = activeFlashcardAudio.play();
         if (p && typeof p.catch === 'function') {
-          p.catch(e => console.log('Fallback audio play error:', e));
+          p.catch(e => {
+            console.log('Fallback audio play error, trying base64:', e);
+            const b64 = getAudioBase64Fallback(targetSrc);
+            if (b64) {
+              activeFlashcardAudio.src = b64;
+              activeFlashcardAudio.play().catch(err => console.log('Base64 audio error:', err));
+            }
+          });
         }
         return true;
       } catch(e) {
@@ -16024,7 +16067,18 @@ ${cp.rawDocText || ''}
       const p = audio.play();
       if (p && typeof p.catch === 'function') {
         p.catch(e => {
-          console.log('Audio playback error:', e);
+          console.log('Audio playback error, trying base64 fallback:', e);
+          const rawPath = (wrap && wrap.dataset.audioPath) || (wrap && wrap.dataset.audioSrc) || audio.src;
+          const b64 = getAudioBase64Fallback(rawPath);
+          if (b64) {
+            audio.src = b64;
+            audio.play().catch(err => {
+              console.log('Base64 fallback failed:', err);
+              if (playBtn) playBtn.textContent = '▶';
+              wrap.classList.remove('fc-audio-active');
+            });
+            return;
+          }
           if (playBtn) playBtn.textContent = '▶';
           wrap.classList.remove('fc-audio-active');
         });
@@ -16087,11 +16141,11 @@ ${cp.rawDocText || ''}
     s = s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m, alt, url) => {
       const cleanUrl = url.trim();
       if (/\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(\?.*)?$/i.test(cleanUrl)) {
-        const playUrl = getPlayableAudioUrl(cleanUrl, cardFilePath);
+        const playUrl = resolveMediaUrl(cleanUrl, cardFilePath);
         return saveToken(`
-          <div class="fc-audio-wrap" data-audio-src="${escapeHtml(playUrl)}" onclick="if(event.target.tagName!=='AUDIO'){event.stopPropagation();playEmbedAudio(this);}" title="Click to play">
+          <div class="fc-audio-wrap" data-audio-src="${escapeHtml(playUrl)}" data-audio-path="${escapeHtml(cleanUrl)}" onclick="if(event.target.tagName!=='AUDIO'){event.stopPropagation();playEmbedAudio(this);}" title="Click to play">
             <button type="button" class="fc-audio-play-btn" onclick="event.stopPropagation();playEmbedAudio(this);" title="Play / Pause">▶</button>
-            <audio controls preload="auto" src="${escapeHtml(playUrl)}" onclick="event.stopPropagation();"></audio>
+            <audio controls preload="none" src="${escapeHtml(playUrl)}" onclick="event.stopPropagation();"></audio>
             <span class="fc-audio-caption" onclick="event.stopPropagation();playEmbedAudio(this);" style="cursor:pointer;" title="Click to play">🔊 ${escapeHtml(alt || 'Audio')}</span>
           </div>
         `);
@@ -16111,11 +16165,11 @@ ${cp.rawDocText || ''}
       if (!cleanUrl.startsWith('assets/') && !cleanUrl.startsWith('/') && !cleanUrl.startsWith('http')) {
         cleanUrl = 'assets/' + cleanUrl;
       }
-      const playUrl = getPlayableAudioUrl(cleanUrl, cardFilePath);
+      const playUrl = resolveMediaUrl(cleanUrl, cardFilePath);
       return saveToken(`
-        <div class="fc-audio-wrap" data-audio-src="${escapeHtml(playUrl)}" onclick="if(event.target.tagName!=='AUDIO'){event.stopPropagation();playEmbedAudio(this);}" title="Click to play">
+        <div class="fc-audio-wrap" data-audio-src="${escapeHtml(playUrl)}" data-audio-path="${escapeHtml(cleanUrl)}" onclick="if(event.target.tagName!=='AUDIO'){event.stopPropagation();playEmbedAudio(this);}" title="Click to play">
           <button type="button" class="fc-audio-play-btn" onclick="event.stopPropagation();playEmbedAudio(this);" title="Play / Pause">▶</button>
-          <audio controls preload="auto" src="${escapeHtml(playUrl)}" onclick="event.stopPropagation();"></audio>
+          <audio controls preload="none" src="${escapeHtml(playUrl)}" onclick="event.stopPropagation();"></audio>
           <span class="fc-audio-caption" onclick="event.stopPropagation();playEmbedAudio(this);" style="cursor:pointer;" title="Click to play">🔊 Audio</span>
         </div>
       `);
@@ -16172,11 +16226,11 @@ ${cp.rawDocText || ''}
         if (!src.startsWith('assets/') && !src.startsWith('/') && !src.startsWith('http')) {
           src = 'assets/' + src;
         }
-        const playUrl = getPlayableAudioUrl(src, cardFilePath);
+        const playUrl = resolveMediaUrl(src, cardFilePath);
         html += `
-          <div class="fc-audio-wrap" data-audio-src="${escapeHtml(playUrl)}" onclick="if(event.target.tagName!=='AUDIO'){event.stopPropagation();playEmbedAudio(this);}" title="Click to play">
+          <div class="fc-audio-wrap" data-audio-src="${escapeHtml(playUrl)}" data-audio-path="${escapeHtml(src)}" onclick="if(event.target.tagName!=='AUDIO'){event.stopPropagation();playEmbedAudio(this);}" title="Click to play">
             <button type="button" class="fc-audio-play-btn" onclick="event.stopPropagation();playEmbedAudio(this);" title="Play / Pause">▶</button>
-            <audio controls preload="auto" src="${escapeHtml(playUrl)}" onclick="event.stopPropagation();"></audio>
+            <audio controls preload="none" src="${escapeHtml(playUrl)}" onclick="event.stopPropagation();"></audio>
             <span class="fc-audio-caption" onclick="event.stopPropagation();playEmbedAudio(this);" style="cursor:pointer;" title="Click to play">🔊 ${escapeHtml(alt || 'Audio')}</span>
           </div>`;
         continue;
@@ -16616,7 +16670,129 @@ ${cp.rawDocText || ''}
     renderFlashcardGallery();
   }
 
-  function renderFlashcardGallery() {
+  let fcGalleryCurrentList = [];
+  let fcGalleryRenderedCount = 0;
+  const FC_GALLERY_BATCH_SIZE = 30;
+  let fcGallerySentinelObserver = null;
+
+  function renderGalleryCardHtml(h, origIndex, totalCards, face) {
+    const cardNum = origIndex + 1;
+    const breadcrumb = getBreadcrumb(h);
+    const levelColor = `var(--h${h.level})`;
+
+    if (face === 'front') {
+      // Front Only: Title, Meta, Index, Peek button, Study button
+      // Empty peek body for zero initial parsing overhead; rendered on-demand when Peek is clicked
+      return `
+        <div class="fc-gcard mode-front" data-index="${origIndex}">
+          <div class="fc-gcard-header">
+            <div class="fc-gcard-meta">
+              <span class="fc-gcard-badge" style="color:${levelColor}; background:rgba(122,162,247,0.16);">H${h.level}</span>
+              ${breadcrumb ? `<span class="fc-gcard-breadcrumb">${escapeHtml(breadcrumb)}</span>` : ''}
+            </div>
+            <span class="fc-gcard-index">${cardNum} / ${totalCards}</span>
+          </div>
+          <div class="fc-gcard-front-title" style="color:${levelColor};">${escapeHtml(h.text)}</div>
+          <div class="fc-gcard-actions">
+            <button class="fc-gcard-flip-btn" data-action="peek" data-index="${origIndex}">Peek Answer ▾</button>
+            <button class="fc-gcard-study-btn" data-action="study" data-index="${origIndex}">🗂️ Study</button>
+          </div>
+          <div class="fc-gcard-peek-body" id="fcPeekBody_${origIndex}" style="display:none; margin-top:10px; padding:10px 12px; background:rgba(0,0,0,0.25); border-radius:8px; border:1px dashed var(--border); font-size:12.5px; color:#c0caf5; max-height:220px; overflow-y:auto;"></div>
+        </div>
+      `;
+    } else if (face === 'back') {
+      const bodyHtml = h._cachedBodyHtml || (h._cachedBodyHtml = getCardBodyHtml(h, 250));
+      return `
+        <div class="fc-gcard mode-back" data-index="${origIndex}">
+          <div class="fc-gcard-header">
+            <div class="fc-gcard-meta">
+              <span class="fc-gcard-badge" style="color:${levelColor}; background:rgba(122,162,247,0.16);">H${h.level}</span>
+              ${breadcrumb ? `<span class="fc-gcard-breadcrumb">${escapeHtml(breadcrumb)}</span>` : ''}
+            </div>
+            <span class="fc-gcard-index">${cardNum} / ${totalCards}</span>
+          </div>
+          <div class="fc-gcard-back-title" style="color:${levelColor};">
+            ${'#'.repeat(h.level)} ${escapeHtml(h.text)}
+          </div>
+          <div class="fc-gcard-body md-body markdown-body">
+            ${bodyHtml}
+          </div>
+          <div class="fc-gcard-actions">
+            <button class="fc-gcard-study-btn" data-action="study" data-index="${origIndex}">🗂️ Study</button>
+          </div>
+        </div>
+      `;
+    } else {
+      const bodyHtml = h._cachedBodyHtml || (h._cachedBodyHtml = getCardBodyHtml(h, 250));
+      return `
+        <div class="fc-gcard mode-both" data-index="${origIndex}">
+          <div class="fc-gcard-side-front">
+            <div class="fc-gcard-header">
+              <div class="fc-gcard-meta">
+                <span class="fc-gcard-badge" style="color:${levelColor}; background:rgba(122,162,247,0.16);">H${h.level}</span>
+                ${breadcrumb ? `<span class="fc-gcard-breadcrumb">${escapeHtml(breadcrumb)}</span>` : ''}
+              </div>
+              <span class="fc-gcard-index">${cardNum} / ${totalCards}</span>
+            </div>
+            <div class="fc-gcard-front-title" style="color:${levelColor};">${escapeHtml(h.text)}</div>
+            <div class="fc-gcard-actions" style="margin-top:auto; padding-top:10px;">
+              <button class="fc-gcard-study-btn" data-action="study" data-index="${origIndex}">🗂️ Study</button>
+            </div>
+          </div>
+          <div class="fc-gcard-side-back">
+            <div class="fc-gcard-back-title" style="color:${levelColor};">
+              ${'#'.repeat(h.level)} ${escapeHtml(h.text)}
+            </div>
+            <div class="fc-gcard-body md-body markdown-body">
+              ${bodyHtml}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  function appendNextGalleryBatch() {
+    if (!fcGalleryGrid || !fcGalleryCurrentList || fcGalleryRenderedCount >= fcGalleryCurrentList.length) {
+      const sentinel = document.getElementById('fcGallerySentinel');
+      if (sentinel) sentinel.style.display = 'none';
+      return;
+    }
+
+    const face = fcGalleryFaceMode || 'both';
+    const totalCards = flashcardList.length;
+    const start = fcGalleryRenderedCount;
+    const end = Math.min(start + FC_GALLERY_BATCH_SIZE, fcGalleryCurrentList.length);
+
+    let chunkHtml = '';
+    for (let i = start; i < end; i++) {
+      const item = fcGalleryCurrentList[i];
+      chunkHtml += renderGalleryCardHtml(item.card, item.origIndex, totalCards, face);
+    }
+
+    const sentinel = document.getElementById('fcGallerySentinel');
+    if (sentinel) {
+      sentinel.insertAdjacentHTML('beforebegin', chunkHtml);
+    } else {
+      fcGalleryGrid.insertAdjacentHTML('beforeend', chunkHtml);
+    }
+
+    fcGalleryRenderedCount = end;
+
+    if (sentinel) {
+      if (fcGalleryRenderedCount >= fcGalleryCurrentList.length) {
+        sentinel.style.display = 'none';
+      } else {
+        sentinel.style.display = 'flex';
+        sentinel.textContent = `Showing ${fcGalleryRenderedCount} of ${fcGalleryCurrentList.length} cards...`;
+        if (fcGallerySentinelObserver) {
+          fcGallerySentinelObserver.observe(sentinel);
+        }
+      }
+    }
+  }
+
+  function renderFlashcardGallery(reset = true) {
     if (!fcGalleryGrid) return;
     if (!flashcardList || flashcardList.length === 0) {
       fcGalleryGrid.innerHTML = `
@@ -16631,127 +16807,102 @@ ${cp.rawDocText || ''}
       return;
     }
 
-    const q = (fcGallerySearchQuery || '').toLowerCase();
-    const filtered = flashcardList.filter(h => {
-      if (!q) return true;
-      if (h.text && h.text.toLowerCase().includes(q)) return true;
-      const bc = getBreadcrumb(h);
-      if (bc && bc.toLowerCase().includes(q)) return true;
-      const startLine = h.line + 1;
-      const endLine = Math.min(h.end, h.line + 150);
-      for (let l = startLine; l <= endLine; l++) {
-        if (rows[l] && rows[l].raw && rows[l].raw.toLowerCase().includes(q)) return true;
+    if (reset) {
+      const q = (fcGallerySearchQuery || '').toLowerCase().trim();
+      fcGalleryCurrentList = [];
+      for (let i = 0; i < flashcardList.length; i++) {
+        const h = flashcardList[i];
+        if (!q) {
+          fcGalleryCurrentList.push({ card: h, origIndex: i });
+          continue;
+        }
+        if (h.text && h.text.toLowerCase().includes(q)) {
+          fcGalleryCurrentList.push({ card: h, origIndex: i });
+          continue;
+        }
+        const bc = getBreadcrumb(h);
+        if (bc && bc.toLowerCase().includes(q)) {
+          fcGalleryCurrentList.push({ card: h, origIndex: i });
+          continue;
+        }
+        if (h.card_content && h.card_content.toLowerCase().includes(q)) {
+          fcGalleryCurrentList.push({ card: h, origIndex: i });
+          continue;
+        }
+        const startLine = h.line + 1;
+        const endLine = Math.min(h.end, h.line + 40);
+        let matched = false;
+        if (typeof rows !== 'undefined' && rows) {
+          for (let l = startLine; l <= endLine; l++) {
+            if (rows[l] && rows[l].raw && rows[l].raw.toLowerCase().includes(q)) {
+              matched = true;
+              break;
+            }
+          }
+        }
+        if (matched) {
+          fcGalleryCurrentList.push({ card: h, origIndex: i });
+        }
       }
-      return false;
-    });
 
-    if (fcGalleryCount) {
-      if (q) {
-        fcGalleryCount.textContent = `${filtered.length} of ${flashcardList.length} cards`;
-      } else {
-        fcGalleryCount.textContent = `${flashcardList.length} cards`;
+      if (fcGalleryCount) {
+        if (q) {
+          fcGalleryCount.textContent = `${fcGalleryCurrentList.length} of ${flashcardList.length} cards`;
+        } else {
+          fcGalleryCount.textContent = `${flashcardList.length} cards`;
+        }
       }
-    }
-    if (fcStats) {
-      fcStats.textContent = `Gallery: ${flashcardList.length} cards`;
-    }
+      if (fcStats) {
+        fcStats.textContent = `Gallery: ${flashcardList.length} cards`;
+      }
 
-    if (filtered.length === 0) {
+      if (fcGalleryCurrentList.length === 0) {
+        fcGalleryGrid.innerHTML = `
+          <div style="text-align:center; padding:48px 16px; color:var(--muted);">
+            <div style="font-size:32px; margin-bottom:8px;">🔍</div>
+            <div style="font-size:14px; font-weight:600;">No matching cards found</div>
+            <div style="font-size:12px; margin-top:4px; opacity:0.8;">Try a different search keyword or heading filter.</div>
+          </div>
+        `;
+        return;
+      }
+
+      fcGalleryRenderedCount = 0;
       fcGalleryGrid.innerHTML = `
-        <div style="text-align:center; padding:48px 16px; color:var(--muted);">
-          <div style="font-size:32px; margin-bottom:8px;">🔍</div>
-          <div style="font-size:14px; font-weight:600;">No matching cards found</div>
-          <div style="font-size:12px; margin-top:4px; opacity:0.8;">Try a different search keyword or heading filter.</div>
-        </div>
+        <div id="fcGallerySentinel" style="height:48px; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px; width:100%;">Loading more cards...</div>
       `;
-      return;
-    }
 
-    const face = fcGalleryFaceMode || 'both';
-    let cardsHtml = '';
-    const totalCards = flashcardList.length;
-
-    for (let i = 0; i < filtered.length; i++) {
-      const h = filtered[i];
-      const origIndex = flashcardList.indexOf(h);
-      const cardNum = origIndex + 1;
-      const breadcrumb = getBreadcrumb(h);
-      const levelColor = `var(--h${h.level})`;
-
-      if (face === 'front') {
-        // Front Only: Title, Meta, Index, Peek button, Study button
-        cardsHtml += `
-          <div class="fc-gcard mode-front" data-index="${origIndex}">
-            <div class="fc-gcard-header">
-              <div class="fc-gcard-meta">
-                <span class="fc-gcard-badge" style="color:${levelColor}; background:rgba(122,162,247,0.16);">H${h.level}</span>
-                ${breadcrumb ? `<span class="fc-gcard-breadcrumb">${escapeHtml(breadcrumb)}</span>` : ''}
-              </div>
-              <span class="fc-gcard-index">${cardNum} / ${totalCards}</span>
-            </div>
-            <div class="fc-gcard-front-title" style="color:${levelColor};">${escapeHtml(h.text)}</div>
-            <div class="fc-gcard-actions">
-              <button class="fc-gcard-flip-btn" data-action="peek" data-index="${origIndex}">Peek Answer ▾</button>
-              <button class="fc-gcard-study-btn" data-action="study" data-index="${origIndex}">🗂️ Study</button>
-            </div>
-            <div class="fc-gcard-peek-body" id="fcPeekBody_${origIndex}" style="display:none; margin-top:10px; padding:10px 12px; background:rgba(0,0,0,0.25); border-radius:8px; border:1px dashed var(--border); font-size:12.5px; color:#c0caf5; max-height:220px; overflow-y:auto;">
-              ${getCardBodyHtml(h, 200)}
-            </div>
-          </div>
-        `;
-      } else if (face === 'back') {
-        // Back Only: Answers / Content, Header, Index, Study button
-        cardsHtml += `
-          <div class="fc-gcard mode-back" data-index="${origIndex}">
-            <div class="fc-gcard-header">
-              <div class="fc-gcard-meta">
-                <span class="fc-gcard-badge" style="color:${levelColor}; background:rgba(122,162,247,0.16);">H${h.level}</span>
-                ${breadcrumb ? `<span class="fc-gcard-breadcrumb">${escapeHtml(breadcrumb)}</span>` : ''}
-              </div>
-              <span class="fc-gcard-index">${cardNum} / ${totalCards}</span>
-            </div>
-            <div class="fc-gcard-back-title" style="color:${levelColor};">
-              ${'#'.repeat(h.level)} ${escapeHtml(h.text)}
-            </div>
-            <div class="fc-gcard-body md-body markdown-body">
-              ${getCardBodyHtml(h, 250)}
-            </div>
-            <div class="fc-gcard-actions">
-              <button class="fc-gcard-study-btn" data-action="study" data-index="${origIndex}">🗂️ Study</button>
-            </div>
-          </div>
-        `;
-      } else {
-        // Both: Side-by-Side (Front on left, Back on right)
-        cardsHtml += `
-          <div class="fc-gcard mode-both" data-index="${origIndex}">
-            <div class="fc-gcard-side-front">
-              <div class="fc-gcard-header">
-                <div class="fc-gcard-meta">
-                  <span class="fc-gcard-badge" style="color:${levelColor}; background:rgba(122,162,247,0.16);">H${h.level}</span>
-                  ${breadcrumb ? `<span class="fc-gcard-breadcrumb">${escapeHtml(breadcrumb)}</span>` : ''}
-                </div>
-                <span class="fc-gcard-index">${cardNum} / ${totalCards}</span>
-              </div>
-              <div class="fc-gcard-front-title" style="color:${levelColor};">${escapeHtml(h.text)}</div>
-              <div class="fc-gcard-actions" style="margin-top:auto; padding-top:10px;">
-                <button class="fc-gcard-study-btn" data-action="study" data-index="${origIndex}">🗂️ Study</button>
-              </div>
-            </div>
-            <div class="fc-gcard-side-back">
-              <div class="fc-gcard-back-title" style="color:${levelColor};">
-                ${'#'.repeat(h.level)} ${escapeHtml(h.text)}
-              </div>
-              <div class="fc-gcard-body md-body markdown-body">
-                ${getCardBodyHtml(h, 250)}
-              </div>
-            </div>
-          </div>
-        `;
+      if (!fcGallerySentinelObserver && window.IntersectionObserver) {
+        fcGallerySentinelObserver = new IntersectionObserver((entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              fcGallerySentinelObserver.unobserve(entry.target);
+              appendNextGalleryBatch();
+            }
+          }
+        }, {
+          root: document.getElementById('fcGalleryScroll'),
+          rootMargin: '400px'
+        });
       }
+
+      const scrollEl = document.getElementById('fcGalleryScroll');
+      if (scrollEl) scrollEl.scrollTop = 0;
     }
 
-    fcGalleryGrid.innerHTML = cardsHtml;
+    appendNextGalleryBatch();
+  }
+
+  // Backup scroll listener for smooth continuous infinite scrolling
+  const fcGalleryScrollEl = document.getElementById('fcGalleryScroll');
+  if (fcGalleryScrollEl) {
+    fcGalleryScrollEl.addEventListener('scroll', () => {
+      if (fcGalleryCurrentList && fcGalleryRenderedCount < fcGalleryCurrentList.length) {
+        if (fcGalleryScrollEl.scrollTop + fcGalleryScrollEl.clientHeight >= fcGalleryScrollEl.scrollHeight - 600) {
+          appendNextGalleryBatch();
+        }
+      }
+    }, { passive: true });
   }
 
   // --- Standard Xbox One Controller Definitions & Gamepad Loop ---
@@ -17046,7 +17197,7 @@ ${cp.rawDocText || ''}
       }
     }
 
-    if (anyConnected || isFlashcardMode || controlsConfig.gpReader) {
+    if (anyConnected) {
       gamepadRafId = requestAnimationFrame(pollGamepad);
     } else {
       gamepadRafId = null;
@@ -17055,13 +17206,19 @@ ${cp.rawDocText || ''}
 
   window.addEventListener('gamepadconnected', (e) => {
     showToast(`🎮 Gamepad connected: ${e.gamepad.id.slice(0, 22)}...`);
-    if ((isFlashcardMode || controlsConfig.gpReader) && !gamepadRafId) {
+    if (!gamepadRafId) {
       gamepadRafId = requestAnimationFrame(pollGamepad);
     }
   });
 
   window.addEventListener('gamepaddisconnected', () => {
     showToast('🎮 Gamepad disconnected');
+    const gps = (navigator.getGamepads) ? navigator.getGamepads() : [];
+    const stillConnected = Array.from(gps).some(g => g && g.connected);
+    if (!stillConnected && gamepadRafId) {
+      cancelAnimationFrame(gamepadRafId);
+      gamepadRafId = null;
+    }
   });
 
   // --- Flashcard Font Size & Zoom Management ---
@@ -17365,14 +17522,18 @@ ${cp.rawDocText || ''}
     });
   }
 
-  // Gallery Search Input & Clear
+  // Gallery Search Input & Clear (Debounced)
+  let fcGallerySearchDebounce = null;
   if (fcGallerySearchInput) {
     fcGallerySearchInput.addEventListener('input', (e) => {
       fcGallerySearchQuery = (e.target.value || '').trim();
       if (fcGallerySearchClear) {
         fcGallerySearchClear.style.display = fcGallerySearchQuery ? 'inline-flex' : 'none';
       }
-      renderFlashcardGallery();
+      clearTimeout(fcGallerySearchDebounce);
+      fcGallerySearchDebounce = setTimeout(() => {
+        renderFlashcardGallery(true);
+      }, 150);
     });
   }
   if (fcGallerySearchClear) {
@@ -17380,11 +17541,12 @@ ${cp.rawDocText || ''}
       if (fcGallerySearchInput) fcGallerySearchInput.value = '';
       fcGallerySearchQuery = '';
       fcGallerySearchClear.style.display = 'none';
-      renderFlashcardGallery();
+      clearTimeout(fcGallerySearchDebounce);
+      renderFlashcardGallery(true);
     });
   }
 
-  // Gallery Card Actions (Study jump & Peek toggle)
+  // Gallery Card Actions (Study jump & Peek toggle with lazy rendering)
   if (fcGalleryGrid) {
     fcGalleryGrid.addEventListener('click', (e) => {
       const peekBtn = e.target.closest('button[data-action="peek"]');
@@ -17393,6 +17555,14 @@ ${cp.rawDocText || ''}
         if (isNaN(idx)) return;
         const peekEl = document.getElementById('fcPeekBody_' + idx);
         if (peekEl) {
+          if (!peekEl.dataset.loaded) {
+            const h = flashcardList[idx];
+            if (h) {
+              peekEl.innerHTML = getCardBodyHtml(h, 200);
+              initCardAudioElements(peekEl);
+            }
+            peekEl.dataset.loaded = 'true';
+          }
           const isHidden = peekEl.style.display === 'none';
           peekEl.style.display = isHidden ? 'block' : 'none';
           peekBtn.textContent = isHidden ? 'Hide Answer ▴' : 'Peek Answer ▾';
