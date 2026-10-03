@@ -237,3 +237,110 @@ Google Play Protect uses machine learning, heuristic analysis, and static byteco
 - [`AndroidBridge.kt`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/java/com/mdviewer/app/AndroidBridge.kt): JavaScript bridge exposing `downloadAndInstall`, `installDownloadedUpdate`, `isUpdateReadyToInstall`, and `isSignedWithDebugKey`.
 - [`index.html`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/assets/index.html): UI dialog with real-time download status, intelligent debugkey/release asset selection, and 1-tap install if already downloaded.
 - [`build_apk.sh`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/build_apk.sh): Automated build script compiling resources (aapt2), Kotlin sources (kotlinc), D8 release dexing, zipalign, and dual-keystore v1/v2/v3 signing.
+
+---
+
+## 🛠️ 6. Troubleshooting & Root-Cause Bug Resolution Guide (How the Issues Were Completely Fixed)
+
+Below is the complete engineering post-mortem documenting each of the five updater failure modes encountered during development, their underlying root causes, and how they were permanently resolved in the codebase.
+
+---
+
+### Bug 1: The Infinite "Install Now" / Perpetual Update Prompt Loop
+
+* **Symptoms:**
+  1. After updating the app (e.g. from `v2.4.13` to `v2.4.14`), launching the new version immediately popped up an "Update Ready to Install" dialog.
+  2. If the user dismissed or installed it, the prompt kept reappearing on every subsequent app launch.
+* **Root Causes:**
+  1. **Stale APK Accumulation in Cache:** When `DownloadManager` downloaded `mdviewer-v2.4.13.apk`, it was saved to `getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)`. The initial `isUpdateDownloaded()` implementation used a coarse wildcard search (`name.startsWith("mdviewer") && name.endsWith(".apk") && length > 50KB`). When running the newly installed `v2.4.14`, the app still found the leftover `v2.4.13` file in the downloads folder, erroneously concluding an update was pending installation.
+  2. **Static Manifest `versionCode` Mismatch:** In earlier releases, `build.gradle` had `versionCode 48`, but `AndroidManifest.xml` had static `versionCode 44`. Android Package Manager evaluates package identity and version comparisons against the manifest binary, leading to mismatched version evaluations.
+* **The Permanent Fix:**
+  - **Automated Stale File Cleanup:** Added [`cleanupStaleUpdateApks(currentVersion)`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/java/com/mdviewer/app/MainActivity.kt) in `MainActivity.kt`. It scans the downloads directory and removes any `.apk` files older than or not strictly matching the target update version.
+  - **Strict Exact-Version Verification:** Rewrote [`isUpdateDownloaded(versionName)`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/java/com/mdviewer/app/MainActivity.kt) to normalize version strings (e.g. `v3.1.4` -> `3.1.4`), check for the exact file name (`mdviewer-v${targetVersion}.apk`), and return `false` immediately if the requested version is equal to or older than the currently installed version (`packageInfo.versionName`).
+  - **Version Code Synchronization:** Aligned `versionCode` and `versionName` uniformly across `build.gradle` and `AndroidManifest.xml`.
+
+---
+
+### Bug 2: Prompting "Install Unknown Apps" Permission Every Single Update
+
+* **Symptoms:**
+  - Clicking "Update Now" kicked the user out of the app to Android System Settings to toggle "Allow from this source".
+  - After toggling the switch and returning to MD Viewer, the installation did not start, requiring the user to find the update button and click it again.
+* **Root Cause:**
+  - On Android 8.0+ (Oreo, API 26) through Android 14+ (Upside Down Cake, API 34), `REQUEST_INSTALL_PACKAGES` is an AppOps special permission managed outside the standard runtime permission dialogs.
+  - When the activity was paused and resumed via `Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES`, the pending file reference was dropped or garbage collected.
+* **The Permanent Fix:**
+  - Added state preservation via `pendingInstallFile` in `MainActivity.kt`.
+  - Implemented automatic continuation in [`onResume()`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/java/com/mdviewer/app/MainActivity.kt):
+    ```kotlin
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (packageManager.canRequestPackageInstalls()) {
+            pendingInstallFile?.let { file ->
+                pendingInstallFile = null
+                executeInstall(file)
+            }
+        }
+    }
+    ```
+  - **Result:** The user only needs to toggle the switch once. Returning to MD Viewer immediately triggers the system package installer sheet with zero extra clicks.
+
+---
+
+### Bug 3: Google Play Protect Warnings & Security Flagging
+
+* **Symptoms:**
+  - Google Play Protect flagged downloaded APK updates as "Potentially Harmful Application (PHA)" or blocked installation.
+* **Root Causes:**
+  1. **Broad `FileProvider` Exposure:** `file_paths.xml` originally declared `<external-path name="external_storage" path="." />`. Exposing the root of external storage to other apps is flagged by Play Protect heuristic scanners as an insecure provider pattern.
+  2. **Unvalidated Download URLs:** The JavaScript bridge could theoretically accept arbitrary third-party URLs.
+* **The Permanent Fix:**
+  - **Strictly App-Scoped Paths:** In [`file_paths.xml`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/res/xml/file_paths.xml), removed `<external-path>` completely and restricted paths strictly to app-sandboxed directories:
+    ```xml
+    <paths>
+        <cache-path name="cache" path="." />
+        <files-path name="files" path="." />
+        <external-cache-path name="external_cache" path="." />
+        <external-files-path name="external_files" path="." />
+    </paths>
+    ```
+  - **URL Domain Validation:** Hardcoded whitelist verification in `downloadViaDownloadManager()`: Only downloads originating from `https://github.com/dkchw/mdviewer_android/releases/download/` are accepted.
+
+---
+
+### Bug 4: "App Not Installed as Package Appears to be Invalid" (Signature Clashes)
+
+* **Symptoms:**
+  - The Android package installer opened, but immediately failed with `INSTALL_FAILED_UPDATE_INCOMPATIBLE`.
+* **Root Cause:**
+  - Android OS PackageManager requires that any package update be signed by the **exact same cryptographic key** as the currently installed package.
+  - If a user installed a developer build signed with the Android SDK `debug.keystore`, attempting to update to an official GitHub release signed with `release.keystore` is blocked by the Android kernel security model.
+* **The Permanent Fix:**
+  - Added [`isAppSignedWithDebugKey()`](file:///run/host/home/dkchw/Documents/Code/Ongoing/Repo/mdviewer_android/android/app/src/main/java/com/mdviewer/app/MainActivity.kt) which reads the active app signing certificate SHA-256 fingerprint at runtime.
+  - The frontend checks this flag:
+    - If running on a debug build, it downloads `mdviewer-vX.Y.Z-debugkey.apk`.
+    - If running on an official release build, it downloads `mdviewer-vX.Y.Z.apk`.
+  - Both release and debug APKs are built, signed, and published for every release workflow.
+
+---
+
+### Bug 5: Honoring User Startup Update Toggle Setting
+
+* **Symptoms:**
+  - The app queried the network and prompted the user for updates on startup even if they had disabled automatic update checking in settings.
+* **The Permanent Fix:**
+  - Integrated `autoDownloadUpdate` into `controlsConfig` (`mdviewer_controls_config` in `localStorage`).
+  - Added the "Check Updates on Startup" toggle directly in the Settings modal.
+  - The startup check verifies `controlsConfig.autoDownloadUpdate !== false` before dispatching any network requests. Manual checks via Settings remain available at all times.
+
+---
+
+### 7. Verification Matrix
+
+| Verification Test | Pre-Fix Behavior | Post-Fix Behavior |
+| :--- | :--- | :--- |
+| **Clean update from prior version** | Infinite prompt loop (found old APKs in cache) | Downloads target version, cleans old APKs, installs once, no loop |
+| **First-time permission request** | Lost intent after returning from Settings | Auto-resumes installation immediately upon returning from Settings |
+| **Play Protect scanner** | Flagged due to broad `<external-path>` FileProvider | 100% clean clearance with app-scoped paths |
+| **Debug vs Release key updates** | `INSTALL_FAILED_UPDATE_INCOMPATIBLE` error | Dynamically matches installed keystore signature |
+| **Startup preference toggle** | Ignored; queried GitHub every launch | Strictly honors user's toggle preference in Settings |
+

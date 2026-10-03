@@ -78,12 +78,14 @@ An ultra-fast, lightweight, and 100% offline Markdown workspace and outline read
 - **Vault Dropdown Switcher**:
   - Tap the vault header title in the drawer to open the Vault Switcher dropdown.
   - Switch active vaults, reorder vaults, rename folders on disk, or remove vaults from history.
-- **5 Dedicated Bottom Outline Buttons**:
+- **5 Dedicated Bottom Outline Buttons & Hover Preview**:
   1. **Collapse Above**: Folds all headings located above your current viewport.
   2. **Collapse All**: Folds every heading in the document for an instant high-level outline.
-  3. **Hover Mode Toggle**: Toggles tap outline preview mode (opens floating preview without losing position).
+  3. **Hover Preview Mode (`Hover ON/OFF`)**: Toggles instant pop-up section inspection. Tap any heading or row in either Outline or Document view to inspect its content in a floating panel with zoom controls (`A-` / `A+`) and a mode-aware **Jump** button without losing your place.
   4. **Expand All**: Unfolds all headings in the document.
   5. **Expand Below**: Unfolds all headings located below your current viewport.
+- **Settings & Controls Integration**:
+  - Hover Mode is toggleable from the Bottom Bar and persistent via Settings (`Touch Gestures & Navigation`).
 - **Deep Workspace Search**:
   - Search across all markdown files in the opened vault, displaying matching file names, line numbers, and text snippets with direct jump navigation.
 

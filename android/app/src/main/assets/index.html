@@ -1447,12 +1447,15 @@
     z-index: 150;
     display: none;
   }
+  #panelBackdrop.visible {
+    display: block;
+  }
   #panel {
     position: fixed;
     z-index: 151;
     left: 12px;
     right: 12px;
-    bottom: 64px;
+    bottom: calc(68px + env(safe-area-inset-bottom, 0px));
     max-height: 65vh;
     background: #1f2335;
     border: 1px solid var(--accent);
@@ -1462,6 +1465,9 @@
     flex-direction: column;
     overflow: hidden;
     animation: popUp 0.18s ease-out;
+  }
+  #panel.visible {
+    display: flex;
   }
   @keyframes popUp {
     from { opacity: 0; transform: translateY(12px) scale(0.98); }
@@ -7713,8 +7719,16 @@
         </div>
     <div class="settings-tab-content" id="tab-ctrl">
       <div class="settings-group">
-        <div class="settings-group-title">Touch Gestures</div>
+        <div class="settings-group-title">Touch Gestures &amp; Navigation</div>
         <div class="settings-card">
+          <div class="settings-row-config">
+            <div class="settings-config-label">
+              <span class="settings-config-name">Hover / Outline Preview</span>
+              <span class="settings-config-desc">Tap headings &amp; rows to show pop-up preview panel</span>
+            </div>
+            <input type="checkbox" id="cfgHoverMode" class="cfg-toggle" checked>
+          </div>
+
           <div class="settings-row-config">
           <div class="settings-config-label">
             <span class="settings-config-name">Horizontal Swipe</span>
@@ -8137,7 +8151,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v3.1.4</span>
+          <span class="settings-row-badge" id="appVersionSub">v3.1.5</span>
           <span class="settings-row-chevron">›</span>
         </button>
         <div class="settings-row-config">
@@ -8166,6 +8180,7 @@
     </div>
   </div>
 </div>
+</div> <!-- End settingsModal -->
 
 <!-- Hover Outline Preview Panel -->
 <div id="panelBackdrop"></div>
@@ -8179,10 +8194,9 @@
       <button id="panelCloseBtn" class="panel-btn" style="font-weight:700;">✕</button>
     </div>
   </div>
-  <div id="panelBody">    </div>
-
-  </div>
+  <div id="panelBody"></div>
 </div>
+
 
 
 <!-- Auto Update Modal Dialog -->
@@ -8194,8 +8208,8 @@
   </div>
   <div class="update-body">
     <div class="update-version-row">
-      <span class="badge new-badge" id="updateNewVersion">v3.1.4</span>
-      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.4</span>
+      <span class="badge new-badge" id="updateNewVersion">v3.1.5</span>
+      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.5</span>
     </div>
     <div class="update-changelog-title">Changelog:</div>
     <div class="update-changelog" id="updateChangelog"></div>
@@ -8522,7 +8536,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '3.1.4';
+      window.AndroidBridge.getAppVersion() : '3.1.5';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -8779,8 +8793,17 @@
   // Active / Selected heading for Collapse Above / Expand Below
   let activeHeadingIdx = -1;
 
-  // Hover mode state (toggleable via bottom bar button, default ON)
-  let hoverModeEnabled = true;
+  // Hover mode state (toggleable via bottom bar button & settings, default ON)
+  let hoverModeEnabled = (function() {
+    try {
+      const savedCfg = localStorage.getItem('mdviewer_controls_config');
+      if (savedCfg) {
+        const parsed = JSON.parse(savedCfg);
+        if (parsed.hoverMode !== undefined) return Boolean(parsed.hoverMode);
+      }
+    } catch(e) {}
+    return true;
+  })();
 
   // Search state
   let searchScope = 'file'; // 'file' | 'folder'
@@ -9047,7 +9070,9 @@
     gpAnalog: true,
     gpReader: true,
     // Auto Updates
-    autoDownloadUpdate: true
+    autoDownloadUpdate: true,
+    // Hover Preview Mode
+    hoverMode: true
   };
 
   let controlsConfig = Object.assign({}, DEFAULT_CONTROLS_CONFIG);
@@ -9058,6 +9083,7 @@
     }
   } catch(e) {}
 
+  const cfgHoverMode = document.getElementById('cfgHoverMode');
   const cfgGestureSwipe = document.getElementById('cfgGestureSwipe');
   const cfgGestureFlick = document.getElementById('cfgGestureFlick');
   const cfgGestureDoubleTap = document.getElementById('cfgGestureDoubleTap');
@@ -9101,6 +9127,7 @@
   }
 
   function syncControlsSettingsUI() {
+    if (cfgHoverMode) cfgHoverMode.checked = (controlsConfig.hoverMode !== false);
     if (cfgGestureSwipe) cfgGestureSwipe.checked = (controlsConfig.gestureSwipe !== false);
     if (cfgGestureFlick) cfgGestureFlick.checked = (controlsConfig.gestureFlick !== false);
     if (cfgGestureDoubleTap) cfgGestureDoubleTap.checked = (controlsConfig.gestureDoubleTap !== false);
@@ -9139,6 +9166,15 @@
   }
 
   // Gestures Listeners
+  if (cfgHoverMode) {
+    cfgHoverMode.addEventListener('change', () => {
+      controlsConfig.hoverMode = cfgHoverMode.checked;
+      hoverModeEnabled = controlsConfig.hoverMode;
+      saveControlsConfig();
+      updateHoverButtonUI();
+      showToast(hoverModeEnabled ? 'Hover Mode: ON (tap any line to preview)' : 'Hover Mode: OFF');
+    });
+  }
   if (cfgGestureSwipe) cfgGestureSwipe.addEventListener('change', () => { controlsConfig.gestureSwipe = cfgGestureSwipe.checked; saveControlsConfig(); });
   if (cfgGestureFlick) cfgGestureFlick.addEventListener('change', () => { controlsConfig.gestureFlick = cfgGestureFlick.checked; saveControlsConfig(); });
   if (cfgGestureDoubleTap) cfgGestureDoubleTap.addEventListener('change', () => { controlsConfig.gestureDoubleTap = cfgGestureDoubleTap.checked; saveControlsConfig(); });
@@ -9276,6 +9312,8 @@
   if (btnResetControls) {
     btnResetControls.addEventListener('click', () => {
       controlsConfig = Object.assign({}, DEFAULT_CONTROLS_CONFIG);
+      hoverModeEnabled = true;
+      updateHoverButtonUI();
       saveControlsConfig();
       syncControlsSettingsUI();
       showToast('Controls reset to standard Xbox One & default keys');
@@ -9887,8 +9925,9 @@
         const level = hMatch[1].length;
         const hText = hMatch[2].trim();
         const slug = slugifyHeading(hText) || ('heading-' + i);
+        const hIdx = toc.length;
         toc.push({ level, text: hText, id: slug, line: i });
-        out.push('<h' + level + ' id="' + slug + '" class="doc-heading" data-toc-id="' + slug + '">' + formatInline(hText) + '</h' + level + '>');
+        out.push('<h' + level + ' id="' + slug + '" class="doc-heading" data-toc-id="' + slug + '" data-hidx="' + hIdx + '" data-line="' + i + '">' + formatInline(hText) + '</h' + level + '>');
         continue;
       }
 
@@ -10021,16 +10060,8 @@
     }
 
     setupDocBodyDelegatedEvents();
-    
-  const btnHeaderBasicOutline = document.getElementById('btnHeaderBasicOutline');
-  if (btnHeaderBasicOutline) {
-    btnHeaderBasicOutline.addEventListener('click', () => {
-      setAppMode('outline');
-      setDrawerTargetMode('outline');
-    });
-  }
 
-  applyBasicZoom();
+    applyBasicZoom();
     updateDoublePageLayout(true);
   }
 
@@ -10077,8 +10108,14 @@
         if (!headings || headings.length === 0 || rawDocText !== basicDocText) {
           parse(basicDocText || '');
         }
-        const hText = hoverHeadingEl.textContent.trim().toLowerCase();
-        const foundIdx = headings.findIndex(h => h.text.trim().toLowerCase() === hText);
+        let foundIdx = -1;
+        if (hoverHeadingEl.dataset.hidx !== undefined) {
+          foundIdx = parseInt(hoverHeadingEl.dataset.hidx, 10);
+        }
+        if (foundIdx < 0 || isNaN(foundIdx) || foundIdx >= headings.length) {
+          const hText = hoverHeadingEl.textContent.trim().toLowerCase();
+          foundIdx = headings.findIndex(h => h.text.trim().toLowerCase() === hText || slugifyHeading(h.text) === hoverHeadingEl.id);
+        }
         if (foundIdx >= 0) {
           showPanel(foundIdx);
           return;
@@ -10409,46 +10446,19 @@
   if (btnBasicZoomIn) {
     btnBasicZoomIn.addEventListener('click', () => {
       basicZoom = Math.min(220, basicZoom + 10);
-      
-  const btnHeaderBasicOutline = document.getElementById('btnHeaderBasicOutline');
-  if (btnHeaderBasicOutline) {
-    btnHeaderBasicOutline.addEventListener('click', () => {
-      setAppMode('outline');
-      setDrawerTargetMode('outline');
-    });
-  }
-
-  applyBasicZoom();
+      applyBasicZoom();
     });
   }
   if (btnBasicZoomOut) {
     btnBasicZoomOut.addEventListener('click', () => {
       basicZoom = Math.max(70, basicZoom - 10);
-      
-  const btnHeaderBasicOutline = document.getElementById('btnHeaderBasicOutline');
-  if (btnHeaderBasicOutline) {
-    btnHeaderBasicOutline.addEventListener('click', () => {
-      setAppMode('outline');
-      setDrawerTargetMode('outline');
-    });
-  }
-
-  applyBasicZoom();
+      applyBasicZoom();
     });
   }
   if (btnBasicZoomReset) {
     btnBasicZoomReset.addEventListener('click', () => {
       basicZoom = 100;
-      
-  const btnHeaderBasicOutline = document.getElementById('btnHeaderBasicOutline');
-  if (btnHeaderBasicOutline) {
-    btnHeaderBasicOutline.addEventListener('click', () => {
-      setAppMode('outline');
-      setDrawerTargetMode('outline');
-    });
-  }
-
-  applyBasicZoom();
+      applyBasicZoom();
     });
   }
 
@@ -15452,6 +15462,9 @@ ${cp.rawDocText || ''}
   }
   btnHoverToggle.addEventListener('click', () => {
     hoverModeEnabled = !hoverModeEnabled;
+    controlsConfig.hoverMode = hoverModeEnabled;
+    saveControlsConfig();
+    if (cfgHoverMode) cfgHoverMode.checked = hoverModeEnabled;
     updateHoverButtonUI();
     showToast(hoverModeEnabled ? 'Hover Mode: ON (tap any line to preview)' : 'Hover Mode: OFF');
   });
@@ -15562,7 +15575,7 @@ ${cp.rawDocText || ''}
       const subH = headings[hSubIdx];
       return `<div class="prow-line heading h${subH.level}${targetCls}" data-pline="${lineNo}">${escapeHtml('#'.repeat(subH.level) + ' ') + formatPlainHtml(subH.text)}</div>`;
     }
-    return `<div class="prow-line plain${targetCls}" data-pline="${lineNo}">${renderPlainLine(text)}</div>`;
+    return `<div class="prow-line plain${targetCls}" data-pline="${lineNo}">${renderPlainLine(text, lineNo)}</div>`;
   }
 
   let panelZoomPx = 13;
@@ -15582,10 +15595,12 @@ ${cp.rawDocText || ''}
       }
       panelBody.innerHTML = html;
       panel.style.display = 'flex';
+      panel.classList.add('visible');
       panelBackdrop.style.display = 'block';
+      panelBackdrop.classList.add('visible');
       return;
     }
-    const isSameHeading = (currentPreviewHIdx === hIdx && panel.style.display === 'flex');
+    const isSameHeading = (currentPreviewHIdx === hIdx && panel.classList.contains('visible'));
     currentPreviewHIdx = hIdx;
     currentPreviewTargetLine = (targetLineNo !== undefined) ? targetLineNo : -1;
     const h = headings[hIdx];
@@ -15622,7 +15637,9 @@ ${cp.rawDocText || ''}
     }
     panelBody.innerHTML = html;
     panel.style.display = 'flex';
+    panel.classList.add('visible');
     panelBackdrop.style.display = 'block';
+    panelBackdrop.classList.add('visible');
 
     if (currentPreviewTargetLine >= 0 && currentPreviewTargetLine > h.line) {
       const targetEl = panelBody.querySelector(`[data-pline="${currentPreviewTargetLine}"]`);
@@ -15638,7 +15655,9 @@ ${cp.rawDocText || ''}
 
   function hidePanel() {
     panel.style.display = 'none';
+    panel.classList.remove('visible');
     panelBackdrop.style.display = 'none';
+    panelBackdrop.classList.remove('visible');
     currentPreviewHIdx = -1;
     currentPreviewTargetLine = -1;
   }
@@ -15674,14 +15693,19 @@ ${cp.rawDocText || ''}
   });
 
   panelJumpBtn.addEventListener('click', () => {
-    if (currentPreviewTargetLine >= 0) {
-      const jumpLine = currentPreviewTargetLine;
-      hidePanel();
-      scrollToLine(jumpLine, true);
-    } else if (currentPreviewHIdx >= 0) {
-      const h = headings[currentPreviewHIdx];
-      hidePanel();
-      scrollToLine(h.line, true);
+    const targetH = (currentPreviewHIdx >= 0 && currentPreviewHIdx < headings.length) ? headings[currentPreviewHIdx] : null;
+    const jumpLine = currentPreviewTargetLine >= 0 ? currentPreviewTargetLine : (targetH ? targetH.line : -1);
+    hidePanel();
+
+    if (currentAppMode === 'basic') {
+      if (targetH) {
+        const slug = slugifyHeading(targetH.text) || ('heading-' + targetH.line);
+        scrollToDocHeading(slug);
+      }
+    } else {
+      if (jumpLine >= 0) {
+        scrollToLine(jumpLine, true);
+      }
     }
   });
 
