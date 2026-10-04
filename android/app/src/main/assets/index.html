@@ -1802,6 +1802,9 @@
   .flashcard.flipped {
     transform: rotateY(180deg);
   }
+  .flashcard.no-transition {
+    transition: none !important;
+  }
   .fc-face {
     position: absolute;
     inset: 0;
@@ -8788,7 +8791,7 @@ window.addEventListener('unhandledrejection', function(event) {
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '3.1.15';
+      window.AndroidBridge.getAppVersion() : '3.1.16';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -9233,6 +9236,8 @@ window.addEventListener('unhandledrejection', function(event) {
   let fcViewMode = 'study'; // 'study' | 'gallery'
   let fcGalleryFaceMode = localStorage.getItem('mdviewer_fc_gallery_face') || 'both'; // 'front' | 'back' | 'both'
   let fcGallerySearchQuery = '';
+  let fcAutoPlayAudio = localStorage.getItem('mdviewer_fc_autoplay_audio') !== 'false';
+  let fcDeckFilterCache = new Map();
 
   const btnToggleFlashcard = document.getElementById('btnToggleFlashcard');
   const btnOpenFlashcards = document.getElementById('btnOpenFlashcards');
@@ -15048,6 +15053,7 @@ ${cp.rawDocText || ''}
   let taskLineIndices = [];
   function parse(text) {
     if (typeof invalidateChecklistStats === 'function') invalidateChecklistStats();
+    if (typeof fcDeckFilterCache !== 'undefined' && fcDeckFilterCache) fcDeckFilterCache.clear();
     rawDocText = text;
     lines = text.split(/\r\n|\r|\n/);
     headings = [];
@@ -16221,13 +16227,22 @@ ${cp.rawDocText || ''}
   }
 
   function collectFlashcards(mode = 'outline') {
+    if (fcDeckFilterCache.has(mode)) {
+      return fcDeckFilterCache.get(mode);
+    }
+
     let list = [];
     if (isFolderDeck) {
       if (!folderDeckAllCards || folderDeckAllCards.length === 0) return [];
-      if (folderDeckInfo && folderDeckInfo.targetLevel === 'file') list = folderDeckAllCards.slice();
-      else if (mode === 'h1') list = folderDeckAllCards.filter(h => h.level === 1);
-      else if (mode === 'h2') list = folderDeckAllCards.filter(h => h.level === 2);
-      else list = folderDeckAllCards.slice();
+      if (folderDeckInfo && folderDeckInfo.targetLevel === 'file') {
+        list = folderDeckAllCards.slice();
+      } else if (mode === 'h1') {
+        list = folderDeckAllCards.filter(h => h.level === 1);
+      } else if (mode === 'h2') {
+        list = folderDeckAllCards.filter(h => h.level === 2);
+      } else {
+        list = folderDeckAllCards.slice();
+      }
     } else if (!headings || headings.length === 0) {
       return [];
     } else if (mode === 'h1') {
@@ -16237,19 +16252,14 @@ ${cp.rawDocText || ''}
     } else if (mode === 'all' || currentAppMode === 'basic') {
       list = headings.slice();
     } else {
-      // 'outline': All headings visible according to current outline collapsed state!
-      for (const h of headings) {
-        let hidden = false;
-        let curr = h;
-        while (curr && curr.parent !== -1) {
-          const p = headings[curr.parent];
-          if (p && p.collapsed) {
-            hidden = true;
-            break;
-          }
-          curr = p;
-        }
-        if (!hidden) {
+      // 'outline': All headings visible according to current outline collapsed state in O(N)!
+      const n = headings.length;
+      const isHidden = new Uint8Array(n);
+      for (let i = 0; i < n; i++) {
+        const h = headings[i];
+        if (h.parent !== -1 && (headings[h.parent].collapsed || isHidden[h.parent])) {
+          isHidden[i] = 1;
+        } else {
           list.push(h);
         }
       }
@@ -16257,6 +16267,7 @@ ${cp.rawDocText || ''}
     for (let i = 0; i < list.length; i++) {
       list[i].origIndex = i;
     }
+    fcDeckFilterCache.set(mode, list);
     return list;
   }
 
@@ -17067,6 +17078,7 @@ ${cp.rawDocText || ''}
       folderDeckAllCards = cards;
       flashcardList = cards;
       currentCardIndex = 0;
+      fcDeckFilterCache.clear();
 
       if (!isFlashcardMode) {
         enterFlashcardMode();
@@ -17163,6 +17175,7 @@ ${cp.rawDocText || ''}
     isFolderDeck = false;
     folderDeckInfo = null;
     folderDeckAllCards = [];
+    fcDeckFilterCache.clear();
     updateFolderDeckUI();
     flashcardList = collectFlashcards(flashcardFilter);
     currentCardIndex = 0;
@@ -17255,6 +17268,136 @@ ${cp.rawDocText || ''}
     });
   }
 
+  // --- Card Pre-rendering & Ahead-Loader Engine ---
+  function prepareCardData(h, idx = 0) {
+    if (!h) return null;
+    if (h._prepared) return h._prepared;
+
+    const lvl = h.level || 1;
+    const levelColor = `var(--h${lvl}, var(--accent))`;
+    const bc = isFolderDeck ? ('📁 ' + (h.breadcrumb || (h.file_name ? `${h.file_name} > H${lvl}` : getBreadcrumb(h)))) : getBreadcrumb(h);
+
+    const frontImgs = [];
+    const rawText = h.text || '';
+    const cleanFrontTitle = rawText
+      .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m, alt, url) => {
+        const u = url.trim();
+        if (!/\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(\?.*)?$/i.test(u)) {
+          frontImgs.push({ alt: alt || 'Card Image', url: u });
+        }
+        return '';
+      })
+      .replace(/!\[\[([^\]|]+)(?:\|([^\]]*))?\]\]/g, (m, fileRef, extra) => {
+        const u = fileRef.trim();
+        if (!/\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(\?.*)?$/i.test(u)) {
+          frontImgs.push({ alt: (extra || '').trim() || 'Card Image', url: u });
+        }
+        return '';
+      })
+      .replace(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi, (m, src) => {
+        frontImgs.push({ alt: 'Card Image', url: src.trim() });
+        return '';
+      })
+      .replace(/\[sound:[^\]]+\]/g, '')
+      .trim();
+
+    let displayTitle = cleanFrontTitle;
+    if (!displayTitle || /^\d+\.?\s*$/.test(displayTitle)) {
+      if (frontImgs.length > 0 && frontImgs[0].alt && frontImgs[0].alt.toLowerCase() !== 'image' && frontImgs[0].alt.toLowerCase() !== 'card image') {
+        displayTitle = (cleanFrontTitle ? cleanFrontTitle + ' ' : '') + frontImgs[0].alt;
+      } else {
+        displayTitle = cleanFrontTitle || `Card ${idx + 1}`;
+      }
+    }
+
+    let frontMediaHtml = '';
+    if (frontImgs.length > 0) {
+      frontMediaHtml = frontImgs.map(img => {
+        const resolved = resolveMediaUrl(img.url, h.file_path);
+        return `<div class="fc-front-img-wrap"><img class="fc-card-img fc-front-card-img" src="${escapeHtml(resolved)}" alt="${escapeHtml(img.alt)}" loading="lazy" onclick="event.stopPropagation(); if(typeof openImageModal==='function') openImageModal('${escapeHtml(resolved)}', '${escapeHtml(img.alt)}');" /></div>`;
+      }).join('');
+    }
+
+    let cleanBackTitle = rawText
+      .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '')
+      .replace(/!\[\[([^\]|]+)(?:\|([^\]]*))?\]\]/g, '')
+      .replace(/<img[^>]+src=["'][^"']+["'][^>]*>/gi, '')
+      .replace(/\[sound:[^\]]+\]/g, '')
+      .trim();
+    if (!cleanBackTitle || /^\d+\.?\s*$/.test(cleanBackTitle)) {
+      cleanBackTitle = displayTitle;
+    }
+    const backTitleText = '#'.repeat(lvl) + ' ' + cleanBackTitle;
+
+    let origBack = '';
+    let bodyHtml = h._cachedHtml;
+    if (!bodyHtml) {
+      if (h.card_content !== undefined) {
+        origBack = h.card_content;
+        bodyHtml = renderFcMarkdown(h.card_content, h.file_path);
+      } else {
+        bodyHtml = getCardBodyHtml(h, 800);
+        if (typeof lines !== 'undefined' && lines && h.line + 1 <= h.end) {
+          origBack = lines.slice(h.line + 1, h.end + 1).join('\n');
+        }
+      }
+      h._cachedHtml = bodyHtml;
+    } else if (h.card_content !== undefined) {
+      origBack = h.card_content;
+    } else if (typeof lines !== 'undefined' && lines && h.line + 1 <= h.end) {
+      origBack = lines.slice(h.line + 1, h.end + 1).join('\n');
+    }
+
+    const hasAudioMarkup = origBack && (origBack.includes('.mp3') || origBack.includes('.ogg') || origBack.includes('.m4a') || origBack.includes('.wav') || origBack.includes('[sound:') || origBack.includes('fc-audio-wrap'));
+    const audioUrls = hasAudioMarkup ? extractCardAudioUrls(h, origBack) : [];
+    const hasAudio = audioUrls.length > 0 || !!(hasAudioMarkup && bodyHtml && bodyHtml.includes('<audio'));
+
+    const prep = {
+      level: lvl,
+      levelColor,
+      breadcrumb: bc,
+      displayTitle,
+      frontMediaHtml,
+      hasFrontMedia: frontImgs.length > 0,
+      backTitleText,
+      bodyHtml,
+      hasAudioMarkup,
+      audioUrls,
+      hasAudio
+    };
+    h._prepared = prep;
+    return prep;
+  }
+
+  let preloadAheadTimer = null;
+  function schedulePreloadAheadCards(centerIdx, count = 8) {
+    if (!flashcardList || flashcardList.length === 0) return;
+    if (preloadAheadTimer) {
+      if (window.cancelIdleCallback) cancelIdleCallback(preloadAheadTimer);
+      else clearTimeout(preloadAheadTimer);
+    }
+    const runner = () => {
+      const len = flashcardList.length;
+      for (let offset = 1; offset <= count; offset++) {
+        const nextIdx = (centerIdx + offset) % len;
+        if (!flashcardList[nextIdx]._prepared) {
+          prepareCardData(flashcardList[nextIdx], nextIdx);
+        }
+        if (offset <= 2) {
+          const prevIdx = (centerIdx - offset + len) % len;
+          if (!flashcardList[prevIdx]._prepared) {
+            prepareCardData(flashcardList[prevIdx], prevIdx);
+          }
+        }
+      }
+    };
+    if (window.requestIdleCallback) {
+      preloadAheadTimer = requestIdleCallback(runner, { timeout: 200 });
+    } else {
+      preloadAheadTimer = setTimeout(runner, 15);
+    }
+  }
+
   // --- Render Current Flashcard ---
   function renderCurrentCard() {
     stopAllCardAudios();
@@ -17285,58 +17428,28 @@ ${cp.rawDocText || ''}
     if (currentCardIndex < 0) currentCardIndex = 0;
     if (currentCardIndex >= flashcardList.length) currentCardIndex = flashcardList.length - 1;
 
-    const h = flashcardList[currentCardIndex];
-    fcCard.classList.remove('flipped');
-
-    // Front: Level & Breadcrumb
-    fcLevelBadge.textContent = `H${h.level}`;
-    fcLevelBadge.style.color = `var(--h${h.level})`;
-    fcBreadcrumb.textContent = isFolderDeck ? ('📁 ' + (h.breadcrumb || (h.file_name ? `${h.file_name} > H${h.level}` : getBreadcrumb(h)))) : getBreadcrumb(h);
-
-    // Front: Extract any embedded images from front heading title
-    const frontImgs = [];
-    let cleanFrontTitle = (h.text || '')
-      .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m, alt, url) => {
-        const u = url.trim();
-        if (!/\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(\?.*)?$/i.test(u)) {
-          frontImgs.push({ alt: alt || 'Card Image', url: u });
-        }
-        return '';
-      })
-      .replace(/!\[\[([^\]|]+)(?:\|([^\]]*))?\]\]/g, (m, fileRef, extra) => {
-        const u = fileRef.trim();
-        if (!/\.(?:mp3|wav|ogg|m4a|opus|aac|flac)(\?.*)?$/i.test(u)) {
-          frontImgs.push({ alt: (extra || '').trim() || 'Card Image', url: u });
-        }
-        return '';
-      })
-      .replace(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi, (m, src) => {
-        frontImgs.push({ alt: 'Card Image', url: src.trim() });
-        return '';
-      })
-      .replace(/\[sound:[^\]]+\]/g, '')
-      .trim();
-
-    let displayTitle = cleanFrontTitle;
-    if (!displayTitle || /^\d+\.?\s*$/.test(displayTitle)) {
-      if (frontImgs.length > 0 && frontImgs[0].alt && frontImgs[0].alt.toLowerCase() !== 'image' && frontImgs[0].alt.toLowerCase() !== 'card image') {
-        displayTitle = (cleanFrontTitle ? cleanFrontTitle + ' ' : '') + frontImgs[0].alt;
-      } else {
-        displayTitle = cleanFrontTitle || `Card ${currentCardIndex + 1}`;
-      }
+    // Instant reset from flipped without triggering 400ms CSS animation lag
+    if (fcCard.classList.contains('flipped')) {
+      fcCard.classList.add('no-transition');
+      fcCard.classList.remove('flipped');
+      void fcCard.offsetHeight;
+      fcCard.classList.remove('no-transition');
     }
 
-    fcFrontTitle.textContent = displayTitle;
-    fcFrontTitle.style.color = `var(--h${h.level})`;
+    const h = flashcardList[currentCardIndex];
+    const data = prepareCardData(h, currentCardIndex);
 
-    // Front media container
+    // Front: Level & Breadcrumb
+    fcLevelBadge.textContent = `H${data.level}`;
+    fcLevelBadge.style.color = data.levelColor;
+    fcBreadcrumb.textContent = data.breadcrumb;
+    fcFrontTitle.textContent = data.displayTitle;
+    fcFrontTitle.style.color = data.levelColor;
+
     if (fcFrontMedia) {
-      if (frontImgs.length > 0) {
+      if (data.hasFrontMedia) {
         fcFrontMedia.style.display = 'flex';
-        fcFrontMedia.innerHTML = frontImgs.map(img => {
-          const resolved = resolveMediaUrl(img.url, h.file_path);
-          return `<div class="fc-front-img-wrap"><img class="fc-card-img fc-front-card-img" src="${escapeHtml(resolved)}" alt="${escapeHtml(img.alt)}" loading="lazy" onclick="event.stopPropagation(); if(typeof openImageModal==='function') openImageModal('${escapeHtml(resolved)}', '${escapeHtml(img.alt)}');" /></div>`;
-        }).join('');
+        fcFrontMedia.innerHTML = data.frontMediaHtml;
       } else {
         fcFrontMedia.style.display = 'none';
         fcFrontMedia.innerHTML = '';
@@ -17344,46 +17457,20 @@ ${cp.rawDocText || ''}
     }
 
     // Back title & content
-    let cleanBackTitle = (h.text || '')
-      .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '')
-      .replace(/!\[\[([^\]|]+)(?:\|([^\]]*))?\]\]/g, '')
-      .replace(/<img[^>]+src=["'][^"']+["'][^>]*>/gi, '')
-      .replace(/\[sound:[^\]]+\]/g, '')
-      .trim();
-    if (!cleanBackTitle || /^\d+\.?\s*$/.test(cleanBackTitle)) {
-      cleanBackTitle = displayTitle;
-    }
-    fcBackTitle.textContent = '#'.repeat(h.level) + ' ' + cleanBackTitle;
-    fcBackTitle.style.color = `var(--h${h.level})`;
+    fcBackTitle.textContent = data.backTitleText;
+    fcBackTitle.style.color = data.levelColor;
+    if (fcBackContent) fcBackContent.innerHTML = data.bodyHtml;
 
-    let origBack = '';
-    if (h && h.card_content !== undefined) {
-      origBack = h.card_content;
-      if (fcBackContent) fcBackContent.innerHTML = h._cachedHtml || (h._cachedHtml = renderFcMarkdown(h.card_content, h.file_path));
-    } else {
-      if (fcBackContent) fcBackContent.innerHTML = h._cachedHtml || (h._cachedHtml = getCardBodyHtml(h, 800));
-      if (typeof lines !== 'undefined' && lines && h.line + 1 <= h.end) {
-        origBack = lines.slice(h.line + 1, h.end + 1).join('\n');
-      }
-    }
-
-    const hasAudioMarkup = origBack && (origBack.includes('.mp3') || origBack.includes('.ogg') || origBack.includes('.m4a') || origBack.includes('.wav') || origBack.includes('[sound:') || origBack.includes('fc-audio-wrap'));
-    if (hasAudioMarkup) {
+    if (data.hasAudioMarkup) {
       if (fcBackContent) initCardAudioElements(fcBackContent);
       if (fcFrontFace) initCardAudioElements(fcFrontFace);
     }
 
     // Audio support
-    currentCardAudioUrls = hasAudioMarkup ? extractCardAudioUrls(h, origBack) : [];
+    currentCardAudioUrls = data.audioUrls;
     currentCardAudioIndex = 0;
-    const hasAudio = (currentCardAudioUrls.length > 0) || (hasAudioMarkup && fcBackContent && fcBackContent.querySelector('audio'));
-
-    if (fcFrontAudioBtn) {
-      fcFrontAudioBtn.style.display = hasAudio ? 'inline-flex' : 'none';
-    }
-    if (fcBackAudioBtn) {
-      fcBackAudioBtn.style.display = hasAudio ? 'inline-flex' : 'none';
-    }
+    if (fcFrontAudioBtn) fcFrontAudioBtn.style.display = data.hasAudio ? 'inline-flex' : 'none';
+    if (fcBackAudioBtn) fcBackAudioBtn.style.display = data.hasAudio ? 'inline-flex' : 'none';
 
     currentBackPageIndex = 0;
     fcBackBody.scrollTop = 0;
@@ -17401,12 +17488,14 @@ ${cp.rawDocText || ''}
     fcStats.textContent = `Card ${currentCardIndex + 1} of ${flashcardList.length}`;
 
     // Auto-play audio if enabled
-    const autoPlayPref = localStorage.getItem('mdviewer_fc_autoplay_audio');
-    if (autoPlayPref !== 'false' && hasAudio) {
+    if (fcAutoPlayAudio && data.hasAudio) {
       setTimeout(() => {
         playCurrentCardAudio({ initial: true });
       }, 150);
     }
+
+    // Schedule background ahead-loading for the next 8 cards
+    schedulePreloadAheadCards(currentCardIndex, 8);
   }
 
   function flipFlashcard() {
@@ -18436,6 +18525,7 @@ ${cp.rawDocText || ''}
     fcFilterGroup.addEventListener('click', (e) => {
       const btn = e.target.closest('button[data-filter]');
       if (!btn) return;
+      if (btn.classList.contains('active') && flashcardList && flashcardList.length > 0) return;
       fcFilterGroup.querySelectorAll('button').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       flashcardFilter = btn.dataset.filter;
