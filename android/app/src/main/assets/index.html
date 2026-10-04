@@ -8168,7 +8168,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v3.1.11</span>
+          <span class="settings-row-badge" id="appVersionSub">v3.1.12</span>
           <span class="settings-row-chevron">›</span>
         </button>
         <div class="settings-row-config">
@@ -8225,8 +8225,8 @@
   </div>
   <div class="update-body">
     <div class="update-version-row">
-      <span class="badge new-badge" id="updateNewVersion">v3.1.11</span>
-      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.11</span>
+      <span class="badge new-badge" id="updateNewVersion">v3.1.12</span>
+      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.12</span>
     </div>
     <div class="update-changelog-title">Changelog:</div>
     <div class="update-changelog" id="updateChangelog"></div>
@@ -8422,6 +8422,7 @@
         <option value="3">H3 - Level 3 Headings</option>
         <option value="4">H4 - Level 4 Headings</option>
         <option value="all">All Heading Levels (H1 - H6)</option>
+        <option value="file">📄 File Name (1 Card per Markdown File)</option>
       </select>
     </div>
     <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
@@ -8630,7 +8631,7 @@ window.addEventListener('unhandledrejection', function(event) {
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '3.1.11';
+      window.AndroidBridge.getAppVersion() : '3.1.12';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -15945,6 +15946,8 @@ ${cp.rawDocText || ''}
     }
   }
 
+  let currentPreviewCardIdx = -1;
+
   function hidePanel() {
     panel.style.display = 'none';
     panel.classList.remove('visible');
@@ -15952,6 +15955,8 @@ ${cp.rawDocText || ''}
     panelBackdrop.classList.remove('visible');
     currentPreviewHIdx = -1;
     currentPreviewTargetLine = -1;
+    currentPreviewCardIdx = -1;
+    if (panelJumpBtn) panelJumpBtn.textContent = 'Jump';
   }
   panelCloseBtn.addEventListener('click', hidePanel);
   panelBackdrop.addEventListener('click', (e) => {
@@ -15963,6 +15968,27 @@ ${cp.rawDocText || ''}
     if (justDeselected) return;
     const sel = window.getSelection();
     if (sel && sel.toString().trim().length > 0) return;
+
+    // Flashcard gallery popup navigation buttons
+    const prevBtn = e.target.closest('#fcPopupPrevBtn');
+    if (prevBtn) {
+      if (currentPreviewCardIdx > 0 && typeof showCardGalleryPopup === 'function') {
+        showCardGalleryPopup(currentPreviewCardIdx - 1);
+      }
+      return;
+    }
+    const nextBtn = e.target.closest('#fcPopupNextBtn');
+    if (nextBtn) {
+      if (currentPreviewCardIdx < flashcardList.length - 1 && typeof showCardGalleryPopup === 'function') {
+        showCardGalleryPopup(currentPreviewCardIdx + 1);
+      }
+      return;
+    }
+    const studyBtn = e.target.closest('#fcPopupStudyBtn');
+    if (studyBtn) {
+      panelJumpBtn.click();
+      return;
+    }
 
     const pRow = e.target.closest('[data-pline]');
     if (pRow) {
@@ -15978,6 +16004,17 @@ ${cp.rawDocText || ''}
   });
 
   panelJumpBtn.addEventListener('click', () => {
+    if (isFlashcardMode && currentPreviewCardIdx >= 0) {
+      const idx = currentPreviewCardIdx;
+      hidePanel();
+      currentCardIndex = idx;
+      setFcViewMode('study');
+      renderCurrentCard();
+      showToast(`Studying card ${currentCardIndex + 1} of ${flashcardList.length}`);
+      if (navigator.vibrate) navigator.vibrate(12);
+      return;
+    }
+
     const targetH = (currentPreviewHIdx >= 0 && currentPreviewHIdx < headings.length) ? headings[currentPreviewHIdx] : null;
     const jumpLine = currentPreviewTargetLine >= 0 ? currentPreviewTargetLine : (targetH ? targetH.line : -1);
     hidePanel();
@@ -16025,6 +16062,7 @@ ${cp.rawDocText || ''}
   function collectFlashcards(mode = 'outline') {
     if (isFolderDeck) {
       if (!folderDeckAllCards || folderDeckAllCards.length === 0) return [];
+      if (folderDeckInfo && folderDeckInfo.targetLevel === 'file') return folderDeckAllCards.slice();
       if (mode === 'h1') return folderDeckAllCards.filter(h => h.level === 1);
       if (mode === 'h2') return folderDeckAllCards.filter(h => h.level === 2);
       return folderDeckAllCards.slice();
@@ -16952,7 +16990,9 @@ ${cp.rawDocText || ''}
     if (!badge) return;
     if (isFolderDeck && folderDeckInfo) {
       badge.style.display = 'inline-flex';
-      badge.innerHTML = `📁 ${escapeHtml(folderDeckInfo.folderName)} [H${escapeHtml(folderDeckInfo.targetLevel)}] • ${flashcardList.length.toLocaleString()} cards <span class="fc-deck-close" onclick="event.stopPropagation(); exitFolderDeck();" title="Exit Folder Deck">✕</span>`;
+      const targetLvl = String(folderDeckInfo.targetLevel || '2').toLowerCase();
+      const lvlLabel = targetLvl === 'file' ? 'Files' : (targetLvl === 'all' ? 'All' : ('H' + escapeHtml(folderDeckInfo.targetLevel)));
+      badge.innerHTML = `📁 ${escapeHtml(folderDeckInfo.folderName)} [${lvlLabel}] • ${flashcardList.length.toLocaleString()} cards <span class="fc-deck-close" onclick="event.stopPropagation(); exitFolderDeck();" title="Exit Folder Deck">✕</span>`;
     } else {
       badge.style.display = 'none';
     }
@@ -18242,9 +18282,93 @@ ${cp.rawDocText || ''}
     });
   }
 
-  // Gallery Card Actions (Study jump & Peek toggle with lazy rendering)
+  // --- Gallery Card Preview Popup (Hover-style instantaneous modal) ---
+  function showCardGalleryPopup(idx) {
+    if (!flashcardList || idx < 0 || idx >= flashcardList.length) return;
+    currentPreviewCardIdx = idx;
+    currentPreviewHIdx = -1;
+
+    const h = flashcardList[idx];
+    const lvl = h.level || 1;
+    const levelColor = `var(--h${lvl}, var(--accent))`;
+    const bc = isFolderDeck ? ('📁 ' + (h.breadcrumb || (h.file_name ? `${h.file_name} > H${h.level}` : getBreadcrumb(h)))) : getBreadcrumb(h);
+
+    panelTitle.innerHTML = `<span style="color:${levelColor}; font-weight:700; margin-right:6px;">H${lvl}</span> ${escapeHtml(h.text || 'Card Preview')}`;
+    panelTitle.style.color = levelColor;
+    if (panelJumpBtn) {
+      panelJumpBtn.textContent = 'Study';
+      panelJumpBtn.style.display = 'block';
+    }
+
+    const bodyHtml = getCardBodyHtml(h, 2000);
+
+    const prevDisabled = idx <= 0 ? 'disabled style="opacity:0.4; pointer-events:none;"' : '';
+    const nextDisabled = idx >= flashcardList.length - 1 ? 'disabled style="opacity:0.4; pointer-events:none;"' : '';
+
+    panelBody.innerHTML = `
+      <div class="fc-popup-card" style="padding: 4px 2px 14px 2px;">
+        <div class="fc-popup-meta" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; font-size:12px; color:var(--muted); border-bottom:1px solid var(--border); padding-bottom:8px;">
+          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <span class="fc-gcard-badge" style="color:${levelColor}; background:rgba(122,162,247,0.16); padding:2px 8px; border-radius:4px; font-weight:700; font-size:11px;">H${lvl}</span>
+            <span style="color:#7aa2f7; font-weight:600;">${escapeHtml(bc)}</span>
+          </div>
+          <span style="font-weight:700; opacity:0.85; font-size:11.5px; background:rgba(255,255,255,0.06); padding:2px 7px; border-radius:4px;">${idx + 1} / ${flashcardList.length}</span>
+        </div>
+        <div class="fc-popup-front" style="font-size:17px; font-weight:700; color:${levelColor}; line-height:1.4; margin-bottom:14px;">
+          ${escapeHtml('#'.repeat(lvl) + ' ') + formatPreviewInline(h.text || '')}
+        </div>
+        <div class="fc-popup-divider" style="display:flex; align-items:center; gap:8px; margin:16px 0 12px 0; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px;">
+          <span>Answer / Full Content</span>
+          <div style="flex:1; height:1px; background:var(--border);"></div>
+        </div>
+        <div class="fc-popup-body md-body markdown-body" style="font-size:${panelZoomPx}px; line-height:1.55; color:#c0caf5;">
+          ${bodyHtml}
+        </div>
+        <div class="fc-popup-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:24px; padding-top:14px; border-top:1px solid var(--border); gap:8px;">
+          <button type="button" class="panel-btn" id="fcPopupPrevBtn" ${prevDisabled} style="padding:6px 14px; font-size:12.5px;">◀ Prev</button>
+          <button type="button" class="panel-btn" id="fcPopupStudyBtn" style="color:var(--accent); font-weight:700; flex:1; max-width:180px; padding:6px 14px; font-size:12.5px; background:rgba(122,162,247,0.12); border:1px solid rgba(122,162,247,0.3);">🗂️ Study Card</button>
+          <button type="button" class="panel-btn" id="fcPopupNextBtn" ${nextDisabled} style="padding:6px 14px; font-size:12.5px;">Next ▶</button>
+        </div>
+      </div>
+    `;
+
+    initCardAudioElements(panelBody);
+
+    panel.style.display = 'flex';
+    panel.classList.add('visible');
+    panelBackdrop.style.display = 'block';
+    panelBackdrop.classList.add('visible');
+    panelBody.scrollTop = 0;
+  }
+
+  // Swipe support for card popup navigation
+  let popupTouchStartX = 0;
+  let popupTouchStartY = 0;
+  panelBody.addEventListener('touchstart', (e) => {
+    if (currentPreviewCardIdx >= 0 && e.touches.length === 1) {
+      popupTouchStartX = e.touches[0].clientX;
+      popupTouchStartY = e.touches[0].clientY;
+    }
+  }, { passive: true });
+
+  panelBody.addEventListener('touchend', (e) => {
+    if (currentPreviewCardIdx >= 0 && e.changedTouches.length === 1) {
+      const dx = e.changedTouches[0].clientX - popupTouchStartX;
+      const dy = e.changedTouches[0].clientY - popupTouchStartY;
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        if (dx < 0 && currentPreviewCardIdx < flashcardList.length - 1) {
+          showCardGalleryPopup(currentPreviewCardIdx + 1);
+        } else if (dx > 0 && currentPreviewCardIdx > 0) {
+          showCardGalleryPopup(currentPreviewCardIdx - 1);
+        }
+      }
+    }
+  }, { passive: true });
+
+  // Gallery Card Actions (Study jump, Peek toggle, & Hover popup preview)
   if (fcGalleryGrid) {
     fcGalleryGrid.addEventListener('click', (e) => {
+      // 1. Peek answer button: toggle inline answer
       const peekBtn = e.target.closest('button[data-action="peek"]');
       if (peekBtn) {
         const idx = parseInt(peekBtn.dataset.index, 10);
@@ -18266,17 +18390,27 @@ ${cp.rawDocText || ''}
         return;
       }
 
-      // Tap study button or anywhere on card
+      // 2. Explicit Study button: jump to study view
+      const studyBtn = e.target.closest('button[data-action="study"]');
+      if (studyBtn) {
+        const idx = parseInt(studyBtn.dataset.index, 10);
+        if (isNaN(idx)) return;
+        currentCardIndex = idx;
+        setFcViewMode('study');
+        renderCurrentCard();
+        showToast(`Studying card ${currentCardIndex + 1} of ${flashcardList.length}`);
+        if (navigator.vibrate) navigator.vibrate(12);
+        return;
+      }
+
+      // 3. Tap card anywhere else: show full card popup right there (hover mode behavior)
       const cardEl = e.target.closest('.fc-gcard');
       if (!cardEl) return;
       const idx = parseInt(cardEl.dataset.index, 10);
       if (isNaN(idx)) return;
 
-      currentCardIndex = idx;
-      setFcViewMode('study');
-      renderCurrentCard();
-      showToast(`Studying card ${currentCardIndex + 1} of ${flashcardList.length}`);
-      if (navigator.vibrate) navigator.vibrate(12);
+      showCardGalleryPopup(idx);
+      if (navigator.vibrate) navigator.vibrate(8);
     });
   }
 

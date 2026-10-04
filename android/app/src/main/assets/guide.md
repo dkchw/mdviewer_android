@@ -653,6 +653,21 @@ This major release consolidates the massive sequence of updates focused on makin
 
 ---
 
+## 🎴 36. What's New in v3.1.12 (Flashcard Gallery Popup & Desktop Folder Deck Logic)
+
+- **🖼️ In-Place Flashcard Gallery Popup (Hover-Style Peek)**:
+  - Tapping any card in Flashcard Gallery now instantly opens the full card in an interactive popup modal directly over the gallery without navigating away to single-card study mode.
+  - Displays the front heading, metadata badge, breadcrumb, divider, and complete formatted card answer body (with markdown, lists, callouts, and audio playback).
+  - Integrated navigation controls: includes "◀ Prev" and "Next ▶" buttons as well as smooth horizontal swipe gestures on mobile to flip through the deck right within the popup.
+  - One-tap study jump: includes a dedicated "🗂️ Study Card" button both on the gallery card and within the popup header/footer if full study mode is desired.
+- **📁 Desktop-Aligned Folder Deck Importer**:
+  - **Alphabetical File Order**: Android SAF queries now sort subdirectories and scanned files deterministically by file path and name, matching desktop `mdviewer` file traversal order.
+  - **Import by File Name**: Added explicit `📄 File Name (1 Card per Markdown File)` option to the Folder Deck modal filter dropdown, allowing vaults organized with 1 concept per file to be studied effortlessly.
+  - **Headingless Note Recovery**: When importing decks at level `all` or `H1`, files containing no `#` headings are gracefully imported as cards by file name rather than being discarded.
+  - **Deduplication & Badging**: Folder deck badges properly reflect `[Files]` mode and eliminate duplicate entries across complex folder structures.
+
+---
+
 *MD Viewer — Fast, Offline, Private Markdown Reading & Writing on Android.*
 
 

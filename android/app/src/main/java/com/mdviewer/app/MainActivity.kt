@@ -1265,6 +1265,7 @@ class MainActivity : Activity() {
                     Log.w(TAG, "Error scanning folder: $dirDocId", e)
                 }
 
+                subDirs.sortBy { it.second.lowercase() }
                 for (sub in subDirs) {
                     if (mdFiles.size >= MAX_SCANNED_FILES) break
                     scanFolder(sub.first, sub.second)
@@ -1273,57 +1274,48 @@ class MainActivity : Activity() {
 
             scanFolder(rootDocId, "")
 
+            // Deterministic alphabetical file ordering matching desktop mdviewer
+            mdFiles.sortBy { it.second.lowercase() }
+
             val allCards = JSONArray()
             val seenSignatures = HashSet<String>()
             val headingRegex = Regex("""^(#{1,6})\s+(.*)$""")
+            val isByFileName = levelKey.equals("file", ignoreCase = true) || levelKey.equals("filename", ignoreCase = true)
 
-            for (filePair in mdFiles) {
-                if (allCards.length() >= MAX_TOTAL_CARDS) break
-                val fileDocId = filePair.first
-                val filePath = filePair.second
-                val fileName = filePath.substringAfterLast('/')
-
-                val fileContent = readTreeFileContent(fileDocId)
-                if (fileContent.startsWith("ERROR:")) continue
-
-                val fileLines = fileContent.lines()
-                data class HeadingInfo(val level: Int, val text: String, val line: Int, var end: Int)
-                val headingsList = ArrayList<HeadingInfo>()
-
-                for (idx in fileLines.indices) {
-                    val match = headingRegex.find(fileLines[idx])
-                    if (match != null) {
-                        val lvl = match.groupValues[1].length
-                        val hText = match.groupValues[2].trim()
-                        headingsList.add(HeadingInfo(lvl, hText, idx, fileLines.size - 1))
-                    }
-                }
-
-                for (i in headingsList.indices) {
-                    val curr = headingsList[i]
-                    for (j in i + 1 until headingsList.size) {
-                        val nxt = headingsList[j]
-                        if (nxt.level <= curr.level) {
-                            curr.end = maxOf(curr.line, nxt.line - 1)
-                            break
-                        }
-                    }
-                }
-
-                for (h in headingsList) {
+            if (isByFileName) {
+                // Import by file name (1 card per markdown file, identical to desktop mdviewer)
+                for (filePair in mdFiles) {
                     if (allCards.length() >= MAX_TOTAL_CARDS) break
-                    if (targetLevel > 0 && h.level != targetLevel) continue
+                    val fileDocId = filePair.first
+                    val filePath = filePair.second
+                    val fileName = filePath.substringAfterLast('/')
+                    val fileStem = fileName.removeSuffix(".md").removeSuffix(".markdown").removeSuffix(".txt")
 
-                    val cleanText = h.text.trim().lowercase()
-                    val sig = "${h.level}::$cleanText"
+                    val fileContent = readTreeFileContent(fileDocId)
+                    if (fileContent.startsWith("ERROR:")) continue
+
+                    val fileLines = fileContent.lines()
+                    // Detect if there is a primary heading title, or use file stem
+                    val firstH = fileLines.firstOrNull { it.trim().startsWith("#") }
+                    val cardTitle = if (firstH != null) {
+                        firstH.trim().trimStart('#').trim()
+                    } else {
+                        fileStem
+                    }
+
+                    val cleanText = cardTitle.trim().lowercase()
+                    val sig = "file::$cleanText"
                     if (seenSignatures.contains(sig)) continue
                     seenSignatures.add(sig)
 
-                    val startL = h.line + 1
-                    val endL = h.end
-                    val rawBody = if (startL <= endL && startL < fileLines.size) {
-                        val takeCount = minOf(endL - startL + 1, 100)
-                        fileLines.subList(startL, startL + takeCount).joinToString("\n")
+                    val bodyStartIdx = if (firstH != null) {
+                        val idx = fileLines.indexOfFirst { it == firstH }
+                        if (idx >= 0) idx + 1 else 0
+                    } else 0
+
+                    val rawBody = if (bodyStartIdx < fileLines.size) {
+                        val takeCount = minOf(fileLines.size - bodyStartIdx, 100)
+                        fileLines.subList(bodyStartIdx, bodyStartIdx + takeCount).joinToString("\n")
                     } else ""
                     val cardBody = if (rawBody.length > 3000) rawBody.substring(0, 3000) + "\n\n... (continues in note)" else rawBody
 
@@ -1331,14 +1323,103 @@ class MainActivity : Activity() {
                         put("file_path", filePath)
                         put("file_name", fileName)
                         put("file_doc_id", fileDocId)
-                        put("level", h.level)
-                        put("text", h.text)
-                        put("breadcrumb", "$fileName > H${h.level}")
+                        put("level", 1)
+                        put("text", cardTitle)
+                        put("breadcrumb", "$fileName > File")
                         put("card_content", cardBody)
-                        put("line", h.line)
-                        put("end", h.end)
+                        put("line", 0)
+                        put("end", maxOf(0, fileLines.size - 1))
                     }
                     allCards.put(cardObj)
+                }
+            } else {
+                for (filePair in mdFiles) {
+                    if (allCards.length() >= MAX_TOTAL_CARDS) break
+                    val fileDocId = filePair.first
+                    val filePath = filePair.second
+                    val fileName = filePath.substringAfterLast('/')
+
+                    val fileContent = readTreeFileContent(fileDocId)
+                    if (fileContent.startsWith("ERROR:")) continue
+
+                    val fileLines = fileContent.lines()
+                    data class HeadingInfo(val level: Int, val text: String, val line: Int, var end: Int)
+                    val headingsList = ArrayList<HeadingInfo>()
+
+                    for (idx in fileLines.indices) {
+                        val match = headingRegex.find(fileLines[idx])
+                        if (match != null) {
+                            val lvl = match.groupValues[1].length
+                            val hText = match.groupValues[2].trim()
+                            headingsList.add(HeadingInfo(lvl, hText, idx, fileLines.size - 1))
+                        }
+                    }
+
+                    for (i in headingsList.indices) {
+                        val curr = headingsList[i]
+                        for (j in i + 1 until headingsList.size) {
+                            val nxt = headingsList[j]
+                            if (nxt.level <= curr.level) {
+                                curr.end = maxOf(curr.line, nxt.line - 1)
+                                break
+                            }
+                        }
+                    }
+
+                    // Fallback: If document has no headings at all and filter is all or 1, import as card by file name
+                    if (headingsList.isEmpty() && (targetLevel == 0 || targetLevel == 1)) {
+                        val fileStem = fileName.removeSuffix(".md").removeSuffix(".markdown").removeSuffix(".txt")
+                        val cleanText = fileStem.trim().lowercase()
+                        val sig = "1::$cleanText"
+                        if (!seenSignatures.contains(sig)) {
+                            seenSignatures.add(sig)
+                            val rawBody = fileLines.take(100).joinToString("\n")
+                            val cardBody = if (rawBody.length > 3000) rawBody.substring(0, 3000) + "\n\n... (continues in note)" else rawBody
+                            val cardObj = JSONObject().apply {
+                                put("file_path", filePath)
+                                put("file_name", fileName)
+                                put("file_doc_id", fileDocId)
+                                put("level", 1)
+                                put("text", fileStem)
+                                put("breadcrumb", "$fileName > File")
+                                put("card_content", cardBody)
+                                put("line", 0)
+                                put("end", maxOf(0, fileLines.size - 1))
+                            }
+                            allCards.put(cardObj)
+                        }
+                    }
+
+                    for (h in headingsList) {
+                        if (allCards.length() >= MAX_TOTAL_CARDS) break
+                        if (targetLevel > 0 && h.level != targetLevel) continue
+
+                        val cleanText = h.text.trim().lowercase()
+                        val sig = "${h.level}::$cleanText"
+                        if (seenSignatures.contains(sig)) continue
+                        seenSignatures.add(sig)
+
+                        val startL = h.line + 1
+                        val endL = h.end
+                        val rawBody = if (startL <= endL && startL < fileLines.size) {
+                            val takeCount = minOf(endL - startL + 1, 100)
+                            fileLines.subList(startL, startL + takeCount).joinToString("\n")
+                        } else ""
+                        val cardBody = if (rawBody.length > 3000) rawBody.substring(0, 3000) + "\n\n... (continues in note)" else rawBody
+
+                        val cardObj = JSONObject().apply {
+                            put("file_path", filePath)
+                            put("file_name", fileName)
+                            put("file_doc_id", fileDocId)
+                            put("level", h.level)
+                            put("text", h.text)
+                            put("breadcrumb", "$fileName > H${h.level}")
+                            put("card_content", cardBody)
+                            put("line", h.line)
+                            put("end", h.end)
+                        }
+                        allCards.put(cardObj)
+                    }
                 }
             }
 
