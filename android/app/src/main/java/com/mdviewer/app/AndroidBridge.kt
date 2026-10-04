@@ -321,6 +321,12 @@ class AndroidBridge(
     }
 
     @JavascriptInterface
+    fun getFolderDeckPayload(callbackId: String?): String {
+        if (callbackId.isNullOrEmpty()) return ""
+        return activity.getFolderDeckPayload(callbackId)
+    }
+
+    @JavascriptInterface
     fun invalidateVaultCache() {
         activity.invalidateVaultCache()
     }

@@ -87,6 +87,7 @@ class MainActivity : Activity() {
     private val mDocNameCache = ConcurrentHashMap<String, String>()
     val folderCardsCache = ConcurrentHashMap<String, String>()
     val folderTreeCache = ConcurrentHashMap<String, String>()
+    val pendingDeckPayloads = ConcurrentHashMap<String, String>()
     val mBgExecutor: ExecutorService = Executors.newSingleThreadExecutor { r ->
         Thread(r, "mdviewer-bg-indexer").apply { priority = Thread.MIN_PRIORITY }
     }
@@ -94,6 +95,11 @@ class MainActivity : Activity() {
     fun invalidateVaultCache() {
         folderCardsCache.clear()
         folderTreeCache.clear()
+        pendingDeckPayloads.clear()
+    }
+
+    fun getFolderDeckPayload(callbackId: String): String {
+        return pendingDeckPayloads.remove(callbackId) ?: ""
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -1314,10 +1320,10 @@ class MainActivity : Activity() {
                     } else 0
 
                     val rawBody = if (bodyStartIdx < fileLines.size) {
-                        val takeCount = minOf(fileLines.size - bodyStartIdx, 100)
+                        val takeCount = minOf(fileLines.size - bodyStartIdx, 25)
                         fileLines.subList(bodyStartIdx, bodyStartIdx + takeCount).joinToString("\n")
                     } else ""
-                    val cardBody = if (rawBody.length > 3000) rawBody.substring(0, 3000) + "\n\n... (continues in note)" else rawBody
+                    val cardBody = if (rawBody.length > 800) rawBody.substring(0, 800) + "\n\n... (continues in note)" else rawBody
 
                     val cardObj = JSONObject().apply {
                         put("file_path", filePath)
@@ -1347,23 +1353,25 @@ class MainActivity : Activity() {
                     val headingsList = ArrayList<HeadingInfo>()
 
                     for (idx in fileLines.indices) {
-                        val match = headingRegex.find(fileLines[idx])
-                        if (match != null) {
-                            val lvl = match.groupValues[1].length
-                            val hText = match.groupValues[2].trim()
-                            headingsList.add(HeadingInfo(lvl, hText, idx, fileLines.size - 1))
+                        val line = fileLines[idx]
+                        if (line.isNotEmpty() && line[0] == '#') {
+                            val match = headingRegex.find(line)
+                            if (match != null) {
+                                val lvl = match.groupValues[1].length
+                                val hText = match.groupValues[2].trim()
+                                headingsList.add(HeadingInfo(lvl, hText, idx, fileLines.size - 1))
+                            }
                         }
                     }
 
-                    for (i in headingsList.indices) {
-                        val curr = headingsList[i]
-                        for (j in i + 1 until headingsList.size) {
-                            val nxt = headingsList[j]
-                            if (nxt.level <= curr.level) {
-                                curr.end = maxOf(curr.line, nxt.line - 1)
-                                break
-                            }
+                    // Monotonic stack to find heading boundaries in O(N)
+                    val hStack = ArrayList<HeadingInfo>()
+                    for (h in headingsList) {
+                        while (hStack.isNotEmpty() && hStack.last().level >= h.level) {
+                            val popped = hStack.removeAt(hStack.size - 1)
+                            popped.end = maxOf(popped.line, h.line - 1)
                         }
+                        hStack.add(h)
                     }
 
                     // Fallback: If document has no headings at all and filter is all or 1, import as card by file name
@@ -1373,8 +1381,8 @@ class MainActivity : Activity() {
                         val sig = "1::$cleanText"
                         if (!seenSignatures.contains(sig)) {
                             seenSignatures.add(sig)
-                            val rawBody = fileLines.take(100).joinToString("\n")
-                            val cardBody = if (rawBody.length > 3000) rawBody.substring(0, 3000) + "\n\n... (continues in note)" else rawBody
+                            val rawBody = fileLines.take(25).joinToString("\n")
+                            val cardBody = if (rawBody.length > 800) rawBody.substring(0, 800) + "\n\n... (continues in note)" else rawBody
                             val cardObj = JSONObject().apply {
                                 put("file_path", filePath)
                                 put("file_name", fileName)
@@ -1402,10 +1410,10 @@ class MainActivity : Activity() {
                         val startL = h.line + 1
                         val endL = h.end
                         val rawBody = if (startL <= endL && startL < fileLines.size) {
-                            val takeCount = minOf(endL - startL + 1, 100)
+                            val takeCount = minOf(endL - startL + 1, 25)
                             fileLines.subList(startL, startL + takeCount).joinToString("\n")
                         } else ""
-                        val cardBody = if (rawBody.length > 3000) rawBody.substring(0, 3000) + "\n\n... (continues in note)" else rawBody
+                        val cardBody = if (rawBody.length > 800) rawBody.substring(0, 800) + "\n\n... (continues in note)" else rawBody
 
                         val cardObj = JSONObject().apply {
                             put("file_path", filePath)
@@ -1453,8 +1461,9 @@ class MainActivity : Activity() {
                 put("message", "No vault is currently open")
                 put("cards", JSONArray())
             }.toString()
+            pendingDeckPayloads[callbackId] = err
             runOnUiThread {
-                mWebView?.evaluateJavascript("if(window.onFolderCardsLoaded) window.onFolderCardsLoaded(${JSONObject.quote(callbackId)}, ${JSONObject.quote(err)});", null)
+                mWebView?.evaluateJavascript("if(window.onFolderCardsLoaded) window.onFolderCardsLoaded(${JSONObject.quote(callbackId)});", null)
             }
             return
         }
@@ -1465,8 +1474,9 @@ class MainActivity : Activity() {
 
         val cached = folderCardsCache[cacheKey]
         if (cached != null) {
+            pendingDeckPayloads[callbackId] = cached
             runOnUiThread {
-                mWebView?.evaluateJavascript("if(window.onFolderCardsLoaded) window.onFolderCardsLoaded(${JSONObject.quote(callbackId)}, ${JSONObject.quote(cached)});", null)
+                mWebView?.evaluateJavascript("if(window.onFolderCardsLoaded) window.onFolderCardsLoaded(${JSONObject.quote(callbackId)});", null)
             }
             return
         }
@@ -1474,8 +1484,9 @@ class MainActivity : Activity() {
         mBgExecutor.execute {
             try {
                 val result = collectFolderCardsJson(folderDocId, targetLevelStr, recursive)
+                pendingDeckPayloads[callbackId] = result
                 runOnUiThread {
-                    mWebView?.evaluateJavascript("if(window.onFolderCardsLoaded) window.onFolderCardsLoaded(${JSONObject.quote(callbackId)}, ${JSONObject.quote(result)});", null)
+                    mWebView?.evaluateJavascript("if(window.onFolderCardsLoaded) window.onFolderCardsLoaded(${JSONObject.quote(callbackId)});", null)
                 }
             } catch (t: Throwable) {
                 Log.e(TAG, "Async collectFolderCards error", t)
@@ -1484,8 +1495,9 @@ class MainActivity : Activity() {
                     put("message", "Error scanning vault cards: ${t.message ?: t.javaClass.simpleName}")
                     put("cards", JSONArray())
                 }.toString()
+                pendingDeckPayloads[callbackId] = err
                 runOnUiThread {
-                    mWebView?.evaluateJavascript("if(window.onFolderCardsLoaded) window.onFolderCardsLoaded(${JSONObject.quote(callbackId)}, ${JSONObject.quote(err)});", null)
+                    mWebView?.evaluateJavascript("if(window.onFolderCardsLoaded) window.onFolderCardsLoaded(${JSONObject.quote(callbackId)});", null)
                 }
             }
         }

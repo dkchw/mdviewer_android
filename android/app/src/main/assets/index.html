@@ -8788,7 +8788,7 @@ window.addEventListener('unhandledrejection', function(event) {
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '3.1.13';
+      window.AndroidBridge.getAppVersion() : '3.1.14';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -16218,34 +16218,41 @@ ${cp.rawDocText || ''}
   }
 
   function collectFlashcards(mode = 'outline') {
+    let list = [];
     if (isFolderDeck) {
       if (!folderDeckAllCards || folderDeckAllCards.length === 0) return [];
-      if (folderDeckInfo && folderDeckInfo.targetLevel === 'file') return folderDeckAllCards.slice();
-      if (mode === 'h1') return folderDeckAllCards.filter(h => h.level === 1);
-      if (mode === 'h2') return folderDeckAllCards.filter(h => h.level === 2);
-      return folderDeckAllCards.slice();
-    }
-    if (!headings || headings.length === 0) return [];
-    if (mode === 'h1') return headings.filter(h => h.level === 1);
-    if (mode === 'h2') return headings.filter(h => h.level === 2);
-    if (mode === 'all' || currentAppMode === 'basic') return headings.slice();
-
-    // 'outline': All headings visible according to current outline collapsed state!
-    const list = [];
-    for (const h of headings) {
-      let hidden = false;
-      let curr = h;
-      while (curr && curr.parent !== -1) {
-        const p = headings[curr.parent];
-        if (p && p.collapsed) {
-          hidden = true;
-          break;
+      if (folderDeckInfo && folderDeckInfo.targetLevel === 'file') list = folderDeckAllCards.slice();
+      else if (mode === 'h1') list = folderDeckAllCards.filter(h => h.level === 1);
+      else if (mode === 'h2') list = folderDeckAllCards.filter(h => h.level === 2);
+      else list = folderDeckAllCards.slice();
+    } else if (!headings || headings.length === 0) {
+      return [];
+    } else if (mode === 'h1') {
+      list = headings.filter(h => h.level === 1);
+    } else if (mode === 'h2') {
+      list = headings.filter(h => h.level === 2);
+    } else if (mode === 'all' || currentAppMode === 'basic') {
+      list = headings.slice();
+    } else {
+      // 'outline': All headings visible according to current outline collapsed state!
+      for (const h of headings) {
+        let hidden = false;
+        let curr = h;
+        while (curr && curr.parent !== -1) {
+          const p = headings[curr.parent];
+          if (p && p.collapsed) {
+            hidden = true;
+            break;
+          }
+          curr = p;
         }
-        curr = p;
+        if (!hidden) {
+          list.push(h);
+        }
       }
-      if (!hidden) {
-        list.push(h);
-      }
+    }
+    for (let i = 0; i < list.length; i++) {
+      list[i].origIndex = i;
     }
     return list;
   }
@@ -16405,25 +16412,31 @@ ${cp.rawDocText || ''}
       } catch(e) {}
       activeFlashcardAudio = null;
     }
-    document.querySelectorAll('audio').forEach(a => {
-      try {
-        a.pause();
-        a.currentTime = 0;
-      } catch(e) {}
-    });
-    document.querySelectorAll('.fc-audio-wrap').forEach(w => {
-      w.classList.remove('fc-audio-active');
-      const btn = w.querySelector('.fc-audio-play-btn');
-      if (btn) btn.textContent = '▶';
-    });
+    const scopes = [fcCard, panelBody, flashcardGalleryView].filter(Boolean);
+    for (const sc of scopes) {
+      sc.querySelectorAll('audio').forEach(a => {
+        try {
+          a.pause();
+          a.currentTime = 0;
+        } catch(e) {}
+      });
+      sc.querySelectorAll('.fc-audio-wrap.fc-audio-active').forEach(w => {
+        w.classList.remove('fc-audio-active');
+        const btn = w.querySelector('.fc-audio-play-btn');
+        if (btn) btn.textContent = '▶';
+      });
+    }
   }
 
   window.onAudioPlaybackCompleted = function() {
-    document.querySelectorAll('.fc-audio-wrap').forEach(w => {
-      w.classList.remove('fc-audio-active');
-      const btn = w.querySelector('.fc-audio-play-btn');
-      if (btn) btn.textContent = '▶';
-    });
+    const scopes = [fcCard, panelBody, flashcardGalleryView].filter(Boolean);
+    for (const sc of scopes) {
+      sc.querySelectorAll('.fc-audio-wrap.fc-audio-active').forEach(w => {
+        w.classList.remove('fc-audio-active');
+        const btn = w.querySelector('.fc-audio-play-btn');
+        if (btn) btn.textContent = '▶';
+      });
+    }
   };
 
   function extractCardAudioUrls(h, origBack) {
@@ -17031,13 +17044,22 @@ ${cp.rawDocText || ''}
     setFolderDeckLoading(false);
 
     try {
-      const data = (typeof rawJson === 'string') ? JSON.parse(rawJson) : rawJson;
+      let data = null;
+      if (rawJson) {
+        data = (typeof rawJson === 'string') ? JSON.parse(rawJson) : rawJson;
+      } else if (window.AndroidBridge && window.AndroidBridge.getFolderDeckPayload) {
+        const payloadStr = window.AndroidBridge.getFolderDeckPayload(callbackId);
+        data = payloadStr ? JSON.parse(payloadStr) : null;
+      }
       if (!data || data.status !== 'ok' || !data.cards || data.cards.length === 0) {
         showToast(data && data.message ? `⚠️ ${data.message}` : '⚠️ No flashcards found in this folder.');
         return;
       }
 
       const cards = data.cards;
+      for (let i = 0; i < cards.length; i++) {
+        cards[i].origIndex = i;
+      }
       const totalFiles = data.total_files || 1;
       const totalCards = data.total_cards || cards.length;
       const folderName = data.folder_name || openedFolderName || 'Vault';
@@ -17052,8 +17074,8 @@ ${cp.rawDocText || ''}
         totalFiles: totalFiles,
         totalCards: totalCards
       };
-      folderDeckAllCards = cards.slice();
-      flashcardList = cards.slice();
+      folderDeckAllCards = cards;
+      flashcardList = cards;
       currentCardIndex = 0;
 
       if (!isFlashcardMode) {
@@ -17116,6 +17138,10 @@ ${cp.rawDocText || ''}
           return;
         }
 
+        for (let i = 0; i < cards.length; i++) {
+          cards[i].origIndex = i;
+        }
+
         isFolderDeck = true;
         folderDeckInfo = {
           folderDocId: docId,
@@ -17124,8 +17150,8 @@ ${cp.rawDocText || ''}
           totalFiles: totalFiles,
           totalCards: totalCards
         };
-        folderDeckAllCards = cards.slice();
-        flashcardList = cards.slice();
+        folderDeckAllCards = cards;
+        flashcardList = cards;
         currentCardIndex = Math.min(initialCardIndex, Math.max(0, flashcardList.length - 1));
 
         if (!isFlashcardMode) {
@@ -17666,7 +17692,9 @@ ${cp.rawDocText || ''}
     let chunkHtml = '';
     for (let i = 0; i < pageItems.length; i++) {
       const item = pageItems[i];
-      chunkHtml += renderGalleryCardHtml(item.card, item.origIndex, flashcardList.length, face);
+      const card = (item && item.card) ? item.card : item;
+      const origIndex = (item && item.origIndex !== undefined) ? item.origIndex : ((card && card.origIndex !== undefined) ? card.origIndex : (startIndex + i));
+      chunkHtml += renderGalleryCardHtml(card, origIndex, flashcardList.length, face);
     }
     fcGalleryGrid.innerHTML = chunkHtml;
 
@@ -17717,39 +17745,39 @@ ${cp.rawDocText || ''}
     if (reset) {
       fcGalleryCurrentPage = 1;
       const q = (fcGallerySearchQuery || '').toLowerCase().trim();
-      fcGalleryCurrentList = [];
-      for (let i = 0; i < flashcardList.length; i++) {
-        const h = flashcardList[i];
-        if (!q) {
-          fcGalleryCurrentList.push({ card: h, origIndex: i });
-          continue;
-        }
-        if (h.text && h.text.toLowerCase().includes(q)) {
-          fcGalleryCurrentList.push({ card: h, origIndex: i });
-          continue;
-        }
-        const bc = getBreadcrumb(h);
-        if (bc && bc.toLowerCase().includes(q)) {
-          fcGalleryCurrentList.push({ card: h, origIndex: i });
-          continue;
-        }
-        if (h.card_content && h.card_content.toLowerCase().includes(q)) {
-          fcGalleryCurrentList.push({ card: h, origIndex: i });
-          continue;
-        }
-        const startLine = h.line + 1;
-        const endLine = Math.min(h.end, h.line + 40);
-        let matched = false;
-        if (typeof rows !== 'undefined' && rows) {
-          for (let l = startLine; l <= endLine; l++) {
-            if (rows[l] && rows[l].raw && rows[l].raw.toLowerCase().includes(q)) {
-              matched = true;
-              break;
+      if (!q) {
+        fcGalleryCurrentList = flashcardList;
+      } else {
+        fcGalleryCurrentList = [];
+        for (let i = 0; i < flashcardList.length; i++) {
+          const h = flashcardList[i];
+          if (h.text && h.text.toLowerCase().includes(q)) {
+            fcGalleryCurrentList.push(h);
+            continue;
+          }
+          const bc = getBreadcrumb(h);
+          if (bc && bc.toLowerCase().includes(q)) {
+            fcGalleryCurrentList.push(h);
+            continue;
+          }
+          if (h.card_content && h.card_content.slice(0, 300).toLowerCase().includes(q)) {
+            fcGalleryCurrentList.push(h);
+            continue;
+          }
+          if (!isFolderDeck && typeof rows !== 'undefined' && rows) {
+            const startLine = h.line + 1;
+            const endLine = Math.min(h.end, h.line + 40);
+            let matched = false;
+            for (let l = startLine; l <= endLine; l++) {
+              if (rows[l] && rows[l].raw && rows[l].raw.toLowerCase().includes(q)) {
+                matched = true;
+                break;
+              }
+            }
+            if (matched) {
+              fcGalleryCurrentList.push(h);
             }
           }
-        }
-        if (matched) {
-          fcGalleryCurrentList.push({ card: h, origIndex: i });
         }
       }
 
