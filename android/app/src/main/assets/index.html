@@ -1443,20 +1443,23 @@
   #panelBackdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 150;
+    background: rgba(0,0,0,0.55);
+    z-index: 1100;
     display: none;
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
   }
   #panelBackdrop.visible {
     display: block;
   }
   #panel {
     position: fixed;
-    z-index: 151;
+    z-index: 1105;
     left: 12px;
     right: 12px;
-    bottom: calc(68px + env(safe-area-inset-bottom, 0px));
-    max-height: 65vh;
+    top: max(60px, calc(env(safe-area-inset-top, 0px) + 54px));
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    max-height: calc(100vh - 140px);
     background: #1f2335;
     border: 1px solid var(--accent);
     border-radius: 12px;
@@ -1481,17 +1484,20 @@
   /* Landscape Orientation: Dock hover preview panel on the right side */
   @media (orientation: landscape) {
     #panelBackdrop {
-      display: none !important;
-      pointer-events: none !important;
+      display: none;
+      background: rgba(0,0,0,0.3);
+    }
+    #panelBackdrop.visible {
+      display: block;
     }
     #panel {
       left: auto;
       right: max(12px, env(safe-area-inset-right, 12px));
-      top: max(8px, env(safe-area-inset-top, 8px));
+      top: max(56px, calc(env(safe-area-inset-top, 0px) + 50px));
       bottom: calc(58px + env(safe-area-inset-bottom, 0px));
       width: min(48vw, 460px);
       max-width: 460px;
-      max-height: calc(100vh - 68px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+      max-height: calc(100vh - 120px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
       border-radius: 12px;
       box-shadow: -6px 0 32px rgba(0, 0, 0, 0.65), 0 8px 24px rgba(0, 0, 0, 0.5);
       animation: popInRight 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
@@ -6746,6 +6752,7 @@
         <button id="btnHeaderBasicSubMode" class="header-btn pill-btn" title="Toggle Edit / Read Mode">✍️ Edit</button>
         <button id="btnHeaderBasicAa" class="header-btn pill-btn" title="Typography, Text Zoom &amp; Layout">Aa View</button>
         <button id="btnHeaderBasicOutline" class="header-btn pill-btn" title="Switch to Outline / Hover Preview">📑 Outline</button>
+        <button id="btnHeaderBasicCards" class="header-btn pill-btn" title="Study as Flashcards">🗂 Cards</button>
         <button id="btnHeaderPocketStar" class="header-btn pill-btn" style="display:none;" title="Star Note">☆ Star</button>
         <button id="btnHeaderPocketPin" class="header-btn pill-btn" style="display:none;" title="Pin Note to Top">📍 Pin</button>
         <button id="pocketNoteColorBtn" class="pocket-note-color-btn" style="display:none;" title="Change Note Color"></button>
@@ -6832,6 +6839,11 @@
         <button id="btnBasicZoomIn" class="zoom-btn">A+</button>
         <button id="btnBasicZoomReset" class="zoom-btn">Reset</button>
       </div>
+      <div class="opt-group-label" style="margin-top:8px;">Hover Outline Preview</div>
+      <button id="optBasicHoverToggleBtn" class="layout-opt-btn" style="width:100%; display:flex; justify-content:space-between; align-items:center; box-sizing:border-box;">
+        <span>👁️ Tap Heading to Preview</span>
+        <span id="optBasicHoverToggleBadge" style="font-size:11px; padding:2px 8px; border-radius:10px; background:var(--accent); color:#16161e; font-weight:700;">ON</span>
+      </button>
       <div class="opt-group-label" style="margin-top:8px;">File Actions</div>
       <div class="layout-toggle-row">
         <button id="optNewNoteBtn" class="layout-opt-btn">➕ New Note</button>
@@ -6849,6 +6861,11 @@
         <button id="btnZoomIn" class="zoom-btn">A+</button>
         <button id="btnZoomReset" class="zoom-btn">Reset</button>
       </div>
+      <div class="opt-group-label" style="margin-top:8px;">Hover Outline Preview</div>
+      <button id="optOutlineHoverToggleBtn" class="layout-opt-btn" style="width:100%; display:flex; justify-content:space-between; align-items:center; box-sizing:border-box;">
+        <span>👁️ Tap Heading to Preview</span>
+        <span id="optOutlineHoverToggleBadge" style="font-size:11px; padding:2px 8px; border-radius:10px; background:var(--accent); color:#16161e; font-weight:700;">ON</span>
+      </button>
       <div class="opt-group-label" style="margin-top:8px;">Expand to Heading Level</div>
       <div class="lvl-buttons" id="lvlGroup">
         <button class="lvl-btn" data-lvl="1">H1</button>
@@ -8151,7 +8168,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v3.1.7</span>
+          <span class="settings-row-badge" id="appVersionSub">v3.1.8</span>
           <span class="settings-row-chevron">›</span>
         </button>
         <div class="settings-row-config">
@@ -8208,8 +8225,8 @@
   </div>
   <div class="update-body">
     <div class="update-version-row">
-      <span class="badge new-badge" id="updateNewVersion">v3.1.7</span>
-      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.7</span>
+      <span class="badge new-badge" id="updateNewVersion">v3.1.8</span>
+      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.8</span>
     </div>
     <div class="update-changelog-title">Changelog:</div>
     <div class="update-changelog" id="updateChangelog"></div>
@@ -8603,7 +8620,7 @@ window.addEventListener('unhandledrejection', function(event) {
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '3.1.7';
+      window.AndroidBridge.getAppVersion() : '3.1.8';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -9597,6 +9614,7 @@ window.addEventListener('unhandledrejection', function(event) {
     if (checklistZoomDisplay && zoomDisplay) {
       checklistZoomDisplay.textContent = zoomDisplay.textContent;
     }
+    updateHoverButtonUI();
 
     const isOpen = optionsModal.classList.toggle('open');
     if (optionsBackdrop) optionsBackdrop.style.display = isOpen ? 'block' : 'none';
@@ -15543,22 +15561,57 @@ ${cp.rawDocText || ''}
 
   // 3. Hover Mode Toggle
   function updateHoverButtonUI() {
-    if (hoverModeEnabled) {
-      btnHoverToggle.classList.add('hover-active');
-      hoverBadge.textContent = 'ON';
-    } else {
-      btnHoverToggle.classList.remove('hover-active');
-      hoverBadge.textContent = 'OFF';
+    const badgeText = hoverModeEnabled ? 'ON' : 'OFF';
+    if (btnHoverToggle) {
+      btnHoverToggle.classList.toggle('hover-active', hoverModeEnabled);
+    }
+    if (hoverBadge) {
+      hoverBadge.textContent = badgeText;
+    }
+    const bBadge = document.getElementById('optBasicHoverToggleBadge');
+    if (bBadge) {
+      bBadge.textContent = badgeText;
+      bBadge.style.background = hoverModeEnabled ? 'var(--accent)' : 'var(--muted)';
+      bBadge.style.color = hoverModeEnabled ? '#16161e' : '#fff';
+    }
+    const oBadge = document.getElementById('optOutlineHoverToggleBadge');
+    if (oBadge) {
+      oBadge.textContent = badgeText;
+      oBadge.style.background = hoverModeEnabled ? 'var(--accent)' : 'var(--muted)';
+      oBadge.style.color = hoverModeEnabled ? '#16161e' : '#fff';
     }
   }
-  btnHoverToggle.addEventListener('click', () => {
-    hoverModeEnabled = !hoverModeEnabled;
+
+  function setHoverMode(enabled, showToastMsg = true) {
+    hoverModeEnabled = Boolean(enabled);
     controlsConfig.hoverMode = hoverModeEnabled;
     saveControlsConfig();
     if (cfgHoverMode) cfgHoverMode.checked = hoverModeEnabled;
     updateHoverButtonUI();
-    showToast(hoverModeEnabled ? 'Hover Mode: ON (tap any line to preview)' : 'Hover Mode: OFF');
-  });
+    if (showToastMsg) {
+      showToast(hoverModeEnabled ? 'Hover Mode: ON (tap line/heading to preview)' : 'Hover Mode: OFF');
+    }
+  }
+
+  if (btnHoverToggle) {
+    btnHoverToggle.addEventListener('click', () => {
+      setHoverMode(!hoverModeEnabled);
+    });
+  }
+
+  const optBasicHoverToggleBtn = document.getElementById('optBasicHoverToggleBtn');
+  if (optBasicHoverToggleBtn) {
+    optBasicHoverToggleBtn.addEventListener('click', () => {
+      setHoverMode(!hoverModeEnabled);
+    });
+  }
+
+  const optOutlineHoverToggleBtn = document.getElementById('optOutlineHoverToggleBtn');
+  if (optOutlineHoverToggleBtn) {
+    optOutlineHoverToggleBtn.addEventListener('click', () => {
+      setHoverMode(!hoverModeEnabled);
+    });
+  }
 
   // 4. Expand All
   function expandAll() {
@@ -15754,14 +15807,7 @@ ${cp.rawDocText || ''}
   }
   panelCloseBtn.addEventListener('click', hidePanel);
   panelBackdrop.addEventListener('click', (e) => {
-    panelBackdrop.style.pointerEvents = 'none';
-    const under = document.elementFromPoint(e.clientX, e.clientY);
-    panelBackdrop.style.pointerEvents = 'auto';
-    const targetRow = under ? under.closest('.row') : null;
-    if (targetRow) {
-      targetRow.click();
-      return;
-    }
+    e.stopPropagation();
     hidePanel();
   });
 
@@ -16654,7 +16700,7 @@ ${cp.rawDocText || ''}
       currentCardIndex = Math.min(initialCardIndex, Math.max(0, flashcardList.length - 1));
 
       if (!isFlashcardMode) {
-        openFlashcards();
+        enterFlashcardMode();
       } else {
         renderCurrentCard();
       }
@@ -17590,13 +17636,29 @@ ${cp.rawDocText || ''}
   }
 
   function enterFlashcardMode() {
-    const textToUse = (currentAppMode === 'basic') ? basicDocText : rawDocText;
+    if (isFolderDeck && folderDeckAllCards && folderDeckAllCards.length > 0) {
+      isFlashcardMode = true;
+      document.body.classList.add('flashcard-open');
+      flashcardView.style.display = 'flex';
+      updateColumnState();
+      applyFcZoom();
+      flashcardList = folderDeckAllCards.slice();
+      currentCardIndex = 0;
+      setFcViewMode(fcViewMode);
+      updateFolderDeckUI();
+      if (!gamepadRafId) {
+        gamepadRafId = requestAnimationFrame(pollGamepad);
+      }
+      return;
+    }
+
+    const textToUse = (currentAppMode === 'basic') ? (basicDocText || rawDocText || outlineDocText) : (rawDocText || outlineDocText || basicDocText);
     if (!textToUse || !textToUse.trim()) {
       showToast('Please open a markdown file first');
       return;
     }
     if (currentAppMode === 'basic') {
-      parse(basicDocText);
+      parse(textToUse);
     }
     isFlashcardMode = true;
     document.body.classList.add('flashcard-open');
@@ -17612,6 +17674,7 @@ ${cp.rawDocText || ''}
       gamepadRafId = requestAnimationFrame(pollGamepad);
     }
   }
+  window.openFlashcards = enterFlashcardMode;
 
   // Fullscreen Mode for Flashcard
   function toggleFcFullscreen() {
@@ -17712,6 +17775,8 @@ ${cp.rawDocText || ''}
   }
 
   if (btnToggleFlashcard) btnToggleFlashcard.addEventListener('click', enterFlashcardMode);
+  const btnHeaderBasicCards = document.getElementById('btnHeaderBasicCards');
+  if (btnHeaderBasicCards) btnHeaderBasicCards.addEventListener('click', enterFlashcardMode);
   if (btnOpenFlashcards) btnOpenFlashcards.addEventListener('click', () => {
     closeSettings();
     enterFlashcardMode();
@@ -18968,8 +19033,9 @@ ${cp.rawDocText || ''}
           openPocketTabIds.unshift(note.id);
           savePocketTabs();
         }
+        currentPocketNoteId = note.id;
+        currentPocketView = 'editor';
         setAppMode('basic');
-        openPocketNote(note.id);
         showToast(`Loaded ${basicDocName} into Pocket Notes`);
       } else {
         outlineDocName = fileName || 'Document.md';
@@ -19069,8 +19135,9 @@ ${cp.rawDocText || ''}
           openPocketTabIds.unshift(note.id);
           savePocketTabs();
         }
+        currentPocketNoteId = note.id;
+        currentPocketView = 'editor';
         setAppMode('basic');
-        openPocketNote(note.id);
         showToast(`Loaded ${basicDocName} into Pocket Notes`);
       } else {
         outlineDocName = fileName || 'Document.md';
@@ -19283,8 +19350,11 @@ ${cp.rawDocText || ''}
 
   async function loadFileFromTree(docId, name) {
     try {
+      closeDrawer();
       showToast(`Opening ${name}...`);
-      loadTreeFileIntoMode(drawerTargetMode || currentAppMode, docId, name);
+      setTimeout(() => {
+        loadTreeFileIntoMode(drawerTargetMode || currentAppMode, docId, name);
+      }, 10);
     } catch(e) {
       showToast('Could not read: ' + name + ' (' + e.message + ')');
     }
@@ -20540,11 +20610,12 @@ ${cp.rawDocText || ''}
     const targetList = (mode === 'basic') ? recentFilesBasic : recentFilesOutline;
     const storageKey = (mode === 'basic') ? 'mdviewer_recents_basic' : 'mdviewer_recents_outline';
 
+    const lineCount = (typeof lines !== 'undefined' && lines && lines.length) || (text ? fastCountLines(text) : 0);
     const filtered = targetList.filter(f => f.name !== name);
     filtered.unshift({
       name: name,
       size: (text && text.length) || 0,
-      lines: text ? fastCountLines(text) : 0,
+      lines: lineCount,
       snippet: text ? text.slice(0, 15000) : '',
       uri: uri || null,
       docId: docId || null,
@@ -20558,7 +20629,7 @@ ${cp.rawDocText || ''}
     try {
       localStorage.setItem(storageKey, JSON.stringify(filtered));
     } catch(e) {}
-    renderRecentFilesForDrawer();
+    drawerRecentsDirty = true;
   }
 
   let drawerRecentsDirty = true;
@@ -20681,6 +20752,14 @@ ${cp.rawDocText || ''}
 
   // --- Android Hardware Back Button Handling ---
   window.handleBackPressed = function() {
+    if (typeof treeContextMenu !== 'undefined' && treeContextMenu && treeContextMenu.classList.contains('open')) {
+      closeTreeContextMenu();
+      return true;
+    }
+    if (typeof panel !== 'undefined' && panel && (panel.classList.contains('visible') || panel.style.display === 'flex')) {
+      hidePanel();
+      return true;
+    }
     if (outlineEditGuardModal && outlineEditGuardModal.style.display === 'flex') {
       outlineEditGuardModal.style.display = 'none';
       return true;

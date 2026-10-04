@@ -566,6 +566,30 @@ This major release consolidates the massive sequence of updates focused on makin
 
 ---
 
+## ⚡ 32. What's New in v3.1.8 (Performance & UI Stability Overhaul)
+
+- **⚡ 8x Faster Native File Opening**:
+  - Upgraded Android Storage Access Framework (SAF) stream buffer from 8KB to 64KB (`CharArray(65536)`) across both tree and native content resolvers.
+  - Eliminated duplicate note parsing calls during file load.
+  - Optimized drawer recents caching with dirty flag updates, avoiding synchronous DOM layout thrashing on document load.
+  - Immediate drawer auto-dismiss with micro-yield (`setTimeout`) before reading files to ensure silky smooth 60 FPS transitions.
+- **🪟 Fixed Hover Outline Preview Panel**:
+  - Elevated z-index of `#panel` (`1105`) and `#panelBackdrop` (`1100`) above the top header bar (`600`), preventing the panel and close button from being obscured by top bars.
+  - Added dynamic safe area padding (`top: max(60px, calc(env(safe-area-inset-top, 0px) + 54px))`), keeping headers, zoom actions, and close buttons completely visible across landscape and portrait orientations.
+  - Fixed backdrop dismissal behavior: tapping outside now reliably closes the hover preview without falsely triggering clicks on underlying virtual scroller rows.
+  - Integrated hardware/gesture Back button support to dismiss the hover popup cleanly.
+- **🔄 Universal Hover Mode Toggles**:
+  - Added dedicated Hover Mode toggles (`ON`/`OFF`) in the *Aa View Options* modal for both Basic (Notes) Mode and Outline Mode.
+  - Turning hover mode OFF now completely disables popup previews across both outline navigation and basic mode heading clicks.
+  - Synchronized state across bottom bar, options modal badges, and persistent storage.
+- **🗂️ Fixed Card Mode & Folder Decks**:
+  - Resolved `ReferenceError` crash in `loadFolderDeck` by mapping directly to `enterFlashcardMode()`.
+  - Added global safe fallback alias `window.openFlashcards`.
+  - Added `🗂 Cards` quick-launch button in the Basic Mode header toolbar to enter flashcard study directly from notes.
+  - Support studying folder decks and fallback across basic, outline, and raw documents seamlessly.
+
+---
+
 *MD Viewer — Fast, Offline, Private Markdown Reading & Writing on Android.*
 
 

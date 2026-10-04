@@ -770,7 +770,7 @@ class MainActivity : Activity() {
             contentResolver.openInputStream(docUri)?.use { stream ->
                 BufferedReader(InputStreamReader(stream, StandardCharsets.UTF_8)).use { reader ->
                     val sb = StringBuilder()
-                    val buf = CharArray(8192)
+                    val buf = CharArray(65536)
                     var n: Int
                     while (reader.read(buf).also { n = it } > 0) {
                         sb.append(buf, 0, n)
@@ -1327,7 +1327,7 @@ class MainActivity : Activity() {
             contentResolver.openInputStream(uri)?.use { stream ->
                 BufferedReader(InputStreamReader(stream, StandardCharsets.UTF_8)).use { reader ->
                     val sb = StringBuilder()
-                    val buf = CharArray(8192)
+                    val buf = CharArray(65536)
                     var n: Int
                     while (reader.read(buf).also { n = it } > 0) {
                         sb.append(buf, 0, n)
