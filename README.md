@@ -116,6 +116,15 @@ An ultra-fast, lightweight, and 100% offline Markdown workspace and outline read
 
 ---
 
+### 8. 🛡️ Startup Resilience & Diagnostics
+- **Fail-Safe Startup Architecture**:
+  - Independent, guarded initialization blocks for saved state, note stores, and zoom configurations.
+  - Guarantees immediate, zero-freeze cold startup directly into your active notes or outline workspace.
+- **Integrated Diagnostic Logging**:
+  - Native Android logging bridge forwarding WebView JS console messages and resource errors directly into Android logcat for full observability.
+
+---
+
 ## 🛡️ Security & Google Play Hardening
 - **Zero Dangerous Permissions**: Only requires standard `INTERNET` permission for checking releases. Storage is handled purely through Android Storage Access Framework (SAF) without requiring legacy `READ_EXTERNAL_STORAGE`.
 - **System Package Installer**: APK updates download cleanly via Android's `DownloadManager` and trigger standard system package installer prompts.

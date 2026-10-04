@@ -549,5 +549,23 @@ This major release consolidates the massive sequence of updates focused on makin
 
 ---
 
+## 🛡️ 31. What's New in v3.1.7 (Startup Freeze Fix & Boot Resilience Overhaul)
+
+- **🛡️ Resolved Startup Screen Freeze**:
+  - Eliminated syntax error in fallback media parsing that prevented client scripts from executing on launch.
+  - Guaranteed instant, zero-delay cold and warm boot directly into the active mode (Notes/Basic, Outline, or Checklist).
+- **🏗️ Clean DOM Hierarchy Architecture**:
+  - Relocated tree context menu, backdrop, and move modals directly into the document `<body>` prior to script execution, ensuring all DOM nodes and element IDs are properly available on initialization.
+  - Added defensive null checks across file tree context menu and move modal event listeners.
+- **⚡ Fail-Safe Startup Pipeline**:
+  - Wrapped all startup initialization routines (`loadPocketNotes`, `restoreLastOpenedBasic`, `restoreLastOpenedOutline`, `setAppMode`, zoom restoration, background update checker) in guarded try-catch boundaries with safe fallbacks.
+  - Startup will now never halt or freeze even if local storage contains invalid or corrupted data.
+- **🔍 Native Diagnostics & Logging**:
+  - Added `WebChromeClient.onConsoleMessage` and `WebViewClient.onReceivedError` in `MainActivity.kt` for direct, high-visibility logging of WebView JavaScript messages and network errors to Android logcat.
+  - Added global `window.onerror` and `window.onunhandledrejection` crash traps in the client runtime.
+
+---
+
 *MD Viewer — Fast, Offline, Private Markdown Reading & Writing on Android.*
+
 

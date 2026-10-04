@@ -8151,7 +8151,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v3.1.6</span>
+          <span class="settings-row-badge" id="appVersionSub">v3.1.7</span>
           <span class="settings-row-chevron">›</span>
         </button>
         <div class="settings-row-config">
@@ -8208,8 +8208,8 @@
   </div>
   <div class="update-body">
     <div class="update-version-row">
-      <span class="badge new-badge" id="updateNewVersion">v3.1.6</span>
-      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.6</span>
+      <span class="badge new-badge" id="updateNewVersion">v3.1.7</span>
+      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.7</span>
     </div>
     <div class="update-changelog-title">Changelog:</div>
     <div class="update-changelog" id="updateChangelog"></div>
@@ -8533,7 +8533,68 @@
 <!-- Hidden File Input for browser mode fallback -->
 <input type="file" id="hiddenFileInput" accept=".md,.markdown,.txt,text/plain,text/markdown">
 
+<!-- Tree Context Menu -->
+<style>
+  .tree-context-menu {
+    position: fixed;
+    background: #1f2335;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    display: none;
+    flex-direction: column;
+    min-width: 150px;
+    padding: 4px 0;
+  }
+  .tree-context-menu.open {
+    display: flex;
+  }
+  .tree-context-menu-item {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #c0caf5;
+    background: transparent;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+  }
+  .tree-context-menu-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .tree-context-menu-item.danger {
+    color: #f7768e;
+  }
+</style>
+<div class="tree-context-menu" id="treeContextMenu">
+  <button class="tree-context-menu-item" id="ctxBtnStudyFolderDeck">🎴 Study Folder Deck</button>
+  <button class="tree-context-menu-item" id="ctxBtnNewFile">New File</button>
+  <button class="tree-context-menu-item" id="ctxBtnMove">Move</button>
+  <button class="tree-context-menu-item danger" id="ctxBtnDelete">Delete</button>
+</div>
+<div id="treeContextMenuBackdrop" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:9999;"></div>
+
+<!-- Move Modal -->
+<div class="modal" id="moveModal">
+  <div class="modal-content" style="max-width:320px;">
+    <h3 style="margin-top:0;">Move Item</h3>
+    <p style="font-size:14px; color:var(--muted);">Select destination folder:</p>
+    <select id="selectMoveTargetDocId" style="width:100%; padding:10px; border-radius:6px; background:#181b2a; color:#fff; border:1px solid rgba(255,255,255,0.1); margin-bottom:16px;">
+    </select>
+    <div style="display:flex; justify-content:flex-end; gap:8px;">
+      <button class="btn btn-outline" id="btnCancelMove">Cancel</button>
+      <button class="btn btn-primary" id="btnConfirmMove">Move</button>
+    </div>
+  </div>
+</div>
+
 <script>
+window.onerror = function(msg, url, line, col, error) {
+  console.error('[MDViewer Error]', msg, 'at', url, line + ':' + col, error);
+};
+window.addEventListener('unhandledrejection', function(event) {
+  console.error('[MDViewer Unhandled Rejection]', event.reason);
+});
 (function() {
   // --- Constants and Core State ---
   const BASE_LINE_H = 24;
@@ -8542,7 +8603,7 @@
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '3.1.6';
+      window.AndroidBridge.getAppVersion() : '3.1.7';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -14972,7 +15033,7 @@ ${cp.rawDocText || ''}
 
     if (window.AndroidBridge && window.AndroidBridge.readMediaBase64) {
       let pathToRead = cleanUrl;
-      if (pathToRead.startsWith('https://vault.mdviewer/media?path='')) {
+      if (pathToRead.startsWith('https://vault.mdviewer/media?path=')) {
         try {
           pathToRead = decodeURIComponent(pathToRead.split('path=')[1].split('&')[0]);
         } catch(e) {}
@@ -20736,15 +20797,23 @@ ${cp.rawDocText || ''}
       if (ctxBtnStudyFolderDeck) ctxBtnStudyFolderDeck.style.display = 'none';
     }
 
-    treeContextMenu.style.left = Math.min(x, window.innerWidth - 160) + 'px';
-    treeContextMenu.style.top = Math.min(y, window.innerHeight - 150) + 'px';
-    treeContextMenu.classList.add('open');
-    treeCtxBackdrop.style.display = 'block';
+    if (treeContextMenu) {
+      treeContextMenu.style.left = Math.min(x, window.innerWidth - 160) + 'px';
+      treeContextMenu.style.top = Math.min(y, window.innerHeight - 150) + 'px';
+      treeContextMenu.classList.add('open');
+    }
+    if (treeCtxBackdrop) {
+      treeCtxBackdrop.style.display = 'block';
+    }
   };
 
   function closeTreeContextMenu() {
-    treeContextMenu.classList.remove('open');
-    treeCtxBackdrop.style.display = 'none';
+    if (treeContextMenu) {
+      treeContextMenu.classList.remove('open');
+    }
+    if (treeCtxBackdrop) {
+      treeCtxBackdrop.style.display = 'none';
+    }
     activeTreeCtxItem = null;
   }
 
@@ -20902,136 +20971,124 @@ ${cp.rawDocText || ''}
     });
   }
 
-  // --- Initial Load ---
-  updateHoverButtonUI();
-  loadPocketNotes();
-  initDefaultBasicSaveFolder();
-  renderRecentVaultsUI();
-  initVaultDropdown();
+  // --- Initial Load with Fail-Safe Startup Architecture ---
+  try {
+    updateHoverButtonUI();
+  } catch(e) { console.error('Error in updateHoverButtonUI:', e); }
 
-  const basicRestored = restoreLastOpenedBasic();
-  const outlineRestored = restoreLastOpenedOutline();
+  try {
+    loadPocketNotes();
+  } catch(e) { console.error('Error in loadPocketNotes:', e); }
+
+  try {
+    initDefaultBasicSaveFolder();
+  } catch(e) { console.error('Error in initDefaultBasicSaveFolder:', e); }
+
+  try {
+    renderRecentVaultsUI();
+  } catch(e) { console.error('Error in renderRecentVaultsUI:', e); }
+
+  try {
+    initVaultDropdown();
+  } catch(e) { console.error('Error in initVaultDropdown:', e); }
+
+  let basicRestored = false;
+  try {
+    basicRestored = restoreLastOpenedBasic();
+  } catch(e) { console.error('Error in restoreLastOpenedBasic:', e); }
+
+  let outlineRestored = false;
+  try {
+    outlineRestored = restoreLastOpenedOutline();
+  } catch(e) { console.error('Error in restoreLastOpenedOutline:', e); }
 
   // 1. Immediately activate current app mode on startup - ZERO startup lag or delay!
-  setAppMode(currentAppMode);
+  try {
+    setAppMode(currentAppMode || 'basic');
+  } catch(e) {
+    console.error('Error in setAppMode:', e);
+    try { setAppMode('basic'); } catch(e2) {}
+  }
 
   // 2. If any mode needs guide.md, load and initialize it in the background
   if (!basicRestored || !outlineRestored) {
     fetchGuideContent()
       .then(text => {
-        if (!basicRestored) {
-          basicDocName = 'Guide.md';
-          basicDocText = text;
-          if (currentAppMode === 'basic' && currentPocketView === 'editor') {
-            renderBasicDocument(basicDocText, basicDocName);
+        try {
+          if (!basicRestored) {
+            basicDocName = 'Guide.md';
+            basicDocText = text;
+            if (currentAppMode === 'basic' && currentPocketView === 'editor') {
+              renderBasicDocument(basicDocText, basicDocName);
+            }
           }
-        }
-        if (!outlineRestored) {
-          outlineDocName = 'Guide.md';
-          outlineDocText = text;
-          currentDocName = 'Guide.md';
-          parse(text);
-          if (currentAppMode !== 'basic') {
-            render();
+          if (!outlineRestored) {
+            outlineDocName = 'Guide.md';
+            outlineDocText = text;
+            currentDocName = 'Guide.md';
+            parse(text);
+            if (currentAppMode !== 'basic') {
+              render();
+            }
           }
+        } catch(e) {
+          console.error('Error rendering guide content:', e);
         }
       })
       .catch(() => {
-        const fallbackText = '# MD Viewer\n\nWelcome! Swipe from left to right to open file manager.';
-        if (!basicRestored) {
-          basicDocName = 'Guide.md';
-          basicDocText = fallbackText;
-          if (currentAppMode === 'basic' && currentPocketView === 'editor') {
-            renderBasicDocument(basicDocText, basicDocName);
+        try {
+          const fallbackText = '# MD Viewer\n\nWelcome! Swipe from left to right to open file manager.';
+          if (!basicRestored) {
+            basicDocName = 'Guide.md';
+            basicDocText = fallbackText;
+            if (currentAppMode === 'basic' && currentPocketView === 'editor') {
+              renderBasicDocument(basicDocText, basicDocName);
+            }
           }
-        }
-        if (!outlineRestored) {
-          outlineDocName = 'Guide.md';
-          outlineDocText = fallbackText;
-          currentDocName = 'Guide.md';
-          parse(fallbackText);
-          if (currentAppMode !== 'basic') {
-            render();
+          if (!outlineRestored) {
+            outlineDocName = 'Guide.md';
+            outlineDocText = fallbackText;
+            currentDocName = 'Guide.md';
+            parse(fallbackText);
+            if (currentAppMode !== 'basic') {
+              render();
+            }
           }
+        } catch(e) {
+          console.error('Error applying fallback guide:', e);
         }
       });
   }
 
-  
-  const btnHeaderBasicOutline = document.getElementById('btnHeaderBasicOutline');
-  if (btnHeaderBasicOutline) {
-    btnHeaderBasicOutline.addEventListener('click', () => {
-      setAppMode('outline');
-      setDrawerTargetMode('outline');
-    });
-  }
+  try {
+    const btnHeaderBasicOutline = document.getElementById('btnHeaderBasicOutline');
+    if (btnHeaderBasicOutline) {
+      btnHeaderBasicOutline.addEventListener('click', () => {
+        setAppMode('outline');
+        setDrawerTargetMode('outline');
+      });
+    }
+  } catch(e) { console.error('Error binding btnHeaderBasicOutline:', e); }
 
-  applyBasicZoom();
-  applyZoom();
+  try {
+    applyBasicZoom();
+  } catch(e) { console.error('Error in applyBasicZoom:', e); }
+
+  try {
+    applyZoom();
+  } catch(e) { console.error('Error in applyZoom:', e); }
 
   // Check for updates automatically in background after a short delay (if enabled)
   setTimeout(() => {
-    if (controlsConfig.autoDownloadUpdate !== false) {
-      checkForUpdates(false);
+    try {
+      if (typeof controlsConfig !== 'undefined' && controlsConfig && controlsConfig.autoDownloadUpdate !== false) {
+        checkForUpdates(false);
+      }
+    } catch(e) {
+      console.error('Error in checkForUpdates:', e);
     }
   }, 3500);
 })();
 </script>
-
-  <!-- Tree Context Menu -->
-  <style>
-    .tree-context-menu {
-      position: fixed;
-      background: #1f2335;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-      z-index: 10000;
-      display: none;
-      flex-direction: column;
-      min-width: 150px;
-      padding: 4px 0;
-    }
-    .tree-context-menu.open {
-      display: flex;
-    }
-    .tree-context-menu-item {
-      padding: 12px 16px;
-      font-size: 14px;
-      color: #c0caf5;
-      background: transparent;
-      border: none;
-      text-align: left;
-      cursor: pointer;
-    }
-    .tree-context-menu-item:hover {
-      background: rgba(255, 255, 255, 0.05);
-    }
-    .tree-context-menu-item.danger {
-      color: #f7768e;
-    }
-  </style>
-  <div class="tree-context-menu" id="treeContextMenu">
-    <button class="tree-context-menu-item" id="ctxBtnStudyFolderDeck">🎴 Study Folder Deck</button>
-    <button class="tree-context-menu-item" id="ctxBtnNewFile">New File</button>
-    <button class="tree-context-menu-item" id="ctxBtnMove">Move</button>
-    <button class="tree-context-menu-item danger" id="ctxBtnDelete">Delete</button>
-  </div>
-  <div id="treeContextMenuBackdrop" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:9999;"></div>
-
-  <!-- Move Modal -->
-  <div class="modal" id="moveModal">
-    <div class="modal-content" style="max-width:320px;">
-      <h3 style="margin-top:0;">Move Item</h3>
-      <p style="font-size:14px; color:var(--muted);">Select destination folder:</p>
-      <select id="selectMoveTargetDocId" style="width:100%; padding:10px; border-radius:6px; background:#181b2a; color:#fff; border:1px solid rgba(255,255,255,0.1); margin-bottom:16px;">
-      </select>
-      <div style="display:flex; justify-content:flex-end; gap:8px;">
-        <button class="btn btn-outline" id="btnCancelMove">Cancel</button>
-        <button class="btn btn-primary" id="btnConfirmMove">Move</button>
-      </div>
-    </div>
-  </div>
-
 </body>
 </html>
