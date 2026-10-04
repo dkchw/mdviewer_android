@@ -1284,71 +1284,63 @@ class MainActivity : Activity() {
             mdFiles.sortBy { it.second.lowercase() }
 
             val allCards = JSONArray()
-            val seenSignatures = HashSet<String>()
+            val seenSignatures = ConcurrentHashMap.newKeySet<String>()
             val headingRegex = Regex("""^(#{1,6})\s+(.*)$""")
             val isByFileName = levelKey.equals("file", ignoreCase = true) || levelKey.equals("filename", ignoreCase = true)
 
-            if (isByFileName) {
-                // Import by file name (1 card per markdown file, identical to desktop mdviewer)
-                for (filePair in mdFiles) {
-                    if (allCards.length() >= MAX_TOTAL_CARDS) break
-                    val fileDocId = filePair.first
-                    val filePath = filePair.second
-                    val fileName = filePath.substringAfterLast('/')
-                    val fileStem = fileName.removeSuffix(".md").removeSuffix(".markdown").removeSuffix(".txt")
+            fun processFile(filePair: Pair<String, String>): List<JSONObject> {
+                val fileDocId = filePair.first
+                val filePath = filePair.second
+                val fileName = filePath.substringAfterLast('/')
 
-                    val fileContent = readTreeFileContent(fileDocId)
-                    if (fileContent.startsWith("ERROR:")) continue
+                val cards = ArrayList<JSONObject>()
+                val docUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, fileDocId)
+                val fileLines = ArrayList<String>()
 
-                    val fileLines = fileContent.lines()
-                    // Detect if there is a primary heading title, or use file stem
-                    val firstH = fileLines.firstOrNull { it.trim().startsWith("#") }
-                    val cardTitle = if (firstH != null) {
-                        firstH.trim().trimStart('#').trim()
-                    } else {
-                        fileStem
+                try {
+                    contentResolver.openInputStream(docUri)?.use { stream ->
+                        BufferedReader(InputStreamReader(stream, StandardCharsets.UTF_8)).use { reader ->
+                            var line: String? = reader.readLine()
+                            while (line != null && fileLines.size < 4000) {
+                                fileLines.add(line)
+                                line = reader.readLine()
+                            }
+                        }
                     }
+                } catch (e: Exception) {
+                    return emptyList()
+                }
+                if (fileLines.isEmpty()) return emptyList()
 
+                if (isByFileName) {
+                    val fileStem = fileName.removeSuffix(".md").removeSuffix(".markdown").removeSuffix(".txt")
+                    val firstH = fileLines.firstOrNull { it.trim().startsWith("#") }
+                    val cardTitle = if (firstH != null) firstH.trim().trimStart('#').trim() else fileStem
                     val cleanText = cardTitle.trim().lowercase()
                     val sig = "file::$cleanText"
-                    if (seenSignatures.contains(sig)) continue
-                    seenSignatures.add(sig)
-
-                    val bodyStartIdx = if (firstH != null) {
-                        val idx = fileLines.indexOfFirst { it == firstH }
-                        if (idx >= 0) idx + 1 else 0
-                    } else 0
-
-                    val rawBody = if (bodyStartIdx < fileLines.size) {
-                        val takeCount = minOf(fileLines.size - bodyStartIdx, 25)
-                        fileLines.subList(bodyStartIdx, bodyStartIdx + takeCount).joinToString("\n")
-                    } else ""
-                    val cardBody = if (rawBody.length > 800) rawBody.substring(0, 800) + "\n\n... (continues in note)" else rawBody
-
-                    val cardObj = JSONObject().apply {
-                        put("file_path", filePath)
-                        put("file_name", fileName)
-                        put("file_doc_id", fileDocId)
-                        put("level", 1)
-                        put("text", cardTitle)
-                        put("breadcrumb", "$fileName > File")
-                        put("card_content", cardBody)
-                        put("line", 0)
-                        put("end", maxOf(0, fileLines.size - 1))
+                    if (seenSignatures.add(sig)) {
+                        val bodyStartIdx = if (firstH != null) {
+                            val idx = fileLines.indexOfFirst { it == firstH }
+                            if (idx >= 0) idx + 1 else 0
+                        } else 0
+                        val rawBody = if (bodyStartIdx < fileLines.size) {
+                            val takeCount = minOf(fileLines.size - bodyStartIdx, 25)
+                            fileLines.subList(bodyStartIdx, bodyStartIdx + takeCount).joinToString("\n")
+                        } else ""
+                        val cardBody = if (rawBody.length > 800) rawBody.substring(0, 800) + "\n\n... (continues in note)" else rawBody
+                        cards.add(JSONObject().apply {
+                            put("file_path", filePath)
+                            put("file_name", fileName)
+                            put("file_doc_id", fileDocId)
+                            put("level", 1)
+                            put("text", cardTitle)
+                            put("breadcrumb", "$fileName > File")
+                            put("card_content", cardBody)
+                            put("line", 0)
+                            put("end", maxOf(0, fileLines.size - 1))
+                        })
                     }
-                    allCards.put(cardObj)
-                }
-            } else {
-                for (filePair in mdFiles) {
-                    if (allCards.length() >= MAX_TOTAL_CARDS) break
-                    val fileDocId = filePair.first
-                    val filePath = filePair.second
-                    val fileName = filePath.substringAfterLast('/')
-
-                    val fileContent = readTreeFileContent(fileDocId)
-                    if (fileContent.startsWith("ERROR:")) continue
-
-                    val fileLines = fileContent.lines()
+                } else {
                     data class HeadingInfo(val level: Int, val text: String, val line: Int, var end: Int)
                     val headingsList = ArrayList<HeadingInfo>()
 
@@ -1364,7 +1356,6 @@ class MainActivity : Activity() {
                         }
                     }
 
-                    // Monotonic stack to find heading boundaries in O(N)
                     val hStack = ArrayList<HeadingInfo>()
                     for (h in headingsList) {
                         while (hStack.isNotEmpty() && hStack.last().level >= h.level) {
@@ -1374,16 +1365,14 @@ class MainActivity : Activity() {
                         hStack.add(h)
                     }
 
-                    // Fallback: If document has no headings at all and filter is all or 1, import as card by file name
                     if (headingsList.isEmpty() && (targetLevel == 0 || targetLevel == 1)) {
                         val fileStem = fileName.removeSuffix(".md").removeSuffix(".markdown").removeSuffix(".txt")
                         val cleanText = fileStem.trim().lowercase()
                         val sig = "1::$cleanText"
-                        if (!seenSignatures.contains(sig)) {
-                            seenSignatures.add(sig)
+                        if (seenSignatures.add(sig)) {
                             val rawBody = fileLines.take(25).joinToString("\n")
                             val cardBody = if (rawBody.length > 800) rawBody.substring(0, 800) + "\n\n... (continues in note)" else rawBody
-                            val cardObj = JSONObject().apply {
+                            cards.add(JSONObject().apply {
                                 put("file_path", filePath)
                                 put("file_name", fileName)
                                 put("file_doc_id", fileDocId)
@@ -1393,42 +1382,54 @@ class MainActivity : Activity() {
                                 put("card_content", cardBody)
                                 put("line", 0)
                                 put("end", maxOf(0, fileLines.size - 1))
-                            }
-                            allCards.put(cardObj)
+                            })
                         }
                     }
 
                     for (h in headingsList) {
-                        if (allCards.length() >= MAX_TOTAL_CARDS) break
                         if (targetLevel > 0 && h.level != targetLevel) continue
-
                         val cleanText = h.text.trim().lowercase()
                         val sig = "${h.level}::$cleanText"
-                        if (seenSignatures.contains(sig)) continue
-                        seenSignatures.add(sig)
-
-                        val startL = h.line + 1
-                        val endL = h.end
-                        val rawBody = if (startL <= endL && startL < fileLines.size) {
-                            val takeCount = minOf(endL - startL + 1, 25)
-                            fileLines.subList(startL, startL + takeCount).joinToString("\n")
-                        } else ""
-                        val cardBody = if (rawBody.length > 800) rawBody.substring(0, 800) + "\n\n... (continues in note)" else rawBody
-
-                        val cardObj = JSONObject().apply {
-                            put("file_path", filePath)
-                            put("file_name", fileName)
-                            put("file_doc_id", fileDocId)
-                            put("level", h.level)
-                            put("text", h.text)
-                            put("breadcrumb", "$fileName > H${h.level}")
-                            put("card_content", cardBody)
-                            put("line", h.line)
-                            put("end", h.end)
+                        if (seenSignatures.add(sig)) {
+                            val startL = h.line + 1
+                            val endL = h.end
+                            val rawBody = if (startL <= endL && startL < fileLines.size) {
+                                val takeCount = minOf(endL - startL + 1, 25)
+                                fileLines.subList(startL, startL + takeCount).joinToString("\n")
+                            } else ""
+                            val cardBody = if (rawBody.length > 800) rawBody.substring(0, 800) + "\n\n... (continues in note)" else rawBody
+                            cards.add(JSONObject().apply {
+                                put("file_path", filePath)
+                                put("file_name", fileName)
+                                put("file_doc_id", fileDocId)
+                                put("level", h.level)
+                                put("text", h.text)
+                                put("breadcrumb", "$fileName > H${h.level}")
+                                put("card_content", cardBody)
+                                put("line", h.line)
+                                put("end", h.end)
+                            })
                         }
-                        allCards.put(cardObj)
                     }
                 }
+                return cards
+            }
+
+            val numThreads = maxOf(2, minOf(Runtime.getRuntime().availableProcessors(), 8))
+            val pool = Executors.newFixedThreadPool(numThreads)
+            try {
+                val tasks = mdFiles.map { fp -> java.util.concurrent.Callable { processFile(fp) } }
+                val futures = pool.invokeAll(tasks)
+                for (f in futures) {
+                    if (allCards.length() >= MAX_TOTAL_CARDS) break
+                    val fileCards = f.get()
+                    for (c in fileCards) {
+                        if (allCards.length() >= MAX_TOTAL_CARDS) break
+                        allCards.put(c)
+                    }
+                }
+            } finally {
+                pool.shutdown()
             }
 
             val finalResult = JSONObject().apply {

@@ -1443,11 +1443,9 @@
   #panelBackdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.55);
+    background: rgba(15, 17, 26, 0.75);
     z-index: 10070;
     display: none;
-    -webkit-backdrop-filter: blur(2px);
-    backdrop-filter: blur(2px);
   }
   #panelBackdrop.visible {
     display: block;
@@ -1799,6 +1797,7 @@
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     user-select: none;
+    will-change: transform;
   }
   .flashcard.flipped {
     transform: rotateY(180deg);
@@ -1814,6 +1813,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    will-change: transform;
   }
   .fc-front {
     align-items: center;
@@ -8788,7 +8788,7 @@ window.addEventListener('unhandledrejection', function(event) {
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '3.1.14';
+      window.AndroidBridge.getAppVersion() : '3.1.15';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -15242,7 +15242,10 @@ ${cp.rawDocText || ''}
     if (window.AndroidBridge && window.AndroidBridge.playAudio) {
       try {
         const ok = window.AndroidBridge.playAudio(rawPath || streamUrl);
-        if (ok) return;
+        if (ok) {
+          isNativeAudioPlaying = true;
+          return;
+        }
       } catch(e) {
         console.warn('Native playAudio failed:', e);
       }
@@ -16398,12 +16401,16 @@ ${cp.rawDocText || ''}
 
   // --- Flashcard Audio Engine ---
   let activeFlashcardAudio = null;
+  let isNativeAudioPlaying = false;
   let currentCardAudioUrls = [];
   let currentCardAudioIndex = 0;
 
   function stopAllCardAudios() {
-    if (window.AndroidBridge && window.AndroidBridge.stopAudio) {
-      try { window.AndroidBridge.stopAudio(); } catch(e) {}
+    if (isNativeAudioPlaying) {
+      isNativeAudioPlaying = false;
+      if (window.AndroidBridge && window.AndroidBridge.stopAudio) {
+        try { window.AndroidBridge.stopAudio(); } catch(e) {}
+      }
     }
     if (activeFlashcardAudio) {
       try {
@@ -16412,31 +16419,25 @@ ${cp.rawDocText || ''}
       } catch(e) {}
       activeFlashcardAudio = null;
     }
-    const scopes = [fcCard, panelBody, flashcardGalleryView].filter(Boolean);
-    for (const sc of scopes) {
-      sc.querySelectorAll('audio').forEach(a => {
-        try {
-          a.pause();
-          a.currentTime = 0;
-        } catch(e) {}
-      });
-      sc.querySelectorAll('.fc-audio-wrap.fc-audio-active').forEach(w => {
-        w.classList.remove('fc-audio-active');
-        const btn = w.querySelector('.fc-audio-play-btn');
-        if (btn) btn.textContent = '▶';
-      });
-    }
+    // Efficiently target only active audio wrappers without traversing thousands of gallery cards
+    document.querySelectorAll('.fc-audio-wrap.fc-audio-active').forEach(w => {
+      w.classList.remove('fc-audio-active');
+      const btn = w.querySelector('.fc-audio-play-btn');
+      if (btn) btn.textContent = '▶';
+      const a = w.querySelector('audio');
+      if (a) {
+        try { a.pause(); a.currentTime = 0; } catch(e) {}
+      }
+    });
   }
 
   window.onAudioPlaybackCompleted = function() {
-    const scopes = [fcCard, panelBody, flashcardGalleryView].filter(Boolean);
-    for (const sc of scopes) {
-      sc.querySelectorAll('.fc-audio-wrap.fc-audio-active').forEach(w => {
-        w.classList.remove('fc-audio-active');
-        const btn = w.querySelector('.fc-audio-play-btn');
-        if (btn) btn.textContent = '▶';
-      });
-    }
+    isNativeAudioPlaying = false;
+    document.querySelectorAll('.fc-audio-wrap.fc-audio-active').forEach(w => {
+      w.classList.remove('fc-audio-active');
+      const btn = w.querySelector('.fc-audio-play-btn');
+      if (btn) btn.textContent = '▶';
+    });
   };
 
   function extractCardAudioUrls(h, origBack) {
@@ -16515,6 +16516,7 @@ ${cp.rawDocText || ''}
       if (rawPath && window.AndroidBridge && window.AndroidBridge.playAudio) {
         try {
           if (window.AndroidBridge.playAudio(rawPath)) {
+            isNativeAudioPlaying = true;
             return true;
           }
         } catch(e) {
@@ -16549,6 +16551,7 @@ ${cp.rawDocText || ''}
       if (window.AndroidBridge && window.AndroidBridge.playAudio) {
         try {
           if (window.AndroidBridge.playAudio(targetSrc)) {
+            isNativeAudioPlaying = true;
             return true;
           }
         } catch(e) {}
@@ -16619,6 +16622,7 @@ ${cp.rawDocText || ''}
     if (rawPath && window.AndroidBridge && window.AndroidBridge.playAudio) {
       try {
         if (window.AndroidBridge.playAudio(rawPath)) {
+          isNativeAudioPlaying = true;
           return;
         }
       } catch(e) {
@@ -16990,20 +16994,6 @@ ${cp.rawDocText || ''}
 
     if (cachedFolderDeckTreeData && cachedFolderDeckTreeRootId === rootDocId) {
       appendTreeSubfolders(cachedFolderDeckTreeData);
-    } else if (window.AndroidBridge && window.AndroidBridge.getRecursiveTree) {
-      setTimeout(() => {
-        try {
-          const treeRaw = window.AndroidBridge.getRecursiveTree();
-          const treeData = JSON.parse(treeRaw);
-          if (treeData && treeData.status === 'ok' && treeData.root) {
-            cachedFolderDeckTreeData = treeData;
-            cachedFolderDeckTreeRootId = rootDocId;
-            appendTreeSubfolders(treeData);
-          }
-        } catch(err) {
-          console.warn('Async tree fetch for folder deck modal:', err);
-        }
-      }, 40);
     }
   }
 
@@ -17369,25 +17359,24 @@ ${cp.rawDocText || ''}
     let origBack = '';
     if (h && h.card_content !== undefined) {
       origBack = h.card_content;
-      if (fcBackContent) fcBackContent.innerHTML = renderFcMarkdown(h.card_content, h.file_path);
+      if (fcBackContent) fcBackContent.innerHTML = h._cachedHtml || (h._cachedHtml = renderFcMarkdown(h.card_content, h.file_path));
     } else {
-      if (fcBackContent) fcBackContent.innerHTML = getCardBodyHtml(h, 800);
+      if (fcBackContent) fcBackContent.innerHTML = h._cachedHtml || (h._cachedHtml = getCardBodyHtml(h, 800));
       if (typeof lines !== 'undefined' && lines && h.line + 1 <= h.end) {
         origBack = lines.slice(h.line + 1, h.end + 1).join('\n');
       }
     }
 
-    if (fcBackContent) {
-      initCardAudioElements(fcBackContent);
-    }
-    if (fcFrontFace) {
-      initCardAudioElements(fcFrontFace);
+    const hasAudioMarkup = origBack && (origBack.includes('.mp3') || origBack.includes('.ogg') || origBack.includes('.m4a') || origBack.includes('.wav') || origBack.includes('[sound:') || origBack.includes('fc-audio-wrap'));
+    if (hasAudioMarkup) {
+      if (fcBackContent) initCardAudioElements(fcBackContent);
+      if (fcFrontFace) initCardAudioElements(fcFrontFace);
     }
 
     // Audio support
-    currentCardAudioUrls = extractCardAudioUrls(h, origBack);
+    currentCardAudioUrls = hasAudioMarkup ? extractCardAudioUrls(h, origBack) : [];
     currentCardAudioIndex = 0;
-    const hasAudio = (currentCardAudioUrls.length > 0) || (fcBackContent && fcBackContent.querySelector('audio')) || (fcFrontFace && fcFrontFace.querySelector('audio'));
+    const hasAudio = (currentCardAudioUrls.length > 0) || (hasAudioMarkup && fcBackContent && fcBackContent.querySelector('audio'));
 
     if (fcFrontAudioBtn) {
       fcFrontAudioBtn.style.display = hasAudio ? 'inline-flex' : 'none';
@@ -17396,14 +17385,18 @@ ${cp.rawDocText || ''}
       fcBackAudioBtn.style.display = hasAudio ? 'inline-flex' : 'none';
     }
 
-    updateColumnState();
-    applyFcZoom();
     currentBackPageIndex = 0;
     fcBackBody.scrollTop = 0;
     fcBackBody.scrollLeft = 0;
-    setTimeout(() => {
-      goToPage(0, false);
-    }, 40);
+
+    if (fcTwoColumn) {
+      updateColumnState();
+      setTimeout(() => {
+        goToPage(0, false);
+      }, 40);
+    } else {
+      updatePageIndicator();
+    }
 
     fcStats.textContent = `Card ${currentCardIndex + 1} of ${flashcardList.length}`;
 
@@ -18564,7 +18557,7 @@ ${cp.rawDocText || ''}
       panelJumpBtn.style.display = 'block';
     }
 
-    const bodyHtml = getCardBodyHtml(h, 2000);
+    const bodyHtml = h._cachedHtml || (h._cachedHtml = getCardBodyHtml(h, 2000));
 
     const prevDisabled = idx <= 0 ? 'disabled style="opacity:0.4; pointer-events:none;"' : '';
     const nextDisabled = idx >= flashcardList.length - 1 ? 'disabled style="opacity:0.4; pointer-events:none;"' : '';
@@ -18596,13 +18589,17 @@ ${cp.rawDocText || ''}
       </div>
     `;
 
-    initCardAudioElements(panelBody);
+    if (bodyHtml && (bodyHtml.includes('.mp3') || bodyHtml.includes('.m4a') || bodyHtml.includes('[sound:'))) {
+      initCardAudioElements(panelBody);
+    }
 
     panel.classList.add('fc-popup-mode');
-    panel.style.display = 'flex';
-    panel.classList.add('visible');
-    panelBackdrop.style.display = 'block';
-    panelBackdrop.classList.add('visible');
+    if (!panel.classList.contains('visible')) {
+      panel.style.display = 'flex';
+      panel.classList.add('visible');
+      panelBackdrop.style.display = 'block';
+      panelBackdrop.classList.add('visible');
+    }
     panelBody.scrollTop = 0;
   }
 
