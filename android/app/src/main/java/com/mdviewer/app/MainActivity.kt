@@ -31,6 +31,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.Toast
@@ -93,22 +94,6 @@ class MainActivity : Activity() {
     fun invalidateVaultCache() {
         folderCardsCache.clear()
         folderTreeCache.clear()
-        mCurrentTreeUri?.let { triggerBackgroundVaultIndexing(it) }
-    }
-
-    fun triggerBackgroundVaultIndexing(treeUri: Uri) {
-        mBgExecutor.execute {
-            try {
-                val rootDocId = getRootDocumentId(treeUri)
-                if (rootDocId.isNotEmpty()) {
-                    getRecursiveTreeJson(treeUri.toString())
-                    collectFolderCardsJson(rootDocId, "2", true)
-                    collectFolderCardsJson(rootDocId, "all", true)
-                }
-            } catch (e: Exception) {
-                Log.w(TAG, "Background vault indexing skipped: ${e.message}")
-            }
-        }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -120,7 +105,6 @@ class MainActivity : Activity() {
         if (savedTree != null) {
             try {
                 mCurrentTreeUri = Uri.parse(savedTree)
-                triggerBackgroundVaultIndexing(mCurrentTreeUri!!)
             } catch (e: Exception) {
                 mCurrentTreeUri = null
             }
@@ -248,16 +232,28 @@ class MainActivity : Activity() {
                 return super.shouldInterceptRequest(view, url)
             }
 
+            override fun onRenderProcessGone(
+                view: WebView?,
+                detail: RenderProcessGoneDetail?
+            ): Boolean {
+                Log.e(TAG, "WebView render process gone: didCrash=${detail?.didCrash()}")
+                return true
+            }
+
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 handlePendingIntentData()
 
                 mCurrentTreeUri?.let { treeUri ->
-                    val folderName = getFolderName(treeUri)
-                    val rootDocId = getRootDocumentId(treeUri)
-                    val uriStr = treeUri.toString()
-                    webView.post {
-                        notifyFolderOpened(folderName, rootDocId, uriStr, isStartup = true)
+                    try {
+                        val folderName = getFolderName(treeUri)
+                        val rootDocId = getRootDocumentId(treeUri)
+                        val uriStr = treeUri.toString()
+                        webView.post {
+                            notifyFolderOpened(folderName, rootDocId, uriStr, isStartup = true)
+                        }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Failed startup folder notification: ${e.message}")
                     }
                 }
             }
@@ -368,7 +364,6 @@ class MainActivity : Activity() {
             val folderName = getFolderName(treeUri)
             val rootDocId = getRootDocumentId(treeUri)
             mPrefs.edit().putString("last_folder_tree_uri", uriString).putString("last_folder_name", folderName).apply()
-            triggerBackgroundVaultIndexing(treeUri)
             runOnUiThread {
                 notifyFolderOpened(folderName, rootDocId, uriString, isStartup = false)
             }
@@ -587,11 +582,11 @@ class MainActivity : Activity() {
             val resultStr = response.toString()
             folderTreeCache[cacheKey] = resultStr
             resultStr
-        } catch (e: Exception) {
-            Log.e(TAG, "Error building recursive tree", e)
+        } catch (t: Throwable) {
+            Log.e(TAG, "Error building recursive tree", t)
             try {
                 response.put("status", "error")
-                response.put("message", "${e.javaClass.simpleName}: ${e.message}")
+                response.put("message", "${t.javaClass.simpleName}: ${t.message}")
             } catch (ignored: Exception) {}
             response.toString()
         }
@@ -1215,18 +1210,25 @@ class MainActivity : Activity() {
             val targetLevel = if (levelKey == "all") 0 else (levelKey.toIntOrNull() ?: 2)
             val folderName = getDocumentName(treeUri, rootDocId).ifEmpty { getFolderName(treeUri) }
 
+            val MAX_TOTAL_CARDS = 5000
+            val MAX_SCANNED_FILES = 1000
             val mdFiles = ArrayList<Pair<String, String>>()
             val ignoredDirs = hashSetOf(
                 "node_modules", ".obsidian", ".vscode", ".git", ".idea",
                 "assets", "archive", "backup", "_archive", "_backup", "_full_deck", ".trash", ".checkpoints"
             )
 
+            val visitedDirs = HashSet<String>()
             fun scanFolder(dirDocId: String, currentPath: String) {
+                if (visitedDirs.contains(dirDocId) || mdFiles.size >= MAX_SCANNED_FILES) return
+                visitedDirs.add(dirDocId)
+
                 val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, dirDocId)
                 val projection = arrayOf(
                     DocumentsContract.Document.COLUMN_DOCUMENT_ID,
                     DocumentsContract.Document.COLUMN_DISPLAY_NAME,
-                    DocumentsContract.Document.COLUMN_MIME_TYPE
+                    DocumentsContract.Document.COLUMN_MIME_TYPE,
+                    DocumentsContract.Document.COLUMN_SIZE
                 )
                 val subDirs = ArrayList<Pair<String, String>>()
                 try {
@@ -1234,11 +1236,13 @@ class MainActivity : Activity() {
                         val idCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
                         val nameCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
                         val mimeCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE)
+                        val sizeCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE)
 
-                        while (cursor.moveToNext()) {
+                        while (cursor.moveToNext() && mdFiles.size < MAX_SCANNED_FILES) {
                             val id = if (idCol >= 0) cursor.getString(idCol) else null
                             val name = if (nameCol >= 0) cursor.getString(nameCol) else null
                             val mime = if (mimeCol >= 0) cursor.getString(mimeCol) else null
+                            val size = if (sizeCol >= 0) cursor.getLong(sizeCol) else 0L
 
                             if (name == null || name.startsWith(".") || id == null) continue
                             val nameLower = name.lowercase()
@@ -1248,6 +1252,8 @@ class MainActivity : Activity() {
                                     subDirs.add(Pair(id, if (currentPath.isEmpty()) name else "$currentPath/$name"))
                                 }
                             } else {
+                                // Skip files larger than 2MB for card indexing to preserve memory
+                                if (size > 2_000_000L) continue
                                 if (nameLower.endsWith(".md") || nameLower.endsWith(".markdown") || nameLower.endsWith(".txt") ||
                                     "text/markdown" == mime || "text/x-markdown" == mime || "text/plain" == mime) {
                                     mdFiles.add(Pair(id, if (currentPath.isEmpty()) name else "$currentPath/$name"))
@@ -1260,6 +1266,7 @@ class MainActivity : Activity() {
                 }
 
                 for (sub in subDirs) {
+                    if (mdFiles.size >= MAX_SCANNED_FILES) break
                     scanFolder(sub.first, sub.second)
                 }
             }
@@ -1271,6 +1278,7 @@ class MainActivity : Activity() {
             val headingRegex = Regex("""^(#{1,6})\s+(.*)$""")
 
             for (filePair in mdFiles) {
+                if (allCards.length() >= MAX_TOTAL_CARDS) break
                 val fileDocId = filePair.first
                 val filePath = filePair.second
                 val fileName = filePath.substringAfterLast('/')
@@ -1303,6 +1311,7 @@ class MainActivity : Activity() {
                 }
 
                 for (h in headingsList) {
+                    if (allCards.length() >= MAX_TOTAL_CARDS) break
                     if (targetLevel > 0 && h.level != targetLevel) continue
 
                     val cleanText = h.text.trim().lowercase()
@@ -1345,11 +1354,12 @@ class MainActivity : Activity() {
 
             folderCardsCache[cacheKey] = finalResult
             finalResult
-        } catch (e: Exception) {
-            Log.e(TAG, "Error collecting folder cards", e)
+        } catch (t: Throwable) {
+            Log.e(TAG, "Error collecting folder cards", t)
+            folderCardsCache.remove(cacheKey)
             JSONObject().apply {
                 put("status", "error")
-                put("message", "${e.javaClass.simpleName}: ${e.message}")
+                put("message", "Error collecting cards: ${t.message ?: t.javaClass.simpleName}")
                 put("cards", JSONArray())
             }.toString()
         }
@@ -1381,9 +1391,21 @@ class MainActivity : Activity() {
         }
 
         mBgExecutor.execute {
-            val result = collectFolderCardsJson(folderDocId, targetLevelStr, recursive)
-            runOnUiThread {
-                mWebView?.evaluateJavascript("if(window.onFolderCardsLoaded) window.onFolderCardsLoaded(${JSONObject.quote(callbackId)}, ${JSONObject.quote(result)});", null)
+            try {
+                val result = collectFolderCardsJson(folderDocId, targetLevelStr, recursive)
+                runOnUiThread {
+                    mWebView?.evaluateJavascript("if(window.onFolderCardsLoaded) window.onFolderCardsLoaded(${JSONObject.quote(callbackId)}, ${JSONObject.quote(result)});", null)
+                }
+            } catch (t: Throwable) {
+                Log.e(TAG, "Async collectFolderCards error", t)
+                val err = JSONObject().apply {
+                    put("status", "error")
+                    put("message", "Error scanning vault cards: ${t.message ?: t.javaClass.simpleName}")
+                    put("cards", JSONArray())
+                }.toString()
+                runOnUiThread {
+                    mWebView?.evaluateJavascript("if(window.onFolderCardsLoaded) window.onFolderCardsLoaded(${JSONObject.quote(callbackId)}, ${JSONObject.quote(err)});", null)
+                }
             }
         }
     }

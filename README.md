@@ -138,7 +138,7 @@ An ultra-fast, lightweight, and 100% offline Markdown workspace and outline read
 Download the latest signed APK directly from the Releases page:
 
 - **Latest APK**: [Download `mdviewer.apk`](https://github.com/dkchw/mdviewer_android/releases/latest/download/mdviewer.apk)
-- **Version**: **v3.1.9** (Build 57) — *Instant hover popup, native background vault pre-warming, non-blocking folder decks & 10x faster card gallery*
+- **Version**: **v3.1.10** (Build 58) — *Instant cold startup fix (eliminated premature background indexing), gallery card body repair & robust memory-safe deck scanner*
 - **All Releases**: [GitHub Releases](https://github.com/dkchw/mdviewer_android/releases)
 - **Local Path**: [`dist/mdviewer.apk`](dist/mdviewer.apk)
 

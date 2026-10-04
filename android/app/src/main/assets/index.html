@@ -8168,7 +8168,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v3.1.9</span>
+          <span class="settings-row-badge" id="appVersionSub">v3.1.10</span>
           <span class="settings-row-chevron">›</span>
         </button>
         <div class="settings-row-config">
@@ -8225,8 +8225,8 @@
   </div>
   <div class="update-body">
     <div class="update-version-row">
-      <span class="badge new-badge" id="updateNewVersion">v3.1.9</span>
-      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.9</span>
+      <span class="badge new-badge" id="updateNewVersion">v3.1.10</span>
+      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.10</span>
     </div>
     <div class="update-changelog-title">Changelog:</div>
     <div class="update-changelog" id="updateChangelog"></div>
@@ -8630,7 +8630,7 @@ window.addEventListener('unhandledrejection', function(event) {
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '3.1.9';
+      window.AndroidBridge.getAppVersion() : '3.1.10';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -10130,7 +10130,7 @@ window.addEventListener('unhandledrejection', function(event) {
           console.warn('Background parse error:', e);
         }
       }
-    }, 60);
+    }, 200);
   }
 
   function renderBasicDocument(text, fileName) {
@@ -14948,7 +14948,13 @@ ${cp.rawDocText || ''}
 
     computeSegments();
 
-    docTitle.textContent = currentDocName;
+    if (docTitle) {
+      if (currentAppMode === 'basic' && basicDocName) {
+        docTitle.textContent = basicDocName;
+      } else if (currentDocName) {
+        docTitle.textContent = currentDocName;
+      }
+    }
     docStats.textContent = lines.length.toLocaleString() + ' lines, ' + headings.length.toLocaleString() + ' headings';
   }
 
@@ -16737,7 +16743,7 @@ ${cp.rawDocText || ''}
     try {
       const data = (typeof rawJson === 'string') ? JSON.parse(rawJson) : rawJson;
       if (!data || data.status !== 'ok' || !data.cards || data.cards.length === 0) {
-        showToast('⚠️ No flashcards found in this folder.');
+        showToast(data && data.message ? `⚠️ ${data.message}` : '⚠️ No flashcards found in this folder.');
         return;
       }
 
@@ -17280,6 +17286,8 @@ ${cp.rawDocText || ''}
               ${'#'.repeat(h.level)} ${escapeHtml(h.text)}
             </div>
             <div class="fc-gcard-body md-body markdown-body">
+              ${bodyHtml}
+            </div>
           </div>
         </div>
       `;
