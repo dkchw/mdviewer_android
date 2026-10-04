@@ -1444,7 +1444,7 @@
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.55);
-    z-index: 1100;
+    z-index: 10070;
     display: none;
     -webkit-backdrop-filter: blur(2px);
     backdrop-filter: blur(2px);
@@ -1454,7 +1454,7 @@
   }
   #panel {
     position: fixed;
-    z-index: 1105;
+    z-index: 10075;
     left: 12px;
     right: 12px;
     top: max(60px, calc(env(safe-area-inset-top, 0px) + 54px));
@@ -1471,6 +1471,15 @@
   }
   #panel.visible {
     display: flex;
+  }
+  #panel.fc-popup-mode {
+    left: max(12px, calc(50vw - 350px)) !important;
+    right: max(12px, calc(50vw - 350px)) !important;
+    width: auto !important;
+    max-width: 700px !important;
+    margin: 0 auto;
+    border-color: #7aa2f7;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85);
   }
   @keyframes popUp {
     from { opacity: 0; transform: translateY(12px) scale(0.98); }
@@ -2181,6 +2190,130 @@
     font-weight: 700;
     white-space: nowrap;
     margin-left: auto;
+  }
+  .fc-gallery-pagesize-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #1f2335;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2px 8px;
+    height: 32px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
+  .fc-gallery-pagesize-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .fc-gallery-pagesize-select {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--accent);
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+  }
+  .fc-gallery-pagination-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background: #1f2335;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2px 4px;
+    height: 32px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
+  .fc-gpage-btn {
+    background: transparent;
+    border: none;
+    color: var(--fg);
+    font-size: 13px;
+    font-weight: 700;
+    width: 24px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .fc-gpage-btn:hover:not(:disabled) {
+    background: rgba(122, 162, 247, 0.2);
+    color: #7aa2f7;
+  }
+  .fc-gpage-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  .fc-gpage-text {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--muted);
+    padding: 0 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    border-radius: 4px;
+    line-height: 26px;
+  }
+  .fc-gpage-text:hover {
+    color: var(--accent);
+    background: rgba(122, 162, 247, 0.12);
+  }
+  .fc-gallery-pagination-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px auto 10px;
+    padding: 12px 16px;
+    background: #181926;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    max-width: 600px;
+    width: 100%;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+  }
+  .fc-gpage-btn-wide {
+    background: #1f2335;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .fc-gpage-btn-wide:hover:not(:disabled) {
+    background: rgba(122, 162, 247, 0.2);
+    color: #7aa2f7;
+    border-color: #7aa2f7;
+  }
+  .fc-gpage-btn-wide:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .fc-gpage-info-bottom {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--accent);
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .fc-gpage-info-bottom:hover {
+    background: rgba(122, 162, 247, 0.12);
+    text-decoration: underline;
   }
 
   /* Gallery Cards Scroll & Grid */
@@ -7435,11 +7568,35 @@
         <input type="text" id="fcGallerySearchInput" class="fc-gallery-search-input" placeholder="Filter cards..." aria-label="Filter gallery cards" autocomplete="off" />
         <button id="fcGallerySearchClear" class="fc-gallery-search-clear" title="Clear filter" style="display:none;">✕</button>
       </div>
+      <div class="fc-gallery-pagesize-wrap" title="Cards per page">
+        <label for="fcGalleryPageSizeSelect" class="fc-gallery-pagesize-label">Show:</label>
+        <select id="fcGalleryPageSizeSelect" class="fc-gallery-pagesize-select" aria-label="Cards per page">
+          <option value="25">25</option>
+          <option value="50" selected>50</option>
+          <option value="100">100</option>
+          <option value="200">200</option>
+          <option value="500">500</option>
+        </select>
+      </div>
+      <div class="fc-gallery-pagination-top" id="fcGalleryPaginationTop">
+        <button id="fcGalleryFirstBtnTop" class="fc-gpage-btn" title="First page" aria-label="First page">«</button>
+        <button id="fcGalleryPrevBtnTop" class="fc-gpage-btn" title="Previous page" aria-label="Previous page">‹</button>
+        <span id="fcGalleryPageTextTop" class="fc-gpage-text" title="Click to jump to page">1 / 1</span>
+        <button id="fcGalleryNextBtnTop" class="fc-gpage-btn" title="Next page" aria-label="Next page">›</button>
+        <button id="fcGalleryLastBtnTop" class="fc-gpage-btn" title="Last page" aria-label="Last page">»</button>
+      </div>
       <div class="fc-gallery-count" id="fcGalleryCount">0 cards</div>
     </div>
     <div class="fc-gallery-scroll" id="fcGalleryScroll">
       <div class="fc-gallery-grid" id="fcGalleryGrid">
         <!-- Rendered dynamically -->
+      </div>
+      <div class="fc-gallery-pagination-bottom" id="fcGalleryPaginationBottom" style="display:none;">
+        <button id="fcGalleryFirstBtn" class="fc-gpage-btn-wide">⏮ First</button>
+        <button id="fcGalleryPrevBtn" class="fc-gpage-btn-wide">◀ Prev</button>
+        <div id="fcGalleryPageInfoBottom" class="fc-gpage-info-bottom" title="Click to jump to page">Page 1 of 1</div>
+        <button id="fcGalleryNextBtn" class="fc-gpage-btn-wide">Next ▶</button>
+        <button id="fcGalleryLastBtn" class="fc-gpage-btn-wide">Last ⏭</button>
       </div>
     </div>
   </div>
@@ -8168,7 +8325,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v3.1.12</span>
+          <span class="settings-row-badge" id="appVersionSub">v3.1.13</span>
           <span class="settings-row-chevron">›</span>
         </button>
         <div class="settings-row-config">
@@ -8225,8 +8382,8 @@
   </div>
   <div class="update-body">
     <div class="update-version-row">
-      <span class="badge new-badge" id="updateNewVersion">v3.1.12</span>
-      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.12</span>
+      <span class="badge new-badge" id="updateNewVersion">v3.1.13</span>
+      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.13</span>
     </div>
     <div class="update-changelog-title">Changelog:</div>
     <div class="update-changelog" id="updateChangelog"></div>
@@ -8631,7 +8788,7 @@ window.addEventListener('unhandledrejection', function(event) {
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '3.1.12';
+      window.AndroidBridge.getAppVersion() : '3.1.13';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -15951,6 +16108,7 @@ ${cp.rawDocText || ''}
   function hidePanel() {
     panel.style.display = 'none';
     panel.classList.remove('visible');
+    panel.classList.remove('fc-popup-mode');
     panelBackdrop.style.display = 'none';
     panelBackdrop.classList.remove('visible');
     currentPreviewHIdx = -1;
@@ -16741,6 +16899,8 @@ ${cp.rawDocText || ''}
 
   // --- Folder Deck Controller ---
   let fcFolderDeckMap = new Map();
+  let cachedFolderDeckTreeData = null;
+  let cachedFolderDeckTreeRootId = null;
 
   function populateFolderDeckDropdown(preselectedDocId = '', preselectedName = '') {
     fcFolderDeckMap.clear();
@@ -16759,36 +16919,6 @@ ${cp.rawDocText || ''}
         const opt = document.createElement('option');
         opt.value = rootKey;
         datalist.appendChild(opt);
-      }
-    }
-
-    if (window.AndroidBridge && window.AndroidBridge.getRecursiveTree) {
-      try {
-        const treeRaw = window.AndroidBridge.getRecursiveTree();
-        const treeData = JSON.parse(treeRaw);
-        if (treeData && treeData.status === 'ok' && treeData.root) {
-          function collectDirOptions(node, relPath) {
-            if (!node || !node.children) return;
-            for (const c of node.children) {
-              if (c.kind === 'directory') {
-                const subPath = relPath ? `${relPath}/${c.name}` : c.name;
-                const optVal = `📁 ${subPath}`;
-                fcFolderDeckMap.set(optVal, c.id);
-                fcFolderDeckMap.set(subPath, c.id);
-                fcFolderDeckMap.set(c.name, c.id);
-                if (datalist) {
-                  const opt = document.createElement('option');
-                  opt.value = optVal;
-                  datalist.appendChild(opt);
-                }
-                collectDirOptions(c, subPath);
-              }
-            }
-          }
-          collectDirOptions(treeData.root, '');
-        }
-      } catch(err) {
-        console.warn('Error reading recursive tree for folder deck modal:', err);
       }
     }
 
@@ -16823,12 +16953,51 @@ ${cp.rawDocText || ''}
       pathInput.focus();
       pathInput.select();
     }
+
+    function appendTreeSubfolders(treeData) {
+      if (!treeData || !treeData.root || !datalist) return;
+      function collectDirOptions(node, relPath) {
+        if (!node || !node.children) return;
+        for (const c of node.children) {
+          if (c.kind === 'directory') {
+            const subPath = relPath ? `${relPath}/${c.name}` : c.name;
+            const optVal = `📁 ${subPath}`;
+            fcFolderDeckMap.set(optVal, c.id);
+            fcFolderDeckMap.set(subPath, c.id);
+            fcFolderDeckMap.set(c.name, c.id);
+            const opt = document.createElement('option');
+            opt.value = optVal;
+            datalist.appendChild(opt);
+            collectDirOptions(c, subPath);
+          }
+        }
+      }
+      collectDirOptions(treeData.root, '');
+    }
+
+    if (cachedFolderDeckTreeData && cachedFolderDeckTreeRootId === rootDocId) {
+      appendTreeSubfolders(cachedFolderDeckTreeData);
+    } else if (window.AndroidBridge && window.AndroidBridge.getRecursiveTree) {
+      setTimeout(() => {
+        try {
+          const treeRaw = window.AndroidBridge.getRecursiveTree();
+          const treeData = JSON.parse(treeRaw);
+          if (treeData && treeData.status === 'ok' && treeData.root) {
+            cachedFolderDeckTreeData = treeData;
+            cachedFolderDeckTreeRootId = rootDocId;
+            appendTreeSubfolders(treeData);
+          }
+        } catch(err) {
+          console.warn('Async tree fetch for folder deck modal:', err);
+        }
+      }, 40);
+    }
   }
 
   function openFolderDeckModal(folderDocId = '', folderName = '') {
-    populateFolderDeckDropdown(folderDocId, folderName);
     const modal = document.getElementById('fcFolderDeckModal');
     if (modal) modal.style.display = 'flex';
+    populateFolderDeckDropdown(folderDocId, folderName);
   }
 
   function closeFolderDeckModal() {
@@ -17298,9 +17467,6 @@ ${cp.rawDocText || ''}
   }
 
   let fcGalleryCurrentList = [];
-  let fcGalleryRenderedCount = 0;
-  const FC_GALLERY_BATCH_SIZE = 12;
-  let fcGallerySentinelObserver = null;
 
   function getGalleryCardBodyHtml(h, maxLines = 8) {
     if (!h) return '';
@@ -17417,42 +17583,117 @@ ${cp.rawDocText || ''}
     }
   }
 
-  function appendNextGalleryBatch() {
-    if (!fcGalleryGrid || !fcGalleryCurrentList || fcGalleryRenderedCount >= fcGalleryCurrentList.length) {
-      const sentinel = document.getElementById('fcGallerySentinel');
-      if (sentinel) sentinel.style.display = 'none';
+  let fcGalleryPageSize = 50;
+  try {
+    const savedPs = parseInt(localStorage.getItem('mdv_fc_gallery_pagesize'), 10);
+    if (savedPs && [25, 50, 100, 200, 500].includes(savedPs)) {
+      fcGalleryPageSize = savedPs;
+    }
+  } catch(e) {}
+  let fcGalleryCurrentPage = 1;
+
+  function updateGalleryPaginationUI(currentPage, totalPages, totalCards, startIndex = 0, endIndex = 0) {
+    if (fcGalleryCount) {
+      if (totalCards === 0) {
+        fcGalleryCount.textContent = '0 cards';
+      } else if (fcGallerySearchQuery) {
+        fcGalleryCount.textContent = `${startIndex + 1}–${endIndex} of ${totalCards} (${flashcardList.length} total)`;
+      } else {
+        fcGalleryCount.textContent = `${startIndex + 1}–${endIndex} of ${totalCards} cards`;
+      }
+    }
+
+    // Top pagination
+    const pageTextTop = document.getElementById('fcGalleryPageTextTop');
+    if (pageTextTop) pageTextTop.textContent = `${currentPage} / ${totalPages}`;
+    const btnFirstTop = document.getElementById('fcGalleryFirstBtnTop');
+    const btnPrevTop = document.getElementById('fcGalleryPrevBtnTop');
+    const btnNextTop = document.getElementById('fcGalleryNextBtnTop');
+    const btnLastTop = document.getElementById('fcGalleryLastBtnTop');
+    if (btnFirstTop) btnFirstTop.disabled = currentPage <= 1;
+    if (btnPrevTop) btnPrevTop.disabled = currentPage <= 1;
+    if (btnNextTop) btnNextTop.disabled = currentPage >= totalPages;
+    if (btnLastTop) btnLastTop.disabled = currentPage >= totalPages;
+
+    // Bottom pagination
+    const bottomWrap = document.getElementById('fcGalleryPaginationBottom');
+    if (bottomWrap) {
+      bottomWrap.style.display = totalCards > 0 ? 'flex' : 'none';
+    }
+    const pageInfoBottom = document.getElementById('fcGalleryPageInfoBottom');
+    if (pageInfoBottom) {
+      pageInfoBottom.textContent = `Page ${currentPage} of ${totalPages} (${startIndex + 1}–${endIndex} of ${totalCards})`;
+    }
+    const btnFirst = document.getElementById('fcGalleryFirstBtn');
+    const btnPrev = document.getElementById('fcGalleryPrevBtn');
+    const btnNext = document.getElementById('fcGalleryNextBtn');
+    const btnLast = document.getElementById('fcGalleryLastBtn');
+    if (btnFirst) btnFirst.disabled = currentPage <= 1;
+    if (btnPrev) btnPrev.disabled = currentPage <= 1;
+    if (btnNext) btnNext.disabled = currentPage >= totalPages;
+    if (btnLast) btnLast.disabled = currentPage >= totalPages;
+
+    const pageSizeSelect = document.getElementById('fcGalleryPageSizeSelect');
+    if (pageSizeSelect && String(pageSizeSelect.value) !== String(fcGalleryPageSize)) {
+      pageSizeSelect.value = String(fcGalleryPageSize);
+    }
+  }
+
+  function renderGalleryCurrentPage() {
+    if (!fcGalleryGrid) return;
+    if (!fcGalleryCurrentList || fcGalleryCurrentList.length === 0) {
+      fcGalleryGrid.innerHTML = `
+        <div style="text-align:center; padding:48px 16px; color:var(--muted);">
+          <div style="font-size:32px; margin-bottom:8px;">🔍</div>
+          <div style="font-size:14px; font-weight:600;">No matching cards found</div>
+          <div style="font-size:12px; margin-top:4px; opacity:0.8;">Try a different search keyword or heading filter.</div>
+        </div>
+      `;
+      updateGalleryPaginationUI(1, 1, 0, 0, 0);
       return;
     }
 
+    const totalCards = fcGalleryCurrentList.length;
+    const totalPages = Math.max(1, Math.ceil(totalCards / fcGalleryPageSize));
+    if (fcGalleryCurrentPage < 1) fcGalleryCurrentPage = 1;
+    if (fcGalleryCurrentPage > totalPages) fcGalleryCurrentPage = totalPages;
+
+    const startIndex = (fcGalleryCurrentPage - 1) * fcGalleryPageSize;
+    const endIndex = Math.min(startIndex + fcGalleryPageSize, totalCards);
+    const pageItems = fcGalleryCurrentList.slice(startIndex, endIndex);
+
     const face = fcGalleryFaceMode || 'both';
-    const totalCards = flashcardList.length;
-    const start = fcGalleryRenderedCount;
-    const end = Math.min(start + FC_GALLERY_BATCH_SIZE, fcGalleryCurrentList.length);
-
     let chunkHtml = '';
-    for (let i = start; i < end; i++) {
-      const item = fcGalleryCurrentList[i];
-      chunkHtml += renderGalleryCardHtml(item.card, item.origIndex, totalCards, face);
+    for (let i = 0; i < pageItems.length; i++) {
+      const item = pageItems[i];
+      chunkHtml += renderGalleryCardHtml(item.card, item.origIndex, flashcardList.length, face);
     }
+    fcGalleryGrid.innerHTML = chunkHtml;
 
-    const sentinel = document.getElementById('fcGallerySentinel');
-    if (sentinel) {
-      sentinel.insertAdjacentHTML('beforebegin', chunkHtml);
-    } else {
-      fcGalleryGrid.insertAdjacentHTML('beforeend', chunkHtml);
+    const scrollEl = document.getElementById('fcGalleryScroll');
+    if (scrollEl) scrollEl.scrollTop = 0;
+
+    updateGalleryPaginationUI(fcGalleryCurrentPage, totalPages, totalCards, startIndex, endIndex);
+  }
+
+  function setGalleryPage(pageNo) {
+    if (!fcGalleryCurrentList || fcGalleryCurrentList.length === 0) return;
+    const totalPages = Math.max(1, Math.ceil(fcGalleryCurrentList.length / fcGalleryPageSize));
+    const target = Math.max(1, Math.min(pageNo, totalPages));
+    if (target !== fcGalleryCurrentPage) {
+      fcGalleryCurrentPage = target;
+      renderGalleryCurrentPage();
     }
+  }
 
-    fcGalleryRenderedCount = end;
-
-    if (sentinel) {
-      if (fcGalleryRenderedCount >= fcGalleryCurrentList.length) {
-        sentinel.style.display = 'none';
-      } else {
-        sentinel.style.display = 'flex';
-        sentinel.textContent = `Showing ${fcGalleryRenderedCount} of ${fcGalleryCurrentList.length} cards...`;
-        if (fcGallerySentinelObserver) {
-          fcGallerySentinelObserver.observe(sentinel);
-        }
+  function promptGalleryJumpPage() {
+    if (!fcGalleryCurrentList || fcGalleryCurrentList.length === 0) return;
+    const totalPages = Math.max(1, Math.ceil(fcGalleryCurrentList.length / fcGalleryPageSize));
+    const res = prompt(`Jump to page (1 – ${totalPages}):`, fcGalleryCurrentPage);
+    if (res !== null) {
+      const p = parseInt(res.trim(), 10);
+      if (!isNaN(p) && p >= 1 && p <= totalPages) {
+        setGalleryPage(p);
       }
     }
   }
@@ -17469,10 +17710,12 @@ ${cp.rawDocText || ''}
       `;
       if (fcGalleryCount) fcGalleryCount.textContent = '0 cards';
       if (fcStats) fcStats.textContent = '0 / 0';
+      updateGalleryPaginationUI(1, 1, 0, 0, 0);
       return;
     }
 
     if (reset) {
+      fcGalleryCurrentPage = 1;
       const q = (fcGallerySearchQuery || '').toLowerCase().trim();
       fcGalleryCurrentList = [];
       for (let i = 0; i < flashcardList.length; i++) {
@@ -17510,64 +17753,12 @@ ${cp.rawDocText || ''}
         }
       }
 
-      if (fcGalleryCount) {
-        if (q) {
-          fcGalleryCount.textContent = `${fcGalleryCurrentList.length} of ${flashcardList.length} cards`;
-        } else {
-          fcGalleryCount.textContent = `${flashcardList.length} cards`;
-        }
-      }
       if (fcStats) {
         fcStats.textContent = `Gallery: ${flashcardList.length} cards`;
       }
-
-      if (fcGalleryCurrentList.length === 0) {
-        fcGalleryGrid.innerHTML = `
-          <div style="text-align:center; padding:48px 16px; color:var(--muted);">
-            <div style="font-size:32px; margin-bottom:8px;">🔍</div>
-            <div style="font-size:14px; font-weight:600;">No matching cards found</div>
-            <div style="font-size:12px; margin-top:4px; opacity:0.8;">Try a different search keyword or heading filter.</div>
-          </div>
-        `;
-        return;
-      }
-
-      fcGalleryRenderedCount = 0;
-      fcGalleryGrid.innerHTML = `
-        <div id="fcGallerySentinel" style="height:48px; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px; width:100%;">Loading more cards...</div>
-      `;
-
-      if (!fcGallerySentinelObserver && window.IntersectionObserver) {
-        fcGallerySentinelObserver = new IntersectionObserver((entries) => {
-          for (const entry of entries) {
-            if (entry.isIntersecting) {
-              fcGallerySentinelObserver.unobserve(entry.target);
-              appendNextGalleryBatch();
-            }
-          }
-        }, {
-          root: document.getElementById('fcGalleryScroll'),
-          rootMargin: '400px'
-        });
-      }
-
-      const scrollEl = document.getElementById('fcGalleryScroll');
-      if (scrollEl) scrollEl.scrollTop = 0;
     }
 
-    appendNextGalleryBatch();
-  }
-
-  // Backup scroll listener for smooth continuous infinite scrolling
-  const fcGalleryScrollEl = document.getElementById('fcGalleryScroll');
-  if (fcGalleryScrollEl) {
-    fcGalleryScrollEl.addEventListener('scroll', () => {
-      if (fcGalleryCurrentList && fcGalleryRenderedCount < fcGalleryCurrentList.length) {
-        if (fcGalleryScrollEl.scrollTop + fcGalleryScrollEl.clientHeight >= fcGalleryScrollEl.scrollHeight - 600) {
-          appendNextGalleryBatch();
-        }
-      }
-    }, { passive: true });
+    renderGalleryCurrentPage();
   }
 
   // --- Standard Xbox One Controller Definitions & Gamepad Loop ---
@@ -18282,6 +18473,51 @@ ${cp.rawDocText || ''}
     });
   }
 
+  // Gallery Pagination Event Listeners
+  const fcGalleryPageSizeSelect = document.getElementById('fcGalleryPageSizeSelect');
+  if (fcGalleryPageSizeSelect) {
+    fcGalleryPageSizeSelect.value = String(fcGalleryPageSize);
+    fcGalleryPageSizeSelect.addEventListener('change', (e) => {
+      const ps = parseInt(e.target.value, 10);
+      if (ps && [25, 50, 100, 200, 500].includes(ps)) {
+        fcGalleryPageSize = ps;
+        try { localStorage.setItem('mdv_fc_gallery_pagesize', ps); } catch(err) {}
+        fcGalleryCurrentPage = 1;
+        renderGalleryCurrentPage();
+      }
+    });
+  }
+
+  const fcGalleryFirstBtnTop = document.getElementById('fcGalleryFirstBtnTop');
+  const fcGalleryPrevBtnTop = document.getElementById('fcGalleryPrevBtnTop');
+  const fcGalleryNextBtnTop = document.getElementById('fcGalleryNextBtnTop');
+  const fcGalleryLastBtnTop = document.getElementById('fcGalleryLastBtnTop');
+  const fcGalleryPageTextTop = document.getElementById('fcGalleryPageTextTop');
+
+  if (fcGalleryFirstBtnTop) fcGalleryFirstBtnTop.addEventListener('click', () => setGalleryPage(1));
+  if (fcGalleryPrevBtnTop) fcGalleryPrevBtnTop.addEventListener('click', () => setGalleryPage(fcGalleryCurrentPage - 1));
+  if (fcGalleryNextBtnTop) fcGalleryNextBtnTop.addEventListener('click', () => setGalleryPage(fcGalleryCurrentPage + 1));
+  if (fcGalleryLastBtnTop) fcGalleryLastBtnTop.addEventListener('click', () => {
+    const totalPages = Math.max(1, Math.ceil((fcGalleryCurrentList ? fcGalleryCurrentList.length : 0) / fcGalleryPageSize));
+    setGalleryPage(totalPages);
+  });
+  if (fcGalleryPageTextTop) fcGalleryPageTextTop.addEventListener('click', promptGalleryJumpPage);
+
+  const fcGalleryFirstBtn = document.getElementById('fcGalleryFirstBtn');
+  const fcGalleryPrevBtn = document.getElementById('fcGalleryPrevBtn');
+  const fcGalleryNextBtn = document.getElementById('fcGalleryNextBtn');
+  const fcGalleryLastBtn = document.getElementById('fcGalleryLastBtn');
+  const fcGalleryPageInfoBottom = document.getElementById('fcGalleryPageInfoBottom');
+
+  if (fcGalleryFirstBtn) fcGalleryFirstBtn.addEventListener('click', () => setGalleryPage(1));
+  if (fcGalleryPrevBtn) fcGalleryPrevBtn.addEventListener('click', () => setGalleryPage(fcGalleryCurrentPage - 1));
+  if (fcGalleryNextBtn) fcGalleryNextBtn.addEventListener('click', () => setGalleryPage(fcGalleryCurrentPage + 1));
+  if (fcGalleryLastBtn) fcGalleryLastBtn.addEventListener('click', () => {
+    const totalPages = Math.max(1, Math.ceil((fcGalleryCurrentList ? fcGalleryCurrentList.length : 0) / fcGalleryPageSize));
+    setGalleryPage(totalPages);
+  });
+  if (fcGalleryPageInfoBottom) fcGalleryPageInfoBottom.addEventListener('click', promptGalleryJumpPage);
+
   // --- Gallery Card Preview Popup (Hover-style instantaneous modal) ---
   function showCardGalleryPopup(idx) {
     if (!flashcardList || idx < 0 || idx >= flashcardList.length) return;
@@ -18334,6 +18570,7 @@ ${cp.rawDocText || ''}
 
     initCardAudioElements(panelBody);
 
+    panel.classList.add('fc-popup-mode');
     panel.style.display = 'flex';
     panel.classList.add('visible');
     panelBackdrop.style.display = 'block';

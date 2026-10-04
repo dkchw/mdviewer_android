@@ -1210,8 +1210,8 @@ class MainActivity : Activity() {
             val targetLevel = if (levelKey == "all") 0 else (levelKey.toIntOrNull() ?: 2)
             val folderName = getDocumentName(treeUri, rootDocId).ifEmpty { getFolderName(treeUri) }
 
-            val MAX_TOTAL_CARDS = 5000
-            val MAX_SCANNED_FILES = 1000
+            val MAX_TOTAL_CARDS = 10000
+            val MAX_SCANNED_FILES = 3000
             val mdFiles = ArrayList<Pair<String, String>>()
             val ignoredDirs = hashSetOf(
                 "node_modules", ".obsidian", ".vscode", ".git", ".idea",

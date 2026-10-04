@@ -668,6 +668,26 @@ This major release consolidates the massive sequence of updates focused on makin
 
 ---
 
+## 🎴 37. What's New in v3.1.13 (Flashcard Gallery Pagination, 10,000 Cards Limit, Instant Folder Deck & In-Place Card Popup Fix)
+
+- **📄 Flashcard Gallery Pagination System**:
+  - Replaced unconstrained infinite scrolling with a deterministic, high-performance page navigation system.
+  - **Configurable Items per Page**: Select from **25**, **50** (default), **100**, **200**, or **500** cards per page directly from the subbar selector. Preference is persistently saved.
+  - **Dual Pagination Navigation**: Both top compact buttons (`«`, `‹`, `Page X / Y`, `›`, `»`) and bottom navigation bar (`⏮ First`, `◀ Prev`, `Page X of Y`, `Next ▶`, `Last ⏭`).
+  - **Direct Page Jump**: Tap on the page indicator to instantly jump to any arbitrary page number (e.g. Page 42 of 100).
+- **🚀 10,000 Flashcard Capacity**:
+  - Doubled the folder and vault card index cap from 5,000 to **10,000 cards** (`MAX_TOTAL_CARDS = 10000`).
+  - Expanded scanned files limit to **3,000 files**, allowing massive multi-folder notes vaults and textbooks to be imported in a single deck.
+- **⚡ Instant Folder Deck Modal Opening (< 25ms)**:
+  - Eliminated the synchronous SAF directory tree walk that previously froze the UI when clicking the "🎴 Folder Deck" button.
+  - The modal now displays instantaneously with Vault Root and recent vaults immediately populated.
+  - Deep subdirectory hierarchy scanning is cached and loaded asynchronously in the background with zero lag.
+- **✨ In-Place Card Popup Visibility Fix**:
+  - Fixed z-index stacking hierarchy (`z-index: 10075`) ensuring the in-place card popup displays directly in front of `#flashcardView` and fullscreen mode without being hidden underneath.
+  - Added centered `.fc-popup-mode` modal styling for a consistent preview experience across portrait and landscape orientations.
+
+---
+
 *MD Viewer — Fast, Offline, Private Markdown Reading & Writing on Android.*
 
 
