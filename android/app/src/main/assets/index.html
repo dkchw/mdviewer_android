@@ -8168,7 +8168,7 @@
             <span class="settings-row-name">Check for Updates</span>
             <span class="settings-row-desc">Check GitHub releases for new version</span>
           </div>
-          <span class="settings-row-badge" id="appVersionSub">v3.1.10</span>
+          <span class="settings-row-badge" id="appVersionSub">v3.1.11</span>
           <span class="settings-row-chevron">›</span>
         </button>
         <div class="settings-row-config">
@@ -8225,8 +8225,8 @@
   </div>
   <div class="update-body">
     <div class="update-version-row">
-      <span class="badge new-badge" id="updateNewVersion">v3.1.10</span>
-      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.10</span>
+      <span class="badge new-badge" id="updateNewVersion">v3.1.11</span>
+      <span class="badge current-badge" id="updateCurrentVersion">Current: v3.1.11</span>
     </div>
     <div class="update-changelog-title">Changelog:</div>
     <div class="update-changelog" id="updateChangelog"></div>
@@ -8630,7 +8630,7 @@ window.addEventListener('unhandledrejection', function(event) {
   const BUFFER = 12;
 
   const CURRENT_APP_VERSION = (window.AndroidBridge && window.AndroidBridge.getAppVersion) ?
-      window.AndroidBridge.getAppVersion() : '3.1.10';
+      window.AndroidBridge.getAppVersion() : '3.1.11';
   const GITHUB_REPO = 'dkchw/mdviewer_android';
 
   // ==========================================
@@ -10118,21 +10118,6 @@ window.addEventListener('unhandledrejection', function(event) {
     return { html: finalHtml, toc, words, readingTime };
   }
 
-  let bgParseTimer = null;
-  function scheduleBackgroundBasicParse(text) {
-    if (!text) return;
-    if (bgParseTimer) clearTimeout(bgParseTimer);
-    bgParseTimer = setTimeout(() => {
-      if (rawDocText !== text) {
-        try {
-          parse(text);
-        } catch(e) {
-          console.warn('Background parse error:', e);
-        }
-      }
-    }, 200);
-  }
-
   function renderBasicDocument(text, fileName) {
     if (text !== undefined && text !== null) basicDocText = text;
     if (fileName) basicDocName = fileName;
@@ -10173,7 +10158,6 @@ window.addEventListener('unhandledrejection', function(event) {
 
     applyBasicZoom();
     updateDoublePageLayout(true);
-    scheduleBackgroundBasicParse(basicDocText);
   }
 
   let docBodyDelegatedEventsSetup = false;
@@ -10220,6 +10204,8 @@ window.addEventListener('unhandledrejection', function(event) {
           parse(basicDocText || '');
         }
         let foundIdx = -1;
+        const lineAttr = hoverHeadingEl.getAttribute('data-line');
+        const targetLine = lineAttr ? parseInt(lineAttr, 10) : -1;
         if (hoverHeadingEl.dataset.hidx !== undefined) {
           foundIdx = parseInt(hoverHeadingEl.dataset.hidx, 10);
         }
@@ -10227,8 +10213,11 @@ window.addEventListener('unhandledrejection', function(event) {
           const hText = hoverHeadingEl.textContent.trim().toLowerCase();
           foundIdx = headings.findIndex(h => h.text.trim().toLowerCase() === hText || slugifyHeading(h.text) === hoverHeadingEl.id);
         }
-        if (foundIdx >= 0) {
-          showPanel(foundIdx);
+        if (foundIdx >= 0 && foundIdx < headings.length) {
+          showPanel(foundIdx, targetLine);
+          return;
+        } else if (targetLine >= 0) {
+          showPanel(-1, targetLine);
           return;
         }
       }
@@ -11806,7 +11795,6 @@ window.addEventListener('unhandledrejection', function(event) {
       }
     }
 
-    scheduleBackgroundBasicParse(basicDocText);
     saveLastOpenedBasic(basicDocName, basicDocUri, basicDocTreeId, basicDocText);
   }
 
@@ -15060,13 +15048,6 @@ ${cp.rawDocText || ''}
       finalPath = fp.substring(0, fp.lastIndexOf('/') + 1) + cleanUrl;
     }
 
-    if (window.AndroidBridge && window.AndroidBridge.resolveMediaUri) {
-      try {
-        const direct = window.AndroidBridge.resolveMediaUri(finalPath) || window.AndroidBridge.resolveMediaUri(cleanUrl);
-        if (direct) return direct;
-      } catch(e) {}
-    }
-
     return 'https://vault.mdviewer/media?path=' + encodeURIComponent(finalPath);
   }
 
@@ -15499,7 +15480,7 @@ ${cp.rawDocText || ''}
 
     render();
 
-    if (headingRow && targetHIdx >= 0) {
+    if (headingRow && targetHIdx >= 0 && targetHIdx < headings.length) {
       if (currentAppMode === 'checklist') {
         // In Checklist Mode: tapping the heading selects/deselects all items in it if it has tasks!
         const toggled = toggleHeadingTasks(targetHIdx);
@@ -15511,7 +15492,7 @@ ${cp.rawDocText || ''}
       } else {
         toggleHeading(targetHIdx);
       }
-    } else if (hoverModeEnabled && targetHIdx >= 0) {
+    } else if (hoverModeEnabled) {
       showPanel(targetHIdx, lineNo);
     }
   });
@@ -15742,123 +15723,225 @@ ${cp.rawDocText || ''}
   }
 
   // --- Hover Outline Preview Panel Implementation ---
+  function formatPreviewInline(rawText) {
+    if (!rawText) return '';
+    // Fast path: if no markdown characters, just escape HTML
+    if (rawText.indexOf('<') === -1 && rawText.indexOf('&') === -1 &&
+        rawText.indexOf('*') === -1 && rawText.indexOf('_') === -1 &&
+        rawText.indexOf('`') === -1 && rawText.indexOf('[') === -1 &&
+        rawText.indexOf('~') === -1 && rawText.indexOf('=') === -1 &&
+        rawText.indexOf('!') === -1) {
+      return escapeHtml(rawText);
+    }
+
+    const tokens = [];
+    function saveToken(html) {
+      const id = tokens.length;
+      tokens.push(html);
+      return `@@PVWTOKEN${id}@@`;
+    }
+
+    let t = rawText;
+    // 1. Code spans
+    t = t.replace(/`([^`]+)`/g, (m, code) => saveToken(`<span class="md-code">${escapeHtml(code)}</span>`));
+
+    // 2. Images & Audio embeds (lightweight pills, no heavy <img> loading)
+    t = t.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m, alt) => saveToken(`<span class="md-img-pill" style="pointer-events:none;"><span class="md-img-label">🖼️ ${escapeHtml(alt || 'Image')}</span></span>`));
+    t = t.replace(/!\[\[([^\]|]+)(?:\|([^\]]*))?\]\]/g, (m, fileRef, extra) => {
+      const label = (extra || fileRef).trim();
+      return saveToken(`<span class="md-img-pill" style="pointer-events:none;"><span class="md-img-label">🖼️ ${escapeHtml(label || 'Media')}</span></span>`);
+    });
+    t = t.replace(/\[sound:([^\]]+)\]/g, () => saveToken(`<span class="md-audio-pill" style="pointer-events:none;">🔊 Audio</span>`));
+
+    // 3. Key badges: **Key:**
+    t = t.replace(/\*\*([A-Za-z0-9ÄÖÜäöüß\s/_.-]+):\*\*/g, (m, k) => {
+      const color = (typeof getMdKeyColor === 'function') ? getMdKeyColor(k) : 'blue';
+      return saveToken(`<span class="fc-key-badge badge-${color}"><span class="badge-dot"></span>${escapeHtml(k)}:</span>`);
+    });
+
+    // 4. Links
+    t = t.replace(/\[([^\]]+)\]\([^)]+\)/g, (m, label) => saveToken(`<span class="md-link">${escapeHtml(label)}</span>`));
+    t = t.replace(/\[\[([^\]|]+)(?:\|([^\]]*))?\]\]/g, (m, link, label) => saveToken(`<span class="md-link">${escapeHtml(label || link)}</span>`));
+
+    // 5. Escape remaining text
+    t = escapeHtml(t);
+
+    // 6. Bold & Italic
+    t = t.replace(/\*\*([^*]+)\*\*|__([^_]+)__/g, (m, a, b) => `<span class="md-bold">${a || b}</span>`);
+    t = t.replace(/(^|[^*])\*([^*\s][^*]*?)\*(?!\*)/g, (m, pre, inner) => `${pre}<span class="md-italic">${inner}</span>`);
+    t = t.replace(/(^|[^_])_([^_\s][^_]*?)_(?!_)/g, (m, pre, inner) => `${pre}<span class="md-italic">${inner}</span>`);
+
+    // 7. Highlights & Strikethrough
+    t = t.replace(/==([^=]+)==/g, '<mark class="md-highlight">$1</mark>');
+    t = t.replace(/~~([^~]+)~~/g, '<del class="md-del">$1</del>');
+
+    // 8. Restore tokens
+    t = t.replace(/@@PVWTOKEN(\d+)@@/g, (m, id) => tokens[parseInt(id, 10)] || '');
+    return t;
+  }
+
+  function formatPreviewLine(rawText) {
+    if (!rawText) return '&nbsp;';
+    
+    // HR
+    if (/^\s*([-*_])\1\1[\1\-*_\s]*$/.test(rawText) && rawText.trim().length >= 3) {
+      return '<span class="md-hr">────────────────────────</span>';
+    }
+    
+    // Blockquote
+    const bq = /^(\s*)>\s?(.*)$/.exec(rawText);
+    if (bq) {
+      return `<span class="md-quote">▏ ${formatPreviewInline(bq[2])}</span>`;
+    }
+    
+    // Task checkbox
+    const taskMatch = /^(\s*)([-*+])\s+\[([ xX])\]\s*(.*)$/.exec(rawText);
+    if (taskMatch) {
+      const indent = escapeHtml(taskMatch[1]);
+      const isChecked = taskMatch[3].toLowerCase() === 'x';
+      const textPart = formatPreviewInline(taskMatch[4]);
+      return `${indent}<span class="outline-task-label" style="pointer-events:none;"><input type="checkbox" class="outline-task-cb" ${isChecked ? 'checked' : ''} disabled><span class="outline-task-text ${isChecked ? 'task-done' : ''}">${textPart}</span></span>`;
+    }
+    
+    // Bullet list
+    const li = /^(\s*)([-*+])\s+(.*)$/.exec(rawText);
+    if (li) {
+      return `${escapeHtml(li[1])}<span class="md-bullet">•</span>${formatPreviewInline(li[3])}`;
+    }
+    
+    // Numbered list
+    const numLi = /^(\s*)(\d+\.)\s+(.*)$/.exec(rawText);
+    if (numLi) {
+      return `${escapeHtml(numLi[1])}<span style="opacity:0.7;margin-right:4px;">${escapeHtml(numLi[2])}</span>${formatPreviewInline(numLi[3])}`;
+    }
+    
+    return formatPreviewInline(rawText);
+  }
+
   function panelRowHtml(lineNo, targetLineNo) {
     const text = lines[lineNo] ?? '';
-    const hSubIdx = lineToHeadingIdx.get(lineNo);
+    const hSubIdx = (lineToHeadingIdx && lineToHeadingIdx.get) ? lineToHeadingIdx.get(lineNo) : undefined;
     const isTarget = (lineNo === targetLineNo);
     const targetCls = isTarget ? ' prow-target-highlight' : '';
 
-    if (hSubIdx !== undefined) {
+    if (hSubIdx !== undefined && hSubIdx >= 0 && headings && hSubIdx < headings.length) {
       const subH = headings[hSubIdx];
-      return `<div class="prow-line heading h${subH.level}${targetCls}" data-pline="${lineNo}">${escapeHtml('#'.repeat(subH.level) + ' ') + formatPlainHtml(subH.text)}</div>`;
+      if (subH) {
+        const lvl = subH.level || 1;
+        return `<div class="prow-line heading h${lvl}${targetCls}" data-pline="${lineNo}">${escapeHtml('#'.repeat(lvl) + ' ') + formatPreviewInline(subH.text || '')}</div>`;
+      }
     }
-    return `<div class="prow-line plain${targetCls}" data-pline="${lineNo}">${renderPlainLine(text, lineNo)}</div>`;
+    return `<div class="prow-line plain${targetCls}" data-pline="${lineNo}">${formatPreviewLine(text)}</div>`;
+  }
+
+  function scrollPanelToTarget(targetLineNo) {
+    if (targetLineNo === undefined || targetLineNo === null || targetLineNo < 0) {
+      panelBody.scrollTop = 0;
+      return;
+    }
+    const targetEl = panelBody.querySelector(`[data-pline="${targetLineNo}"]`);
+    if (!targetEl) {
+      panelBody.scrollTop = 0;
+      return;
+    }
+    try {
+      const pRect = panelBody.getBoundingClientRect();
+      const tRect = targetEl.getBoundingClientRect();
+      const relativeTop = tRect.top - pRect.top;
+      panelBody.scrollTop = Math.max(0, panelBody.scrollTop + relativeTop - 36);
+    } catch(e) {
+      panelBody.scrollTop = 0;
+    }
   }
 
   let panelZoomPx = 13;
   let currentPreviewTargetLine = -1;
-  const INITIAL_PREVIEW = 35;
+  const MAX_HOVER_PREVIEW_LINES = 60;
 
   function showPanel(hIdx, targetLineNo) {
-    if (headings.length === 0) {
-      panelTitle.innerHTML = escapeHtml(currentDocName || 'Document Preview');
-      panelTitle.style.color = 'var(--accent)';
-      let html = '';
-      const maxL = Math.min(lines.length - 1, INITIAL_PREVIEW);
-      for (let i = 0; i <= maxL; i++) {
-        const text = lines[i] ?? '';
-        const isTarget = (i === targetLineNo);
-        const targetCls = isTarget ? ' prow-target-highlight' : '';
-        html += `<div class="prow-line plain${targetCls}" data-pline="${i}">${renderPlainLine(text, i)}</div>`;
+    try {
+      const targetLine = (targetLineNo !== undefined && targetLineNo !== null) ? parseInt(targetLineNo, 10) : -1;
+      currentPreviewTargetLine = targetLine;
+
+      if (!headings || headings.length === 0 || hIdx === undefined || hIdx < 0 || hIdx >= headings.length) {
+        // Fallback: Preview document around targetLine or first MAX_HOVER_PREVIEW_LINES
+        currentPreviewHIdx = -1;
+        panelTitle.innerHTML = escapeHtml(currentDocName || basicDocName || 'Document Preview');
+        panelTitle.style.color = 'var(--accent)';
+
+        let startL = 0;
+        let endL = Math.min((lines.length ? lines.length - 1 : 0), MAX_HOVER_PREVIEW_LINES - 1);
+        if (targetLine > 20 && lines.length > MAX_HOVER_PREVIEW_LINES) {
+          startL = Math.max(0, targetLine - 15);
+          endL = Math.min(lines.length - 1, startL + MAX_HOVER_PREVIEW_LINES - 1);
+        }
+
+        let html = '';
+        if (startL > 0) {
+          html += '<div class="prow-line plain" style="font-style:italic;opacity:0.6;"><span class="txt">...</span></div>';
+        }
+        for (let i = startL; i <= endL; i++) {
+          html += panelRowHtml(i, targetLine);
+        }
+        if (lines.length - 1 > endL) {
+          html += '<div class="prow-line plain" style="font-style:italic;opacity:0.7;padding:6px 0;"><span class="txt">... (section continues, tap "Jump" to view in reader)</span></div>';
+        }
+        panelBody.innerHTML = html;
+        panel.style.display = 'flex';
+        panel.classList.add('visible');
+        panelBackdrop.style.display = 'block';
+        panelBackdrop.classList.add('visible');
+        scrollPanelToTarget(targetLine);
+        return;
       }
+
+      const h = headings[hIdx];
+      if (!h) {
+        hidePanel();
+        return;
+      }
+
+      const isSameHeading = (currentPreviewHIdx === hIdx && panel.classList.contains('visible'));
+      currentPreviewHIdx = hIdx;
+      const lvl = h.level || 1;
+      panelTitle.innerHTML = escapeHtml('#'.repeat(lvl) + ' ') + formatPreviewInline(h.text || '');
+      panelTitle.style.color = `var(--h${lvl}, var(--accent))`;
+
+      if (isSameHeading) {
+        panelBody.querySelectorAll('.prow-target-highlight').forEach(el => el.classList.remove('prow-target-highlight'));
+        if (targetLine >= 0) {
+          const targetEl = panelBody.querySelector(`[data-pline="${targetLine}"]`);
+          if (targetEl) {
+            targetEl.classList.add('prow-target-highlight');
+            scrollPanelToTarget(targetLine);
+            return;
+          }
+        }
+      }
+
+      const startLine = h.line + 1;
+      const endLine = Math.min(h.end, h.line + MAX_HOVER_PREVIEW_LINES);
+
+      let html = '';
+      if (startLine > h.end) {
+        html = '<div class="prow-line plain" style="font-style:italic;opacity:0.6;padding:12px 0;"><span class="txt">(Empty section)</span></div>';
+      } else {
+        for (let i = startLine; i <= endLine; i++) {
+          html += panelRowHtml(i, targetLine);
+        }
+        if (h.end > endLine) {
+          html += '<div class="prow-line plain" style="font-style:italic;opacity:0.7;padding:6px 0;"><span class="txt">... (section continues, tap "Jump" to view in reader)</span></div>';
+        }
+      }
+
       panelBody.innerHTML = html;
       panel.style.display = 'flex';
       panel.classList.add('visible');
       panelBackdrop.style.display = 'block';
       panelBackdrop.classList.add('visible');
-
-      if (lines.length - 1 > INITIAL_PREVIEW) {
-        setTimeout(() => {
-          let restHtml = '';
-          const maxRest = Math.min(lines.length - 1, 300);
-          for (let i = INITIAL_PREVIEW + 1; i <= maxRest; i++) {
-            const text = lines[i] ?? '';
-            const isTarget = (i === targetLineNo);
-            const targetCls = isTarget ? ' prow-target-highlight' : '';
-            restHtml += `<div class="prow-line plain${targetCls}" data-pline="${i}">${renderPlainLine(text, i)}</div>`;
-          }
-          panelBody.insertAdjacentHTML('beforeend', restHtml);
-        }, 0);
-      }
-      return;
-    }
-    const isSameHeading = (currentPreviewHIdx === hIdx && panel.classList.contains('visible'));
-    currentPreviewHIdx = hIdx;
-    currentPreviewTargetLine = (targetLineNo !== undefined) ? targetLineNo : -1;
-    const h = headings[hIdx];
-    panelTitle.innerHTML = escapeHtml('#'.repeat(h.level) + ' ') + formatPlainHtml(h.text);
-    panelTitle.style.color = `var(--h${h.level})`;
-
-    if (isSameHeading) {
-      // In-place highlight update without destroying & rebuilding 500 DOM nodes
-      panelBody.querySelectorAll('.prow-target-highlight').forEach(el => el.classList.remove('prow-target-highlight'));
-      if (currentPreviewTargetLine >= 0 && currentPreviewTargetLine > h.line) {
-        const targetEl = panelBody.querySelector(`[data-pline="${currentPreviewTargetLine}"]`);
-        if (targetEl) {
-          targetEl.classList.add('prow-target-highlight');
-          targetEl.scrollIntoView({ block: 'nearest', behavior: 'auto' });
-        }
-      }
-      return;
-    }
-
-    const MAX_PREVIEW = 500;
-    const startLine = h.line + 1;
-    const endLine = Math.min(h.end, h.line + MAX_PREVIEW);
-    const firstEnd = Math.min(endLine, startLine + INITIAL_PREVIEW);
-
-    let html = '';
-    if (startLine > h.end) {
-      html = '<div class="prow-line plain" style="font-style:italic;opacity:0.6;"><span class="txt">(Empty section)</span></div>';
-    } else {
-      for (let i = startLine; i <= firstEnd; i++) {
-        html += panelRowHtml(i, currentPreviewTargetLine);
-      }
-    }
-    panelBody.innerHTML = html;
-    panel.style.display = 'flex';
-    panel.classList.add('visible');
-    panelBackdrop.style.display = 'block';
-    panelBackdrop.classList.add('visible');
-
-    if (currentPreviewTargetLine >= 0 && currentPreviewTargetLine > h.line && currentPreviewTargetLine <= firstEnd) {
-      const targetEl = panelBody.querySelector(`[data-pline="${currentPreviewTargetLine}"]`);
-      if (targetEl) {
-        targetEl.scrollIntoView({ block: 'nearest', behavior: 'auto' });
-      } else {
-        panelBody.scrollTop = 0;
-      }
-    } else {
-      panelBody.scrollTop = 0;
-    }
-
-    // Micro-yield: asynchronously append the remaining lines so initial popup opens in < 5ms!
-    if (firstEnd < endLine) {
-      setTimeout(() => {
-        if (currentPreviewHIdx !== hIdx) return;
-        let restHtml = '';
-        for (let i = firstEnd + 1; i <= endLine; i++) {
-          restHtml += panelRowHtml(i, currentPreviewTargetLine);
-        }
-        if (h.end > endLine) {
-          restHtml += '<div class="prow-line plain" style="font-style:italic;opacity:0.7;"><span class="txt">... (continues)</span></div>';
-        }
-        panelBody.insertAdjacentHTML('beforeend', restHtml);
-        if (currentPreviewTargetLine > firstEnd) {
-          const targetEl = panelBody.querySelector(`[data-pline="${currentPreviewTargetLine}"]`);
-          if (targetEl) targetEl.scrollIntoView({ block: 'nearest', behavior: 'auto' });
-        }
-      }, 0);
+      scrollPanelToTarget(targetLine);
+    } catch(err) {
+      console.error('Error opening hover preview:', err);
     }
   }
 
