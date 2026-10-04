@@ -316,6 +316,16 @@ class AndroidBridge(
     }
 
     @JavascriptInterface
+    fun collectFolderCardsAsync(folderDocId: String?, targetLevel: String?, recursive: Boolean, callbackId: String) {
+        activity.collectFolderCardsAsync(folderDocId, targetLevel, recursive, callbackId)
+    }
+
+    @JavascriptInterface
+    fun invalidateVaultCache() {
+        activity.invalidateVaultCache()
+    }
+
+    @JavascriptInterface
     fun playAudio(relativePath: String?): Boolean {
         if (relativePath.isNullOrEmpty()) return false
         return activity.playAudio(relativePath)

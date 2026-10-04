@@ -54,6 +54,8 @@ import java.util.HashSet
 import java.util.LinkedList
 import java.util.Queue
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 
 class MainActivity : Activity() {
@@ -82,6 +84,32 @@ class MainActivity : Activity() {
     private var lastDownloadedApkFile: File? = null
     private val mDocPathCache = ConcurrentHashMap<String, String>()
     private val mDocNameCache = ConcurrentHashMap<String, String>()
+    val folderCardsCache = ConcurrentHashMap<String, String>()
+    val folderTreeCache = ConcurrentHashMap<String, String>()
+    val mBgExecutor: ExecutorService = Executors.newSingleThreadExecutor { r ->
+        Thread(r, "mdviewer-bg-indexer").apply { priority = Thread.MIN_PRIORITY }
+    }
+
+    fun invalidateVaultCache() {
+        folderCardsCache.clear()
+        folderTreeCache.clear()
+        mCurrentTreeUri?.let { triggerBackgroundVaultIndexing(it) }
+    }
+
+    fun triggerBackgroundVaultIndexing(treeUri: Uri) {
+        mBgExecutor.execute {
+            try {
+                val rootDocId = getRootDocumentId(treeUri)
+                if (rootDocId.isNotEmpty()) {
+                    getRecursiveTreeJson(treeUri.toString())
+                    collectFolderCardsJson(rootDocId, "2", true)
+                    collectFolderCardsJson(rootDocId, "all", true)
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Background vault indexing skipped: ${e.message}")
+            }
+        }
+    }
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -92,6 +120,7 @@ class MainActivity : Activity() {
         if (savedTree != null) {
             try {
                 mCurrentTreeUri = Uri.parse(savedTree)
+                triggerBackgroundVaultIndexing(mCurrentTreeUri!!)
             } catch (e: Exception) {
                 mCurrentTreeUri = null
             }
@@ -334,9 +363,12 @@ class MainActivity : Activity() {
             mCurrentTreeUri = treeUri
             mDocPathCache.clear()
             mDocNameCache.clear()
+            folderCardsCache.clear()
+            folderTreeCache.clear()
             val folderName = getFolderName(treeUri)
             val rootDocId = getRootDocumentId(treeUri)
             mPrefs.edit().putString("last_folder_tree_uri", uriString).putString("last_folder_name", folderName).apply()
+            triggerBackgroundVaultIndexing(treeUri)
             runOnUiThread {
                 notifyFolderOpened(folderName, rootDocId, uriString, isStartup = false)
             }
@@ -521,17 +553,19 @@ class MainActivity : Activity() {
 
     // --- Recursive Tree Scanner ---
     fun getRecursiveTreeJson(treeUriString: String? = null): String {
-        val response = JSONObject()
         val treeUri = if (!treeUriString.isNullOrEmpty()) {
             try { Uri.parse(treeUriString) } catch (e: Exception) { mCurrentTreeUri }
         } else {
             mCurrentTreeUri
-        } ?: run {
-            response.put("status", "error")
-            response.put("message", "No folder is currently opened")
-            return response.toString()
-        }
+        } ?: return JSONObject().apply {
+            put("status", "error")
+            put("message", "No folder is currently opened")
+        }.toString()
 
+        val cacheKey = treeUri.toString()
+        folderTreeCache[cacheKey]?.let { return it }
+
+        val response = JSONObject()
         return try {
             val rootDocId = getRootDocumentId(treeUri)
             if (rootDocId.isEmpty()) {
@@ -550,7 +584,9 @@ class MainActivity : Activity() {
             response.put("root", rootNode)
             response.put("totalFiles", counters[0])
             response.put("totalDirs", counters[1])
-            response.toString()
+            val resultStr = response.toString()
+            folderTreeCache[cacheKey] = resultStr
+            resultStr
         } catch (e: Exception) {
             Log.e(TAG, "Error building recursive tree", e)
             try {
@@ -1169,9 +1205,14 @@ class MainActivity : Activity() {
             put("cards", JSONArray())
         }.toString()
 
+        val rootDocId = if (!folderDocId.isNullOrEmpty()) folderDocId else getRootDocumentId(treeUri)
+        val levelKey = if (targetLevelStr.isNullOrEmpty() || targetLevelStr == "all") "all" else targetLevelStr
+        val cacheKey = "${treeUri}_${rootDocId}_${levelKey}_$recursive"
+
+        folderCardsCache[cacheKey]?.let { return it }
+
         return try {
-            val rootDocId = if (!folderDocId.isNullOrEmpty()) folderDocId else getRootDocumentId(treeUri)
-            val targetLevel = if (targetLevelStr.isNullOrEmpty() || targetLevelStr == "all") 0 else (targetLevelStr.toIntOrNull() ?: 2)
+            val targetLevel = if (levelKey == "all") 0 else (levelKey.toIntOrNull() ?: 2)
             val folderName = getDocumentName(treeUri, rootDocId).ifEmpty { getFolderName(treeUri) }
 
             val mdFiles = ArrayList<Pair<String, String>>()
@@ -1271,9 +1312,11 @@ class MainActivity : Activity() {
 
                     val startL = h.line + 1
                     val endL = h.end
-                    val cardBody = if (startL <= endL && startL < fileLines.size) {
-                        fileLines.subList(startL, minOf(endL + 1, fileLines.size)).joinToString("\n")
+                    val rawBody = if (startL <= endL && startL < fileLines.size) {
+                        val takeCount = minOf(endL - startL + 1, 100)
+                        fileLines.subList(startL, startL + takeCount).joinToString("\n")
                     } else ""
+                    val cardBody = if (rawBody.length > 3000) rawBody.substring(0, 3000) + "\n\n... (continues in note)" else rawBody
 
                     val cardObj = JSONObject().apply {
                         put("file_path", filePath)
@@ -1290,15 +1333,18 @@ class MainActivity : Activity() {
                 }
             }
 
-            JSONObject().apply {
+            val finalResult = JSONObject().apply {
                 put("status", "ok")
                 put("folder", rootDocId)
                 put("folder_name", folderName)
-                put("target_level", if (targetLevel == 0) "all" else targetLevel.toString())
+                put("target_level", levelKey)
                 put("total_files", mdFiles.size)
                 put("total_cards", allCards.length())
                 put("cards", allCards)
             }.toString()
+
+            folderCardsCache[cacheKey] = finalResult
+            finalResult
         } catch (e: Exception) {
             Log.e(TAG, "Error collecting folder cards", e)
             JSONObject().apply {
@@ -1306,6 +1352,39 @@ class MainActivity : Activity() {
                 put("message", "${e.javaClass.simpleName}: ${e.message}")
                 put("cards", JSONArray())
             }.toString()
+        }
+    }
+
+    fun collectFolderCardsAsync(folderDocId: String?, targetLevelStr: String?, recursive: Boolean, callbackId: String) {
+        val treeUri = mCurrentTreeUri ?: run {
+            val err = JSONObject().apply {
+                put("status", "error")
+                put("message", "No vault is currently open")
+                put("cards", JSONArray())
+            }.toString()
+            runOnUiThread {
+                mWebView?.evaluateJavascript("if(window.onFolderCardsLoaded) window.onFolderCardsLoaded(${JSONObject.quote(callbackId)}, ${JSONObject.quote(err)});", null)
+            }
+            return
+        }
+
+        val rootDocId = if (!folderDocId.isNullOrEmpty()) folderDocId else getRootDocumentId(treeUri)
+        val levelKey = if (targetLevelStr.isNullOrEmpty() || targetLevelStr == "all") "all" else targetLevelStr
+        val cacheKey = "${treeUri}_${rootDocId}_${levelKey}_$recursive"
+
+        val cached = folderCardsCache[cacheKey]
+        if (cached != null) {
+            runOnUiThread {
+                mWebView?.evaluateJavascript("if(window.onFolderCardsLoaded) window.onFolderCardsLoaded(${JSONObject.quote(callbackId)}, ${JSONObject.quote(cached)});", null)
+            }
+            return
+        }
+
+        mBgExecutor.execute {
+            val result = collectFolderCardsJson(folderDocId, targetLevelStr, recursive)
+            runOnUiThread {
+                mWebView?.evaluateJavascript("if(window.onFolderCardsLoaded) window.onFolderCardsLoaded(${JSONObject.quote(callbackId)}, ${JSONObject.quote(result)});", null)
+            }
         }
     }
 
@@ -1372,6 +1451,7 @@ class MainActivity : Activity() {
                 stream.write(content.toByteArray(StandardCharsets.UTF_8))
                 stream.flush()
             } ?: return "ERROR: Cannot open output stream"
+            invalidateVaultCache()
             "OK"
         } catch (e: Exception) {
             Log.e(TAG, "Error writing tree file docId=$docId", e)
